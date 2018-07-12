@@ -1,0 +1,1607 @@
+
+Generation: 0
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=111.30327242046023 Adjusted=0.008904460025492656 Hits=0
+Tree 0:
+X + (1.2418588340473313 + ((X * 2.2822340862634625) * X))
+
+Generation: 1
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=92.30310713168662 Adjusted=0.010717756682943204 Hits=0
+Tree 0:
+1.2418588340473313 + ((X * 2.2822340862634625) * X)
+
+Generation: 2
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=87.61717999999999 Adjusted=0.011284493593680143 Hits=1
+Tree 0:
+((X + X) * (X + X)) - X
+
+Generation: 3
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=79.02237440043974 Adjusted=0.012496504977419224 Hits=0
+Tree 0:
+(1.2418588340473313 + ((X * 2.2822340862634625) * X)) - X
+
+Generation: 4
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=60.325705009962725 Adjusted=0.01630637592894438 Hits=1
+Tree 0:
+((X * 2.2822340862634625) * X) - ((X * 2.2822340862634625) - (X * X))
+
+Generation: 5
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=60.325705009962725 Adjusted=0.01630637592894438 Hits=1
+Tree 0:
+((X * 2.2822340862634625) * X) - ((X * 2.2822340862634625) - (X * X))
+
+Generation: 6
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.9092022587904 Adjusted=0.01964281417957854 Hits=0
+Tree 0:
+(((((X * X) - X) + (X * X)) - (X - (X * X))) + (X * X)) - (X * 2.2822340862634625)
+
+Generation: 7
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.9092022587904 Adjusted=0.01964281417957854 Hits=0
+Tree 0:
+(((((X * X) - X) + (X * X)) - (X - (X * X))) + (X * X)) - (X * 2.2822340862634625)
+
+Generation: 8
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((X * X) - X) + (X * X)) - (X - (X * X))) + ((X * X) - X)) - X
+
+Generation: 9
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((X * X) - X) + (X * X)) - (X - (X * X))) + ((X * X) - X)) - X
+
+Generation: 10
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) - X) + ((((X * X) - (X - (X * X))) + ((X * X) - X)) - X)
+
+Generation: 11
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) - X) + ((((X * X) - (X - (X * X))) + ((X * X) - X)) - X)
+
+Generation: 12
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) - (X * 2.2822340862634625)) + (((X * X) + (((X * X) - X) + ((((X * X) - X) + (X * X)) - (X - ((X * 2.2822340862634625) - (X * X)))))) - X)
+
+Generation: 13
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) - (X * 2.2822340862634625)) + (((X * X) + (((X * X) - X) + ((((X * X) - X) + (X * X)) - (X - ((X * 2.2822340862634625) - (X * X)))))) - X)
+
+Generation: 14
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) - X) + ((((X * X) - (X - (X * X))) + ((X * X) - X)) - X)
+
+Generation: 15
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) - (X * 2.2822340862634625)) + (((X * X) + (((X * X) - X) + ((((X * X) - X) + (X * X)) - (X - ((X * 2.2822340862634625) - (X * X)))))) - X)
+
+Generation: 16
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) - X) + ((((X * X) - (X - (X * X))) + ((X * X) - X)) - X)
+
+Generation: 17
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) - X) + ((((X * X) - (X - (X * X))) + ((X * X) - X)) - X)
+
+Generation: 18
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) - X) + ((((X * X) - (X - (X * X))) + ((X * X) - X)) - X)
+
+Generation: 19
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) - (X * X)) + (((X * X) + (((X * X) - X) + ((((X * X) - X) + (X * X)) - X))) - X)
+
+Generation: 20
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) - (X * X)) + (((X * X) + (((X * X) - X) + ((((X * X) - X) + (X * X)) - X))) - X)
+
+Generation: 21
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((X * X) - (X - X)) - X) - X) + (X * X)) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X - (((X * X) - X) + (X * X)))
+
+Generation: 22
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) - (X * X)) + ((((((((((X * X) + (X * X)) - (X * X)) - (X - X)) - X) - X) + (X * X)) - (X - (X * X))) + (X * X)) - X)
+
+Generation: 23
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((X * X) - (X - X)) - X) - X) + (X * X)) - X) - (X - ((X * X) + (X * X)))
+
+Generation: 24
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) - (X * X)) + ((((((((X * X) - (X - X)) - X) - X) + (X * X)) - (X - (X * X))) + (X * X)) - X)
+
+Generation: 25
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) - (X * X)) + ((((((((X * X) - (X - X)) - X) - X) + (X * X)) - (X - (X * X))) + (X * X)) - X)
+
+Generation: 26
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((X * X) - X) + X) + (X * X)) + ((((X * X) - X) - X) - X)) - (X - (X * X))
+
+Generation: 27
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((X * X) + (((((X * X) + (X * X)) - (X * X)) + (X * X)) - (X - (X * X)))) - (X - (X * X))) + ((((X * X) - X) - X) - X)) - ((X * (X + X)) - X)
+
+Generation: 28
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) - X) + ((X * X) + (((((X * X) + ((X * X) - X)) + (X - X)) - X) - X))
+
+Generation: 29
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((X * X) + ((((X * X) - X) + ((X * X) - (X - X))) - (X - (X * X)))) - (X - (X * X))) + (((X * X) - X) - X)) - ((X * (X + X)) - X)
+
+Generation: 30
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) + (((((((X * X) - X) - X) + (X * X)) - (X - X)) + (X * X)) - X)) - X
+
+Generation: 31
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((X * X) + ((X * X) - (X - (X * X)))) - (X - (X * X))) + (((X * X) - X) - X)) - ((X * (X + X)) - (X * X))
+
+Generation: 32
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((X * X) - X) + ((X * X) + (X * X))) - (X - (((X * X) - (X - X)) - X))) - X
+
+Generation: 33
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) - (X * X)) + (((((((X + X) - X) * X) + ((((X * X) - X) + (X * X)) - (X - (X * X)))) - (X - (X * X))) + (((X * X) - X) - X)) - ((X * (X + X)) - X))
+
+Generation: 34
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) + (((((X * (X + X)) - X) - X) + ((X * X) - X)) - ((X * X) - (X * X)))) - X
+
+Generation: 35
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((X * X) - X) - X) + (X * X)) - ((X * X) - (X * X))) - (X - (((X * X) - X) + (X * X)))
+
+Generation: 36
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((X * X) + ((X * X) + (X * X))) - (X - (((X * X) - X) - X))) - X
+
+Generation: 37
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) - (X + X)) + (((X * X) + (((X * X) - X) + (X * X))) - X)
+
+Generation: 38
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((X * X) - (X + X)) + (((X * X) + (X * X)) - X)) + (X * X)) - X
+
+Generation: 39
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((X * X) - X) - X) + (X - X)) - (X - (X * X))) - X) + (((X * X) + X) - (X - (X * X)))
+
+Generation: 40
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((X * X) - X) - X) + (X - X)) - (X - (X * X))) - X) + (((X * X) + X) - (X - (X * X)))
+
+Generation: 41
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((X * X) + ((((((X * X) - X) - X) + (X * X)) + ((X * X) - X)) - ((X * X) - X))) - X) - X) + (X * X)
+
+Generation: 42
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((X * X) - ((X * X) - X)) * X) - (X * X)) + (((((X * X) - (X - (X * X))) + (((X * X) - X) + (X * X))) - X) - X)
+
+Generation: 43
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((X * X) - (X - X)) + ((((((X * X) - X) - X) + (X * X)) + ((X * X) - X)) - ((X * X) - X))) - X) - X) + (X * X)
+
+Generation: 44
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((X * X) - X) - X) + (X * X)) - (((X * X) - ((((((X * X) - X) + (X * X)) - X) - X) - (((((X * X) - X) + (((((X * X) - X) + X) + (X * X)) - X)) - X) - (((X * X) - ((X * X) - (X * X))) - X)))) - (X * X))) - (X - ((X * X) + (X * X)))
+
+Generation: 45
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((X - X) - X) + (X * X)) - (((X - X) * X) - (((X * X) - X) - X))) - (X - ((X * X) + (X * X)))
+
+Generation: 46
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) - (X * X)) + (((((((X * X) + ((X * X) + (X - X))) - X) - (X - (X * X))) + (X * X)) - (X * X)) - (X - ((X * X) - X)))
+
+Generation: 47
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((X * X) - X) + ((((X * X) + (X * X)) - ((X * X) - (X - X))) - X)) - ((((X + X) - X) * X) - (X * X))) - (X - (((X * X) - X) + (X * X)))
+
+Generation: 48
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((X * X) - X) - X) + (X * X)) - (((X * X) - ((((((X * X) - X) - X) + ((X * X) - X)) - X) - (((((X * X) - X) + (((((X * X) - X) + X) + (X * X)) - X)) - X) - (((X * X) - ((X - X) - X)) - X)))) - (X * X))) - (X - ((X * X) + (X * X)))
+
+Generation: 49
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) - (X * X)) + ((((((X * X) - (X * X)) - X) + (X * X)) - (X - (X * X))) - (X - (((((((X + X) - X) - X) + (X * X)) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X * X))) - X) + (X * X))))
+
+Generation: 50
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((X * X) - (X - ((((X * X) - X) + X) - X))) + (((X * X) + ((X * X) - X)) - ((X * X) - X))) - X) - X) + (X * X)
+
+Generation: 51
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((X * X) - X) + ((((X * X) + (X * X)) - ((X * X) - ((X * X) - (X * X)))) - X)) - ((((X + X) - X) * X) - (X * X))) - (X - (((X * X) - X) + (X * X)))
+
+Generation: 52
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) - (X * X)) + ((((X * X) - (X - X)) + ((X * X) + ((((X * X) + ((X - X) - X)) - X) + ((X * X) - X)))) - X)
+
+Generation: 53
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) - (X * X)) + ((((((((X * X) - (X - (X * X))) - X) - X) + (X * X)) + (X * X)) - ((X * X) - X)) - (X - ((X * X) - X)))
+
+Generation: 54
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((X * X) - X) + ((X * X) - X)) - ((X * X) - (X * X))) - (X - (((X * X) - X) + (X * X)))
+
+Generation: 55
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((X * X) - (X * X)) + (X * X)) + (X * X)) - ((X + X) - ((((((X * X) - (X * X)) - X) + (X * X)) - X) + (X * X)))
+
+Generation: 56
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(X * X) + (((((((X * X) - (((X * X) - (X - X)) - (X * X))) - X) - X) + (X * X)) + ((X * X) - X)) - X)
+
+Generation: 57
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((X * X) - X) + ((X * X) - X)) - ((X * X) - (X * X))) - (X - ((((X * X) - ((X * X) - (X * X))) - X) + (X * X)))
+
+Generation: 58
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(X * X) + ((((((((X * X) - X) + ((((X * X) + (X * X)) - ((X + X) - X)) - X)) - ((((X + X) - X) * X) - X)) + ((X * X) - X)) - ((X * X) - X)) - (X - (X * X))) - X)
+
+Generation: 59
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((X * X) - (X * X)) + (X * X)) + (X * X)) - ((X + X) - ((((((X * X) - (X * X)) - X) + (X * X)) - X) + (X * X)))
+
+Generation: 60
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((X * X) - X) + X) + (((((X * X) - X) + (X * X)) + ((((X * X) + (X * X)) - ((X * X) - ((X * X) - (X * X)))) - X)) - ((X * X) - X))) - X) - X) + (X * X)) - ((X - (X - (((((X - (X - (X * X))) - ((X * X) - (X - (X * X)))) - X) + ((((((X * X) - ((X * X) - (X * X))) - (X * X)) + (X * X)) - ((X * X) - X)) * X)) + (X * X)))) - X)) - (X - (X * X))) - X
+
+Generation: 61
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((X * X) + ((X * X) + ((((X * X) + ((X * X) - X)) - (((X * X) - X) + X)) - X))) - X) - (X - (X * X))
+
+Generation: 62
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) - (X * X)) + ((((((((X - X) - (X - (X * X))) + (X * X)) + ((X - (X - (X * X))) - X)) - (X - X)) + (X * X)) - (X * X)) - (X - ((((X * X) + (((X + X) - X) + (X - X))) - X) - X)))
+
+Generation: 63
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X - (X - (X * X))) - (X * X)) + (((((((((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) - X) + ((X * X) - ((X * X) - (X * X)))) + ((X * X) - X)) - ((X * X) - X)) - (X - (X * X))) + (X * X)) - ((X * X) - X)) - (X - ((X * X) - X)))
+
+Generation: 64
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(X - X) + (((((((((X - X) - X) - (X - (X * X))) + (X * X)) + ((X - (X - (X * X))) - X)) - (X - X)) + (X * X)) - ((X - (X - (X * X))) - X)) - (X - ((((X * X) + (((X + X) - X) + (X - X))) - X) - X)))
+
+Generation: 65
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((X * X) + ((X * X) + ((((((X * X) - X) + (X * X)) - ((X * X) - (X * X))) - (X * X)) - X))) - X) - (X - (X * X))
+
+Generation: 66
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((X * X) - X) + X) + (((((X * X) - X) + (X * X)) + ((((X * X) + (X * X)) - ((X * X) - ((X * X) - (X * X)))) - X)) - ((X * X) - X))) - X) - X) + (X * X)) - ((X - (X - (((((X - (X - (X * X))) - ((X * X) - (X - (X * X)))) - X) + ((((((((X * X) - X) + X) - ((X * X) - (X * X))) - (X * X)) + (X * X)) - ((X * X) - X)) * X)) + (X * X)))) - X)) - (X - (X * X))) - X
+
+Generation: 67
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((X * X) - X) + (X - (X - (((((X - (X - (X * X))) - ((X * X) - (X - (X * X)))) - X) + (X * X)) + (X * X))))) - ((X * X) - (X * X))) - (X - ((X - (X - (X * X))) + (((X * X) - X) - X)))
+
+Generation: 68
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) - X) + ((((X * X) - ((X * X) - (X * X))) + ((((((X * X) - ((((X * X) + (X * X)) - (X * X)) - (X * X))) - X) + (X * X)) - ((((X * X) + (X * X)) - ((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X)))) - ((X - (X - (X * X))) + ((X * X) - ((X * X) - ((X * X) - (X * X))))))) - X)) - X)
+
+Generation: 69
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((X * X) - ((X * X) - (X * X))) - X) + (X * X)) - ((X * X) - (X * X))) - (X - (((((X * X) - X) + X) + ((X * X) - X)) - X))
+
+Generation: 70
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((X * X) - X) + X) + (((((X * X) - ((X * X) - X)) + (X * X)) + ((((X * X) + (X * X)) - ((X * X) - X)) - X)) - (X * X))) - X) - X) + (((((((X * X) - ((X * X) - X)) - X) + (X * X)) - X) + (X * X)) - X)) - ((X - (X - (((((X - (X - (X * X))) - ((X * X) - (X - (X * X)))) - X) + (((((X * X) - (X * X)) + (X * X)) - ((X * X) - X)) * X)) + (X * X)))) - X)) - (X - (X * X))) - X
+
+Generation: 71
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) - X) + ((((X * X) - ((X * X) - (X * X))) + ((((((X * X) - ((((X * X) + (X * X)) - (X * X)) - (X * X))) - X) + (X * X)) - ((((X * X) + (X * X)) - ((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X)))) - (X * X))) - X)) - X)
+
+Generation: 72
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((X * X) - X) + X) + (((((X * X) - X) + (X * X)) + ((((X * X) + (X * X)) - ((X * X) - ((X * X) - (X * X)))) - X)) - ((X * X) - X))) - X) - X) + (((X * X) + (X * X)) - (X * X))) - ((X * X) - X)) - (X - (X * X))) - X
+
+Generation: 73
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((X * X) - ((X * X) - (X * X))) - (X * X)) + ((((((((((((X * X) - (X - (X - (X * X)))) - X) + (X * X)) - X) + (X - (X - (X * X)))) + ((X * X) - X)) - ((X * X) - X)) - (X - (X * X))) + (X * X)) - ((X * X) - X)) - (X - ((X * X) - X)))
+
+Generation: 74
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((X * X) - ((X * X) - (X * X))) - ((X * X) - (X - X))) + ((((((((((X * X) - X) - X) + (X - (X - (X * X)))) + (X * X)) - ((X * X) - X)) - (X - ((X * X) - X))) + (X * X)) - ((X * X) - X)) - (X - ((X * X) - X)))
+
+Generation: 75
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((((X * X) - (((X - (X - (X * X))) - ((X * X) - (X * X))) - (X * X))) - X) - X) + (X * X)) + ((X * X) - X)) - (((X * X) - ((X * X) - (X * X))) - X)) - (X - (X * X))) + (X * X)) - ((X - (X - (((((X * X) - ((X * X) - (X - (X * X)))) - X) + (((((X * X) - (X * X)) + (X * X)) - ((X * X) - X)) * X)) + (X * X)))) - X)) - (X - (((X * X) + (X * X)) - ((((X * X) - ((((X * X) - X) + X) - X)) - X) + (X * X))))) - X
+
+Generation: 76
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((X * X) - X) + X) + (((X * X) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (((((X - (X - (X * X))) - ((X * X) - (X - (X * X)))) - X) + ((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - ((X * X) - X)) * X)) + (X * X)))) - X)) - (X - (X * X))) - X
+
+Generation: 77
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((X * X) + (((((X * X) - X) + (X * X)) + ((X * X) - X)) - ((X * X) - X))) - X) - X) + (X * X)) - ((X - (X - (((((X - (X - (X * X))) - ((X * X) - (X - (X * X)))) - X) + (((((X * X) - (X * X)) + (X * X)) - ((X * X) - X)) * X)) + (X * X)))) - X)) - (X - (X * X))) - X
+
+Generation: 78
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) + ((X * X) + ((((X * X) + ((X * X) - X)) - (((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) + X)) - X))) - X) - (X - (X * X))
+
+Generation: 79
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((((X * X) - X) + X) - X) + X) + ((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (((((X - (X - (X * X))) - ((X * X) - (X - (X * X)))) - X) + ((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - ((X * X) - X)) * X)) + (X * X)))) - X)) - (X - (X * X))) - X
+
+Generation: 80
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((X * X) + ((X * X) + ((((X * X) + ((X * X) - X)) - (((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) + X)) - X))) - X) - (X - (X * X))
+
+Generation: 81
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((X * X) - X) + X) + (((((X * X) - ((((X * X) + (X * X)) - (X * X)) - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (((((X - (X - (X * X))) - ((X * X) - (X - (X * X)))) - X) + ((((X * X) - (((X * X) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - X)) * X)) + (X * X)))) - X)) - (X - (X * X))) - X
+
+Generation: 82
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((X * X) - X) + X) + ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (((((X - (X - (X * X))) - ((X * X) - (X - (X * X)))) - X) + (((((X * X) - (X * X)) + (X * X)) - ((X * X) - X)) * X)) + (X * X)))) - X)) - (X - (X * X))) - X
+
+Generation: 83
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((X * X) - ((((X * X) - ((X - (X - (X * X))) - (X * X))) - ((X * X) - (X * X))) - (X * X))) - X) + (X * X)) - ((X * X) - ((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))))) - (X - (((((X * X) - X) + X) + (((X * X) + ((X * X) - X)) - (((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))) - (X * X))) - X) + X))) - X))
+
+Generation: 84
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((X + (((((((((X * X) + (X * X)) - X) - (X - X)) - X) - X) + ((X * X) - (((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X - (X * X)))) - X) + (X * X)) + (X * X)))) - (((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) - ((X * X) - X)) - (X * X))) - (X - X))) - (X - ((X * X) - ((X * X) - (X * X))))) + ((((X * X) + (X * X)) - ((X * X) - ((X * X) - (X * X)))) - X)) - (X * X)
+
+Generation: 85
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((X * X) - X) + X) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (((((X - (X - (X * X))) - ((X * X) - (X - (X * X)))) - X) + ((((((((X * X) - X) + X) - ((X * X) - (X * X))) - (X * X)) + (X * X)) - ((X * X) - X)) * X)) + (X * X)))) - X)) - (X - ((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))))) - X
+
+Generation: 86
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((X * X) - X) + X) + ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - ((X * X) - (X * X))))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (((((X - (X - (X * X))) - ((X * X) - (X - (X * X)))) - X) + ((((X - (X - (X * X))) - ((X * X) - (X * X))) - ((X * X) - X)) * X)) + (X * X)))) - X)) - (X - (X * X))) - X
+
+Generation: 87
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(X - (X - X)) + (((((((((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) - X) + ((X * X) - X)) + ((X * X) - X)) - ((X * X) - ((X * X) - ((X * X) - X)))) - (X - ((X * X) - (((X * X) - (((X * X) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))) - (X * X))) - (X * X))) - (X * X))))) + ((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X)))) - ((X * X) - X)) - (X - ((X * X) - X)))
+
+Generation: 88
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((X * X) - X) + X) + ((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X * X) - X)) - (X - (X * X))) - X
+
+Generation: 89
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((X * X) - X) + X) + ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X * X) - X)) - (X - (X * X))) - X
+
+Generation: 90
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((X * X) - X) + X) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (((((X - (X - (X * X))) - ((X * X) - (X - (X * X)))) - X) + ((((((((X * X) - X) + X) - ((X * X) - (X * X))) - (X * X)) + (X * X)) - ((X * X) - X)) * X)) + (X * X)))) - X)) - (X - ((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))))) - X
+
+Generation: 91
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((((X * X) - X) + X) - X) + X) + ((((X * X) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X * X) - X)) - (X - (X * X))) - X
+
+Generation: 92
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((((X * X) - ((X * X) - (X * X))) - X) - X) + (X * X)) + ((X * X) - X)) - ((X * X) - X)) - (X - (X * X))) + (X * X)) - ((X * X) - X)) - (X * X)) - (X - (((((X * X) - X) + X) - X) + (X * X)))
+
+Generation: 93
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((X * X) - ((((X * X) - ((X - (X - (X * X))) - (X * X))) - ((X * X) - (X * X))) - (X * X))) - X) + (X * X)) - ((X * X) - ((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))))) - (X - (((((X - (X - (X * X))) - X) + X) + (((X * X) + ((X * X) - X)) - (X * X))) - X))
+
+Generation: 94
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((X * X) - X) + X) + ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + ((X * X) - ((X * X) - (X * X)))) - ((X * X) - X)) - (X - (X * X))) - X
+
+Generation: 95
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((X * X) - X) + X) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X * X) - X)) - (X - (X * X))) - X
+
+Generation: 96
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((X * X) - X) + X) + ((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) + (((X * X) - ((X - (X - (X * X))) - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))))) - X) - X) + (X * X)) - ((X - (X - (X * X))) - X)) - (X - (X * X))) - X
+
+Generation: 97
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(X - (X - X)) + (((((((((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) - X) + ((X * X) - X)) + ((X * X) - X)) - ((X * X) - ((X * X) - ((X * X) - X)))) - (X - ((X * X) - (((X * X) - (((X * X) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))) - (X * X))) - (X * X))) - (X * X))))) + (X * X)) - ((X * X) - X)) - (X - ((X * X) - X)))
+
+Generation: 98
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((X * X) - X) + ((((((((X * X) - ((X * X) - (X - (X * X)))) - X) + (((((X * X) - (X * X)) + (X * X)) - ((X * X) - X)) * X)) + (X * X)) - ((X * X) - (X * X))) + ((((((X * X) - ((((X * X) + (X * X)) - (X * X)) - (X * X))) - X) + (X * X)) - ((X * X) - (X * X))) - X)) - X)
+
+Generation: 99
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((X * X) - X) + X) + ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (X * X))) - X)) - (X - (X * X))) - X
+
+Generation: 100
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((X * X) - X) + X) + ((((X * X) - ((X * X) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (((((X - (X - (X * X))) - ((X * X) - (X - (X * X)))) - X) + (((X * X) - ((X * X) - X)) * X)) + (X * X)))) - X)) - (X - (X * X))) - X
+
+Generation: 101
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((X * X) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (((((X - (X - (X * X))) - ((X * X) - (X - ((X - (X - (X * X))) - ((X * X) - (X * X)))))) - X) + ((((((((X * X) - X) + X) - ((X * X) - (X * X))) - (X * X)) + (X * X)) - ((X * X) - X)) * X)) + (X * X)))) - X)) - (X - (X * X))) - X
+
+Generation: 102
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((((X * X) - X) + X) - X) + X) + ((((X * X) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X * X) - X)) - (X - ((((((((X - (X - (X * X))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X - (X * X)))) - X) + (((X * X) - ((X * X) - X)) * X)) + (X * X)) - ((X * X) - (X * X))) - X) + X))) - X
+
+Generation: 103
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((X * X) - X) + X) + ((((X - (X - (((X * X) - (X * X)) + (X * X)))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - (((((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X - (X - (X * X))))) - (X * X)) + (X * X)) - ((X * X) - X)) * X) - X)) - (X - (X * X))) - X
+
+Generation: 104
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((X + (((((((X * X) - ((X * X) - (X * X))) - X) - X) + (X * X)) - (((((X * X) - X) + X) - ((X * X) - ((X * X) - (X - X)))) - (X * X))) - (X - ((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X)))))))) - (X - (X * X))) + ((((X * X) + (((((X * X) - (X * X)) + (X * X)) - ((X * X) - X)) * X)) - (X * X)) - X)) - (X * X)
+
+Generation: 105
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((X * X) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (((((X - (X - (X * X))) - ((X * X) - (X - ((X - (X - (X * X))) - ((X * X) - (X * X)))))) - X) + ((((((((X * X) - X) + X) - ((X * X) - (X * X))) - (X * X)) + (X * X)) - ((X * X) - X)) * X)) + (X * X)))) - X)) - (X - (X * X))) - X
+
+Generation: 106
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((X * X) - (((X * X) - ((X * X) - (X * X))) - ((X * X) - ((((X * X) - X) + X) - (X * X))))) - X) + X) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - X
+
+Generation: 107
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((X * X) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (((((X - (X - (X * X))) - ((X * X) - (X - (X * X)))) - X) + (X * X)) + (X * X)))) - X)) - (X - (X * X))) - X
+
+Generation: 108
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) + (X * X)) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X - ((((X * X) - ((X * X) - (X * X))) + (((X * X) + ((X - (X - (X * X))) - X)) - (X * X))) - X))
+
+Generation: 109
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(X - (X - X)) + (((((((((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) - X) + ((X * X) - X)) + ((X * X) - X)) - ((X * X) - X)) - (X - ((X * X) - ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))))) - (((X * X) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))) - (X * X))) - (X * X))) - (X * X))))) + ((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X)))) - ((X * X) - X)) - (X - ((X * X) - X)))
+
+Generation: 110
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((X * X) + (((X * X) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (((((X * X) - ((((X * X) - X) + X) - (X * X))) - ((X * X) - (X * X))) - ((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X)))) + (X * X)))) - X)) - (X - (X * X))) - X
+
+Generation: 111
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((X * X) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) + ((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))))) - X) - X) + (X * X)) - ((X - (X - (((((X - (X - (X * X))) - ((X * X) - (X - (X * X)))) - X) + ((((((((X * X) - X) + X) - ((X * X) - (X * X))) - (X * X)) + (X * X)) - ((X * X) - X)) * X)) + ((X * X) - ((X * X) - (X * X)))))) - X)) - (X - (X * X))) - X
+
+Generation: 112
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(X - (X - X)) + (((((((((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) - X) + ((X * X) - X)) + ((X * X) - X)) - ((X * X) - ((X * X) - ((X * X) - X)))) - (X - ((X * X) - ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - (((X * X) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - (X * X))))))) - (((X * X) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))) - (X * X))) - (X * X))) - (X * X))))) + ((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X)))) - ((X - (X - (((((X - (X - (X * X))) - ((X * X) - (X - (X * X)))) - X) + (X * X)) + (X * X)))) - X)) - (X - ((X * X) - X)))
+
+Generation: 113
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X * X) - (((X - (X - (X * X))) - ((X * X) - (((X * X) - X) + X))) - ((X * X) - ((((X * X) - X) + X) - (X * X))))) - X) + X) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (((((X - (X - (X * X))) - ((X * X) - (X - (X * X)))) - X) + ((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - ((X * X) - X)) * X)) + (X - (X - ((X * X) - ((X * X) - (X * X)))))))) - X)) - (X - (X * X))) - X
+
+Generation: 114
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - ((((X * X) - X) + X) - (X * X))))) - X) + X) + ((((X - (X - (X * X))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + ((X * X) - ((X * X) - (X * X)))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - X)) - (X - (X * X))) - X
+
+Generation: 115
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + X) + ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (((((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X - (X * X)))) - X) + ((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - ((X * X) - X)) * X)) + (X * X)))) - X)) - (X - (X * X))) - X
+
+Generation: 116
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - ((((X * X) - X) + X) - (X * X))))) - X) + X) + ((((X - (X - (X * X))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X * X) - X)) - (X - (X * X))) - X
+
+Generation: 117
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((X * X) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) + ((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))))) - X) - X) + (X * X)) - ((X - (X - (X * X))) - X)) - (X - (X * X))) - X
+
+Generation: 118
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((X * X) + (((X * X) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (((((X - (X - (X * X))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X - (X * X)))) - X) + ((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - ((X * X) - X)) * X)) + (X * X)))) - X)) - (X - (X * X))) - X
+
+Generation: 119
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(X - (X - X)) + ((((((((((((X * X) - ((X - (X - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) - X) + ((X * X) - X)) + ((X * X) - X)) - ((X * X) - ((X * X) - ((X * X) - X)))) - (X - ((X * X) - (((X * X) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - (X * X))))) + ((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))))) - (X * X)))) - ((X * X) - X)) - (X - ((X * X) - X)))
+
+Generation: 120
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + X) + ((((X * X) - ((X * X) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X * X) - X)) - (X - (X * X))) - X
+
+Generation: 121
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - ((((X * X) - X) + X) - (X * X))))) - X) + X) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + ((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X)))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - X)) - (X - (X * X))) - X
+
+Generation: 122
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((X * X) - X) + X) + (((X * X) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (X * X))) - X)) - (X - (X * X))) - X
+
+Generation: 123
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((X * X) + ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (((((X * X) - ((X * X) - (X - (X * X)))) - X) + ((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - ((X * X) - X)) * X)) + (X * X)))) - X)) - (X - (X * X))) - X
+
+Generation: 124
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(X - (X - X)) + (((((((((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) - X) + ((X * X) - X)) + ((X * X) - X)) - ((X * X) - ((X * X) - ((X * X) - X)))) - (X - ((X * X) - (((X * X) - (((((X * X) - X) + X) - ((((X * X) + (X * X)) - (X * X)) - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - (X * X))))) + (X - (X - (((((X - (X - (X * X))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X - (X * X)))) - X) + (X * X)) + (X * X))))) - ((X * X) - X)) - (X - ((X * X) - X)))
+
+Generation: 125
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(X - (X - X)) + (((((((((((((X * X) - X) + X) - ((X * X) - (X * X))) - X) - X) + ((X * X) - X)) + ((X * X) - X)) - ((X * X) - ((X * X) - ((X * X) - X)))) - (X - (X * X))) + ((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X)))) - ((X - (X - (((((X - (X - (X * X))) - ((X * X) - (X - (((X * X) - ((X * X) - X)) * X)))) - X) + (X * X)) + (X * X)))) - X)) - (X - ((X * X) - X)))
+
+Generation: 126
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + X) + ((((X * X) - (((X * X) - ((X - (X - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (((((X - (X - (X * X))) - ((X * X) - (X - (X * X)))) - X) + (X * X)) + (X * X)))) - X)) - (X - (X * X))) - X
+
+Generation: 127
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X * X) - (((X * X) - ((X * X) - (((X * X) - X) + X))) - ((X * X) - ((((X * X) - X) + X) - (X * X))))) - X) + X) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - ((((((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - (X - (X * X)))) - X) + ((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - ((X * X) - X)) * X)) + (X * X)))) - X)) - (X - (X * X))) - X
+
+Generation: 128
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((X * X) - X) + X) + ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (((((X - (X - (X * X))) - ((X * X) - (X - (X * X)))) - X) + ((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - ((X * X) - X)) * X)) + (X * X)))) - X)) - (X - (X * X))) - X
+
+Generation: 129
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((X * X) - X) + X) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X * X) - X)) - (X - (X * X))) - X
+
+Generation: 130
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((((((X - (X - (X * X))) - ((X * X) - (X * X))) - (((X * X) - ((X * X) - (X * X))) - X)) * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X - (X - (X - (X - (X * X))))))) - X) + X) + (((X * X) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (((((X - (X - (X * X))) - ((X * X) - (X - (X * X)))) - X) + ((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - ((X * X) - X)) * X)) + (X * X)))) - X)) - (X - (X * X))) - X
+
+Generation: 131
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X * X) - ((X * X) - ((X * X) - ((((X * X) - X) + X) - (X * X))))) - X) + X) + ((((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - X) + (X * X))) - X) - X) + (X * X)) - ((X * X) - X)) - (X - (X * X))) - X
+
+Generation: 132
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X * X) - ((X * X) - ((X * X) - ((((X * X) - X) + X) - (X * X))))) - X) + X) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (X * X))) - X)) - (X - (((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))))) - X
+
+Generation: 133
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(X - (X - X)) + ((((((((((((X * X) - ((X - (X - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) - X) + ((X * X) - X)) + ((X * X) - X)) - ((X * X) - X)) - (X - ((X * X) - (((X * X) - (((X * X) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))) - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - (X * X))))) + ((X * X) - (((X * X) - ((X * X) - ((X * X) - ((((X * X) - X) + X) - (X * X))))) - (X * X)))) - ((X * X) - X)) - (X - ((X * X) - X)))
+
+Generation: 134
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((X * X) + ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - ((X * X) - ((X * X) - (X * X))))) - X)) - (X - (X * X))) - X
+
+Generation: 135
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((((X * X) - X) + X) - X) + X) + (((X * X) - X) + ((X * X) - ((X * X) - (X * X))))) - X) - X) + ((X * X) - ((X * X) - (X * X)))) - (((X * X) - ((X * X) - (X * X))) - X)) - (X - ((((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - X) + X))) - X
+
+Generation: 136
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((X * X) + ((((X - (X - (X * X))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X * X) - X)) - (X - (X * X))) - X
+
+Generation: 137
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((X * X) - X) + X) + (((((X * X) - ((X * X) - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - ((X * X) - (X * X))))) - X) + (X * X))) - X) - X) + (X * X)) - (((X * X) - ((X * X) - (X * X))) - X)) - (X - (X * X))) - X
+
+Generation: 138
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+X + (((((((((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) - X) + ((X * X) - X)) + ((X * X) - X)) - ((X * X) - ((X * X) - ((X * X) - X)))) - (X - ((X * X) - ((((((X - (X - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) + X) - ((((X * X) - ((X * X) - (X * X))) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))) - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - (X * X))))) + ((X * X) - ((((X - (X - (X * X))) - ((X * X) - (X * X))) - (((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X - (X - (X * X))))) - ((X * X) - ((X * X) - (X * X))))) - (X * X)))) - ((X * X) - X)) - (X - ((X * X) - X)))
+
+Generation: 139
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X * X) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - ((((X * X) - X) + X) - (X * X))))) - X) + X) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - ((((X - (X * X)) - X) + (X - (X - (X * X)))) + (X * X)))) - X)) - (X - ((X * X) - ((X * X) - (X * X))))) - X
+
+Generation: 140
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + X) + ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - ((((((X - (X - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) + X) - ((((X * X) - ((X * X) - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - (X * X))))) - X)) - (X - (X * X))) - X
+
+Generation: 141
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((X * X) - ((X * X) - (X * X))) + ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + ((X * X) - (((X * X) - ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X * X))) - (X * X))) - (X * X)))) - ((X - (X - (X * X))) - X)) - (X - (((X * X) - ((((X * X) - ((X - (X - (X * X))) - (X * X))) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))))) - X
+
+Generation: 142
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X - (X - (X * X))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + X) + ((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - (((X * X) - ((X * X) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - (X * X))))) - X)) - (X - (((((X - (X * X)) - X) + (X - (X - (X * X)))) + (X * X)) - ((X * X) - ((X * X) - ((X * X) - (X * X))))))) - X
+
+Generation: 143
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + X) + ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - ((X * X) - ((X * X) - (X * X))))) - X)) - (X - (X * X))) - X
+
+Generation: 144
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X * X) - (((X - (X - (X * X))) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X - (X - (X * X))) - ((((X * X) - X) + X) - (X * X))))) - X) + X) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (((((X - (X - (X * X))) - (((X * X) - ((X * X) - (((X * X) - X) + X))) - (X - (X * X)))) - X) + (X - (X - (((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X)))))) + (X * X)))) - X)) - (X - (X * X))) - X
+
+Generation: 145
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((X * X) - X) + X) + ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X - (X * X)))) - X) + (((X * X) - ((X * X) - X)) * X)) + (X * X)))) - X)) - (X - (((((((X * X) - X) + X) - (((X * X) - ((X * X) - (X * X))) - (X - (X * X)))) - X) + ((((X * X) - ((X * X) - (X * X))) - ((X * X) - X)) * X)) + (X * X)))) - X
+
+Generation: 146
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(X - (X - X)) + ((((((((((((X * X) - ((X - (X - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) - X) + ((X * X) - X)) + ((X * X) - X)) - ((X * X) - X)) - (X - ((X * X) - (((X * X) - (((X * X) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))) - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - (X * X))))) + ((X * X) - (((X * X) - ((X * X) - ((X * X) - ((((X * X) - X) + X) - (X * X))))) - (X * X)))) - ((X * X) - X)) - (X - ((X * X) - X)))
+
+Generation: 147
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((X * X) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X * X) - X)) - (X - ((X * X) - (((X * X) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - (((X * X) - X) + X))))))) - X
+
+Generation: 148
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+X + (((((((((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) - X) + ((X * X) - X)) + ((X * X) - X)) - ((X * X) - ((X * X) - ((X * X) - X)))) - (X - ((X * X) - ((((((X - (X - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) + X) - ((((X * X) - ((X * X) - (X * X))) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))) - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - (X * X))))) + ((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X)))))) - ((X * X) - X)) - (X - ((X * X) - X)))
+
+Generation: 149
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+X + (((((((((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) - X) + (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X)) + ((X * X) - X)) - ((X * X) - ((X * X) - ((X * X) - X)))) - (X - ((X * X) - ((((((X - (X - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) + X) - ((((X * X) - ((X * X) - (X * X))) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))) - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - (X * X))))) + ((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X)))))) - ((X * X) - X)) - (X - ((X * X) - X)))
+
+Generation: 150
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(X - (X - X)) + (((((((((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) - X) + ((X * X) - X)) + ((X * X) - X)) - ((X * X) - X)) - (X - ((X * X) - ((((X * X) - (((X * X) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))))) - (((X * X) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))) - (X * X))) - (X * X))) - (X * X))))) + ((X * X) - (((X * X) - ((X * X) - ((X * X) - (((X - (X - (X * X))) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X - (X - (X * X))) - ((((X * X) - X) + X) - (X * X))))))) - (X * X)))) - ((X * X) - X)) - (X - ((X * X) - X)))
+
+Generation: 151
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(X - (X - X)) + (((((((((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) - X) + ((X * X) - X)) + ((X * X) - X)) - ((X * X) - X)) - (X - ((X * X) - ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X * X))))) + ((X * X) - (((X * X) - ((X * X) - ((X * X) - (((X - (X - (X * X))) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - ((((X * X) - X) + X) - (X * X))))))) - (X * X)))) - ((X * X) - X)) - (X - ((X * X) - X)))
+
+Generation: 152
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X * X) - ((X * X) - (X * X))) - X) + X) + ((((X * X) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - ((X * X) - (X * X))))) - X) + (X * X))) - X) - X) + (X * X)) - ((X * X) - X)) - (X - ((X * X) - ((X * X) - (X * X))))) - X
+
+Generation: 153
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - X) + X) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + ((X * X) - ((X * X) - (X * X)))) - ((X - (X - (((((X - (X - (X - (X - (X * X))))) - (((X * X) - ((X * X) - (X * X))) - (X - (X * X)))) - X) + (X - (X - ((X * X) - ((X * X) - (X * X)))))) + (X * X)))) - X)) - (X - ((X * X) - ((X - (X - ((X - (X - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))))) - ((X * X) - ((X * X) - (X * X))))))) - X
+
+Generation: 154
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(X - (X - X)) + ((((((((((X * X) - X) - X) + ((X * X) - X)) + ((X * X) - X)) - ((X * X) - ((X * X) - ((X * X) - X)))) - (X - ((((((X * X) - (X * X)) + (X * X)) - ((X * X) - X)) * X) - ((((X * X) - (((X * X) - ((X * X) - (X * X))) - ((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))))) - ((X * X) - (X * X))) - (X * X))))) + ((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X)))) - ((X - (X - (((((X * X) - (((X * X) - ((((X * X) - X) + X) - (X * X))) - (X - (X * X)))) - X) + (((((X * X) - ((X * X) - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - ((X * X) - X)) * X)) + ((X * X) - ((X * X) - (X * X)))))) - X)) - (X - ((X * X) - X)))
+
+Generation: 155
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((X * X) + ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (X - (X - (X * X))))) - X)) - (X - (X * X))) - X
+
+Generation: 156
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((X * X) + ((((X * X) - ((X * X) - (X * X))) - X) + (X * X))) - X) - X) + ((X * X) - (((X * X) - ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X * X))) - (X * X))) - (X * X)))) - ((X * X) - X)) - (X - (((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - (((X * X) - ((X * X) - (X - (X - (X * X))))) - (X * X))))) - X
+
+Generation: 157
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - X) + X) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + ((X * X) - ((X * X) - (X * X)))) - ((X - (X - (((((X - (X - (X - (X - (X * X))))) - (((X * X) - ((X * X) - (X * X))) - (X - (X * X)))) - X) + (X - (X - ((X * X) - ((X * X) - (X * X)))))) + (X * X)))) - X)) - (X - ((X * X) - ((X - (X - ((X - (X - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))))) - ((X * X) - ((X * X) - (X * X))))))) - X
+
+Generation: 158
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X - (X - (X * X))) - ((X * X) - (X * X))) - X) + X) + ((((X * X) - ((X * X) - (X * X))) - X) + ((((X - (X * X)) - X) + (X - (X - (X * X)))) + (X * X)))) - X) - X) + (X * X)) - ((X * X) - X)) - (X - (X * X))) - X
+
+Generation: 159
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+X + (((((((((((X * X) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))) - (X * X))) - X) - X) + ((X * X) - X)) + ((X * X) - X)) - ((X * X) - ((X * X) - ((X * X) - X)))) - (X - ((X * X) - ((((((X - (X - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) + X) - ((((X * X) - ((X * X) - (X * X))) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))) - (X * X))) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))) - ((X * X) - (X * X))))) - (X * X))))) + ((X * X) - ((X * X) - (X * X)))) - ((X * X) - X)) - (X - ((X * X) - X)))
+
+Generation: 160
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(X - (X - X)) + (((((((((((((X * X) - X) + X) - ((X * X) - (X * X))) - X) - X) + ((X * X) - X)) + ((X * X) - X)) - (((X * X) - ((X * X) - ((X * X) - ((((X * X) - X) + X) - (X * X))))) - X)) - (X - (((((((((X * X) - X) + X) - ((X * X) - (X * X))) - (X * X)) + (X * X)) - ((X * X) - X)) * X) - ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X * X))) - (X * X))))) + ((X * X) - (((X * X) - ((X * X) - (((X * X) - ((X - (X - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - (((X * X) - ((X * X) - (X * X))) - (X * X))))) - (X * X)))) - ((X - (X - (X * X))) - X)) - (X - ((X * X) - X)))
+
+Generation: 161
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(X - (X - X)) + ((((((((((X * X) - X) - X) + ((X * X) - X)) + ((X * X) - X)) - ((X * X) - ((X * X) - ((X * X) - X)))) - (X - ((((((X * X) - (X * X)) + (X * X)) - ((X * X) - X)) * X) - ((((X * X) - ((X * X) - ((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X * X))) - (X * X))))) + ((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X)))) - ((X - (X - (((((X * X) - (((X * X) - ((((X * X) - X) + X) - (X * X))) - (X - (X * X)))) - X) + (((((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - ((X * X) - X)) * X)) + (X * X)))) - X)) - (X - (((X * X) - ((X * X) - (X * X))) - X)))
+
+Generation: 162
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X * X) - (((X - (X - (X * X))) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - ((((X * X) - X) + X) - (X * X))))) - X) + X) + ((((X - (X - (X * X))) - ((X * X) - (X * X))) - X) + ((X * X) - ((X * X) - (X * X))))) - X) - X) + (X * X)) - ((X - (X - ((((((X * X) - ((X * X) - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X - (X * X)))) - X) + (X - (X - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))) - ((X * X) - (X * X)))))) + (X * X)))) - X)) - (X - ((X * X) - ((X * X) - (X * X))))) - X
+
+Generation: 163
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X - (X - (X * X))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + X) + ((((((X * X) - X) + X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + ((X * X) - ((X * X) - (X * X))))) - X) - X) + (X * X)) - (((X * X) - ((X * X) - (X * X))) - X)) - (X - (X * X))) - X
+
+Generation: 164
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(X - (X - X)) + ((((((((((X * X) - X) - X) + ((X * X) - X)) + ((X * X) - X)) - ((X * X) - ((X * X) - ((X * X) - X)))) - (X - ((((((X * X) - (X * X)) + (X * X)) - ((X * X) - X)) * X) - ((((X * X) - ((X * X) - ((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X * X))) - (X * X))))) + ((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X)))) - ((X - (X - (((((X * X) - (((X * X) - ((((X * X) - X) + X) - (X * X))) - (X - (X * X)))) - X) + (((((X * X) - ((X * X) - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - ((X * X) - X)) * X)) + (X * X)))) - X)) - (X - (((X * X) - ((X * X) - (X * X))) - X)))
+
+Generation: 165
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - ((X * X) - (X * X))))) - X) + (X * X))) - X) - X) + (X * X)) - ((X * X) - X)) - (X - ((X * X) - ((X * X) - (X * X))))) - X
+
+Generation: 166
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(X - (X - X)) + (((((((((((((X * X) - X) + X) - ((X * X) - (X * X))) - X) - X) + ((X * X) - X)) + ((X * X) - X)) - (((X * X) - ((X * X) - ((X * X) - ((((X * X) - X) + X) - (X * X))))) - X)) - (X - (((((((((X * X) - X) + X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X * X)) + (X * X)) - ((X * X) - X)) * X) - ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X * X))) - (X * X))))) + ((X * X) - (((X * X) - ((X * X) - (((X * X) - ((X - (X - (X * X))) - (X * X))) - ((X * X) - (X * X))))) - (X * X)))) - ((X - (X - (X * X))) - X)) - (X - ((X * X) - X)))
+
+Generation: 167
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X * X) - (((X - (X - (X * X))) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - ((((X * X) - X) + X) - (X - (X - (X * X))))))) - X) + X) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) + (X * X))) - X) - X) + ((X * X) - ((X * X) - (X * X)))) - ((X - (X - (((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X - (X * X)))) - X) + (X - (X - (((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X)))))) + (X * X)))) - X)) - (X - ((X * X) - ((X * X) - ((X * X) - ((X * X) - ((X * X) - ((X - (X - (((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))))) - (X * X))))))))) - X
+
+Generation: 168
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((X * X) + ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + ((X * X) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X * X)))) - ((X - (X - (X * X))) - X)) - (X - (((X * X) - ((((X * X) - ((X - (X - (X * X))) - (X * X))) - (((X * X) - ((X * X) - (X * X))) - ((X * X) - ((X - (X - ((X * X) - ((X * X) - (X * X))))) - (X * X))))) - (X * X))) - (((X * X) - ((X * X) - (X - (X - (X * X))))) - (X * X))))) - X
+
+Generation: 169
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((X * X) + ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + ((X * X) - ((X * X) - (X * X)))) - ((X - (X - (X * X))) - X)) - (X - (((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))))) - X
+
+Generation: 170
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X * X) - (((X - (X - (X * X))) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - ((((X * X) - X) + X) - (X - (X - (X * X))))))) - X) + X) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) + (X * X))) - X) - X) + ((X * X) - ((X * X) - (X * X)))) - ((X - (X - (((X * X) - ((X * X) - ((((X * X) - X) + X) - (X * X)))) + (X * X)))) - X)) - (X - ((X * X) - ((X * X) - ((X * X) - ((X * X) - ((X * X) - ((X - (X - (((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))))) - (X * X))))))))) - X
+
+Generation: 171
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X - (X - (X * X))) - ((X * X) - ((X * X) - ((((X * X) - X) + X) - (X * X))))) - X) + X) + ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))))) - X) + (X * X))) - X) - X) + (X * X)) - ((X * X) - X)) - (X - (((X * X) - ((X - (X - (X * X))) - (X * X))) - ((X * X) - (X * X))))) - X
+
+Generation: 172
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((X * X) + ((((X * X) - ((X * X) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - (X * X))))) - X)) - (X - (X * X))) - X
+
+Generation: 173
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((X * X) - ((X * X) - (X * X))) + ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + ((X * X) - (((X * X) - ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X * X))) - (X * X))) - (X * X)))) - ((X - (X - (X * X))) - X)) - (X - (X * X))) - X
+
+Generation: 174
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((X * X) + ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + ((X * X) - (((X * X) - ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X * X))) - (X * X)))) - ((X - (X - (X * X))) - X)) - (X - (((X * X) - ((((X * X) - ((X - (X - (X * X))) - (X * X))) - ((X * X) - (X * X))) - (X * X))) - (((X * X) - ((X * X) - (X - (X - (X * X))))) - (((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))))))) - X
+
+Generation: 175
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(X - (X - X)) + ((((((((((X * X) - X) - X) + ((X * X) - X)) + ((((X * X) - (((X * X) - ((X * X) - (X * X))) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - ((X * X) - (X * X))))))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X * X))) - X)) - ((X * X) - ((X * X) - ((X * X) - X)))) - (X - ((((((X * X) - (X * X)) + (X * X)) - ((X * X) - X)) * X) - ((((X * X) - (((X * X) - ((X * X) - (X * X))) - ((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X * X))) - (X * X))))) + (X * X)) - ((X - (X - ((((((((X * X) - X) + X) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - (((X * X) - ((((X * X) - X) + X) - (X * X))) - (X - (X * X)))) - X) + (((((X * X) - ((X * X) - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (((X * X) - ((X * X) - (X * X))) - X)) * X)) + ((X * X) - ((X * X) - (X * X)))))) - X)) - (X - ((X * X) - X)))
+
+Generation: 176
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X - (X - ((X * X) - ((X * X) - (X * X))))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) + X) + ((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) + (X * X))) - X) - X) + ((X * X) - ((X * X) - (X * X)))) - ((X - (X - (((((X - (X - (X * X))) - ((X * X) - (X - (X * X)))) - X) + ((((X * X) - (((X * X) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - X)) * X)) + (X * X)))) - X)) - (X - ((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))))) - X
+
+Generation: 177
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(X - (X - X)) + ((((((((((X * X) - X) - X) + ((X * X) - X)) + ((X * X) - X)) - ((X * X) - ((X * X) - ((X * X) - X)))) - (X - ((((X * X) - ((X * X) - X)) * X) - ((((X * X) - (((X * X) - ((X * X) - (X * X))) - ((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X * X))) - (X * X))))) + (X * X)) - ((X - (X - ((((((X * X) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - (((X * X) - ((((X * X) - X) + X) - (X * X))) - (X - (X * X)))) - X) + (((((X * X) - ((X * X) - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (((X * X) - ((X * X) - (X * X))) - X)) * X)) + ((X * X) - ((X * X) - (X * X)))))) - X)) - (X - ((X * X) - X)))
+
+Generation: 178
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+X + (((((((((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) - X) + ((X * X) - X)) + ((X * X) - X)) - ((X * X) - ((((X * X) - X) + X) - ((X * X) - X)))) - (X - (X * X))) + ((X * X) - ((X * X) - (X * X)))) - ((X * X) - X)) - (X - ((X * X) - X)))
+
+Generation: 179
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - X) + X) + (((((X * X) - ((X * X) - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + ((((X * X) - (((X * X) - ((X * X) - ((X * X) - (((((X * X) - X) + X) - ((X * X) - (X * X))) - (X * X))))) - (X * X))) - X) + X)) - ((X - (X - (((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X - (X * X)))) - X) + (X - (X - (((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X)))))) + ((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X)))))))) - X)) - (X - ((X * X) - ((X * X) - ((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))))))) - X
+
+Generation: 180
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X * X) - (((X - (X - (X * X))) - ((((X * X) - X) + X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - ((((X * X) - X) + X) - (X - (X - (X * X))))))) - X) + X) + ((((X - (X - (X * X))) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - ((((((X * X) - ((X * X) - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X - (X * X)))) - X) + (X * X)) + (X * X)))) - X)) - (X - ((X * X) - ((X * X) - (X * X))))) - X
+
+Generation: 181
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X * X) - (((X - (X - (X * X))) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X - (X - (X * X))) - ((((X * X) - X) + X) - (X - (X - (X * X))))))) - X) + X) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) + (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - (X * X))))) - X) - X) + ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + X)) - ((X - (X - (((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X - (X * ((X * X) - ((X * X) - X)))))) - X) + (X - (X - (((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X)))))) + (X * X)))) - X)) - (X - ((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))))) - X
+
+Generation: 182
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X - (X - ((X * X) - ((X * X) - (X * X))))) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))) - (X * X))) - X) + X) + ((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) + (X * X))) - X) - X) + ((X * X) - ((X * X) - (X * X)))) - ((X - (X - (((((X - (X - (X * X))) - ((X * X) - (X - (X * X)))) - X) + (X * X)) + (X * X)))) - X)) - (X - ((X * X) - ((X * X) - (X * X))))) - X
+
+Generation: 183
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X * X) - (((X - (X - (X * X))) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - ((((X * X) - X) + X) - (X - (X - (X * X))))))) - X) + X) + ((((X - (X - (X * X))) - ((((X * X) - X) + X) - (X - (X - (X * X))))) - X) + (X * X))) - X) - X) + (X * X)) - (((X * X) - ((X * X) - (X * X))) - X)) - (X - ((X * X) - ((X * X) - (X * X))))) - X
+
+Generation: 184
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X * X) - ((X * X) - (X * X))) - X) + X) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) + (X * X))) - X) - X) + ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + X)) - ((X - (X - (((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X - ((X * X) - ((X * X) - (X * X)))))) - X) + (X - (X - (((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X)))))) + (X * X)))) - X)) - (X - (((X * X) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - ((X * X) - (X * X))))))) - X
+
+Generation: 185
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((X * X) + ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + ((X * X) - (((X * X) - ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))))) - (((X * X) - ((((X * X) - X) + X) - (X - (X - (X * X))))) - (X * X))) - (X * X))) - (X - (X - (X * X)))))) - ((X - (X - (X * X))) - X)) - (X - (((X * X) - ((((X * X) - ((X - (X - (X * X))) - (X * X))) - ((X * X) - (X * X))) - (X * X))) - ((((X * X) - ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X - (X - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X * X))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - ((X * X) - (X * X))))) - ((X * X) - (X - (X - (X * X))))) - (X - (X - (X * X))))))) - X
+
+Generation: 186
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X * X) - ((X * X) - (X * X))) - X) + X) + ((((X - (X - (((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))))) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X * X) - X)) - (X - (X * X))) - X
+
+Generation: 187
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))))) - X) + (X * X))) - X) - X) + (X * X)) - (((X * X) - ((((X * X) - (((X * X) - ((X * X) - (X * X))) - ((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X * X))) - (X * X))) - X)) - (X - ((X * X) - ((X * X) - (X * X))))) - X
+
+Generation: 188
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X * X) - (((X - (X - (X * X))) - ((X * X) - (X * X))) - ((X * X) - ((((X * X) - X) + X) - (X - (X - (X * X))))))) - X) + X) + ((((X - (X - ((X * X) - ((X * X) - (X * X))))) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))) - (X * X))) - X) + (X * X))) - X) - X) + ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + X)) - ((X - (X - (((((X * X) - ((X * X) - (X - ((X * X) - ((X * X) - (X * X)))))) - X) + (X - (X - (X * X)))) + (X * X)))) - X)) - (X - ((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))))) - X
+
+Generation: 189
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((X * X) + (((((X * X) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))))) - X) + (X * X))) - X) - X) + (X * X)) - ((X * X) - X)) - (X - (X * X))) - X
+
+Generation: 190
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(X - (X - X)) + (((((((((((((X * X) - X) + X) - ((X * X) - (X * X))) - X) - X) + ((X * X) - X)) + ((X * X) - X)) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X - (X - ((X * X) - ((X * X) - (X * X))))))) - X)) - (X - ((X * X) - (((((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X * X))) - (X * X))))) + ((X * X) - (((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))))) - (X * X))) - (X * X)))) - ((X - (X - (X * X))) - X)) - (X - ((X * X) - X)))
+
+Generation: 191
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(X - (X - X)) + (((((((((((X * X) - ((X * X) - (X * X))) - X) - X) + ((X * X) - X)) + ((X * X) - X)) - ((X * X) - X)) - (X - (((((((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X - (X - (X * X)))) + (X * X)) - ((X * X) - X)) * X) - ((((X * X) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - ((X - (X - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X * X))))) + ((X * X) - (((X * X) - ((((X * X) - (((X * X) - ((X * X) - (X * X))) - ((X - (X - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X * X))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - ((X * X) - (X * X))))) - (X * X)))) - (((X * X) - ((X * X) - (X * X))) - X)) - (X - ((((X * X) - ((X * X) - (X * X))) - (((X * X) - ((X * X) - (X - (X - ((X * X) - ((X * X) - (X * X))))))) - (X * X))) - X)))
+
+Generation: 192
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((X * X) + ((((X * X) - ((X * X) - (X * X))) - X) + (X * X))) - X) - X) + ((((((X - (X - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) + X) - ((X * X) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - ((X * X) - (X * X))))))) - (((X * X) - ((X * X) - (X * X))) - (X * X)))) - ((X - (X - (X * X))) - X)) - (X - (X * X))) - X
+
+Generation: 193
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((X * X) - ((X * X) - ((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))))) + ((((X - (X - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))))) - X) + ((X * X) - ((((X * X) - ((X * X) - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X * X))))) - X) - X) + (X * X)) - ((X * X) - X)) - (X - ((X * X) - ((X * X) - (X * X))))) - X
+
+Generation: 194
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X - (X - (((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) + X) + ((((X * X) - (((X * X) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - X) + (X * X))) - X) - X) + (X * X)) - ((X - (X - (X * X))) - X)) - (X - ((X * X) - ((X * X) - ((X * X) - (((X * X) - ((((X * X) - ((X * X) - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - (X * X))))))) - X
+
+Generation: 195
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((X * X) - ((X * X) - (X * X))) + ((((((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + ((X * X) - (((X * X) - ((((X * X) - (((X * X) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X * X))) - (X * X))) - (X * X)))) - ((X * X) - X)) - (X - (((X * X) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - ((X * X) - (X * X))))))) - X
+
+Generation: 196
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((((X - (X - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - X) + X) + ((((X - (X - (((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))))) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + ((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))))) - X) - X) + (X * X)) - ((X * X) - X)) - (X - (X * X))) - X
+
+Generation: 197
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(X - (X - X)) + ((((((((((X * X) - X) - X) + ((X * X) - X)) + ((((X * X) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - ((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))))) - (((X * X) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X * X))) - X)) - ((X * X) - ((X * X) - ((X * X) - X)))) - (X - ((X * X) - ((((X * X) - X) + X) - (X - (X - (X * X))))))) + (X * X)) - ((X - (X - (((((((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (((X * X) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - (X * X))))) - (((X * X) - ((((X * X) - X) + X) - (X * X))) - (X - (X * X)))) - X) + (((((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))) - (((X * X) - ((X * X) - (X * X))) - X)) * X)) + ((X * X) - ((X * X) - (X * X)))))) - X)) - (X - ((X * X) - X)))
+
+Generation: 198
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+((((((((X * X) - ((X * X) - (((X * X) - ((X - (X - (X * X))) - (((X * X) - X) + X))) - (((X * X) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (((((X * X) - (X * X)) + (X * X)) - ((X * X) - X)) * X))))) + ((((X * X) - (((X - (X - (X * X))) - (((X * X) - ((X * X) - (X * X))) - (X * X))) - (X * X))) - X) + ((X * X) - ((X * X) - (X * X))))) - X) - X) + ((X * X) - (((X * X) - (((X * X) - (((X * X) - ((X * X) - ((((X * X) - X) + X) - ((X * X) - (X * X))))) - (X * X))) - (X * X))) - (X * X)))) - ((X - (X - (X * X))) - X)) - (X - (X * X))) - X
+
+Generation: 199
+Best Individual:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((((((X * X) - X) + X) + ((((X - (X - (((X * X) - ((X * X) - (X * X))) - ((X * X) - (X * X))))) - ((((X * X) - ((X * X) - (X * X))) - ((X * X) - ((X * X) - ((X * X) - (X * X))))) - (X * X))) - X) + (X * X))) - X) - X) + (X * X)) - ((X * X) - X)) - (X - (X * X))) - X
+
+Best Individual of Run:
+Subpopulation 0:
+Evaluated: true
+Fitness: Standardized=49.492180000000005 Adjusted=0.01980504703896722 Hits=0
+Tree 0:
+(((((X * X) - X) + (X * X)) - (X - (X * X))) + ((X * X) - X)) - X

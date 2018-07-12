@@ -1,0 +1,35 @@
+package tutorial6.nodes;
+
+import ec.EvolutionState;
+import ec.Problem;
+import ec.gp.ADFStack;
+import ec.gp.GPData;
+import ec.gp.GPIndividual;
+import ec.gp.GPNode;
+import tutorial6.VectorData;
+
+public class Class2 extends GPNode 
+{
+	private static final long serialVersionUID = 1L;
+
+	@Override
+	public String toString() 
+	{
+		return "Class2";
+	}
+	
+	@Override
+	public int expectedChildren() 
+	{
+		return 0;
+	}
+
+	@Override
+	public void eval(EvolutionState state, int thread, GPData input, ADFStack stack, GPIndividual individual,
+			Problem problem) 
+	{
+		VectorData rd = ((VectorData)(input));
+        rd.mDataClass = 2;
+	}
+
+}

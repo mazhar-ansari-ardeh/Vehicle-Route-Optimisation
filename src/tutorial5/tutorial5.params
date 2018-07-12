@@ -1,0 +1,32 @@
+parent.0 = ../ec/gp/koza/koza.params
+
+# Override the number of generations 
+generations = 200
+
+# the next four items are already defined in koza.params, but we
+# put them here to be clear.
+
+# We have one function set, of class GPFunctionSet
+gp.fs.size = 1
+gp.fs.0 = ec.gp.GPFunctionSet
+# We'll call the function set "f0".
+gp.fs.0.name = f0
+
+# We have four functions in the function set. They are:
+gp.fs.0.size = 5
+gp.fs.0.func.0 = tutorial5.X
+gp.fs.0.func.0.nc = nc0
+gp.fs.0.func.1 = tutorial5.Add
+gp.fs.0.func.1.nc = nc2
+gp.fs.0.func.2 = tutorial5.Sub
+gp.fs.0.func.2.nc = nc2
+gp.fs.0.func.3 = tutorial5.Mul
+gp.fs.0.func.3.nc = nc2
+gp.fs.0.func.4 = tutorial5.RegERC
+gp.fs.0.func.4.nc = nc0
+
+
+eval.problem = tutorial5.SingleValuedRegression
+eval.problem.data = tutorial5.DoubleData
+
+gp.tree.print-style=c
