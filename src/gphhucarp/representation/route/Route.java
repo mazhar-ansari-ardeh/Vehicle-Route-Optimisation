@@ -15,6 +15,12 @@ public abstract class Route {
     protected double demand; // the total demand served by the route
     protected double cost; // the total cost/time of the route
 
+    /**
+     * Constructs a new <code>Route</code> instance
+     * @param capacity the capacity of the node.
+     * @param demand The total demand served by the node
+     * @param cost the total cost/time of the node
+     */
     public Route(double capacity, double demand, double cost) {
         this.capacity = capacity;
         this.demand = demand;
