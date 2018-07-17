@@ -19,7 +19,8 @@ public class GPRoutingPolicy extends RoutingPolicy {
 
     private GPTree gpTree;
 
-    public GPRoutingPolicy(PoolFilter poolFilter, GPTree gpTree) {
+    public GPRoutingPolicy(PoolFilter poolFilter, GPTree gpTree)
+    {
         super(poolFilter);
         name = "\"GPRoutingPolicy\"";
         this.gpTree = gpTree;

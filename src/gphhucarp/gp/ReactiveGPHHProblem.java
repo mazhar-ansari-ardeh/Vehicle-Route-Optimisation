@@ -17,12 +17,20 @@ import java.util.List;
 /**
  * A reactive GPHH problem to evaluate a reactive routing policy during the GPHH.
  * The evaluationg model is a reactive evaluation model.
- * It also includes a pool filter specifying how to filter out the pool of candidate tasks.
+ * It also includes a pool filter specifying how to filter out the pool of candidate tasks. <br>
+ *
+ * It has:
+ * 		gphhucarp.gp.evaluation.EvaluationModel,
+ * 		PoolFilter
+ * 		TieBreaker
+ *
+ * It uses the EvaluationModel that it has to evaluate
  */
 
 public class ReactiveGPHHProblem extends GPProblem implements SimpleProblemForm {
 
-    public static final String P_EVAL_MODEL = "eval-model";
+	private static final long serialVersionUID = 1L;
+	public static final String P_EVAL_MODEL = "eval-model";
     public static final String P_POOL_FILTER = "pool-filter";
     public static final String P_TIE_BREAKER = "tie-breaker";
 
