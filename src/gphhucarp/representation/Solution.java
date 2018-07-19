@@ -75,7 +75,7 @@ public class Solution<T extends Route> {
 
     /**
      * Initialise a node sequence solution of an instance.
-     * Each route is an initial node sequence route.
+     * Each route is an initial node sequence route that only contains the depot.
      * @param instance the instance.
      * @param numRoutes the number of routes.
      * @return the initial node sequence solution.

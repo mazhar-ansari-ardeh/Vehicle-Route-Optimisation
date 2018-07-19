@@ -104,7 +104,7 @@ public class NodeSeqRoute extends Route {
 
     /**
      * An initial node sequence route for an instance.
-     * It starts from the depot.
+     * It starts from and only contains the depot.
      * @param instance the instance.
      * @return An initial node sequence route starting from the depot.
      */
