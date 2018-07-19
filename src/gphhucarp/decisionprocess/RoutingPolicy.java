@@ -9,7 +9,12 @@ import gphhucarp.representation.route.NodeSeqRoute;
 import java.util.List;
 
 /**
- * A routing policy makes a decision
+ * A routing policy makes a decision. <br/> 
+ * 
+ * A routing policy is the functionality of evaluating the 
+ * priority of tasks and choosing the next task to be served next. <br/>
+ * 
+ * <b>Note: </b> A routing policy is actually an instance of a hyper heuristic.
  */
 
 public abstract class RoutingPolicy {
@@ -49,7 +54,7 @@ public abstract class RoutingPolicy {
     }
 
     /**
-     * Given the current decison process state,
+     * Given the current decision process state,
      * select the next task to serve by the give route from the pool of tasks.
      * @param rds the reactive decision situation.
      * @return the next task to be served by the route.

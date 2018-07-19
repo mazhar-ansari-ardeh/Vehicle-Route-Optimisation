@@ -16,7 +16,7 @@ import java.util.List;
 
 /**
  * A reactive GPHH problem to evaluate a reactive routing policy during the GPHH.
- * The evaluationg model is a reactive evaluation model.
+ * The evaluation model is a reactive evaluation model.
  * It also includes a pool filter specifying how to filter out the pool of candidate tasks. <br>
  *
  * It has:
