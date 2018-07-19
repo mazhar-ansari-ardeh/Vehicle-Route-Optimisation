@@ -2,6 +2,7 @@ package gphhucarptest;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -9,6 +10,7 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 
 import gphhucarp.core.Arc;
 import gphhucarp.core.Graph;
+import gphhucarp.representation.route.NodeSeqRoute;
 
 public class Main
 {
@@ -33,13 +35,25 @@ public class Main
 		nodes.add(2);
 		nodes.add(3);
 
-		Map<Pair<Integer, Integer>, Arc> arcMap = new HashMap<>();
-		arcMap.put(Pair.of(0, 1), arc);
-		arcMap.put(Pair.of(1, 2), arc2);
-		arcMap.put(Pair.of(2, 3), arc3);
-		// Pair<Integer, Integer>
-		Graph graph = new Graph(nodes, arcMap);
+//		Map<Pair<Integer, Integer>, Arc> arcMap = new HashMap<>();
+//		arcMap.put(Pair.of(0, 1), arc);
+//		arcMap.put(Pair.of(1, 2), arc2);
+//		arcMap.put(Pair.of(2, 3), arc3);
+//		// Pair<Integer, Integer>
+//		Graph graph = new Graph(nodes, arcMap);
+//		System.out.println("Estimated cost between 0 and 1:" + graph.getEstCost(0, 1));
 
-		System.out.println("Estimated cost between 0 and 1:" + graph.getEstCost(0, 1));
+		List<Integer> nodeSeq = new ArrayList<>();
+		nodeSeq.add(2);
+		nodeSeq.add(3);
+		nodeSeq.add(5);
+		nodeSeq.add(1);
+		List<Double> fracSeq = new ArrayList<>();
+		fracSeq.add(1d);
+		fracSeq.add(0d);
+		fracSeq.add(1d);
+		fracSeq.add(0d);
+		NodeSeqRoute route = new NodeSeqRoute(5/*capacity*/, 5 /*demand*/, 3 /*cost*/, nodeSeq, fracSeq);
+		System.out.println(route.toString());
 	}
 }

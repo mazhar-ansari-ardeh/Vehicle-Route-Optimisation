@@ -17,6 +17,8 @@ import java.util.List;
  * means the route serves (1,5), (4,2) and (2,0).
  *
  * Note that the indicating vector can be double, i.e. a fraction of demand is served.
+ * <br/> <br/>
+ * <b>Note</b>: It seems that this class also represents a vehicle too. Mzhr.
  *
  * Created by gphhucarp on 25/08/17.
  */
@@ -27,6 +29,13 @@ public class NodeSeqRoute extends Route {
     // fields used during the decision process
     private Arc nextTask; // the next task to serve (depot loop if refilling)
 
+    /**
+     * Constructs a new <code>NodeSeqRoute</code> instance.
+     * @param capacity the capacity of the node.
+     * @param demand The total demand served by the node.
+     * The value of demand must be lower than the value of capacity.
+     * @param cost the total cost/time of the node
+     */
     public NodeSeqRoute(double capacity, double demand, double cost,
                         List<Integer> nodeSequence, List<Double> fracSequence) {
         super(capacity, demand, cost);
@@ -68,11 +77,12 @@ public class NodeSeqRoute extends Route {
      * @param fraction
      * @param instance
      */
-    public void addPilot(int node, double fraction, Instance instance) {
-        Arc arc = instance.getGraph().getArc(currNode(), node);
-
+    public void addPilot(int node, double fraction, Instance instance)
+    {
         nodeSequence.add(node);
         fracSequence.add(fraction);
+
+        Arc arc = instance.getGraph().getArc(currNode() /* from node */, node /*to node*/);
         demand += arc.getExpectedDemand() * fraction;
         cost += arc.getServeCost() * fraction + arc.getExpectedDeadheadingCost() * (1-fraction);
     }
@@ -82,11 +92,12 @@ public class NodeSeqRoute extends Route {
      * @param node the node.
      * @param fraction the fraction of demand to be served (1 if fully served, 0 if not served).
      */
-    public void add(int node, double fraction, Instance instance) {
-        Arc arc = instance.getGraph().getArc(currNode(), node);
-
+    public void add(int node, double fraction, Instance instance)
+    {
         nodeSequence.add(node);
         fracSequence.add(fraction);
+
+        Arc arc = instance.getGraph().getArc(currNode(), node);
         demand += instance.getActDemand(arc) * fraction;
         cost += arc.getServeCost() * fraction + instance.getActDeadheadingCost(arc) * (1-fraction);
     }

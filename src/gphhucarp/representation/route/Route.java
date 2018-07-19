@@ -6,7 +6,8 @@ import gphhucarp.core.Instance;
  * An abstract class of a route.
  * A route should start and end at the depot.
  * It cannot serve the demand more than its capacity.
- *
+ * <br/> <br/>
+ * <b>Note</b>: It seems that this class also represents a vehicle too. Mzhr.
  * Created by gphhucarp on 25/08/17.
  */
 public abstract class Route {
@@ -16,10 +17,11 @@ public abstract class Route {
     protected double cost; // the total cost/time of the route
 
     /**
-     * Constructs a new <code>Route</code> instance
+     * Constructs a new <code>Route</code> instance.
      * @param capacity the capacity of the node.
-     * @param demand The total demand served by the node
-     * @param cost the total cost/time of the node
+     * @param demand The total demand served by the node.
+     * The value of demand must be lower than the value of capacity.
+     * @param cost the total cost/time of the node.
      */
     public Route(double capacity, double demand, double cost) {
         this.capacity = capacity;
