@@ -15,7 +15,7 @@ public class InstanceSamples {
     private Instance baseInstance;
     private List<Long> seeds;
 
-    public InstanceSamples(Instance baseInstance, List<Long> seeds) {
+    private InstanceSamples(Instance baseInstance, List<Long> seeds) {
         this.baseInstance = baseInstance;
         this.seeds = seeds;
     }

@@ -20,13 +20,19 @@ import java.util.PriorityQueue;
  *  - A decision process state: the state of the vehicles and the environment
  *  - An event queue: the events to happen
  *  - A routing policy that makes decisions as the vehicles go.
- *  - A task sequence solution as a predefined plan. This is used for proactive-reactive decision process.
+ *  - A task sequence solution as a predefined plan. This is used for proactive-reactive decision process. <p>
+ *
+ *  The output of the process is a solution for the graph. In actuality, a decision process is a sequence of
+ *  event triggerings to find a solution for the UCARP instance.
  */
-
-public abstract class DecisionProcess {
+public abstract class DecisionProcess
+{
     protected DecisionProcessState state; // the state
+
     protected PriorityQueue<DecisionProcessEvent> eventQueue;
+
     protected RoutingPolicy routingPolicy;
+
     protected Solution<TaskSeqRoute> plan;
 
     public DecisionProcess(DecisionProcessState state,

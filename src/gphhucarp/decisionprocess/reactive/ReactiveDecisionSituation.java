@@ -9,10 +9,11 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * The decision situation for reactive decision process.
+ * The decision situation for reactive decision process. This class is a simple composition that
+ * encloses a pool of arcs, a route and a <code>DecisionProcessState</code>
  */
 
-public class ReactiveDecisionSituation extends DecisionSituation {
+public class ReactiveDecisionSituation extends DecisionSituation /* <-- This class is empty*/ {
 
     private List<Arc> pool;
     private NodeSeqRoute route;
@@ -24,6 +25,10 @@ public class ReactiveDecisionSituation extends DecisionSituation {
         this.state = state;
     }
 
+    /**
+     * Get the pool of all arcs of this situation.
+     * @return pool of all arcs.
+     */
     public List<Arc> getPool() {
         return pool;
     }

@@ -12,7 +12,12 @@ import java.util.*;
  *  - the given UCARP instance, including relevant information such as the graph,
  *  - a list of remaining unserved tasks,
  *  - a list of unassigned tasks,
- *  - a partial node sequence solution.
+ *  - a partial node sequence solution. <p>
+ *  <p>
+ *
+ *  A <code>DecisionProcessState</code> can be considered as the state of a UCARP
+ *  instance (remaining of tasks, ...). <p>Mzhr<p><p>
+ *
  * Created by gphhucarp on 27/08/17.
  */
 public class DecisionProcessState {
