@@ -1,0 +1,40 @@
+parent.0 = ../ec/gp/koza/koza.params
+
+# Originally, this parameter was inherited from ec.simple.simple.params via ec.gp.koza.koza.params
+# finish = ec.simple.SimpleFinisher
+finish = tutorial5.PopulationSaverFinisher
+
+# Override the number of generations
+generations = 2000
+
+# the next four items are already defined in koza.params, but we
+# put them here to be clear.
+
+# We have one function set, of class GPFunctionSet
+gp.fs.size = 1
+gp.fs.0 = ec.gp.GPFunctionSet
+# We'll call the function set "f0".
+gp.fs.0.name = f0
+
+# We have four functions in the function set. They are:
+gp.fs.0.size = 7
+gp.fs.0.func.0 = tutorial7.X
+gp.fs.0.func.0.nc = nc0
+gp.fs.0.func.1 = tutorial7.Y
+gp.fs.0.func.1.nc = nc0
+gp.fs.0.func.2 = tutorial7.Z
+gp.fs.0.func.2.nc = nc0
+gp.fs.0.func.3 = tutorial7.Add
+gp.fs.0.func.3.nc = nc2
+gp.fs.0.func.4 = tutorial7.Sub
+gp.fs.0.func.4.nc = nc2
+gp.fs.0.func.5 = tutorial7.Mul
+gp.fs.0.func.5.nc = nc2
+gp.fs.0.func.6 = tutorial7.RegERC
+gp.fs.0.func.6.nc = nc0
+
+
+eval.problem = tutorial7.MultiValuedRegression
+eval.problem.data = tutorial7.TripletData
+
+# gp.tree.print-style=c

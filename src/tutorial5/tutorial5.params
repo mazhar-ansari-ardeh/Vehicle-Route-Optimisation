@@ -1,6 +1,10 @@
 parent.0 = ../ec/gp/koza/koza.params
 
-# Override the number of generations 
+# Originally, this parameter was inherited from ec.simple.simple.params via ec.gp.koza.koza.params
+# finish = ec.simple.SimpleFinisher
+finish = tutorial5.PopulationSaverFinisher
+
+# Override the number of generations
 generations = 200
 
 # the next four items are already defined in koza.params, but we
