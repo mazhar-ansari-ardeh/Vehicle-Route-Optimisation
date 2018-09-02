@@ -1,6 +1,15 @@
 # Compiled class file
 *.class
 
+# Data files (in this proj, they may contain population)
+*.dat
+
+# ECJ's status files
+*.stat
+
+# vim's swp files
+*.swp
+
 # Log file
 *.log
 
@@ -76,3 +85,4 @@ fabric.properties
 .csv
 /.metadata/
 /bin/
+

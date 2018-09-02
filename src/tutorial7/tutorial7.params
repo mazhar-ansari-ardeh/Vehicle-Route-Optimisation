@@ -2,10 +2,11 @@ parent.0 = ../ec/gp/koza/koza.params
 
 # Originally, this parameter was inherited from ec.simple.simple.params via ec.gp.koza.koza.params
 # finish = ec.simple.SimpleFinisher
-finish = tutorial5.PopulationSaverFinisher
+finish = tutorial7.FilePopSaverFinisher
+finish.final-pop-file-name = final-pop.dat
 
 # Override the number of generations
-generations = 2000
+generations = 100
 
 # the next four items are already defined in koza.params, but we
 # put them here to be clear.

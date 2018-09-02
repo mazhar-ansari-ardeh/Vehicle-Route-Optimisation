@@ -45,6 +45,8 @@ public class MultiValuedRegression extends GPProblem implements SimpleProblemFor
 		if(ind.evaluated)
 			return;
 
+		IndiCre.Break((GPIndividual)ind);
+		
 		int hits = 0;
 		double sum = 0;
 		double result;
