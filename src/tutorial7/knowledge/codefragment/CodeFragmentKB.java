@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
+import ec.Individual;
+import ec.Population;
+import ec.Subpopulation;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import tutorial7.TreeSlicer;
@@ -71,6 +74,26 @@ public class CodeFragmentKB implements KnowlegeBase
 			});
 
 		return !nodes.isEmpty();
+	}
+
+	public boolean addFrom(Population p)
+	{
+		if (p == null)
+		{
+			return false;
+		}
+
+		boolean added = false;
+		for(Subpopulation sub : p.subpops)
+		{
+			for(Individual ind : sub.individuals)
+			{
+				if( addFrom((GPIndividual)ind) == true)
+					added = true;
+			}
+		}
+
+		return added;
 	}
 
 	/**

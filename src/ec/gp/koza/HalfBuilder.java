@@ -141,7 +141,9 @@ public class HalfBuilder extends KozaBuilder
 				base.push(P_PICKGROWPROBABILITY),
 				def.push(P_PICKGROWPROBABILITY),0.0,1.0);
 		if (pickGrowProbability < 0.0)
-			state.output.fatal("The Pick-Grow Probability for HalfBuilder must be a double floating-point value between 0.0 and 1.0 inclusive.", base.push(P_MAXDEPTH),def.push(P_MAXDEPTH));
+			state.output.fatal("The Pick-Grow Probability for HalfBuilder must be a double "
+					+ "floating-point value between 0.0 and 1.0 inclusive."
+					, base.push(P_MAXDEPTH),def.push(P_MAXDEPTH));
 	}
 
 	public GPNode newRootedTree(final EvolutionState state,
