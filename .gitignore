@@ -10,6 +10,9 @@
 # vim's swp files
 *.swp
 
+# I don't know what this file is for but it is not useful for me
+.DS_Store
+
 # Log file
 *.log
 
