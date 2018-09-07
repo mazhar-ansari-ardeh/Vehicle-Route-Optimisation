@@ -2,7 +2,7 @@
   Copyright 2006 by Sean Luke
   Licensed under the Academic Free License version 3.0
   See the file "LICENSE" for more information
-*/
+ */
 
 
 package ec.gp.koza;
@@ -10,15 +10,15 @@ import ec.*;
 import ec.gp.*;
 import ec.util.*;
 
-/* 
+/*
  * HalfBuilder.java
- * 
+ *
  * Created: Thu Oct  7 18:03:49 1999
  * By: Sean Luke
  */
 
-/** HalfBuilder is a GPNodeBuilder which 
-    implements the RAMPED HALF-AND-HALF tree building method described in Koza I/II.  
+/** HalfBuilder is a GPNodeBuilder which
+    implements the RAMPED HALF-AND-HALF tree building method described in Koza I/II.
 
     <p>RAMPED HALF-AND-HALF works by choosing a random integer <i>d</i> between minDepth and maxDepth, inclusive.  It then grows a tree of depth 1 to <i>d</i> inclusive.  (1-pickGrowProbability) of the time (by default, 0.5) it grows a tree using the FULL method, which generates full trees of exactly depth <i>d</i>.  (pickGrowProbability) of the time, it grows a tree using the GROW method, which may generate trees of any size between 1 and <i>d</i> inclusive.
 
@@ -104,60 +104,62 @@ import ec.util.*;
     <tr><td valign=top><i>base</i>.<tt>min-depth</tt><br>
     <font size=-1>int &gt;= 1</font></td>
     <td valign=top>(smallest "maximum" depth the builder may use for building a tree.  2 is the default.)</td></tr>
-   
+
     <tr><td valign=top><i>base</i>.<tt>max-depth</tt><br>
     <font size=-1>int &gt;= <i>base</i>.<tt>min-depth</tt></font></td>
     <td valign=top>(largest "maximum" depth the builder may use for building a tree. 6 is the default.)</td></tr>
     </table>
-   
+
     <p><b>Default Base</b><br>
     gp.koza.half
 
-    * @author Sean Luke
-    * @version 1.0 
-    */
+ * @author Sean Luke
+ * @version 1.0
+ */
 
 
 public class HalfBuilder extends KozaBuilder
-    {
-    public static final String P_HALFBUILDER = "half";
-    public static final String P_PICKGROWPROBABILITY = "growp";
+{
+	public static final String P_HALFBUILDER = "half";
+	public static final String P_PICKGROWPROBABILITY = "growp";
 
-    /** The likelihood of using GROW over FULL. */
-    public double pickGrowProbability;
-    
-    public Parameter defaultBase()
-        {
-        return GPKozaDefaults.base().push(P_HALFBUILDER); 
-        }
+	/** The likelihood of using GROW over FULL. */
+	public double pickGrowProbability;
 
-    public void setup(final EvolutionState state, final Parameter base)
-        {
-        super.setup(state,base);
+	public Parameter defaultBase()
+	{
+		return GPKozaDefaults.base().push(P_HALFBUILDER);
+	}
 
-        Parameter def = defaultBase();
+	public void setup(final EvolutionState state, final Parameter base)
+	{
+		super.setup(state,base);
 
-        pickGrowProbability = state.parameters.getDoubleWithMax(
-            base.push(P_PICKGROWPROBABILITY),
-            def.push(P_PICKGROWPROBABILITY),0.0,1.0);
-        if (pickGrowProbability < 0.0)
-            state.output.fatal("The Pick-Grow Probability for HalfBuilder must be a double floating-point value between 0.0 and 1.0 inclusive.", base.push(P_MAXDEPTH),def.push(P_MAXDEPTH));
-        }
-    
-    public GPNode newRootedTree(final EvolutionState state,
-        final GPType type,
-        final int thread,
-        final GPNodeParent parent,
-        final GPFunctionSet set,
-        final int argposition,
-        final int requestedSize)
-        {
-        if (state.random[thread].nextDouble() < pickGrowProbability)
-            return growNode(state,0,state.random[thread].nextInt(maxDepth-minDepth+1) + minDepth,type,thread,parent,argposition,set);
-        else
-            return fullNode(state,0,state.random[thread].nextInt(maxDepth-minDepth+1) + minDepth,type,thread,parent,argposition,set);
-        }
+		Parameter def = defaultBase();
 
-    }
+		pickGrowProbability = state.parameters.getDoubleWithMax(
+				base.push(P_PICKGROWPROBABILITY),
+				def.push(P_PICKGROWPROBABILITY),0.0,1.0);
+		if (pickGrowProbability < 0.0)
+			state.output.fatal("The Pick-Grow Probability for HalfBuilder must be a double "
+					+ "floating-point value between 0.0 and 1.0 inclusive."
+					, base.push(P_MAXDEPTH),def.push(P_MAXDEPTH));
+	}
+
+	public GPNode newRootedTree(final EvolutionState state,
+			final GPType type,
+			final int thread,
+			final GPNodeParent parent,
+			final GPFunctionSet set,
+			final int argposition,
+			final int requestedSize)
+	{
+		if (state.random[thread].nextDouble() < pickGrowProbability)
+			return growNode(state,0,state.random[thread].nextInt(maxDepth-minDepth+1) + minDepth,type,thread,parent,argposition,set);
+		else
+			return fullNode(state,0,state.random[thread].nextInt(maxDepth-minDepth+1) + minDepth,type,thread,parent,argposition,set);
+	}
+
+}
 
 
