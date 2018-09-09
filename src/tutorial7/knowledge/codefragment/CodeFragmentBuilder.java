@@ -15,6 +15,7 @@ import ec.gp.GPNodeParent;
 import ec.gp.GPType;
 import ec.gp.koza.HalfBuilder;
 import ec.util.Parameter;
+import tutorial7.knowledge.KnowledgeExtractor;
 
 public class CodeFragmentBuilder extends HalfBuilder
 {
@@ -22,13 +23,19 @@ public class CodeFragmentBuilder extends HalfBuilder
 
 	public static final String P_KNOWLEDGE_FILE = "knowledge-file";
 	public static final String P_KNOWLEDGE_PROBABILITY = "knowledge-probability";
+	
+	private double knowledgeProbability = 0;
 
-	CodeFragmentKB knowledgeBase = new CodeFragmentKB();
+	// CodeFragmentKB knowledgeBase = new CodeFragmentKB();
+
+	private KnowledgeExtractor extractor;
 
 
 	@Override
 	public void setup(EvolutionState state, Parameter base)
 	{
+		super.setup(state, base);
+		
 		Parameter knowledgeFileName = base.push(P_KNOWLEDGE_FILE);
 		String fileName = state.parameters.getString(knowledgeFileName, null);
 		if(fileName == null)
@@ -56,9 +63,12 @@ public class CodeFragmentBuilder extends HalfBuilder
 		{
 			// TODO: Do something about this.
 		}
-		knowledgeBase.addFrom(p);
-
-		super.setup(state, base);
+		
+	    CodeFragmentKB knowledgeBase = new CodeFragmentKB();
+		knowledgeBase .addFrom(p);
+		extractor = knowledgeBase.getKnowledgeExtractor();
+		
+		knowledgeProbability = state.parameters.getDouble(base.push(P_KNOWLEDGE_PROBABILITY), null);
 	}
 
 	protected GPNode growNode(final EvolutionState state, final int current, final int max,
