@@ -45,7 +45,7 @@ public class MultiValuedRegression extends GPProblem implements SimpleProblemFor
 		if(ind.evaluated)
 			return;
 
-		TreeSlicer.extractToTrees((GPIndividual)ind, true);
+		// TreeSlicer.extractToTrees((GPIndividual)ind, true);
 
 		int hits = 0;
 		double sum = 0;

@@ -8,6 +8,12 @@ finish.final-pop-file-name = final-pop.dat
 # Override the number of generations
 generations = 100
 
+# Originally it was gp.tc.0.init = ec.gp.koza.HalfBuilder
+# gp.tc.0.init = tutorial7.knowledge.codefragment.CodeFragmentBuilder
+# gp.tc.0.init.knowledge-file = final-pop.dat
+# gp.tc.0.init.knowledge-probability = 0.5
+
+
 # the next four items are already defined in koza.params, but we
 # put them here to be clear.
 

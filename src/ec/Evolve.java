@@ -10,9 +10,9 @@ import ec.util.*;
 import java.io.File;
 import java.io.PrintWriter;
 
-/* 
+/*
  * Evolve.java
- * 
+ *
  * Created: Wed Aug 11 17:49:01 1999
  * By: Sean Luke
  */
@@ -28,17 +28,17 @@ import java.io.PrintWriter;
  * The user can provide optional overriding parameters on the command-line with the <tt>-p</tt> option.
  *
  * <p><tt>java ec.Evolve -checkpoint </tt><i>checkpoint_file</i>
- * 
+ *
  * <p>This starts up an evolutionary run from a previous checkpoint file.
  *
  * <p>The basic Evolve class has a main() loop with a simple job iteration facility.
  * If you'd like to run the evolutionary system four times, each with a different random
  * seed, you might do:
- * 
+ *
  * <p><tt>java ec.Evolve -file </tt><i>parameter_file</i> <tt>-p jobs=4</tt>
  *
  * <p>Here, Evolve will run the first time with the random seed equal to whatever's specified
- * in your file, then job#2 will be run with the seed + 1, job#3 with the seed + 2, 
+ * in your file, then job#2 will be run with the seed + 1, job#3 with the seed + 2,
  * and job#4 with the seed + 3.  If you have multiple seeds, ECJ will try to make sure they're
  * all different even across jobs by adding the job number * numberOfSeeds to each of them.
  * This means that if you're doing multiple jobs with multiple seeds, you should probably set
@@ -107,13 +107,13 @@ import java.io.PrintWriter;
  <td valign=top>(at the end of a run, do we print out a list of all the parameters stored in the parameter database?)</td></tr>
 
  </table>
- * 
+ *
  *
  * @author Sean Luke
- * @version 1.0 
+ * @version 1.0
  */
 
-public class Evolve 
+public class Evolve
 {
 	public final static String P_PRINTACCESSEDPARAMETERS = "print-accessed-params";
 	public final static String P_PRINTUSEDPARAMETERS = "print-used-params";
@@ -163,37 +163,37 @@ public class Evolve
 
 
 	/** Optionally prints the help message. */
-	public static void checkForHelp(String[] args) 
+	public static void checkForHelp(String[] args)
 	{
 		for(int x=0;x<args.length;x++)
 			if (args[x].equals(A_HELP))
 			{
 				System.err.println(Version.message());
 				System.err.println(
-						"Format:\n\n" + 
+						"Format:\n\n" +
 								"    java ec.Evolve -file FILE [-p PARAM=VALUE] [-p PARAM=VALUE] ...\n" +
-								"    java ec.Evolve -from FILE [-p PARAM=VALUE] [-p PARAM=VALUE] ...\n" + 
-								"    java ec.Evolve -from FILE -at CLASS [-p PARAM=VALUE] [-p PARAM=VALUE] ...\n" + 
-								"    java ec.Evolve -checkpoint CHECKPOINT\n" + 
+								"    java ec.Evolve -from FILE [-p PARAM=VALUE] [-p PARAM=VALUE] ...\n" +
+								"    java ec.Evolve -from FILE -at CLASS [-p PARAM=VALUE] [-p PARAM=VALUE] ...\n" +
+								"    java ec.Evolve -checkpoint CHECKPOINT\n" +
 								"    java ec.Evolve -help\n\n" +
 								"-help                   Shows this message and exits.\n\n" +
 								"-file FILE              Launches ECJ using the provided parameter FILE.\n\n" +
-								"-from FILE              Launches ECJ using the provided parameter FILE\n" + 
-								"                        which is defined relative to the directory\n" + 
-								"                        holding the classfile ec/Evolve.class  If this\n" + 
-								"                        class file is found inside a Jar file, then the\n" + 
+								"-from FILE              Launches ECJ using the provided parameter FILE\n" +
+								"                        which is defined relative to the directory\n" +
+								"                        holding the classfile ec/Evolve.class  If this\n" +
+								"                        class file is found inside a Jar file, then the\n" +
 								"                        FILE will also be assumed to be in that Jar file,\n" +
 								"                        at the proper relative location.\n\n" +
-								"-from FILE -at CLASS    Launches ECJ using the provided parameter FILE\n" + 
-								"                        which is defined relative to the directory\n" + 
-								"                        holding the classfile CLASS (for example,\n" + 
+								"-from FILE -at CLASS    Launches ECJ using the provided parameter FILE\n" +
+								"                        which is defined relative to the directory\n" +
+								"                        holding the classfile CLASS (for example,\n" +
 								"                        ec/ant/ant.class).  If this class file is found\n" +
-								"                        inside a Jar file, then the FILE will also be\n" + 
+								"                        inside a Jar file, then the FILE will also be\n" +
 								"                        assumed to be in that Jar file, at the proper\n" +
 								"                        relative location.\n\n" +
 								"-p PARAM=VALUE          Overrides the parameter PARAM in the parameter\n" +
-								"                        file, setting it to the value VALUE instead.  You\n" + 
-								"                        can override as many parameters as you like on\n" + 
+								"                        file, setting it to the value VALUE instead.  You\n" +
+								"                        can override as many parameters as you like on\n" +
 								"                        the command line.\n\n" +
 								"-checkpoint CHECKPOINT  Launches ECJ from the provided CHECKPOINT file.\n"
 						);
@@ -221,10 +221,10 @@ public class Evolve
 	}
 
 	/** Loads a ParameterDatabase from checkpoint if "-params" is in the command-line arguments. */
-	public static ParameterDatabase loadParameterDatabase(String[] args) 
+	public static ParameterDatabase loadParameterDatabase(String[] args)
 	{
 		// search for a -file
-		ParameterDatabase parameters = null;        
+		ParameterDatabase parameters = null;
 		for(int x=0;x<args.length-1;x++)
 			if (args[x].equals(A_FILE))
 				try
@@ -237,7 +237,7 @@ public class Evolve
 		catch(Exception e)
 		{
 			e.printStackTrace();
-			Output.initialError("An exception was generated upon reading the parameter file \"" + args[x+1] + "\".\nHere it is:\n" + e); 
+			Output.initialError("An exception was generated upon reading the parameter file \"" + args[x+1] + "\".\nHere it is:\n" + e);
 		}
 
 		// search for a resource class (we may or may not use this)
@@ -248,7 +248,7 @@ public class Evolve
 		{
 					if (parameters != null)  // uh oh
 						Output.initialError("Both -file and -at arguments provided.  This is not permitted.\nFor help, try:  java ec.Evolve -help");
-					else 
+					else
 						cls = Class.forName(args[x+1]);
 					break;
 		}
@@ -256,7 +256,7 @@ public class Evolve
 		{
 			e.printStackTrace();
 			Output.initialError(
-					"An exception was generated upon extracting the class to load the parameter file relative to: " + args[x+1] + 
+					"An exception was generated upon extracting the class to load the parameter file relative to: " + args[x+1] +
 					"\nFor help, try:  java ec.Evolve -help\n\n" + e);
 		}
 
@@ -267,7 +267,7 @@ public class Evolve
 		{
 					if (parameters != null)  // uh oh
 						Output.initialError("Both -file and -from arguments provided.  This is not permitted.\nFor help, try:  java ec.Evolve -help");
-					else 
+					else
 					{
 						if (cls == null)  // no -at
 							cls = Evolve.class;
@@ -304,8 +304,8 @@ public class Evolve
 			try { return ((Integer)runtime.getClass().getMethod("availableProcessors", (Class[])null).
 					invoke(runtime,(Object[])null)).intValue(); }
 			catch (Exception e)
-			{ 
-				output.fatal("Whoa! This Java version is too old to have the Runtime.availableProcessors() method available.\n" + 
+			{
+				output.fatal("Whoa! This Java version is too old to have the Runtime.availableProcessors() method available.\n" +
 						"This means you can't use 'auto' as a threads option.",threadParameter,null);
 			}
 		}
@@ -337,7 +337,7 @@ public class Evolve
 	}
 
 	/** Loads a random generator seed.  First, the seed is loaded from the seedParameter.  If the parameter
-        is V_SEED_TIME, the seed is set to the currentTime value.  Then the seed is incremented by the offset. 
+        is V_SEED_TIME, the seed is set to the currentTime value.  Then the seed is incremented by the offset.
         This method is broken out of initialize(...) primarily to share code with ec.eval.MasterProblem.*/
 	public static int determineSeed(Output output, ParameterDatabase parameters, Parameter seedParameter, long currentTime, int offset, boolean auto)
 	{
@@ -380,7 +380,7 @@ public class Evolve
 		output = new Output(true);
 
 		// stdout is always log #0.  stderr is always log #1.
-		// stderr accepts announcements, and both are fully verbose 
+		// stderr accepts announcements, and both are fully verbose
 		// by default.
 		output.addLog(ec.util.Log.D_STDOUT,false);
 		output.addLog(ec.util.Log.D_STDERR,true);
@@ -392,7 +392,7 @@ public class Evolve
 	/** Initializes an evolutionary run given the parameters and a random seed adjustment (added to each random seed).
         The adjustment offers a convenient way to change the seeds of the random number generators each time you
         do a new evolutionary run.  You are of course welcome to replace the random number generators after initialize(...)
-        but before startFresh(...) 
+        but before startFresh(...)
 
         <p>This method works by first setting up an Output (using buildOutput), then calling initialize(ParameterDatabase, seed, output)
 	 */
@@ -422,7 +422,7 @@ public class Evolve
 		// Should we muzzle stdout and stderr?
 
 				if (parameters.exists(new Parameter(P_MUZZLE), null))
-					output.warning("" + new Parameter(P_MUZZLE) + " has been deprecated.  We suggest you use " + 
+					output.warning("" + new Parameter(P_MUZZLE) + " has been deprecated.  We suggest you use " +
 							new Parameter(P_SILENT) + " or similar newer options.");
 
 				if (parameters.getBoolean(new Parameter(P_SILENT), null, false) ||
@@ -432,7 +432,7 @@ public class Evolve
 					output.getLog(1).silent = true;
 				}
 
-				// output was already created for us.  
+				// output was already created for us.
 				output.systemMessage(Version.message());
 
 				// 2. set up thread values
@@ -445,7 +445,7 @@ public class Evolve
 				// 3. create the Mersenne Twister random number generators,
 				// one per thread
 
-				random = new MersenneTwisterFast[breedthreads > evalthreads ? 
+				random = new MersenneTwisterFast[breedthreads > evalthreads ?
 						breedthreads : evalthreads];
 				seeds = new int[random.length];
 
@@ -457,7 +457,7 @@ public class Evolve
 							time+x,random.length * randomSeedOffset, auto);
 					for (int y=0;y<x;y++)
 						if (seeds[x]==seeds[y])
-							output.fatal(P_SEED+"."+x+" ("+seeds[x]+") and "+P_SEED+"."+y+" ("+seeds[y]+") ought not be the same seed.",null,null); 
+							output.fatal(P_SEED+"."+x+" ("+seeds[x]+") and "+P_SEED+"."+y+" ("+seeds[y]+") ought not be the same seed.",null,null);
 					random[x] = Evolve.primeGenerator(new MersenneTwisterFast(seeds[x]));    // we prime the generator to be more sure of randomness.
 					seedMessage = seedMessage + seeds[x] + " ";
 				}
@@ -554,58 +554,58 @@ public class Evolve
 	/*
 
 	 * MAIN
-	 * 
+	 *
 	 * Evolve has... evolved from previous Evolves.  The goal behind these changes is:
 	 *       1. To provide a simple jobs facility
 	 *       2. To make it easy for you to make your own main(), including more
 	 *          sophisticated jobs facilities.
-	 * 
+	 *
 	 * Before we get into the specifics of this file, let's first look at the main
 	 * evolution loop in EvolutionState.java.  The general code is:
 	 *       1.  If I was loaded from a checkpoint, call the hook startFromCheckpoint()
-	 *       2.  If I'm instead starting from scratch, call the hook startFresh() 
+	 *       2.  If I'm instead starting from scratch, call the hook startFresh()
 	 *       3.  Loop:
-	 *               4. result = evolve() 
+	 *               4. result = evolve()
 	 *               5. If result != EvolutionState.R_NOTDONE, break from loop
 	 *       6.      Call the hook finish(result)
-	 * 
+	 *
 	 * That's all there's to it.  Various EvolutionState classes need to implement
 	 * the startFromCheckpoint, startFresh, evolve, and finish methods.  This basic
 	 * evolution loop is encapsulated in a convenience method called EvolutionState.run(...).
-	 * 
+	 *
 	 * Evolve.java is little more than code to fire up the right EvolutionState class,
 	 * call run(...), and then shut down.  The complexity mostly comes from bringing
 	 * up the class (loading it from checkpoint or from scratch) and in shutting down.
 	 * Here's the general mechanism:
-	 * 
+	 *
 	 * - To load from checkpoint, we must find the checkpoint filename and call
 	 *       Checkpoint.restoreFromCheckpoint(filename) to generate the EvolutionState
 	 *       instance.  Evolve.java provides a convenience function for this called
 	 *       possiblyRestoreFromCheckpoint(...), which returns null if there *isn't*
 	 *       a checkpoint file to load from.  Else it returns the unfrozen EvolutionState.
-	 *       
+	 *
 	 * - To instead set up from scratch, you have to do a bunch of stuff to set up the state.
 	 *       First, you need to load a parameter database.  Evolve.java has a convenience function
 	 *       for that called loadParameterDatabase(...).  Second, you must do a series
 	 *       of items: (1) generate an Output object (2) identify the number of threads
 	 *       (3) create the MersenneTwisterFast random number generators (4) instantiate
-	 *       the EvolutionState subclass instance (5) plug these items, plus the random 
+	 *       the EvolutionState subclass instance (5) plug these items, plus the random
 	 *       seed offset and the parameter database, into the instance.  These five
 	 *       steps are done for you in a convenience function called initialize(...).
-	 * 
+	 *
 	 * -     Now the state is ready to go. Call run(...) on your EvolutionState
 	 *       (or do the evolution loop described above manually if you wish)
-	 * 
+	 *
 	 * - Finally, to shut down, you need to (1) flush the Output (2) print out
 	 *       the used, accessed, unused, unaccessed, and all parameters if the user
 	 *       requested a printout at the end [rarely] (3) flush System.err and System.out
 	 *       for good measure, and (4) close Output -- which closes its streams except
 	 *       for System.err and System.out.  There is a convenience function for this as
 	 *       well.  It's called cleanup(...).
-	 *       
+	 *
 	 * - Last, you shut down with System.exit(0) -- very important because it quits
 	 *       any remaining threads the user might have had running and forgot about.
-	 *       
+	 *
 	 * So there you have it.  Several convenience function in Evolve...
 	 *       Evolve.possiblyRestoreFromCheckpoint
 	 *       Evolve.loadParameterDatabase
@@ -613,7 +613,7 @@ public class Evolve
 	 *       EvolutionState.run
 	 *       Evolve.cleanup
 	 * ... result in a very simple basic main() function:
-	 *       
+	 *
 	 *
 	 *               public static void main(String[] args)
 	 *                       {
@@ -631,7 +631,7 @@ public class Evolve
 	 *
 	 *
 	 * Piece of cake!
-	 * 
+	 *
 	 * The more extravagant main(...) you see below just has a few extra gizmos for
 	 * doing basic job iteration.  EvolutionState has two convenience slots for
 	 * doing job iteration:
@@ -642,7 +642,7 @@ public class Evolve
 	 * The reason these are slots in EvolutionState is so you can store this information
 	 * across checkpoints and continue where you had started job-number-wise when the
 	 * user starts up from a checkpoint again.
-	 * 
+	 *
 	 * You'll probably want the EvolutionState to output its stat files etc. using unique
 	 * prefixes to differentiate between jobs (0.stat, 1.stat, or whatever you like -- it
 	 * doesn't have to be numbers), and you'll also probably want checkpoint files to be
@@ -653,8 +653,8 @@ public class Evolve
 	 *
 	 * The extravagant main below is basically doing this.  We're using state.job to stash
 	 * away a single iterated job number, stored as an Integer in state.job[0], and then
-	 * iterating that way, making sure we stash the job number and runtime arguments each time 
-	 * so we can recover them when loading from checkpoint.  We use the "jobs" parameter 
+	 * iterating that way, making sure we stash the job number and runtime arguments each time
+	 * so we can recover them when loading from checkpoint.  We use the "jobs" parameter
 	 * to determine how many jobs to run.  If this number is 1, we don't even bother to set
 	 * the file prefixes, so ECJ generates files just like it used to.
 	 *
@@ -753,7 +753,7 @@ public class Evolve
 				if (numJobs > 1)                                                    // only if iterating (so we can be backwards-compatible),
 				{
 					String jobFilePrefix = "job." + job + ".";
-					state.output.setFilePrefix(jobFilePrefix);     // add a prefix for checkpoint/output files 
+					state.output.setFilePrefix(jobFilePrefix);     // add a prefix for checkpoint/output files
 					state.checkpointPrefix = jobFilePrefix + state.checkpointPrefix;  // also set up checkpoint prefix
 				}
 

@@ -3,7 +3,7 @@ package tutorial7.knowledge.codefragment;
 import ec.gp.GPNode;
 import tutorial7.knowledge.KnowledgeItem;
 
-public class CodeFragmentKI implements KnowledgeItem
+public class CodeFragmentKI implements KnowledgeItem<GPNode>
 {
 	GPNode codeFragment;
 	int counter;
@@ -33,5 +33,11 @@ public class CodeFragmentKI implements KnowledgeItem
 	public int hashCode()
 	{
 		return codeFragment.hashCode();
+	}
+
+	@Override
+	public GPNode getItem()
+	{
+		return codeFragment;
 	}
 }

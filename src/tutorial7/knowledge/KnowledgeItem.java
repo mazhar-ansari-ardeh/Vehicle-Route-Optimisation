@@ -1,5 +1,7 @@
 package tutorial7.knowledge;
 
-public interface KnowledgeItem {
+public interface KnowledgeItem<T>
+{
 
+	T getItem();
 }

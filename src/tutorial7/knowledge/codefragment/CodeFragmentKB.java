@@ -1,9 +1,16 @@
 package tutorial7.knowledge.codefragment;
 
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
+import ec.EvolutionState;
 import ec.Individual;
 import ec.Population;
 import ec.Subpopulation;
@@ -14,7 +21,7 @@ import tutorial7.knowledge.KnowledgeExtractor;
 import tutorial7.knowledge.KnowledgeItem;
 import tutorial7.knowledge.KnowlegeBase;
 
-public class CodeFragmentKB implements KnowlegeBase
+public class CodeFragmentKB implements KnowlegeBase<GPNode>
 {
 	// Using ConcurrentHashMap instead of HashMap will make this KB capable of
 	// concurrency.
@@ -34,7 +41,7 @@ public class CodeFragmentKB implements KnowlegeBase
 	 * @author Mazhar
 	 */
 	@Override
-	public boolean addItem(KnowledgeItem item)
+	public boolean addItem(KnowledgeItem<GPNode> item)
 	{
 		if (item == null || !(item instanceof CodeFragmentKI))
 		{
@@ -96,6 +103,48 @@ public class CodeFragmentKB implements KnowlegeBase
 		return added;
 	}
 
+	public boolean addFrom(File file, EvolutionState state)
+	{
+		if (file == null)
+		{
+			return false;
+		}
+
+		try(ObjectInputStream dis = new ObjectInputStream(new FileInputStream(file)))
+		{
+			// int n = 1; // dis.readInt();
+			// dis.reset();
+			int nsub = dis.readInt();
+			boolean added = false;
+			for(int i = 0; i < nsub; i++)
+			{
+				int nind = dis.readInt();
+				for(int j = 0; j < nind; j++)
+				{
+					addFrom((GPIndividual) dis.readObject());
+					added = true;
+				}
+			}
+//			while(true)
+//			{
+//				dis.readObject();
+//			}
+
+			return added;
+		} catch (FileNotFoundException e)
+		{
+			return false;
+		} catch (IOException e)
+		{
+			return false;
+		} catch (ClassNotFoundException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return false;
+	}
+
 	/**
 	 * Removes a given <code>KnowledgeItem</code> from knowledge base.
 	 *
@@ -109,7 +158,7 @@ public class CodeFragmentKB implements KnowlegeBase
 	 * @author Mazhar
 	 */
 	@Override
-	public boolean removeItem(KnowledgeItem item)
+	public boolean removeItem(KnowledgeItem<GPNode> item)
 	{
 		if (item == null || !(item instanceof CodeFragmentKI))
 		{
@@ -133,7 +182,7 @@ public class CodeFragmentKB implements KnowlegeBase
 	 * @author Mazhar
 	 */
 	@Override
-	public boolean contains(KnowledgeItem item)
+	public boolean contains(KnowledgeItem<GPNode> item)
 	{
 		if (item == null || !(item instanceof CodeFragmentKI))
 		{
@@ -155,7 +204,7 @@ public class CodeFragmentKB implements KnowlegeBase
 		return new CyclicCodeFragmentKnowledgeExtractor();
 	}
 
-	class CyclicCodeFragmentKnowledgeExtractor implements KnowledgeExtractor
+	public class CyclicCodeFragmentKnowledgeExtractor implements KnowledgeExtractor
 	{
 		Iterator<Integer> iter;
 
@@ -171,7 +220,7 @@ public class CodeFragmentKB implements KnowlegeBase
 		}
 
 		@Override
-		public KnowledgeItem getNext()
+		public KnowledgeItem<GPNode> getNext()
 		{
 			if(iter.hasNext() == false)
 				iter = repository.keySet().iterator();

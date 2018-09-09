@@ -8,13 +8,13 @@ package tutorial7.knowledge;
  * 	* It should be able to handle memory schemes
  * 	* It should be able to be dynamic
  */
-public interface KnowlegeBase
+public interface KnowlegeBase<T>
 {
-	boolean addItem(KnowledgeItem item);
+	boolean addItem(KnowledgeItem<T> item);
 
-	boolean removeItem(KnowledgeItem item);
+	boolean removeItem(KnowledgeItem<T> item);
 
-	boolean contains(KnowledgeItem item);
+	boolean contains(KnowledgeItem<T> item);
 
 	// The iterator for this collection
 	public KnowledgeExtractor getKnowledgeExtractor();
