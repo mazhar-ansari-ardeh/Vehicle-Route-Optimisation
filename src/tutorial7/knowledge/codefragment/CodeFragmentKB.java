@@ -1,6 +1,5 @@
 package tutorial7.knowledge.codefragment;
 
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -16,6 +15,7 @@ import ec.Population;
 import ec.Subpopulation;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
+import ec.gp.GPSpecies;
 import tutorial7.TreeSlicer;
 import tutorial7.knowledge.KnowledgeExtractor;
 import tutorial7.knowledge.KnowledgeItem;
@@ -83,16 +83,30 @@ public class CodeFragmentKB implements KnowlegeBase<GPNode>
 		return !nodes.isEmpty();
 	}
 
-	public boolean addFrom(Population p)
+	/**
+	 * Extracts code fragments from the given <code>Population</code> object and adds them to this
+	 * base. To do this, the function extracts code fragments from each individual from every
+	 * sub-population of the given population. In the context of this class, a code fragment is a
+	 * child of the root node of the given <code>gpIndividual</code> object.
+	 * @param population A <code>Population</code> object from which code fragments will be
+	 * extracted and added to this base. If <code>population</code> is <code>null</code>, it will
+	 * be ignored.
+	 * @return <code>true</code> if the function added items from <code>population</code> to this
+	 * base and <code>false</code> otherwise.
+	 */
+	public boolean addFrom(Population population)
 	{
-		if (p == null)
+		if (population == null)
 		{
 			return false;
 		}
 
 		boolean added = false;
-		for(Subpopulation sub : p.subpops)
+		for(Subpopulation sub : population.subpops)
 		{
+			if(!(sub.species instanceof GPSpecies)
+			|| !(sub.species.i_prototype instanceof GPIndividual))
+				continue;
 			for(Individual ind : sub.individuals)
 			{
 				if( addFrom((GPIndividual)ind) == true)
@@ -103,6 +117,21 @@ public class CodeFragmentKB implements KnowlegeBase<GPNode>
 		return added;
 	}
 
+	/**
+	 * Extracts code fragments that are stored inside the given <code>file</code> object and adds
+	 * them to this base. To do this, the function extracts code fragments from each individual that
+	 * are stored inside the given file. The function assumes that first, number of sub-populations
+	 * is written and also, it assumes that for each sub-population, first, the number of
+	 * individuals in the population is written. If the file contains objects that are not of the
+	 * type <code>GPIndividual</code>, it will ignore the object.
+	 * In the context of this class, a code fragment is a child of the root node of the given
+	 * <code>gpIndividual</code> object.
+	 * @param population A <code>Population</code> object from which code fragments will be
+	 * extracted and added to this base. If <code>population</code> is <code>null</code>, it will
+	 * be ignored.
+	 * @return <code>true</code> if the function added items from <code>population</code> to this
+	 * base and <code>false</code> otherwise.
+	 */
 	public boolean addFrom(File file, EvolutionState state)
 	{
 		if (file == null)
@@ -110,25 +139,23 @@ public class CodeFragmentKB implements KnowlegeBase<GPNode>
 			return false;
 		}
 
+		boolean added = false;
 		try(ObjectInputStream dis = new ObjectInputStream(new FileInputStream(file)))
 		{
-			// int n = 1; // dis.readInt();
-			// dis.reset();
 			int nsub = dis.readInt();
-			boolean added = false;
 			for(int i = 0; i < nsub; i++)
 			{
 				int nind = dis.readInt();
 				for(int j = 0; j < nind; j++)
 				{
-					addFrom((GPIndividual) dis.readObject());
-					added = true;
+					Object ind = dis.readObject();
+					if(!(ind instanceof GPIndividual))
+						continue;
+
+					if(addFrom((GPIndividual) ind))
+						added = true;
 				}
 			}
-//			while(true)
-//			{
-//				dis.readObject();
-//			}
 
 			return added;
 		} catch (FileNotFoundException e)
@@ -136,13 +163,12 @@ public class CodeFragmentKB implements KnowlegeBase<GPNode>
 			return false;
 		} catch (IOException e)
 		{
-			return false;
+			return added;
 		} catch (ClassNotFoundException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			// e.printStackTrace();
+			return added;
 		}
-		return false;
 	}
 
 	/**

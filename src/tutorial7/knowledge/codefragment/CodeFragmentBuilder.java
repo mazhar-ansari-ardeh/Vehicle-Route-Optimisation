@@ -1,12 +1,8 @@
 package tutorial7.knowledge.codefragment;
 
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 
 import ec.EvolutionState;
-import ec.Population;
 import ec.gp.GPFunctionSet;
 import ec.gp.GPInitializer;
 import ec.gp.GPNode;
@@ -45,18 +41,8 @@ public class CodeFragmentBuilder extends HalfBuilder
 		if(kbFile.exists() == false)
 		{
 			state.output.fatal("Knowledge file does not exist: "
-								 + fileName, knowledgeFileName);
+								+ fileName, knowledgeFileName);
 		}
-//		Population p = null;
-//		try(DataInputStream dis = new DataInputStream(new FileInputStream(kbFile)))
-//		{
-//			p = new Population();
-//			p.readPopulation(state, dis);
-//		} catch (IOException e)
-//		{
-//			state.output.fatal("Failed to read knowledge file: " + fileName + ". Exp: "
-//					+ e.toString());
-//		}
 
 	    CodeFragmentKB knowledgeBase = new CodeFragmentKB();
 		knowledgeBase.addFrom(kbFile, state);
@@ -105,10 +91,11 @@ public class CodeFragmentBuilder extends HalfBuilder
 
 //			GPNode n = (GPNode)(nodes[state.random[thread].nextInt(nodes.length)].lightClone());
 			GPNode n = null;
-			if(state.random[thread].nextDouble() < knowledgeProbability && extractor.hasNext())
+			double prob = state.random[thread].nextDouble();
+			if(prob < knowledgeProbability && extractor.hasNext())
 			{
 				n = (GPNode) extractor.getNext().getItem();
-				if(n.depth() + current < max)
+				// if(n.depth() + current < max)
 				{
 					n.argposition = (byte)argposition;
 					n.parent = parent;
@@ -176,10 +163,11 @@ public class CodeFragmentBuilder extends HalfBuilder
 				nodesToPick = set.terminals[type.type];                                 // this can only happen with the warning about nonterminals above
 
 			GPNode n = null;
-			if(state.random[thread].nextDouble() < knowledgeProbability && extractor.hasNext())
+			double prob = state.random[thread].nextDouble();
+			if(prob < knowledgeProbability && extractor.hasNext())
 			{
 				n = (GPNode) extractor.getNext().getItem();
-				if(n.depth() + current < max)
+				// if(n.depth() + current < max)
 				{
 					n.argposition = (byte)argposition;
 					n.parent = parent;
