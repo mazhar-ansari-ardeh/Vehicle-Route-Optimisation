@@ -7,10 +7,13 @@ import ec.gp.GPFunctionSet;
 import ec.gp.GPInitializer;
 import ec.gp.GPNode;
 import ec.gp.GPNodeParent;
+import ec.gp.GPProblem;
 import ec.gp.GPType;
 import ec.gp.koza.HalfBuilder;
 import ec.util.Parameter;
-import tutorial7.knowledge.KnowledgeExtractor;
+import tutorial7.knowledge.*;
+import tutorial7.knowledge.codefragment.fitted.*;
+import tutorial7.knowledge.codefragment.simple.SimpleCodeFragmentKB;
 
 public class CodeFragmentBuilder extends HalfBuilder
 {
@@ -44,7 +47,9 @@ public class CodeFragmentBuilder extends HalfBuilder
 								+ fileName, knowledgeFileName);
 		}
 
-	    CodeFragmentKB knowledgeBase = new CodeFragmentKB();
+	    CodeFragmentKB knowledgeBase = new FittedCodeFragmentKB(state
+	    		, (GPProblem)state.evaluator.p_problem, 20);
+//		CodeFragmentKB knowledgeBase = new SimpleCodeFragmentKB();
 		knowledgeBase.addFrom(kbFile, state);
 		extractor = knowledgeBase.getKnowledgeExtractor();
 

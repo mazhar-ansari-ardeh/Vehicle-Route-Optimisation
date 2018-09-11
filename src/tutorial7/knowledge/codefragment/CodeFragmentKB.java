@@ -6,8 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.concurrent.ConcurrentHashMap;
 
 import ec.EvolutionState;
 import ec.Individual;
@@ -17,15 +15,11 @@ import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import ec.gp.GPSpecies;
 import tutorial7.TreeSlicer;
-import tutorial7.knowledge.KnowledgeExtractor;
 import tutorial7.knowledge.KnowledgeItem;
 import tutorial7.knowledge.KnowlegeBase;
 
-public class CodeFragmentKB implements KnowlegeBase<GPNode>
+public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 {
-	// Using ConcurrentHashMap instead of HashMap will make this KB capable of
-	// concurrency.
-	ConcurrentHashMap<Integer, CodeFragmentKI> repository = new ConcurrentHashMap<>();
 
 	/**
 	 * Adds a new item to the repository. If the repository contains the given item,
@@ -48,13 +42,23 @@ public class CodeFragmentKB implements KnowlegeBase<GPNode>
 			return false;
 		}
 
-		if(repository.containsKey(item.hashCode()))
-			return false;
-		repository.put(item.hashCode(), (CodeFragmentKI) item);
-
-		return true;
+		return addItem(item.getItem());
 	}
 
+	/**
+	 * Add a new item to this knowledge base. This method is the interface to the underlying storage
+	 * that actually stores the knowledge.
+	 *
+	 * @param item The item to be stored into this knowledge base. If this parameter
+	 * is <code>null</code> the method should ignore it and return <code>false</code>. However,
+	 * this is not a hard limitation and implementors may fins a use for it.
+	 *
+	 * @return If the item is added successfully the return value will be <code>true
+	 * </code> and otherwise, it will be <code>false</code>.
+	 *
+	 * @author Mazhar
+	 */
+	public abstract boolean addItem(GPNode item);
 
 	/**
 	 * Extracts code fragments from the given <code>gpIndividual</code> and adds them to this base.
@@ -66,6 +70,7 @@ public class CodeFragmentKB implements KnowlegeBase<GPNode>
 	 * @return <code>true</code> if the function added items from <code>gpIndividual</code> to this
 	 * base and <code>false</code> otherwise.
 	 */
+
 	public boolean addFrom(GPIndividual gpIndividual)
 	{
 		if (gpIndividual == null)
@@ -74,10 +79,11 @@ public class CodeFragmentKB implements KnowlegeBase<GPNode>
 		}
 
 		ArrayList<GPNode> nodes = TreeSlicer.sliceToNodes(gpIndividual, false);
+//		for(GPNode node : nodes)
+//			addItem(node);
 		nodes.forEach(node ->
 			{
-				CodeFragmentKI item = new CodeFragmentKI(node);
-				repository.put(item.hashCode(), item);
+				addItem(node);
 			});
 
 		return !nodes.isEmpty();
@@ -172,6 +178,20 @@ public class CodeFragmentKB implements KnowlegeBase<GPNode>
 	}
 
 	/**
+	 * Removes a given code fragment, as an instance of <code>GPNode</code>, from knowledge base.
+	 *
+	 * @param item An item to be removed. If the parameter is <code>null</code> or
+	 * is not an instance of <code>CodeFragmentKB</code>, the method should ignore it
+	 * and return <code>false</code>.
+	 *
+	 * @return <code>true</code> if the item is successfully removed from this
+	 * knowledge base and <code>false</code> otherwise.
+	 *
+	 * @author Mazhar
+	 */
+	public abstract boolean removeItem(GPNode item);
+
+	/**
 	 * Removes a given <code>KnowledgeItem</code> from knowledge base.
 	 *
 	 * @param item An item to be removed. If the parameter is <code>null</code> or
@@ -191,8 +211,23 @@ public class CodeFragmentKB implements KnowlegeBase<GPNode>
 			return false;
 		}
 
-		return repository.remove(item.hashCode()) != null;
+		return removeItem(item.getItem());
 	}
+
+	/**
+	 * Removes the given code fragment, as an instance of <code>KnowledgeItem</code>, from
+	 * knowledge base.
+	 *
+	 * @param item An item to be removed. If the parameter is <code>null</code>, the method
+	 * should ignore it and return <code>false</code>.
+	 *
+	 * @return <code>true</code> if the item is successfully removed from this
+	 * knowledge base and <code>false</code> otherwise.
+	 *
+	 * @author Mazhar
+	 */
+	public abstract boolean contains(GPNode item);
+
 
 	/**
 	 * Checks if this knowledge base contains a given <code>KnowledgeItem</code> or
@@ -215,50 +250,6 @@ public class CodeFragmentKB implements KnowlegeBase<GPNode>
 			return false;
 		}
 
-		return repository.containsKey(item.hashCode());
+		return removeItem(item.getItem());
 	}
-
-	@Override
-	public boolean isEmpty()
-	{
-		return repository.size() == 0;
-	}
-
-	@Override
-	public KnowledgeExtractor getKnowledgeExtractor()
-	{
-		return new CyclicCodeFragmentKnowledgeExtractor();
-	}
-
-	public class CyclicCodeFragmentKnowledgeExtractor implements KnowledgeExtractor
-	{
-		Iterator<Integer> iter;
-
-		public CyclicCodeFragmentKnowledgeExtractor()
-		{
-			 iter = repository.keySet().iterator();
-		}
-
-		@Override
-		public boolean hasNext()
-		{
-			return !repository.isEmpty();
-		}
-
-		@Override
-		public KnowledgeItem<GPNode> getNext()
-		{
-			if(iter.hasNext() == false)
-				iter = repository.keySet().iterator();
-
-			return repository.get(iter.next());
-		}
-
-		@Override
-		public void reset()
-		{
-			// Do nothing. This extractor is cyclic and reseting does not apply to it.
-		}
-	}
-
 }

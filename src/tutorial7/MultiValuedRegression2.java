@@ -8,7 +8,7 @@ import ec.gp.koza.KozaFitness;
 import ec.simple.SimpleProblemForm;
 import ec.util.Parameter;
 
-public class MultiValuedRegression extends GPProblem implements SimpleProblemForm
+public class MultiValuedRegression2 extends GPProblem implements SimpleProblemForm
 {
 	private static final long serialVersionUID = 1L;
 
@@ -57,7 +57,7 @@ public class MultiValuedRegression extends GPProblem implements SimpleProblemFor
 			TripletData input = new TripletData(x, y, z);
 
 			((GPIndividual)ind).trees[0].child.eval(state, threadnum, input, stack, (GPIndividual)ind, this);
-			double expectedResult = Math.pow(x + y + z, 3);
+			double expectedResult = Math.pow(x + y + z, 3) + (x * y) + (y * z) ;
 			result = Math.pow(input.getResult() - expectedResult, 2);
 			if(result < 0.01)
 			{
