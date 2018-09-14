@@ -13,7 +13,6 @@ import ec.gp.koza.HalfBuilder;
 import ec.util.Parameter;
 import tutorial7.knowledge.*;
 import tutorial7.knowledge.codefragment.fitted.*;
-import tutorial7.knowledge.codefragment.simple.SimpleCodeFragmentKB;
 
 public class CodeFragmentBuilder extends HalfBuilder
 {

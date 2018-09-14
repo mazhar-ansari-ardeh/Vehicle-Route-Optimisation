@@ -33,6 +33,9 @@ public class MultiValuedRegression2 extends GPProblem implements SimpleProblemFo
 	{
 		super.setup(state, base);
 
+		@SuppressWarnings("unused")
+		Parameter p = base.push("Something");
+
 		if(!(input instanceof TripletData))
 		{
 			state.output.fatal("GPData class must subclass from" + TripletData.class, base.push(P_DATA), null);

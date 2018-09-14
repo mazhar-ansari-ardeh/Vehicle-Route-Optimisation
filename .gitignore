@@ -1,6 +1,9 @@
 # Compiled class file
 *.class
 
+# Don't know what it is but it is not mine. 
+.directory
+
 # Data files (in this proj, they may contain population)
 *.dat
 
