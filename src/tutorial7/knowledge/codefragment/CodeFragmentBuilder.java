@@ -96,7 +96,7 @@ public class CodeFragmentBuilder extends HalfBuilder
 //			GPNode n = (GPNode)(nodes[state.random[thread].nextInt(nodes.length)].lightClone());
 			GPNode n = null;
 			double prob = state.random[thread].nextDouble();
-			if(prob < knowledgeProbability && extractor.hasNext())
+			if(current == 0 && prob < knowledgeProbability && extractor.hasNext())
 			{
 				n = (GPNode) extractor.getNext().getItem();
 				// if(n.depth() + current < max)
@@ -168,7 +168,7 @@ public class CodeFragmentBuilder extends HalfBuilder
 
 			GPNode n = null;
 			double prob = state.random[thread].nextDouble();
-			if(prob < knowledgeProbability && extractor.hasNext())
+			if(current == 0 && prob < knowledgeProbability && extractor.hasNext())
 			{
 				n = (GPNode) extractor.getNext().getItem();
 				// if(n.depth() + current < max)

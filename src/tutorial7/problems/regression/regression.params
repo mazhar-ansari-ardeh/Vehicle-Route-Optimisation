@@ -42,7 +42,11 @@ gp.fs.0.func.4 = tutorial7.problems.regression.X
 gp.fs.0.func.4.nc = nc0
 
 stat = tutorial7.gp.FCFStatistics
-stat.init-pop-file = init-pop.data
+
+stat.init-pop-file = init-pop.dat
+stat.gen-pop-file = gen-pop
+stat.save-pop = true
+stat.save-tree = true
 # stat.file = $withknowledge.stat
 
 
@@ -53,5 +57,9 @@ eval.problem.poly0.range_min = -1
 eval.problem.poly0.range_max = +1
 eval.problem.poly0.number-of-tests = 100
 
-gp.tree.print-style=dot
+gp.tree.print-style=c
 # gp.tree.print-style=c
+
+
+
+

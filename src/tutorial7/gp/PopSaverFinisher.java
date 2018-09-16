@@ -1,4 +1,4 @@
-package tutorial7;
+package tutorial7.gp;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;

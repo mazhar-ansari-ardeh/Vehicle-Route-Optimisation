@@ -14,7 +14,7 @@ import ec.Subpopulation;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import ec.gp.GPSpecies;
-import tutorial7.TreeSlicer;
+import tutorial7.gp.TreeSlicer;
 import tutorial7.knowledge.KnowledgeItem;
 import tutorial7.knowledge.KnowlegeBase;
 

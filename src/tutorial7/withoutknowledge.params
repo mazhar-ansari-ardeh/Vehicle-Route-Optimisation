@@ -1,21 +1,26 @@
 parent.0 = ../ec/gp/koza/koza.params
 
+# Override the number of generations
+generations = 100
+
 # Originally, this parameter was inherited from ec.simple.simple.params via ec.gp.koza.koza.params
 # finish = ec.simple.SimpleFinisher
 # finish = tutorial7.FilePopSaverFinisher
 # finish.final-pop-file-name = final-pop.dat
 
-# Override the number of generations
-generations = 100
-
+# --------------------------- Knowledge ---------------------------------------------
 # Originally it was gp.tc.0.init = ec.gp.koza.HalfBuilder
 # gp.tc.0.init = tutorial7.knowledge.codefragment.CodeFragmentBuilder
 # gp.tc.0.init.knowledge-file = final-pop.dat
 # gp.tc.0.init.knowledge-probability = 0.5
 
+# --------------------------- EvolutionState ----------------------------------------
+# I need to find fitness of inds after initialization and this one does that!
+# I will add more modifications to this if needed.
+state = tutorial7.gp.CFCEvolutionState
 
-# the next four items are already defined in koza.params, but we
-# put them here to be clear.
+
+# --------------------------- Functions and Nodes -----------------------------------
 
 # We have one function set, of class GPFunctionSet
 gp.fs.size = 1
@@ -24,25 +29,34 @@ gp.fs.0 = ec.gp.GPFunctionSet
 gp.fs.0.name = f0
 
 # We have four functions in the function set. They are:
-gp.fs.0.size = 7
-gp.fs.0.func.0 = tutorial7.X
-gp.fs.0.func.0.nc = nc0
-gp.fs.0.func.1 = tutorial7.Y
-gp.fs.0.func.1.nc = nc0
-gp.fs.0.func.2 = tutorial7.Z
-gp.fs.0.func.2.nc = nc0
-gp.fs.0.func.3 = tutorial7.Add
-gp.fs.0.func.3.nc = nc2
-gp.fs.0.func.4 = tutorial7.Sub
-gp.fs.0.func.4.nc = nc2
-gp.fs.0.func.5 = tutorial7.Mul
-gp.fs.0.func.5.nc = nc2
-gp.fs.0.func.6 = tutorial7.RegERC
-gp.fs.0.func.6.nc = nc0
 
-stat.file = $withoutknowledge.stat
+gp.fs.0.size = 5
+gp.fs.0.func.0 = tutorial7.problems.regression.Add
+gp.fs.0.func.0.nc = nc2
+gp.fs.0.func.1 = tutorial7.problems.regression.Sub
+gp.fs.0.func.1.nc = nc2
+gp.fs.0.func.2 = tutorial7.problems.regression.Mul
+gp.fs.0.func.2.nc = nc2
+gp.fs.0.func.3 = tutorial7.problems.regression.RegERC
+gp.fs.0.func.3.nc = nc0
+gp.fs.0.func.4 = tutorial7.problems.regression.X
+gp.fs.0.func.4.nc = nc0
 
-eval.problem = tutorial7.MultiValuedRegression2
-eval.problem.data = tutorial7.TripletData
+# --------------------------- Problem Definition ------------------------------------
+eval.problem = tutorial7.problems.regression.one_d.Poly1
+eval.problem.data = tutorial7.problems.regression.VectorData
 
-# gp.tree.print-style=c
+eval.problem.poly1.range_min = -2
+eval.problem.poly1.range_max = +2
+eval.problem.poly1.number-of-tests = 100
+
+# --------------------------- Statistics --------------------------------------------
+stat = tutorial7.gp.FCFStatistics
+stat.file = $withoutknowledge.stat/poly1.stat
+stat.gen-pop-file = withoutknowledge.stat/population.gen
+stat.save-pop = true
+stat.save-tree = true
+
+gp.tree.print-style=c
+
+#

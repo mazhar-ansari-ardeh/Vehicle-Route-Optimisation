@@ -1,6 +1,5 @@
-package tutorial7;
+package tutorial7.gp;
 
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
