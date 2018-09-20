@@ -24,13 +24,12 @@ public class FittedCodeFragmentBuilder extends HalfBuilder
 	public static final String P_KNOWLEDGE_TOURNAMENT_SIZE = "knowledge-tournament-size";
 
 	/**
-	 *
+	 * The default value for tournament size of the knowledge base. This value will be 
+	 * used if the <code>P_KNOWLEDGE_TOURNAMENT_SIZE</code> is not present. 
 	 */
 	public static final int DEFAULT_KNOWLEDGE_TOURNAMENT_SIZE = 10;
 
 	private double knowledgeProbability = 0;
-
-	// CodeFragmentKB knowledgeBase = new CodeFragmentKB();
 
 	private KnowledgeExtractor extractor;
 
@@ -56,8 +55,8 @@ public class FittedCodeFragmentBuilder extends HalfBuilder
 		int tournamentSize = state.parameters.getIntWithDefault(
 				base.push(P_KNOWLEDGE_TOURNAMENT_SIZE), null, DEFAULT_KNOWLEDGE_TOURNAMENT_SIZE);
 
-	    CodeFragmentKB knowledgeBase = new FittedCodeFragmentKB(state
-	    		, (GPProblem)state.evaluator.p_problem, 20);
+	    CodeFragmentKB knowledgeBase = new SourceFilteredFittedCFKB(state
+	    		, (GPProblem)state.evaluator.p_problem, tournamentSize, 20);
 
 		knowledgeBase.addFrom(kbFile, state);
 		extractor = knowledgeBase.getKnowledgeExtractor();

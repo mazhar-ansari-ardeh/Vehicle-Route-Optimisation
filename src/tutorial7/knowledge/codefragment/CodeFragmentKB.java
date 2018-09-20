@@ -77,6 +77,7 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 		{
 			return false;
 		}
+//		System.out.println(gpIndividual.fitness.sta);
 
 		ArrayList<GPNode> nodes = TreeSlicer.sliceToNodes(gpIndividual, false);
 //		for(GPNode node : nodes)
@@ -144,26 +145,34 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 		{
 			return false;
 		}
+		
 
 		boolean added = false;
 		try(ObjectInputStream dis = new ObjectInputStream(new FileInputStream(file)))
 		{
 			int nsub = dis.readInt();
+			Population pop = new Population();
+			pop.subpops = new Subpopulation[nsub];
+
 			for(int i = 0; i < nsub; i++)
 			{
+				pop.subpops[i] = new Subpopulation();
+				pop.subpops[i].species = new GPSpecies();
+				pop.subpops[i].species.i_prototype = new GPIndividual();
 				int nind = dis.readInt();
+				pop.subpops[i].individuals = new GPIndividual[nind];
 				for(int j = 0; j < nind; j++)
 				{
 					Object ind = dis.readObject();
 					if(!(ind instanceof GPIndividual))
 						continue;
-
-					if(addFrom((GPIndividual) ind))
-						added = true;
+					pop.subpops[i].individuals[j] = (GPIndividual) ind; 
+//					if(addFrom((GPIndividual) ind))
+//						added = true;
 				}
 			}
 
-			return added;
+			return addFrom(pop);
 		} catch (FileNotFoundException e)
 		{
 			return false;

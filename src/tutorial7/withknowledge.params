@@ -10,9 +10,10 @@ generations = 100
 
 # --------------------------- Knowledge ---------------------------------------------
 Originally it was gp.tc.0.init = ec.gp.koza.HalfBuilder
-gp.tc.0.init = tutorial7.gp.CodeFragmentBuilder
+gp.tc.0.init = tutorial7.gp.FittedCodeFragmentBuilder
 gp.tc.0.init.knowledge-file = final-pop.dat
 gp.tc.0.init.knowledge-probability = 0.5
+gp.tc.0.init.knowledge-tournament-size = 20
 
 # --------------------------- EvolutionState ----------------------------------------
 # I need to find fitness of inds after initialization and this one does that!
