@@ -1,5 +1,6 @@
 package tutorial7.knowledge.codefragment;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -77,11 +78,8 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 		{
 			return false;
 		}
-//		System.out.println(gpIndividual.fitness.sta);
 
 		ArrayList<GPNode> nodes = TreeSlicer.sliceToNodes(gpIndividual, false);
-//		for(GPNode node : nodes)
-//			addItem(node);
 		nodes.forEach(node ->
 			{
 				addItem(node);
@@ -145,10 +143,11 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 		{
 			return false;
 		}
-		
+
 
 		boolean added = false;
-		try(ObjectInputStream dis = new ObjectInputStream(new FileInputStream(file)))
+		try(ObjectInputStream dis = new ObjectInputStream(
+				new BufferedInputStream(new FileInputStream(file))))
 		{
 			int nsub = dis.readInt();
 			Population pop = new Population();
@@ -166,7 +165,7 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 					Object ind = dis.readObject();
 					if(!(ind instanceof GPIndividual))
 						continue;
-					pop.subpops[i].individuals[j] = (GPIndividual) ind; 
+					pop.subpops[i].individuals[j] = (GPIndividual) ind;
 //					if(addFrom((GPIndividual) ind))
 //						added = true;
 				}
