@@ -116,7 +116,7 @@ public class FittedCodeFragmentKB extends CodeFragmentKB
 
 		for(int i = 0; i < repository.size(); i++)
 		{
-			if(repository.get(i).getItem().equals(item)) // Does the equal function work well here?
+			if(repository.get(i).getItem().equals(item)) // TODO: Does the equal function work well here?
 			{
 				repository.remove(i);
 				return true;
@@ -134,7 +134,7 @@ public class FittedCodeFragmentKB extends CodeFragmentKB
 		}
 
 		for(int i = 0; i < repository.size(); i++)
-			if(repository.get(i).getItem().equals(item)) // Does the equal function work well here?
+			if(repository.get(i).getItem().equals(item)) // TODO: Does the equal function work well here?
 				return true;
 
 		return false;
