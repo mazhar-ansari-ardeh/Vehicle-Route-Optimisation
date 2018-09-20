@@ -64,7 +64,7 @@ public class FCFStatistics extends SimpleStatistics
 	 * 	1. Save the population of GP. <p>
 	 * 	2. Save statistics of GP population. <p>
 	 * @param state The <code>EvolutionState</code> object that is a representative of GP.
-	 * @param popLogId The ID of the logger that will be used to save generation's population to.
+	 * @param popLogId The ID of the logger that will be used to save generation's population.
 	 * @param statLogId The ID of the logger that will be used to save statistics of each
 	 * 		  generation.
 	 */
