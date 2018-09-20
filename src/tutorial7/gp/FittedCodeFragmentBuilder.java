@@ -1,4 +1,4 @@
-package tutorial7.knowledge.codefragment;
+package tutorial7.gp;
 
 import java.io.File;
 
@@ -12,14 +12,21 @@ import ec.gp.GPType;
 import ec.gp.koza.HalfBuilder;
 import ec.util.Parameter;
 import tutorial7.knowledge.*;
+import tutorial7.knowledge.codefragment.CodeFragmentKB;
 import tutorial7.knowledge.codefragment.fitted.*;
 
-public class CodeFragmentBuilder extends HalfBuilder
+public class FittedCodeFragmentBuilder extends HalfBuilder
 {
 	private static final long serialVersionUID = 1L;
 
 	public static final String P_KNOWLEDGE_FILE = "knowledge-file";
 	public static final String P_KNOWLEDGE_PROBABILITY = "knowledge-probability";
+	public static final String P_KNOWLEDGE_TOURNAMENT_SIZE = "knowledge-tournament-size";
+
+	/**
+	 *
+	 */
+	public static final int DEFAULT_KNOWLEDGE_TOURNAMENT_SIZE = 10;
 
 	private double knowledgeProbability = 0;
 
@@ -46,9 +53,12 @@ public class CodeFragmentBuilder extends HalfBuilder
 								+ fileName, knowledgeFileName);
 		}
 
+		int tournamentSize = state.parameters.getIntWithDefault(
+				base.push(P_KNOWLEDGE_TOURNAMENT_SIZE), null, DEFAULT_KNOWLEDGE_TOURNAMENT_SIZE);
+
 	    CodeFragmentKB knowledgeBase = new FittedCodeFragmentKB(state
 	    		, (GPProblem)state.evaluator.p_problem, 20);
-//		CodeFragmentKB knowledgeBase = new SimpleCodeFragmentKB();
+
 		knowledgeBase.addFrom(kbFile, state);
 		extractor = knowledgeBase.getKnowledgeExtractor();
 
@@ -96,10 +106,10 @@ public class CodeFragmentBuilder extends HalfBuilder
 //			GPNode n = (GPNode)(nodes[state.random[thread].nextInt(nodes.length)].lightClone());
 			GPNode n = null;
 			double prob = state.random[thread].nextDouble();
-			if(current == 0 && prob < knowledgeProbability && extractor.hasNext())
+			if(prob < Math.pow(knowledgeProbability, current + 1) && extractor.hasNext())
 			{
 				n = (GPNode) extractor.getNext().getItem();
-				// if(n.depth() + current < max)
+				if(n.depth() + current < max)
 				{
 					n.argposition = (byte)argposition;
 					n.parent = parent;
@@ -168,10 +178,10 @@ public class CodeFragmentBuilder extends HalfBuilder
 
 			GPNode n = null;
 			double prob = state.random[thread].nextDouble();
-			if(current == 0 && prob < knowledgeProbability && extractor.hasNext())
+			if(prob < Math.pow(knowledgeProbability, current + 1) && extractor.hasNext())
 			{
 				n = (GPNode) extractor.getNext().getItem();
-				// if(n.depth() + current < max)
+				if(n.depth() + current < max)
 				{
 					n.argposition = (byte)argposition;
 					n.parent = parent;
