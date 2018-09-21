@@ -29,6 +29,28 @@ public abstract class RegressionProblem extends GPProblem
 	public static final double RANGE_MIN = -1;
 	public static final double RANGE_MAX = +1;
 
+	/**
+	 * Keeps record of the number of times that that the <code>evaluate</code> function has been
+	 * invoked.
+	 */
+	protected int evalCout = 0;
+
+	public int getEvaluationCount()
+	{
+		return evalCout;
+	}
+
+//	/**
+//	 * Because this class needs to keep track of the number of times that its evaluation method is
+//	 * invoked, it does not support cloning, which in the context of ECJ, resets this counter.
+//	 * Invoking this method will throw an <code>UnsupportedOperationException</code>.
+//	 */
+//	@Override
+//	public Object clone()
+//	{
+//		throw new UnsupportedOperationException("This class does not support cloning.");
+//	}
+
 	public RegressionProblem()
 	{
 		super();

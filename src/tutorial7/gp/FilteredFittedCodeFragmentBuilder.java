@@ -5,11 +5,11 @@ import java.io.File;
 import ec.EvolutionState;
 import ec.gp.GPProblem;
 import ec.util.Parameter;
-import tutorial7.knowledge.*;
+import tutorial7.knowledge.KnowledgeExtractor;
 import tutorial7.knowledge.codefragment.CodeFragmentKB;
-import tutorial7.knowledge.codefragment.fitted.*;
+import tutorial7.knowledge.codefragment.fitted.SourceFilteredFittedCFKB;
 
-public class FittedCodeFragmentBuilder extends CodeFragmentBuilder
+public class FilteredFittedCodeFragmentBuilder extends CodeFragmentBuilder
 {
 	private static final long serialVersionUID = 1L;
 
@@ -21,6 +21,8 @@ public class FittedCodeFragmentBuilder extends CodeFragmentBuilder
 	 * used if the <code>P_KNOWLEDGE_TOURNAMENT_SIZE</code> is not present.
 	 */
 	public static final int DEFAULT_KNOWLEDGE_TOURNAMENT_SIZE = 10;
+
+	public static final String P_FILTER_SIZE = "knowledge-filter-size";
 
 	private KnowledgeExtractor extractor = null;
 
@@ -46,8 +48,10 @@ public class FittedCodeFragmentBuilder extends CodeFragmentBuilder
 		int tournamentSize = state.parameters.getIntWithDefault(
 				base.push(P_KNOWLEDGE_TOURNAMENT_SIZE), null, DEFAULT_KNOWLEDGE_TOURNAMENT_SIZE);
 
-	    CodeFragmentKB knowledgeBase = new FittedCodeFragmentKB(state
-	    		, (GPProblem)state.evaluator.p_problem, tournamentSize);
+		int filterSize = state.parameters.getInt(base.push(P_FILTER_SIZE), null);
+
+	    CodeFragmentKB knowledgeBase = new SourceFilteredFittedCFKB(state
+	    		, (GPProblem)state.evaluator.p_problem, tournamentSize, filterSize);
 
 		knowledgeBase.addFrom(kbFile, state);
 		extractor  = knowledgeBase.getKnowledgeExtractor();
@@ -59,5 +63,4 @@ public class FittedCodeFragmentBuilder extends CodeFragmentBuilder
 	{
 		return extractor;
 	}
-
 }

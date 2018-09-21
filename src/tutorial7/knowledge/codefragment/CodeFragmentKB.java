@@ -147,7 +147,7 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 
 		boolean added = false;
 		try(ObjectInputStream dis = new ObjectInputStream(
-				new BufferedInputStream(new FileInputStream(file))))
+				new BufferedInputStream(new FileInputStream(file), 20 * 1024)))
 		{
 			int nsub = dis.readInt();
 			Population pop = new Population();

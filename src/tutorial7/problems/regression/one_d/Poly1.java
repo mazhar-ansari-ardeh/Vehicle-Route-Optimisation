@@ -42,6 +42,8 @@ public class Poly1 extends RegressionProblem
 		f.hits = hits;
 		f.setStandardizedFitness(state, Math.sqrt(sum));
 		ind.evaluated = true;
+		evalCout++;
+		// System.out.println(evalCout);
 	}
 
 	/**
