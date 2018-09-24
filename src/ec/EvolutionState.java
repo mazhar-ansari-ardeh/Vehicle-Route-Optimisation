@@ -10,9 +10,9 @@ import ec.util.*;
 import java.util.*;
 import java.io.*;
 
-/*
+/* 
  * EvolutionState.java
- *
+ * 
  * Created: Tue Aug 10 22:14:46 1999
  * By: Sean Luke
  */
@@ -62,7 +62,7 @@ import java.io.*;
  <li> The number of breeding threads to spawn.
  <li> The number of evaluation threads to spawn.
  </ul>
-
+ 
  <li><i>A place to stash pointers to static variables so they'll get serialized: </i>
  <ul>
  <li> Statics
@@ -81,14 +81,14 @@ import java.io.*;
 
  <tr><td valign=top><tt>checkpoint-modulo</tt><br>
  <font size=-1>int &gt;= 1</font></td>
- <td valign=top>(how many generations should pass before we do a checkpoint?
- The definition of "generations" depends on the particular EvolutionState
+ <td valign=top>(how many generations should pass before we do a checkpoint?  
+ The definition of "generations" depends on the particular EvolutionState 
  implementation you're using)</td></tr>
 
  <tr><td valign=top><tt>checkpoint</tt><br>
  <font size=-1>bool = <tt>true</tt> or <tt>false</tt> (default)</td>
  <td valign=top>(should we checkpoint?)</td></tr>
-
+ 
  <tr><td valign=top><tt>prefix</tt><br>
  <font size=-1>String</font></td>
  <td valign=top>(the prefix to prepend to checkpoint files -- see ec.util.Checkpoint)</td></tr>
@@ -96,7 +96,7 @@ import java.io.*;
  <tr><td valign=top><tt>checkpoint-directory</tt><br>
  <font size=-1>File (default is empty)</td>
  <td valign=top>(directory where the checkpoint files should be located)</td></tr>
-
+ 
  <tr><td valign=top><tt>quit-on-run-complete</tt><br>
  <font size=-1>bool = <tt>true</tt> or <tt>false</tt> (default)</td>
  <td valign=top>(do we prematurely quit the run when we find a perfect individual?)</td></tr>
@@ -152,7 +152,7 @@ import java.io.*;
 
  *
  * @author Sean Luke
- * @version 1.0
+ * @version 1.0 
  */
 
 public class EvolutionState implements Singleton
@@ -190,7 +190,7 @@ public class EvolutionState implements Singleton
     /** The requested number of generations that should pass before we write out a checkpoint file. */
     public int checkpointModulo;
 
-    /** An amount to add to each random number generator seed to "offset" it -- often this is simply the job number.
+    /** An amount to add to each random number generator seed to "offset" it -- often this is simply the job number.  
         If you are using more random number generators
         internally than the ones initially created for you in the EvolutionState, you might want to create them with the seed
         value of <tt>seedParameter+randomSeedOffset</tt>.  At present the only such class creating additional generators
@@ -208,9 +208,9 @@ public class EvolutionState implements Singleton
     /** The original runtime arguments passed to the Java process. You probably should not modify this inside
         an evolutionary run.  */
     public String[] runtimeArguments;
-
+        
     // set during running
-
+    
     /** The current generation of the population in the run.  For non-generational approaches, this probably should represent some kind of incrementing value, perhaps the number of individuals evaluated so far.  You probably shouldn't modify this. */
     public int generation;
     /** The number of generations the evolutionary computation system will run until it ends.
@@ -245,7 +245,7 @@ public class EvolutionState implements Singleton
     /** The population exchanger, a singleton object.  You should only access this in a read-only fashion. */
     public Exchanger exchanger;
 
-    /** "The population has started fresh (not from a checkpoint)." */
+    /** "The population has started fresh (not from a checkpoint)." */ 
     public final static int C_STARTED_FRESH = 0;
 
     /** "The population started from a checkpoint." */
@@ -256,7 +256,7 @@ public class EvolutionState implements Singleton
 
     /** "The evolution run has quit, failing to find a perfect individual." */
     public final static int R_FAILURE = 1;
-
+    
     /** "The evolution run has not quit */
     public final static int R_NOTDONE = 2;
 
@@ -282,14 +282,14 @@ public class EvolutionState implements Singleton
         restoring (deserializing) from a checkpoint.
     */
     public EvolutionState() { }
-
-    /** Unlike for other setup() methods, ignore the base; it will always be null.
+    
+    /** Unlike for other setup() methods, ignore the base; it will always be null. 
         @see Prototype#setup(EvolutionState,Parameter)
     */
     public void setup(final EvolutionState state, final Parameter base)
         {
         Parameter p;
-
+        
         // set up the per-thread data
         data = new HashMap[random.length];
         for(int i = 0; i < data.length; i++)
@@ -324,15 +324,15 @@ public class EvolutionState implements Singleton
                 {
                 output.warning("You have BOTH the deprecated parameter \"prefix\" and its replacement \"checkpoint-prefix\" defined.  The replacement will be used,  Please remove the \"prefix\" parameter.", p2);
                 }
-
+            
             }
-
+            
 
         p = new Parameter(P_CHECKPOINTMODULO);
         checkpointModulo = parameters.getInt(p,null,1);
         if (checkpointModulo==0)
             output.fatal("The checkpoint modulo must be an integer >0.",p);
-
+        
         p = new Parameter(P_CHECKPOINTDIRECTORY);
         if (parameters.exists(p, null))
             {
@@ -343,10 +343,10 @@ public class EvolutionState implements Singleton
                 output.fatal("The checkpoint directory location is not a directory: " + checkpointDirectory, p);
             }
         else checkpointDirectory = null;
-
-
+            
+        
         // load evaluations, or generations, or both
-
+            
         p = new Parameter(P_EVALUATIONS);
         if (parameters.exists(p, null))
             {
@@ -354,12 +354,12 @@ public class EvolutionState implements Singleton
             if (numEvaluations <= 0)
                 output.fatal("If defined, the number of evaluations must be an integer >= 1", p, null);
             }
-
+                
         p = new Parameter(P_GENERATIONS);
         if (parameters.exists(p, null))
             {
-            numGenerations = parameters.getInt(p, null, 1);  // 0 would be UDEFINED
-
+            numGenerations = parameters.getInt(p, null, 1);  // 0 would be UDEFINED                 
+                                
             if (numGenerations <= 0)
                 output.fatal("If defined, the number of generations must be an integer >= 1.", p, null);
 
@@ -372,15 +372,10 @@ public class EvolutionState implements Singleton
         else if (numEvaluations == UNDEFINED)  // uh oh, something must be defined
             output.fatal("Either evaluations or generations must be defined.", new Parameter(P_GENERATIONS), new Parameter(P_EVALUATIONS));
 
-
+        
         p=new Parameter(P_QUITONRUNCOMPLETE);
         quitOnRunComplete = parameters.getBoolean(p,null,false);
 
-        // In the original code, the evaluator was not loaded first.
-        p=new Parameter(P_EVALUATOR);
-        evaluator = (Evaluator)
-            (parameters.getInstanceForParameter(p,null,Evaluator.class));
-        evaluator.setup(this,p);
 
         /* Set up the singletons */
         p=new Parameter(P_INITIALIZER);
@@ -398,21 +393,21 @@ public class EvolutionState implements Singleton
             (parameters.getInstanceForParameter(p,null,Breeder.class));
         breeder.setup(this,p);
 
-//        p=new Parameter(P_EVALUATOR);
-//        evaluator = (Evaluator)
-//            (parameters.getInstanceForParameter(p,null,Evaluator.class));
-//        evaluator.setup(this,p);
+        p=new Parameter(P_EVALUATOR);
+        evaluator = (Evaluator)
+            (parameters.getInstanceForParameter(p,null,Evaluator.class));
+        evaluator.setup(this,p);
 
         p=new Parameter(P_STATISTICS);
         statistics = (Statistics)
             (parameters.getInstanceForParameterEq(p,null,Statistics.class));
         statistics.setup(this,p);
-
+        
         p=new Parameter(P_EXCHANGER);
         exchanger = (Exchanger)
             (parameters.getInstanceForParameter(p,null,Exchanger.class));
         exchanger.setup(this,p);
-
+                
         generation = 0;
         }
 
@@ -420,7 +415,7 @@ public class EvolutionState implements Singleton
     /** This method is called after a checkpoint
         is restored from but before the run starts up again.  You might use this
         to set up file pointers that were lost, etc. */
-
+ 
     public void resetFromCheckpoint() throws IOException
         {
         output.restart();   // may throw an exception if there's a bad file
@@ -454,14 +449,14 @@ public class EvolutionState implements Singleton
             {
             startFromCheckpoint();
             }
-
+        
         /* the big loop */
         int result = R_NOTDONE;
         while ( result == R_NOTDONE )
             {
             result = evolve();
             }
-
+        
         finish(result);
         }
     }

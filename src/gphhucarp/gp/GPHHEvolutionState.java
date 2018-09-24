@@ -26,8 +26,6 @@ import java.util.Map;
 
 public class GPHHEvolutionState extends TerminalERCEvolutionState {
 
-	private static final long serialVersionUID = 1L;
-
 	/**
 	 * Statistics to store.
 	 */

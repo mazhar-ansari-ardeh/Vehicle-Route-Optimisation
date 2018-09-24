@@ -12,12 +12,7 @@ import java.util.*;
  *  - the given UCARP instance, including relevant information such as the graph,
  *  - a list of remaining unserved tasks,
  *  - a list of unassigned tasks,
- *  - a partial node sequence solution. <p>
- *  <p>
- *
- *  A <code>DecisionProcessState</code> can be considered as the state of a UCARP
- *  instance (remaining of tasks, ...). <p>Mzhr<p><p>
- *
+ *  - a partial node sequence solution.
  * Created by gphhucarp on 27/08/17.
  */
 public class DecisionProcessState {
@@ -38,6 +33,15 @@ public class DecisionProcessState {
     // in the increasing order of the distance from its next decision node to the task
     private Map<Arc, List<NodeSeqRoute>> routeToTaskMap;
 
+    // in this map, the key is the unassigned tasks
+    // the value for eack task is a list of tasks which are on the flood of the key task
+    private Map<Arc, List<Arc>> floodMap;
+
+    // in this map, the key is the unassigned tasks
+    // the value for each task is a list of tasks where the key task is on their flood
+    private Map<Arc, List<Arc>> onFloodMap;
+
+
     public DecisionProcessState(Instance instance,
                                 long seed,
                                 List<Arc> remainingTasks,
@@ -53,6 +57,7 @@ public class DecisionProcessState {
 
         initTaskToTaskMap();
         initRouteToTaskMap();
+        initFloodMaps();
     }
 
     /**
@@ -77,6 +82,7 @@ public class DecisionProcessState {
 
         initTaskToTaskMap();
         initRouteToTaskMap();
+        initFloodMaps();
     }
 
     public DecisionProcessState(Instance instance, long seed) {
@@ -133,6 +139,22 @@ public class DecisionProcessState {
 
     public List<NodeSeqRoute> getRouteAdjacencyList(Arc task) {
         return routeToTaskMap.get(task);
+    }
+
+    public Map<Arc, List<Arc>> getFloodMap() {
+        return floodMap;
+    }
+
+    public Map<Arc, List<Arc>> getOnFloodMap() {
+        return onFloodMap;
+    }
+
+    public List<Arc> getFloodOfTask(Arc task) {
+        return floodMap.get(task);
+    }
+
+    public List<Arc> isOnFloods(Arc task) {
+        return onFloodMap.get(task);
     }
 
     /**
@@ -198,6 +220,64 @@ public class DecisionProcessState {
     }
 
     /**
+     * Initialise the flood maps.
+     */
+    public void initFloodMaps() {
+        floodMap = new HashMap<>();
+        onFloodMap = new HashMap<>();
+
+        for (Arc task : instance.getTasks()) {
+            floodMap.put(task, new LinkedList<>());
+            onFloodMap.put(task, new LinkedList<>());
+        }
+
+        for (Arc task : instance.getTasks()) {
+            int curr = task.getTo();
+            while (curr != instance.getDepot()) {
+                int next = instance.getGraph().getPathTo(curr, instance.getDepot());
+
+                Arc floodTask = instance.getGraph().getArc(curr, next);
+
+                if (floodTask != null && !floodTask.equals(task.getInverse())) {
+                    floodMap.get(task).add(floodTask);
+                    onFloodMap.get(floodTask).add(task);
+                }
+
+                curr = next;
+            }
+        }
+    }
+
+    /**
+     * Reset the flood maps.
+     */
+    public void resetFloodMaps() {
+        floodMap.clear();
+        onFloodMap.clear();
+
+        for (Arc task : instance.getTasks()) {
+            floodMap.put(task, new LinkedList<>());
+            onFloodMap.put(task, new LinkedList<>());
+        }
+
+        for (Arc task : instance.getTasks()) {
+            int curr = task.getTo();
+            while (curr != instance.getDepot()) {
+                int next = instance.getGraph().getPathTo(curr, instance.getDepot());
+
+                Arc floodTask = instance.getGraph().getArc(curr, next);
+
+                if (floodTask != null && !floodTask.equals(task.getInverse())) {
+                    floodMap.get(task).add(floodTask);
+                    onFloodMap.get(floodTask).add(task);
+                }
+
+                curr = next;
+            }
+        }
+    }
+
+    /**
      * Update the task-to-task map and route-to-task map when a task is completed.
      * First, remove the task and its inverse from the task-to-task and route-to-task maps.
      * Then, for each remaining task, remove the task and its inverse from its adjacency list.
@@ -213,6 +293,16 @@ public class DecisionProcessState {
             taskToTaskMap.get(anotherTask).remove(task);
             taskToTaskMap.get(anotherTask).remove(task.getInverse());
         }
+
+        for (Arc floodTask : floodMap.get(task))
+            onFloodMap.get(floodTask).remove(task);
+
+        for (Arc floodTask : floodMap.get(task.getInverse()))
+            onFloodMap.get(floodTask).remove(task.getInverse());
+
+        floodMap.remove(task);
+        floodMap.remove(task.getInverse());
+
     }
 
     /**
@@ -262,6 +352,7 @@ public class DecisionProcessState {
 
         resetTaskToTaskMap();
         resetRouteToTaskMap();
+
     }
 
     public DecisionProcessState clone() {

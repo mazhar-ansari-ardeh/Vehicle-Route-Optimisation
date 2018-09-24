@@ -1,4 +1,4 @@
-package gphhucarp.algorithm.clearing;
+package gphhucarp.algorithm.clearinggp;
 
 import ec.EvolutionState;
 import ec.multiobjective.MultiObjectiveFitness;

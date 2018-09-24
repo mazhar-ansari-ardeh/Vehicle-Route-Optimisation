@@ -30,7 +30,7 @@ public final class VectorDefaults implements DefaultsForm
 
     /** Returns the default base. */
     public static final Parameter base()
-    {
+        {
         return new Parameter(P_VECTOR);
-    }    
-}
+        }    
+    }

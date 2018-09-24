@@ -219,8 +219,7 @@ public class Instance {
                 (o1, o2) -> Double.compare(graph.getEstDistance(depotLoop, o1), graph.getEstDistance(depotLoop, o2)));
         taskToTaskMap.put(depotLoop, depotLoopAdjacencyList);
 
-        for (Arc task : tasks)
-        {
+        for (Arc task : tasks) {
             List<Arc> taskAdjacencyList = new LinkedList<>();
 
             for (Arc anotherTask: tasks) {

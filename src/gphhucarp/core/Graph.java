@@ -1,6 +1,7 @@
 package gphhucarp.core;
 
 import org.apache.commons.lang3.tuple.Pair;
+import org.apache.commons.math3.random.RandomDataGenerator;
 
 import java.util.*;
 
@@ -61,9 +62,7 @@ public class Graph {
         }
 
         for (Arc arc : arcMap.values()) {
-        	int x = arc.getFrom();
-        	List<Arc> y = outNeighbourMap.get(x);
-            y.add(arc);
+            outNeighbourMap.get(arc.getFrom()).add(arc);
             inNeighbourMap.get(arc.getTo()).add(arc);
         }
     }

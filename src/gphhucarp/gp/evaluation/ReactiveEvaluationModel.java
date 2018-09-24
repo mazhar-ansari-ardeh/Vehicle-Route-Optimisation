@@ -3,6 +3,7 @@ package gphhucarp.gp.evaluation;
 import ec.EvolutionState;
 import ec.Fitness;
 import ec.multiobjective.MultiObjectiveFitness;
+import gphhucarp.core.Instance;
 import gphhucarp.core.InstanceSamples;
 import gphhucarp.core.Objective;
 import gphhucarp.decisionprocess.DecisionProcess;
@@ -28,18 +29,13 @@ public class ReactiveEvaluationModel extends EvaluationModel {
 
     @Override
     public void evaluate(RoutingPolicy policy, Solution<TaskSeqRoute> plan,
-                                  Fitness fitness, EvolutionState state)
-    {
-    	// To evaluate a policy (hyper-heuristic), the function needs to use
-    	// the policy and the meta-algorithm in the paper to create a solution
-    	// for the UCARP problem and then, evaluate the created solution.
-
+                                  Fitness fitness, EvolutionState state) {
         double[] fitnesses = new double[objectives.size()];
 
         int numdps = 0;
         for (InstanceSamples iSamples : instanceSamples) {
             for (long seed : iSamples.getSeeds()) {
-                // create a new reactive decision process from the based instance and the seed.
+                // create a new reactive decision process from the based intance and the seed.
                 ReactiveDecisionProcess dp =
                         DecisionProcess.initReactive(iSamples.getBaseInstance(),
                                 seed, policy);

@@ -16,21 +16,13 @@ import java.util.List;
 
 /**
  * A reactive GPHH problem to evaluate a reactive routing policy during the GPHH.
- * The evaluation model is a reactive evaluation model.
- * It also includes a pool filter specifying how to filter out the pool of candidate tasks. <br>
- *
- * It has:
- * 		gphhucarp.gp.evaluation.EvaluationModel,
- * 		PoolFilter
- * 		TieBreaker
- *
- * It uses the EvaluationModel that it has to evaluate
+ * The evaluationg model is a reactive evaluation model.
+ * It also includes a pool filter specifying how to filter out the pool of candidate tasks.
  */
 
 public class ReactiveGPHHProblem extends GPProblem implements SimpleProblemForm {
 
-	private static final long serialVersionUID = 1L;
-	public static final String P_EVAL_MODEL = "eval-model";
+    public static final String P_EVAL_MODEL = "eval-model";
     public static final String P_POOL_FILTER = "pool-filter";
     public static final String P_TIE_BREAKER = "tie-breaker";
 
@@ -84,13 +76,6 @@ public class ReactiveGPHHProblem extends GPProblem implements SimpleProblemForm 
                          Individual indi,
                          int subpopulation,
                          int threadnum) {
-    	// A policy is a hyper-heuristic that is generated/evolved with GP.
-    	// This function first needs to get the tree representation of the policy,
-    	// and then, with it, and also using the meta-algorithm proposed in the
-    	// 'Genetic Programming Hyper-Heuristic for Multi-vehicle UCARP', it creates
-    	// solution for the UCARP instance. After creating the solution, it will evaluate
-    	// the fitness of the created solution.
-
         GPRoutingPolicy policy =
                 new GPRoutingPolicy(poolFilter, ((GPIndividual)indi).trees[0]);
 

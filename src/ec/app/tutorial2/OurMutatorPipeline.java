@@ -26,22 +26,18 @@ import ec.util.*;
    <p><b>Number of Sources</b><br>
    1
 */
+
+
 public class OurMutatorPipeline extends BreedingPipeline
-{
-    /**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	public static final String P_OURMUTATION = "our-mutation";
+    {
+    public static final String P_OURMUTATION = "our-mutation";
 
     // We have to specify a default base, even though we never use it 
-	@Override
     public Parameter defaultBase() { return VectorDefaults.base().push(P_OURMUTATION); }
     
     public static final int NUM_SOURCES = 1;
 
     // Return 1 -- we only use one source
-    @Override
     public int numSources() { return NUM_SOURCES; }
 
     // We're supposed to create a most _max_ and at least _min_ individuals,
@@ -49,10 +45,14 @@ public class OurMutatorPipeline extends BreedingPipeline
     // starting with the slot inds[start].  Let's do this by telling our 
     // source to stick those individuals into inds[] and then mutating them
     // right there.
-    @Override
-    public int produce(final int min, final int max, final int start, final int subpopulation,
-    					final Individual[] inds, final EvolutionState state, final int thread) 
-    {
+    public int produce(final int min, 
+        final int max, 
+        final int start,
+        final int subpopulation,
+        final Individual[] inds,
+        final EvolutionState state,
+        final int thread) 
+        {
         // grab individuals from our source and stick 'em right into inds.
         // we'll modify them from there
         int n = sources[0].produce(min,max,start,subpopulation,inds,state,thread);
@@ -83,16 +83,18 @@ public class OurMutatorPipeline extends BreedingPipeline
 
         // mutate 'em!
         for(int q=start;q<n+start;q++)
-        {
+            {
             IntegerVectorIndividual i = (IntegerVectorIndividual)inds[q];
             for(int x=0;x<i.genome.length;x++)
                 if (state.random[thread].nextBoolean(species.mutationProbability(x)))
                     i.genome[x] = -i.genome[x];
             // it's a "new" individual, so it's no longer been evaluated
             i.evaluated=false;
-        }
+            }
 
         return n;
-    }
+        }
 
-}
+    }
+    
+    

@@ -23,54 +23,27 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The evaluation model for evaluating individuals in GPHH. An <code>EvaluationModel</code>
- * encapsulates and handles the <code>evaluate</code> method of the <code>SimpleProblemForm</code>
- * class. 
+ * The evaluation model for evaluating individuals in GPHH.
  */
 
 public abstract class EvaluationModel {
-	
-	
     public static final long SEED_GAP_INSTANCE = 935627; // seed gap between instances
-        
     public static final long SEED_GAP_ROTATION = 6125; // seed gap for each rotation
 
     public static final String P_OBJECTIVES = "objectives";
-    
     public static final String P_INSTANCES = "instances";
-    
     public static final String P_FILE = "file"; // the file of the instance
-    
-    /**
-     * the number of samples
-     */
-    public static final String P_SAMPLES = "samples"; 
-    
+    public static final String P_SAMPLES = "samples"; // the number of samples
     public static final String P_DEM_ULEVEL = "demand-uncertainty-level";
-    
     public static final String P_COST_ULEVEL = "cost-uncertainty-level";
-    
-    /**
-     * The number of vehicles
-     */
-    public static final String P_VEHICLES = "vehicles"; 
-    
-    /**
-     * The seed for the first instance
-     */
-    public static final String P_SEED = "seed"; 
+    public static final String P_VEHICLES = "vehicles"; // nubmer of vehicles
+    public static final String P_SEED = "seed"; // the seed for the first instance
 
     protected List<Objective> objectives;
-    
-    /**
-     * The instance samples used for evaluation
-     */
-    protected List<InstanceSamples> instanceSamples;
-
+    protected List<InstanceSamples> instanceSamples; // the instance samples used for evaluation
     protected Map<Pair<Integer, Objective>, Double> objRefValueMap;
 
-    public List<Objective> getObjectives() 
-    {
+    public List<Objective> getObjectives() {
         return objectives;
     }
 
@@ -201,7 +174,7 @@ public abstract class EvaluationModel {
         int index = 0;
         for (InstanceSamples iSamples : instanceSamples) {
             for (long seed : iSamples.getSeeds()) {
-                // create a new reactive decision process from the based instance and the seed.
+                // create a new reactive decision process from the based intance and the seed.
                 ReactiveDecisionProcess dp =
                         DecisionProcess.initReactive(iSamples.getBaseInstance(),
                                 seed, Objective.refReactiveRoutingPolicy());
@@ -212,7 +185,7 @@ public abstract class EvaluationModel {
                 for (Objective objective : objectives) {
                     double objValue = solution.objValue(objective);
                     objRefValueMap.put(Pair.of(index, objective), objValue);
-                    index++;
+                    index ++;
                 }
                 dp.reset();
             }
@@ -231,7 +204,7 @@ public abstract class EvaluationModel {
 
     /**
      * Evaluate an individual (a policy plus a plan) using this evaluation model.
-     * The fitness is original --- without normalization.
+     * The fitness is original --- without normalisation.
      * @param policy the policy to be evaluated.
      * @param plan the plan to be evaluated -- null if the policy is reactive.
      * @param fitness the fitness of the individual.
