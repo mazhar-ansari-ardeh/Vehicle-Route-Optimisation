@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 import ec.EvolutionState;
+import ec.Fitness;
 import ec.gp.GPIndividual;
 import ec.gp.GPTree;
 import ec.gp.koza.KozaFitness;
@@ -78,8 +79,11 @@ public class FCFStatistics extends SimpleStatistics
 		for(int i = 0; i < state.population.subpops[0].individuals.length; i++)
 		{
 			GPIndividual gind = (GPIndividual)state.population.subpops[0].individuals[i];
-			KozaFitness kfit = (KozaFitness)gind.fitness;
-			double fitness = kfit.standardizedFitness();
+			Fitness fit = gind.fitness;
+			double fitness = fit.fitness();
+			if(gind.fitness instanceof KozaFitness)
+				fitness = ((KozaFitness)fit).standardizedFitness();
+
 			fitnessSum += fitness;
 			if(fitness < bestFitness)
 			{
@@ -99,21 +103,20 @@ public class FCFStatistics extends SimpleStatistics
 
 	        if(i == 0)
 	        	state.output.println("# index, " + (saveTree ? "tree, " : "")
-	        						  + "fitness, hits, STD fitness\n",
+	        						  + "fitness, STD fitness\n",
 	        						  popLogId);
 
-	        state.output.print( i + "\t, " + tree + "\t" + kfit.fitness(), popLogId);
+	        state.output.print( i + "\t, " + tree + "\t", popLogId);
 			state.output.flush();
-			double hits = kfit.hits;
-			state.output.println(", " + hits + ", " + fitness, popLogId);
+			state.output.println(", " + ", " + fitness, popLogId);
 			state.output.println("", popLogId);
 		} // for: Iterate over individuals
 
 		if(state.generation == 0)
-			state.output.println("# generation, number of evaluations, mean, best", statLogId);
+			state.output.println("# generation, mean, best", statLogId);
 
 		state.output.println(state.generation + ",\t"
-							 + ((RegressionProblem)state.evaluator.p_problem).getEvaluationCount()
+//							 + ((RegressionProblem)state.evaluator.p_problem).getEvaluationCount()
 							 + ",\t" + fitnessSum / state.population.subpops[0].individuals.length
 							 + ",\t" + bestFitness, statLogId);
 
