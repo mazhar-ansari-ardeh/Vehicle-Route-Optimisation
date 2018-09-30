@@ -3,6 +3,7 @@ package tl.gp;
 import java.io.File;
 
 import ec.EvolutionState;
+import ec.Fitness;
 import ec.gp.GPProblem;
 import ec.util.Parameter;
 import tl.knowledge.*;
@@ -45,9 +46,15 @@ public class FittedCodeFragmentBuilder extends CodeFragmentBuilder
 
 		int tournamentSize = state.parameters.getIntWithDefault(
 				base.push(P_KNOWLEDGE_TOURNAMENT_SIZE), null, DEFAULT_KNOWLEDGE_TOURNAMENT_SIZE);
+		
+		
 
+		Parameter problemParam = new Parameter("pop.subpop.0.species.fitness");
+		Fitness fitness = (Fitness) state.parameters.getInstanceForParameter(problemParam, 
+				 null, Fitness.class);
+		fitness.setup(state, problemParam);
 	    CodeFragmentKB knowledgeBase = new FittedCodeFragmentKB(state
-	    		, (GPProblem)state.evaluator.p_problem, tournamentSize);
+	    		, (GPProblem)state.evaluator.p_problem, fitness, tournamentSize);
 
 		knowledgeBase.addFrom(kbFile, state);
 		extractor  = knowledgeBase.getKnowledgeExtractor();

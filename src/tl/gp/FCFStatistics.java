@@ -10,6 +10,7 @@ import ec.gp.GPTree;
 import ec.gp.koza.KozaFitness;
 import ec.simple.SimpleStatistics;
 import ec.util.Parameter;
+import gphhucarp.gp.ReactiveGPHHProblem;
 import tl.problems.regression.one_d.RegressionProblem;
 
 
@@ -113,10 +114,10 @@ public class FCFStatistics extends SimpleStatistics
 		} // for: Iterate over individuals
 
 		if(state.generation == 0)
-			state.output.println("# generation, mean, best", statLogId);
+			state.output.println("# generation, num eval, mean, best", statLogId);
 
 		state.output.println(state.generation + ",\t"
-//							 + ((RegressionProblem)state.evaluator.p_problem).getEvaluationCount()
+							 + ((ReactiveGPHHProblem)state.evaluator.p_problem).getNumEvaluation()
 							 + ",\t" + fitnessSum / state.population.subpops[0].individuals.length
 							 + ",\t" + bestFitness, statLogId);
 

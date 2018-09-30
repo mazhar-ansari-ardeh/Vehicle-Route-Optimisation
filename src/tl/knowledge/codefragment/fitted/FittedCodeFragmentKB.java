@@ -3,11 +3,11 @@ package tl.knowledge.codefragment.fitted;
 import java.util.ArrayList;
 
 import ec.EvolutionState;
+import ec.Fitness;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import ec.gp.GPProblem;
 import ec.gp.GPTree;
-import ec.gp.koza.KozaFitness;
 import tl.knowledge.KnowledgeExtractor;
 import tl.knowledge.codefragment.CodeFragmentKB;
 
@@ -15,26 +15,38 @@ public class FittedCodeFragmentKB extends CodeFragmentKB
 {
 	private GPProblem problem = null;
 	private EvolutionState state = null;
+	private Fitness fitnessPrototype = null; 
 
 	private int tournamentSize = 0;
 
 	private ArrayList<FittedCodeFragment> repository = new ArrayList<>();
 
-	public FittedCodeFragmentKB(EvolutionState state, GPProblem problem, int tournamentSize)
+	/**
+	 * Constructs a new knowledge base object
+	 * @param state The <code>EvolutionState</code> object that is running the algorithm.
+	 * @param problem The problem that will be used to find fitness of code fragments. 
+	 * @param fitnessPrototype The fitness object that will be used for finding the fitness of 
+	 * code fragments. The object is used as a prototype and the object will be used directly. 
+	 * @param tournamentSize The tournament size for selecting code fragments. 
+	 */
+	public FittedCodeFragmentKB(EvolutionState state, GPProblem problem,
+			Fitness fitnessPrototype, int tournamentSize)
 	{
 		if (state == null)
-		{
 			throw new NullPointerException("State cannot be null");
-		}
 
 		if(problem == null)
 			throw new NullPointerException("Problem cannot be null");
+		
+		if (fitnessPrototype == null) 
+			throw new NullPointerException("Fitness cannot be null");
 
 		if(tournamentSize <= 0)
 			throw new IllegalArgumentException("Tournament size must be greater than zero");
 
-		this.problem = problem;
 		this.state = state;
+		this.problem = problem;
+		this.fitnessPrototype = fitnessPrototype; 
 		this.tournamentSize = tournamentSize;
 	}
 
@@ -90,7 +102,7 @@ public class FittedCodeFragmentKB extends CodeFragmentKB
 		// TODO: It is much better to use builders, initializers and species to create a new ind.
 		GPIndividual ind = new GPIndividual();
 		ind.evaluated = false;
-		ind.fitness = new KozaFitness();
+		ind.fitness = (Fitness) fitnessPrototype.clone();
 		ind.trees = new GPTree[1];
 		ind.trees[0] = new GPTree();
 		ind.trees[0].owner = ind;
@@ -99,9 +111,10 @@ public class FittedCodeFragmentKB extends CodeFragmentKB
 		item.argposition = 0;
 
 		problem.evaluate(state, ind, 0, 0);
+		item.parent = null; 
 
-		// TODO: Check the value returned by the fitness() function.
-		repository.add(new FittedCodeFragment(item, ind.fitness.fitness()));
+		double dfitness = ind.fitness.fitness();
+		repository.add(new FittedCodeFragment(item, dfitness));
 
 		return true;
 	}

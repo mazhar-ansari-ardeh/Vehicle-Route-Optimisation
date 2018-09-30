@@ -3,6 +3,7 @@ package tl.gp;
 import java.io.File;
 
 import ec.EvolutionState;
+import ec.Fitness;
 import ec.gp.GPProblem;
 import ec.util.Parameter;
 import tl.knowledge.KnowledgeExtractor;
@@ -50,8 +51,13 @@ public class FilteredFittedCodeFragmentBuilder extends CodeFragmentBuilder
 
 		int filterSize = state.parameters.getInt(base.push(P_FILTER_SIZE), null);
 
+		Parameter problemParam = new Parameter("pop.subpop.0.species.fitness");
+		Fitness fitness = (Fitness) state.parameters.getInstanceForParameter(problemParam, 
+				 null, Fitness.class);
+		fitness.setup(state, problemParam);
+		
 	    CodeFragmentKB knowledgeBase = new SourceFilteredFittedCFKB(state
-	    		, (GPProblem)state.evaluator.p_problem, tournamentSize, filterSize);
+	    		, (GPProblem)state.evaluator.p_problem, fitness, tournamentSize, filterSize);
 
 		knowledgeBase.addFrom(kbFile, state);
 		extractor  = knowledgeBase.getKnowledgeExtractor();

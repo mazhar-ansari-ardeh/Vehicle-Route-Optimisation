@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.PriorityQueue;
 
 import ec.EvolutionState;
+import ec.Fitness;
 import ec.Individual;
 import ec.Population;
 import ec.Subpopulation;
@@ -25,10 +26,10 @@ public class SourceFilteredFittedCFKB extends FittedCodeFragmentKB
 	 * base to be added, only this number of individuals with best fitness value will be added to
 	 * this knowledge base and the rest will be ignored.
 	 */
-	public SourceFilteredFittedCFKB(EvolutionState state, GPProblem problem, int tournamentSize,
-			int filterSize)
+	public SourceFilteredFittedCFKB(EvolutionState state, GPProblem problem, Fitness fitness,
+			int tournamentSize, int filterSize)
 	{
-		super(state, problem, tournamentSize);
+		super(state, problem, fitness, tournamentSize);
 
 		if(filterSize <= 0)
 			throw new IllegalArgumentException("Filter size must be greater than zero.");
@@ -56,9 +57,7 @@ public class SourceFilteredFittedCFKB extends FittedCodeFragmentKB
 			GPIndividual ind1 = (GPIndividual) i1;
 			GPIndividual ind2 = (GPIndividual) i2;
 
-			return Double.compare(
-					((KozaFitness)ind1.fitness).standardizedFitness(),
-					((KozaFitness)ind2.fitness).standardizedFitness());
+			return Double.compare(ind1.fitness.fitness(), ind2.fitness.fitness());
 		});
 		for(Subpopulation sub : population.subpops)
 			q.addAll(Arrays.asList(sub.individuals));

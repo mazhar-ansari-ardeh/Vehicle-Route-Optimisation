@@ -378,6 +378,12 @@ public class EvolutionState implements Singleton
 
 
         /* Set up the singletons */
+        
+        p=new Parameter(P_EVALUATOR);
+        evaluator = (Evaluator)
+            (parameters.getInstanceForParameter(p,null,Evaluator.class));
+        evaluator.setup(this,p);
+        
         p=new Parameter(P_INITIALIZER);
         initializer = (Initializer)
             (parameters.getInstanceForParameter(p,null,Initializer.class));
@@ -392,11 +398,6 @@ public class EvolutionState implements Singleton
         breeder = (Breeder)
             (parameters.getInstanceForParameter(p,null,Breeder.class));
         breeder.setup(this,p);
-
-        p=new Parameter(P_EVALUATOR);
-        evaluator = (Evaluator)
-            (parameters.getInstanceForParameter(p,null,Evaluator.class));
-        evaluator.setup(this,p);
 
         p=new Parameter(P_STATISTICS);
         statistics = (Statistics)

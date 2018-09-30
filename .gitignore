@@ -1,6 +1,11 @@
 # Compiled class file
 *.class
 
+# param and stat are the directories that contain experiment parameter files and outputs. 
+
+stats
+params
+
 # Don't know what it is but it is not mine. 
 .directory
 

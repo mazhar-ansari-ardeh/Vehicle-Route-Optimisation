@@ -2,14 +2,14 @@ parent.0 = ../ec/gp/koza/koza.params
 
 # Originally, this parameter was inherited from ec.simple.simple.params via ec.gp.koza.koza.params
 # finish = ec.simple.SimpleFinisher
-finish = tutorial7.gp.FilePopSaverFinisher
+finish = tl.gp.FilePopSaverFinisher
 finish.final-pop-file-name = final-pop.dat
 
 # Override the number of generations
 generations = 100
 
 # Originally it was gp.tc.0.init = ec.gp.koza.HalfBuilder
-# gp.tc.0.init = tutorial7.knowledge.codefragment.CodeFragmentBuilder
+# gp.tc.0.init = tl.knowledge.codefragment.CodeFragmentBuilder
 # gp.tc.0.init.knowledge-file = final-pop.dat
 # gp.tc.0.init.knowledge-probability = 0.5
 
@@ -26,20 +26,20 @@ gp.fs.0.name = f0
 # We have four functions in the function set. They are:
 
 gp.fs.0.size = 5
-gp.fs.0.func.0 = tutorial7.problems.regression.Add
+gp.fs.0.func.0 = tl.problems.regression.Add
 gp.fs.0.func.0.nc = nc2
-gp.fs.0.func.1 = tutorial7.problems.regression.Sub
+gp.fs.0.func.1 = tl.problems.regression.Sub
 gp.fs.0.func.1.nc = nc2
-gp.fs.0.func.2 = tutorial7.problems.regression.Mul
+gp.fs.0.func.2 = tl.problems.regression.Mul
 gp.fs.0.func.2.nc = nc2
-gp.fs.0.func.3 = tutorial7.problems.regression.RegERC
+gp.fs.0.func.3 = tl.problems.regression.RegERC
 gp.fs.0.func.3.nc = nc0
-gp.fs.0.func.4 = tutorial7.problems.regression.X
+gp.fs.0.func.4 = tl.problems.regression.X
 gp.fs.0.func.4.nc = nc0
 
 
-eval.problem = tutorial7.problems.regression.one_d.Poly0
-eval.problem.data = tutorial7.problems.regression.VectorData
+eval.problem = tl.problems.regression.one_d.Poly0
+eval.problem.data = tl.problems.regression.VectorData
 
 eval.problem.poly0.range_min = -2
 eval.problem.poly0.range_max = +2
