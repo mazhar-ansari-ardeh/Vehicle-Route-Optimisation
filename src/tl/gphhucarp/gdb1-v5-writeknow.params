@@ -26,11 +26,11 @@ finish.final-pop-file-name = gdb-5-final-pop.dat
 # ==============================
 # Statistics
 # ==============================
-# stat = tl.gp.FCFStatistics
-# stat.file = $stats/gdb-5-withoutknow.stat/gbd1.stat
-# stat.gen-pop-file = stats/gdb-5-withoutknow.stat/population.gen
-# stat.save-pop = true
-# stat.save-tree = true
+stat = tl.gp.FCFStatistics
+stat.file = $stats/gdb1-v5-writeknow.stat/gbd1.stat
+stat.gen-pop-file = stats/gdb1-v5-writeknow.stat/population.gen
+stat.save-pop = true
+stat.save-tree = true
 
 # gp.tree.print-style=dot
 
@@ -71,7 +71,7 @@ eval = ec.simple.SimpleEvaluator
 #stat.child.0 = ec.gp.koza.KozaShortStatistics
 #stat.child.0.file = $outtabular.stat
 
-generations = 51
+generations = 30
 quit-on-run-complete = true
 
 pop = ec.Population

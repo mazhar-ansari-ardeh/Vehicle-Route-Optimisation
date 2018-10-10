@@ -1,3 +1,4 @@
+
 # ==============================
 # The problem
 # ==============================
@@ -27,7 +28,9 @@ stat.save-tree = true
 
 gp.tree.print-style=dot
 
-# --------------------------- Knowledge ---------------------------------------------
+# ==============================
+# Knowledge
+# ==============================
 # Originally it was gp.tc.0.init = ec.gp.koza.HalfBuilder
 # GP tree constraints
 
@@ -46,13 +49,12 @@ gp.koza.half.min-depth = 2
 gp.koza.half.max-depth = 6
 gp.koza.half.growp = 0.5
 
-gp.tc.0.init = tl.gp.FilteredFittedCodeFragmentBuilder
-gp.tc.0.init.knowledge-file = final-pop.dat
+gp.tc.0.init = tl.gp.FittedCodeFragmentBuilder
+gp.tc.0.init.knowledge-file = gdb-5-final-pop.dat
+gp.tc.0.init.knowledge-extraction = root # or all
 gp.tc.0.init.knowledge-probability = 0.5
 gp.tc.0.init.knowledge-tournament-size = 20
 gp.tc.0.init.knowledge-filter-size = 100
-
-
 
 
 
@@ -81,7 +83,7 @@ checkpoint-prefix = ec
 # ==============================
 state = gphhucarp.gp.GPHHEvolutionState
 finish = tl.gp.FilePopSaverFinisher
-finish.final-pop-file-name = final-pop-gdb-1.dat
+finish.final-pop-file-name = gdb-9-final-pop.dat
 exch = ec.simple.SimpleExchanger
 breed =	ec.simple.SimpleBreeder
 eval = ec.simple.SimpleEvaluator
@@ -122,7 +124,7 @@ pop.subpop.0.duplicate-retries = 100
 pop.subpop.0.species.pipe = ec.breed.MultiBreedingPipeline
 pop.subpop.0.species.pipe.generate-max = false
 pop.subpop.0.species.pipe.num-sources = 3
-pop.subpop.0.species.pipe.source.0 = ec.gp.koza.CrossoverPipeline
+pop.subpop.0.species.pipe.source.0 = tl.gp.FittedKnowledgeCrossoverPipeline
 pop.subpop.0.species.pipe.source.0.prob = 0.80
 pop.subpop.0.species.pipe.source.1 = ec.gp.koza.MutationPipeline
 pop.subpop.0.species.pipe.source.1.prob = 0.15

@@ -10,7 +10,7 @@ import ec.Population;
 import ec.Subpopulation;
 import ec.gp.GPIndividual;
 import ec.gp.GPProblem;
-import ec.gp.koza.KozaFitness;
+import tl.gp.KnowledgeExtractionMethod;
 
 public class SourceFilteredFittedCFKB extends FittedCodeFragmentKB
 {
@@ -49,7 +49,7 @@ public class SourceFilteredFittedCFKB extends FittedCodeFragmentKB
 	 * <code>false</code>.
 	 */
 	@Override
-	public boolean addFrom(Population population)
+	public boolean addFrom(Population population, KnowledgeExtractionMethod method)
 	{
 
 		PriorityQueue<Individual> q = new PriorityQueue<>((Individual i1, Individual i2)->
@@ -64,7 +64,7 @@ public class SourceFilteredFittedCFKB extends FittedCodeFragmentKB
 
 		boolean added = false;
 		for(int i = 0; i < filterSize; i++)
-			added |= addFrom((GPIndividual) q.poll());
+			added |= addFrom((GPIndividual) q.poll(), method);
 
 		return added;
 	}

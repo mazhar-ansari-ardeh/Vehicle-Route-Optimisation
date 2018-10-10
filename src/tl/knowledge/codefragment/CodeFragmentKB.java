@@ -15,6 +15,7 @@ import ec.Subpopulation;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import ec.gp.GPSpecies;
+import tl.gp.KnowledgeExtractionMethod;
 import tl.gp.TreeSlicer;
 import tl.knowledge.KnowledgeItem;
 import tl.knowledge.KnowlegeBase;
@@ -72,14 +73,26 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 	 * base and <code>false</code> otherwise.
 	 */
 
-	public boolean addFrom(GPIndividual gpIndividual)
+	public boolean addFrom(GPIndividual gpIndividual, KnowledgeExtractionMethod method)
 	{
 		if (gpIndividual == null)
 		{
 			return false;
 		}
 
-		ArrayList<GPNode> nodes = TreeSlicer.sliceToNodes(gpIndividual, false);
+		ArrayList<GPNode> nodes = null;
+		switch(method)
+		{
+		case All:
+			nodes = TreeSlicer.sliceAllToNodes(gpIndividual, false);
+			break;
+		case RootSubtree:
+			nodes = TreeSlicer.sliceToNodes(gpIndividual, false);
+			break;
+		default:
+			throw new IllegalArgumentException();
+		}
+
 		nodes.forEach(node ->
 			{
 				addItem(node);
@@ -99,7 +112,7 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 	 * @return <code>true</code> if the function added items from <code>population</code> to this
 	 * base and <code>false</code> otherwise.
 	 */
-	public boolean addFrom(Population population)
+	public boolean addFrom(Population population, KnowledgeExtractionMethod method)
 	{
 		if (population == null)
 		{
@@ -114,7 +127,7 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 				continue;
 			for(Individual ind : sub.individuals)
 			{
-				if( addFrom((GPIndividual)ind) == true)
+				if( addFrom((GPIndividual)ind, method) == true)
 					added = true;
 			}
 		}
@@ -137,7 +150,7 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 	 * @return <code>true</code> if the function added items from <code>population</code> to this
 	 * base and <code>false</code> otherwise.
 	 */
-	public boolean addFrom(File file, EvolutionState state)
+	public boolean addFrom(File file, EvolutionState state, KnowledgeExtractionMethod method)
 	{
 		if (file == null)
 		{
@@ -171,10 +184,11 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 				}
 			}
 
-			return addFrom(pop);
+			return addFrom(pop, method);
 		} catch (FileNotFoundException e)
 		{
-			return false;
+			e.printStackTrace();
+			throw new RuntimeException(e);
 		} catch (IOException e)
 		{
 			return added;

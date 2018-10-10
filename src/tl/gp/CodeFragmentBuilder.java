@@ -1,14 +1,12 @@
 package tl.gp;
 
-import ec.EvolutionState;
-import ec.gp.GPFunctionSet;
-import ec.gp.GPInitializer;
-import ec.gp.GPNode;
-import ec.gp.GPNodeParent;
-import ec.gp.GPType;
+import ec.*;
+import ec.gp.*;
 import ec.gp.koza.HalfBuilder;
 import ec.util.Parameter;
 import tl.knowledge.KnowledgeExtractor;
+import tl.knowledge.codefragment.CodeFragmentKI;
+import tl.knowledge.codefragment.fitted.FittedCodeFragment;
 
 public abstract class CodeFragmentBuilder extends HalfBuilder
 {
@@ -22,7 +20,7 @@ public abstract class CodeFragmentBuilder extends HalfBuilder
 	 */
 	public static final int DEFAULT_KNOWLEDGE_TOURNAMENT_SIZE = 10;
 
-	private double knowledgeProbability = 0;
+	private static double knowledgeProbability = 0;
 
 	private KnowledgeExtractor extractor = null;
 
@@ -32,6 +30,12 @@ public abstract class CodeFragmentBuilder extends HalfBuilder
 		super.setup(state, base);
 
 		knowledgeProbability = state.parameters.getDouble(base.push(P_KNOWLEDGE_PROBABILITY), null);
+	}
+
+
+	public double getKnowledgeProbability()
+	{
+		return knowledgeProbability;
 	}
 
 
@@ -84,11 +88,13 @@ public abstract class CodeFragmentBuilder extends HalfBuilder
 			double prob = state.random[thread].nextDouble();
 			if(prob < Math.pow(knowledgeProbability, current + 1) && extractor.hasNext())
 			{
-				n = (GPNode) extractor.getNext().getItem();
+				CodeFragmentKI cf =  (CodeFragmentKI) extractor.getNext();
+				n = (GPNode) cf.getItem();
 				if(n.depth() + current < max)
 				{
 					n.argposition = (byte)argposition;
 					n.parent = parent;
+					log(state, cf);
 					return n;
 				}
 				// else create a new node in the following line and do with it as usual.
@@ -158,11 +164,13 @@ public abstract class CodeFragmentBuilder extends HalfBuilder
 			double prob = state.random[thread].nextDouble();
 			if(prob < Math.pow(knowledgeProbability, current + 1) && extractor.hasNext())
 			{
-				n = (GPNode) extractor.getNext().getItem();
+				CodeFragmentKI it = (CodeFragmentKI) extractor.getNext();
+				n = (GPNode) it.getItem();
 				if(n.depth() + current < max)
 				{
 					n.argposition = (byte)argposition;
 					n.parent = parent;
+					log(state, it);
 					return n;
 				}
 				// else create a new node in the following line and do with it as usual.
@@ -179,6 +187,24 @@ public abstract class CodeFragmentBuilder extends HalfBuilder
 
 			return n;
 		}
+	}
+
+	private void log(EvolutionState state, CodeFragmentKI it)
+	{
+		int i = state.generation;
+		String cfTree = it.getItem().makeGraphvizTree().replace("\n", "");
+
+       	int logID = KnowledgeLogID.getLogID();
+        if(i == 0)
+        	state.output.println("# index, " + "cftree, " + "cffitness", logID);
+
+        double fitness = -1;
+        if(it instanceof FittedCodeFragment)
+        	fitness = ((FittedCodeFragment)it).getFitness();
+
+        state.output.print(i + "\tinitializing, " + cfTree + "\t, " + fitness, logID);
+		state.output.flush();
+		state.output.println("", logID);
 	}
 
 }

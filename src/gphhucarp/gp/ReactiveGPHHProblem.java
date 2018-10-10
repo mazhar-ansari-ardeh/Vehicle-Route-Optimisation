@@ -29,22 +29,22 @@ public class ReactiveGPHHProblem extends GPProblem implements SimpleProblemForm 
     protected EvaluationModel evaluationModel;
     protected PoolFilter poolFilter;
     protected TieBreaker tieBreaker;
-    
-    
+
+
     /**
-     * The number of times that the evaluate function is called. Cloning this object will reset 
-     * this field and therefore, cloning must be disabled with the 
+     * The number of times that the evaluate function is called. Cloning this object will reset
+     * this field and therefore, cloning must be disabled with the
      * `eval.clone-problem = false`
-     * line in the parameter file. 
+     * line in the parameter file.
      */
-    private int evalCount = 0;
-    
-    
+    private static int evalCount = 0;
+
+
     /**
      * Gets the number of times that the <code>evaluate</code> method is invoked.
      * @return Number of times that the <code>evaluate</code> method is invoked
      */
-    public int getNumEvaluation()
+    public static int getNumEvaluation()
     {
     	return evalCount;
     }

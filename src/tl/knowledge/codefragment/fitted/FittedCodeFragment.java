@@ -6,19 +6,24 @@ import tl.knowledge.codefragment.CodeFragmentKI;
 public class FittedCodeFragment extends CodeFragmentKI
 {
 	double fitness;
-	
+
 	boolean fitnessIsSet = false;
 
 	public FittedCodeFragment(GPNode codeFragment, double fitness)
 	{
 		super(codeFragment);
 		this.fitness = fitness;
-		fitnessIsSet = true; 
+		fitnessIsSet = true;
 	}
-	
-	public FittedCodeFragment(GPNode codeFragment) 
+
+	public FittedCodeFragment(GPNode codeFragment)
 	{
 		super(codeFragment);
-		fitnessIsSet = false; 
+		fitnessIsSet = false;
+	}
+
+	public double getFitness()
+	{
+		return fitness;
 	}
 }

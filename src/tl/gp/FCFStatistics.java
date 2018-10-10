@@ -1,17 +1,20 @@
 package tl.gp;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 
 import ec.EvolutionState;
 import ec.Fitness;
+import ec.Individual;
+import ec.Subpopulation;
 import ec.gp.GPIndividual;
 import ec.gp.GPTree;
 import ec.gp.koza.KozaFitness;
 import ec.simple.SimpleStatistics;
 import ec.util.Parameter;
 import gphhucarp.gp.ReactiveGPHHProblem;
-import tl.problems.regression.one_d.RegressionProblem;
 
 
 /**
@@ -61,6 +64,32 @@ public class FCFStatistics extends SimpleStatistics
 	public final static String P_GEN_POP_FILE_NAME = "gen-pop-file";
 	public final static String P_SAVE_POP = "save-pop";
 	public final static String P_SAVE_POP_TREE = "save-tree";
+
+	public void savePopulationBinary(EvolutionState state)
+	{
+		try
+		{
+			String popFileName = genPopFileName + "." + state.generation + ".bin";
+			File f = new File(popFileName);
+			if(f.exists())
+				f.delete();
+			f.createNewFile();
+			ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(f));
+			writer.writeInt(state.population.subpops.length);
+			for(Subpopulation sub: state.population.subpops)
+			{
+				writer.writeInt(sub.individuals.length);
+				for(Individual ind: sub.individuals)
+				{
+					writer.writeObject(ind);
+				}
+			}
+			writer.close();
+		} catch (IOException e)
+		{
+			state.output.fatal(e.toString());
+		}
+	}
 
 	/**
 	 * This function has two objectives: <p>
@@ -147,12 +176,20 @@ public class FCFStatistics extends SimpleStatistics
 			}
 			statLogFile.createNewFile();
 			statLogID = state.output.addLog(statLogFile, false, false);
+
+			File knowledgeLogFile = new File(genPopFileName + ".know");
+			if(knowledgeLogFile.exists())
+			{
+				knowledgeLogFile.delete();
+			}
+			knowledgeLogFile.createNewFile();
+			KnowledgeLogID.LogID = state.output.addLog(knowledgeLogFile, false, false);
+
 		} catch (IOException e)
 		{
 			state.output.fatal("Failed to create the file for storing initial population.");
 		}
 	}
-
 
 	@Override
 	public void postEvaluationStatistics(EvolutionState state)
@@ -180,5 +217,6 @@ public class FCFStatistics extends SimpleStatistics
 									+ exp.toString());
 			}
 		}
+		savePopulationBinary(state);
 	}
 }

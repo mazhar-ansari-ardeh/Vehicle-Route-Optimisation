@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
+import ec.gp.GPTree;
 
 public class TreeSlicer
 {
@@ -80,6 +81,39 @@ public class TreeSlicer
 		}
 
 		ind.trees[0].child.children = new GPNode[0];
+
+		return retval;
+	}
+
+	public static ArrayList<GPNode> sliceAllToNodes(GPNode root, boolean includeTerminals)
+	{
+		ArrayList<GPNode> retval = new ArrayList<>();
+		if(root == null)
+			return retval;
+
+		if(root.children == null || root.children.length == 0) // It does not have any children then it is a terminal
+		{
+			if(includeTerminals)
+				retval.add((GPNode)root.clone());
+			return retval;
+		}
+		GPNode rootClone = (GPNode)root.clone();
+		rootClone.parent = null;
+		retval.add(rootClone);
+		for(int i = 0; i < root.children.length; i++)
+			retval.addAll(sliceAllToNodes(root.children[i], includeTerminals));
+
+		return retval;
+	}
+
+	public static ArrayList<GPNode> sliceAllToNodes(GPIndividual ind, boolean includeTerminals)
+	{
+		ArrayList<GPNode> retval = new ArrayList<>();
+		if(ind == null)
+			return retval;
+
+		for(GPTree tree : ind.trees)
+			retval.addAll(sliceAllToNodes(tree.child, includeTerminals));
 
 		return retval;
 	}

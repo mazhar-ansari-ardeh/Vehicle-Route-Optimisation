@@ -25,7 +25,7 @@ public class FilteredFittedCodeFragmentBuilder extends CodeFragmentBuilder
 
 	public static final String P_FILTER_SIZE = "knowledge-filter-size";
 
-	private KnowledgeExtractor extractor = null;
+	private static KnowledgeExtractor extractor = null;
 
 
 	@Override
@@ -52,15 +52,31 @@ public class FilteredFittedCodeFragmentBuilder extends CodeFragmentBuilder
 		int filterSize = state.parameters.getInt(base.push(P_FILTER_SIZE), null);
 
 		Parameter problemParam = new Parameter("pop.subpop.0.species.fitness");
-		Fitness fitness = (Fitness) state.parameters.getInstanceForParameter(problemParam, 
+		Fitness fitness = (Fitness) state.parameters.getInstanceForParameter(problemParam,
 				 null, Fitness.class);
 		fitness.setup(state, problemParam);
-		
+
+		Parameter knowledgeExtraction = base.push("knowledge-extraction");
+		String extraction = state.parameters.getString(knowledgeExtraction, null);
+		KnowledgeExtractionMethod extractionMethod;
+		if(extraction.equals("all"))
+			extractionMethod = KnowledgeExtractionMethod.All;
+		else if(extraction.equals("root"))
+			extractionMethod = KnowledgeExtractionMethod.RootSubtree;
+		else
+		{
+			state.output.fatal("Invalid value for parameter knowledge-extraction: " + extraction
+							   + "Acceptable values are: 'all' and 'root'.");
+			return;
+		}
+
 	    CodeFragmentKB knowledgeBase = new SourceFilteredFittedCFKB(state
 	    		, (GPProblem)state.evaluator.p_problem, fitness, tournamentSize, filterSize);
 
-		knowledgeBase.addFrom(kbFile, state);
+		knowledgeBase.addFrom(kbFile, state, extractionMethod);
 		extractor  = knowledgeBase.getKnowledgeExtractor();
+		state.output.warning("FilteredFittedCodeFragmentBuilder loaded. Tournament size: "
+				+ tournamentSize + ", filter size: " + filterSize);
 	}
 
 
