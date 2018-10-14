@@ -83,11 +83,11 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 		ArrayList<GPNode> nodes = null;
 		switch(method)
 		{
-		case All:
+		case AllSubtrees:
 			nodes = TreeSlicer.sliceAllToNodes(gpIndividual, false);
 			break;
 		case RootSubtree:
-			nodes = TreeSlicer.sliceToNodes(gpIndividual, false);
+			nodes = TreeSlicer.sliceRootChildrenToNodes(gpIndividual, false);
 			break;
 		default:
 			throw new IllegalArgumentException();
