@@ -19,7 +19,7 @@ public class FittedCodeFragmentKB extends CodeFragmentKB
 
 	private int tournamentSize = 0;
 
-	private ArrayList<FittedCodeFragment> repository = new ArrayList<>();
+	protected ArrayList<FittedCodeFragment> repository = new ArrayList<>();
 
 	/**
 	 * Constructs a new knowledge base object
@@ -68,7 +68,7 @@ public class FittedCodeFragmentKB extends CodeFragmentKB
 			for (int i = 1; i < tournamentSize; i++)
 			{
 				int selected = state.random[0].nextInt(repository.size());
-				if(repository.get(selected).fitness	< repository.get(best).fitness)
+				if(repository.get(selected).getFitness() < repository.get(best).getFitness())
 					best = selected;
 			}
 
@@ -81,7 +81,7 @@ public class FittedCodeFragmentKB extends CodeFragmentKB
 		{
 			// Do nothing.
 		}
-	}
+	} // class TournamentExtractor
 
 
 	@Override
