@@ -1,6 +1,5 @@
 package tl.gp;
 
-import java.io.File;
 
 /*
 Copyright 2006 by Sean Luke
@@ -13,11 +12,9 @@ import ec.*;
 import ec.util.*;
 import tl.gp.FilteredFittedCodeFragmentBuilder;
 import tl.knowledge.KnowledgeExtractor;
-import tl.knowledge.KnowledgeItem;
-import tl.knowledge.codefragment.fitted.FittedCodeFragment;
+import tl.knowledge.codefragment.fitted.DoubleFittedCodeFragment;
 import ec.gp.*;
-import ec.gp.koza.GPKozaDefaults;
-import ec.gp.koza.KozaFitness;
+import ec.gp.koza.*;
 import ec.simple.SimpleProblemForm;
 
 /*
@@ -394,8 +391,8 @@ public class FilteredKnowledgeCrossoverPipeline extends GPBreedingPipeline
 			// f.setup(state, new Parameter("gp.tc.0.init"));
 			KnowledgeExtractor e = builder.getKnowledgeExtractor();
 
-			FittedCodeFragment cf1 = (FittedCodeFragment) e.getNext();
-			FittedCodeFragment cf2 = (FittedCodeFragment) e.getNext();
+			DoubleFittedCodeFragment cf1 = (DoubleFittedCodeFragment) e.getNext();
+			DoubleFittedCodeFragment cf2 = (DoubleFittedCodeFragment) e.getNext();
 			for(int x=0;x<numTries;x++)
 			{
 				// pick a node in individual 1
@@ -566,7 +563,7 @@ public class FilteredKnowledgeCrossoverPipeline extends GPBreedingPipeline
 
 	private static int i = 0;
 
-	private void log(EvolutionState state, FittedCodeFragment it, GPIndividual gindnew,
+	private void log(EvolutionState state, DoubleFittedCodeFragment it, GPIndividual gindnew,
 			GPIndividual gindold)
 	{
 		String cfTree = it.getItem().makeGraphvizTree().replaceAll("\n", "");
@@ -585,9 +582,10 @@ public class FilteredKnowledgeCrossoverPipeline extends GPBreedingPipeline
 
        	int logID = KnowledgeLogID.getLogID();
         if(i++ == 0)
-        	state.output.println("# index, " + "cftree, " + "cffitness, newtree, newfitness, oldtree, oldfitness", logID);
+        	state.output.println("# index, " + "cftree, " + "cffitness on target, cffitness on source, newtree, newfitness, oldtree, oldfitness", logID);
 
-        state.output.print( i + "\t, " + cfTree + "\t, " + it.getFitness() + "\n, " + treenew
+        state.output.print( i + "\t, " + cfTree + "\t, " + it.getFitnessOnTarget() 
+        					  + ",\t" + it.getFitnessOnSource() + "\n, " + treenew
         					  + "\t" + fitnessnew + ",\n" + treeold + ",\t"
         					  + fitnessold , logID);
 		state.output.flush();
