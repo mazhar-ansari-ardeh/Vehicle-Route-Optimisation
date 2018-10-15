@@ -116,7 +116,7 @@ gp.koza.xover
  * @author Sean Luke
  * @version 1.0
  */
-
+@Deprecated
 public class FittedKnowledgeCrossoverPipeline extends GPBreedingPipeline
 {
 	private static final long serialVersionUID = 1;
