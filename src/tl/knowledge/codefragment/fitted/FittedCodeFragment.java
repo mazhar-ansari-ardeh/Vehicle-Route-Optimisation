@@ -1,28 +1,32 @@
 package tl.knowledge.codefragment.fitted;
 
+import java.io.Serializable;
+
 import ec.gp.GPNode;
 import tl.knowledge.codefragment.CodeFragmentKI;
 
-public class FittedCodeFragment extends CodeFragmentKI
+public class FittedCodeFragment extends CodeFragmentKI implements Serializable
 {
-	double fitness;
+	private static final long serialVersionUID = 1L;
 
-	boolean fitnessIsSet = false;
+	private Double fitness = null;
 
-	public FittedCodeFragment(GPNode codeFragment, double fitness)
+	// boolean fitnessIsSet = false;
+
+	public FittedCodeFragment(GPNode codeFragment, Double fitness)
 	{
 		super(codeFragment);
 		this.fitness = fitness;
-		fitnessIsSet = true;
+		// fitnessIsSet = true;
 	}
 
 	public FittedCodeFragment(GPNode codeFragment)
 	{
 		super(codeFragment);
-		fitnessIsSet = false;
+		// fitnessIsSet = false;
 	}
 
-	public double getFitness()
+	public Double getFitness()
 	{
 		return fitness;
 	}
