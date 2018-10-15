@@ -10,7 +10,6 @@ import ec.Fitness;
 import ec.Individual;
 import ec.Subpopulation;
 import ec.gp.GPIndividual;
-import ec.gp.GPTree;
 import ec.gp.koza.KozaFitness;
 import ec.simple.SimpleStatistics;
 import ec.util.Parameter;
@@ -48,109 +47,99 @@ public class FCFStatistics extends SimpleStatistics
 	private boolean saveGenerations = false;
 
 
-	/**
-	 * If tree, the statistics will also contain a tree representation of the individuals in the
-	 * population.The style of the saved representation is determined with ECJ's
-	 * 'gp.tree.print-style' parameter.
-	 */
-	private boolean saveTree = false;
-
-	/**
-	 * Determines the style to use for saving tree representation of individuals in the population.
-	 * This style is determined with ECJ's 'gp.tree.print-style' parameter.
-	 */
-	private String style = null;
-
 	public final static String P_GEN_POP_FILE_NAME = "gen-pop-file";
 	public final static String P_SAVE_POP = "save-pop";
-	public final static String P_SAVE_POP_TREE = "save-tree";
+	// public final static String P_SAVE_POP_TREE = "save-tree";
+	
+	/**
+	 * The best generation, i.e. the generation that has the individual with the best fitness.
+	 */
+	int bestGeneration = 0;
+	double bestGenerationFitness = Double.MAX_VALUE;
 
-	public void savePopulationBinary(EvolutionState state)
+	/**
+	 * Iterate population and perform a collection of tasks defined inside the function.
+	 * @param state The state of the evolution. 
+	 */
+	private void iteratePopulation(EvolutionState state)
 	{
 		try
 		{
-			String popFileName = genPopFileName + "." + state.generation + ".bin";
+			// 1. initializing iteration operations
+			
+			// 1.1 Prepare for saving population. 
+			String popFileName = generatePopulationFileName(state.generation);
 			File f = new File(popFileName);
 			if(f.exists())
 				f.delete();
 			f.createNewFile();
+			
 			ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(f));
 			writer.writeInt(state.population.subpops.length);
+			
 			for(Subpopulation sub: state.population.subpops)
 			{
+				// 2. initialization for subpopulation iteration 
+				
+				// 2.1 prepare for saving subpopulation
 				writer.writeInt(sub.individuals.length);
+				
+				// 2.2 prepare for subpopulation statistics
+				double bestSubPopFitness = Double.MAX_VALUE;
+				double fitnessSum = 0;
+				
+				
 				for(Individual ind: sub.individuals)
 				{
+					// 3. Do the actual work
+					
+					// 3.1 save individuals
 					writer.writeObject(ind);
+					
+					// 3.2 Gather statistics
+					GPIndividual gind = (GPIndividual)ind;
+					Fitness fit = gind.fitness;
+					double fitness = fit.fitness();
+					if(gind.fitness instanceof KozaFitness)
+						fitness = ((KozaFitness)fit).standardizedFitness();
+
+					if(fitness < bestSubPopFitness)
+					{
+						bestSubPopFitness = fitness;
+					}
+					fitnessSum += fitness;
 				}
+				
+				// 4. post subpopulation iteration operations 
+				
+				// 4.2 update global statistics and save it to file.
+				if(bestSubPopFitness < bestGenerationFitness)
+				{
+					bestGenerationFitness = bestSubPopFitness;
+					bestGeneration = state.generation;
+				}
+				
+				state.output.println(state.generation + ",\t"
+						+ ReactiveGPHHProblem.getNumEvaluation()
+						+ ",\t" + fitnessSum / state.population.subpops[0].individuals.length
+						+ ",\t" + bestSubPopFitness, statLogID);
+				state.output.flush();
 			}
+			
+			// 5. post population iteration statistics.
+			
+			// 5.1 close the file.
 			writer.close();
+
 		} catch (IOException e)
 		{
 			state.output.fatal(e.toString());
 		}
 	}
-
-	/**
-	 * This function has two objectives: <p>
-	 * 	1. Save the population of GP. <p>
-	 * 	2. Save statistics of GP population. <p>
-	 * @param state The <code>EvolutionState</code> object that is a representative of GP.
-	 * @param popLogId The ID of the logger that will be used to save generation's population.
-	 * @param statLogId The ID of the logger that will be used to save statistics of each
-	 * 		  generation.
-	 */
-	private void savePopulation(EvolutionState state, int popLogId, int statLogId)
+	
+	public String generatePopulationFileName(int generation)
 	{
-		double bestFitness = Double.MAX_VALUE;
-		double fitnessSum = 0;
-
-		// iterate over individuals, save them and collect statistics.
-		for(int i = 0; i < state.population.subpops[0].individuals.length; i++)
-		{
-			GPIndividual gind = (GPIndividual)state.population.subpops[0].individuals[i];
-			Fitness fit = gind.fitness;
-			double fitness = fit.fitness();
-			if(gind.fitness instanceof KozaFitness)
-				fitness = ((KozaFitness)fit).standardizedFitness();
-
-			fitnessSum += fitness;
-			if(fitness < bestFitness)
-			{
-				bestFitness = fitness;
-			}
-
-			String tree = "";
-	        if (saveTree && style == null || style.equals(GPTree.V_LISP))
-	        	// To draw the graph, use the command: dot -Tps filename.dot -o outfile.ps
-	        	tree = gind.trees[0].child.makeGraphvizTree();
-	        else if (saveTree && style.equals(GPTree.V_C))
-	        	tree = gind.trees[0].child.makeCTree(true, true, true).replaceAll("\n", "") + ", ";
-	        else if (saveTree && style.equals(GPTree.V_DOT))
-	        	tree = gind.trees[0].child.makeGraphvizTree().replaceAll("\n", "") + ", ";
-	        else if (saveTree && style.equals(GPTree.V_LATEX))
-	        	tree = gind.trees[0].child.makeLatexTree().replaceAll("\n", "") + ", ";
-
-	        if(i == 0)
-	        	state.output.println("# index, " + (saveTree ? "tree, " : "")
-	        						  + "fitness, STD fitness\n",
-	        						  popLogId);
-
-	        state.output.print( i + "\t, " + tree + "\t", popLogId);
-			state.output.flush();
-			state.output.println(", " + ", " + fitness, popLogId);
-			state.output.println("", popLogId);
-		} // for: Iterate over individuals
-
-		if(state.generation == 0)
-			state.output.println("# generation, num eval, mean, best", statLogId);
-
-		state.output.println(state.generation + ",\t"
-							 + ((ReactiveGPHHProblem)state.evaluator.p_problem).getNumEvaluation()
-							 + ",\t" + fitnessSum / state.population.subpops[0].individuals.length
-							 + ",\t" + bestFitness, statLogId);
-
-		state.output.flush();
+		return genPopFileName + "." + generation + ".bin";
 	}
 
 	@Override
@@ -164,10 +153,6 @@ public class FCFStatistics extends SimpleStatistics
 					base.push(P_GEN_POP_FILE_NAME),	null, "init-pop.dat");
 
 			saveGenerations = state.parameters.getBoolean(base.push(P_SAVE_POP), null, false);
-
-			saveTree = state.parameters.getBoolean(base.push(P_SAVE_POP_TREE), null, false);
-
-			style = state.parameters.getString(new Parameter("gp.tree.print-style"), null);
 
 			File statLogFile = new File(genPopFileName + ".statistics");
 			if(statLogFile.exists())
@@ -197,26 +182,7 @@ public class FCFStatistics extends SimpleStatistics
 		super.postEvaluationStatistics(state);
 		if(saveGenerations)
 		{
-			String fileName = genPopFileName + "." + state.generation + ".dat";
-			File file = new File(fileName);
-			try
-			{
-				if(file.exists())
-				{
-					file.delete();
-				}
-				file.createNewFile();
-
-				int logId = state.output.addLog(file, false, false);
-				savePopulation(state, logId, statLogID);
-				state.output.removeLog(logId); // It is not needed anymore, remove it.
-			}
-			catch(IOException exp)
-			{
-				state.output.fatal("Failed to create log for " + fileName + ". Reason: "
-									+ exp.toString());
-			}
+			iteratePopulation(state);
 		}
-		savePopulationBinary(state);
 	}
 }
