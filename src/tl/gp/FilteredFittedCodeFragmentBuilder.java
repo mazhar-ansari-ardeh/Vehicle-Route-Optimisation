@@ -58,23 +58,13 @@ public class FilteredFittedCodeFragmentBuilder extends CodeFragmentBuilder
 
 		Parameter knowledgeExtraction = base.push("knowledge-extraction");
 		String extraction = state.parameters.getString(knowledgeExtraction, null);
-		KnowledgeExtractionMethod extractionMethod;
-		if(extraction.equals("all"))
-			extractionMethod = KnowledgeExtractionMethod.All;
-		else if(extraction.equals("root"))
-			extractionMethod = KnowledgeExtractionMethod.RootSubtree;
-		else
-		{
-			state.output.fatal("Invalid value for parameter knowledge-extraction: " + extraction
-							   + "Acceptable values are: 'all' and 'root'.");
-			return;
-		}
+		KnowledgeExtractionMethod extractionMethod = KnowledgeExtractionMethod.parse(extraction);
 
 	    CodeFragmentKB knowledgeBase = new SourceFilteredFittedCFKB(state
 	    		, (GPProblem)state.evaluator.p_problem, fitness, tournamentSize, filterSize);
 
 		knowledgeBase.addFrom(kbFile, state, extractionMethod);
-		extractor  = knowledgeBase.getKnowledgeExtractor();
+		extractor = knowledgeBase.getKnowledgeExtractor();
 		state.output.warning("FilteredFittedCodeFragmentBuilder loaded. Tournament size: "
 				+ tournamentSize + ", filter size: " + filterSize);
 	}
