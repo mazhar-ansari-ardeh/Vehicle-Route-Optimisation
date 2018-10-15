@@ -11,6 +11,7 @@ import ec.gp.GPTree;
 import tl.knowledge.KnowledgeExtractor;
 import tl.knowledge.codefragment.CodeFragmentKB;
 
+@Deprecated
 public class FittedCodeFragmentKB extends CodeFragmentKB
 {
 	private GPProblem problem = null;
