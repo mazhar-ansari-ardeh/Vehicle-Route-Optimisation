@@ -35,9 +35,7 @@ public enum KnowledgeExtractionMethod
 			return KnowledgeExtractionMethod.Root;
 		else
 		{
-			throw new IllegalArgumentException("Invalid value for parameter knowledge-extraction: " 
-												+ method
-												+ "Acceptable values are: 'all' and 'root'.");
+			return null;
 		}
 	}
 }
