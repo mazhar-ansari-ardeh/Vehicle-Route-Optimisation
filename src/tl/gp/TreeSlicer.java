@@ -60,7 +60,7 @@ public class TreeSlicer
 	 * @return A list of <GPIndividual> objects that are extracted from the given <code>ind</code>. The return value is never
 	 * <code>null</code>.
 	 */
-	public static ArrayList<GPNode> sliceToNodes(GPIndividual ind, boolean includeTerminals)
+	public static ArrayList<GPNode> sliceRootChildrenToNodes(GPIndividual ind, boolean includeTerminals)
 	{
 		ArrayList<GPNode> retval = new ArrayList<>();
 		if(ind == null)
