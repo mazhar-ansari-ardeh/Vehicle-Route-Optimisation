@@ -10,6 +10,7 @@ import tl.knowledge.*;
 import tl.knowledge.codefragment.CodeFragmentKB;
 import tl.knowledge.codefragment.fitted.*;
 
+@Deprecated
 public class FittedCodeFragmentBuilder extends CodeFragmentBuilder
 {
 	private static final long serialVersionUID = 1L;
