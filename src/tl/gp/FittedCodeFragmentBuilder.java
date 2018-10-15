@@ -58,12 +58,9 @@ public class FittedCodeFragmentBuilder extends CodeFragmentBuilder
 
 		Parameter knowledgeExtraction = base.push("knowledge-extraction");
 		String extraction = state.parameters.getString(knowledgeExtraction, null);
-		KnowledgeExtractionMethod extractionMethod;
-		if(extraction.equals("all"))
-			extractionMethod = KnowledgeExtractionMethod.All;
-		else if(extraction.equals("root"))
-			extractionMethod = KnowledgeExtractionMethod.RootSubtree;
-		else
+		KnowledgeExtractionMethod extractionMethod = KnowledgeExtractionMethod.parse(extraction);
+		if(extractionMethod != KnowledgeExtractionMethod.AllSubtrees &&
+		   extractionMethod != KnowledgeExtractionMethod.RootSubtree)
 		{
 			state.output.fatal("Invalid value for parameter knowledge-extraction: " + extraction
 							   + "Acceptable values are: 'all' and 'root'.");
