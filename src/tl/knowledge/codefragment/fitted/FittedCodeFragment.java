@@ -5,6 +5,7 @@ import java.io.Serializable;
 import ec.gp.GPNode;
 import tl.knowledge.codefragment.CodeFragmentKI;
 
+@Deprecated
 public class FittedCodeFragment extends CodeFragmentKI implements Serializable
 {
 	private static final long serialVersionUID = 1L;
