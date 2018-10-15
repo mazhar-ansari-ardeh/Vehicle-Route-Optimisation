@@ -1,17 +1,8 @@
 package tl.gp;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.OutputStream;
+import java.io.*;
 
-import ec.EvolutionState;
-import ec.Individual;
-import ec.Population;
-import ec.Subpopulation;
+import ec.*;
 import ec.util.Parameter;
 
 /**
