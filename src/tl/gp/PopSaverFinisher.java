@@ -12,6 +12,7 @@ import ec.util.Parameter;
  * for saving data.
  * @author mazhar
  */
+@Deprecated
 public abstract class PopSaverFinisher extends ec.simple.SimpleFinisher
 {
 	private static final long serialVersionUID = 1L;
