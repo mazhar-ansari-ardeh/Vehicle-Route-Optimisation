@@ -34,8 +34,8 @@ public class FCFStatistics extends SimpleStatistics
 	 * The ID of the logger that will be used to log statistics of each generation of GP.
 	 */
 	private int statLogID;
-	
-	
+
+
 	// private int knowledgeLogID;
 
 	/**
@@ -53,7 +53,7 @@ public class FCFStatistics extends SimpleStatistics
 	public final static String P_GEN_POP_FILE_NAME = "gen-pop-file";
 	public final static String P_SAVE_POP = "save-pop";
 	// public final static String P_SAVE_POP_TREE = "save-tree";
-	
+
 	/**
 	 * The best generation, i.e. the generation that has the individual with the best fitness.
 	 */
@@ -62,43 +62,43 @@ public class FCFStatistics extends SimpleStatistics
 
 	/**
 	 * Iterate population and perform a collection of tasks defined inside the function.
-	 * @param state The state of the evolution. 
+	 * @param state The state of the evolution.
 	 */
 	private void iteratePopulation(EvolutionState state)
 	{
 		try
 		{
 			// 1. initializing iteration operations
-			
-			// 1.1 Prepare for saving population. 
+
+			// 1.1 Prepare for saving population.
 			String popFileName = generatePopulationFileName(state.generation);
 			File f = new File(popFileName);
 			if(f.exists())
 				f.delete();
 			f.createNewFile();
-			
+
 			ObjectOutputStream writer = new ObjectOutputStream(new FileOutputStream(f));
 			writer.writeInt(state.population.subpops.length);
-			
+
 			for(Subpopulation sub: state.population.subpops)
 			{
-				// 2. initialization for subpopulation iteration 
-				
+				// 2. initialization for subpopulation iteration
+
 				// 2.1 prepare for saving subpopulation
 				writer.writeInt(sub.individuals.length);
-				
+
 				// 2.2 prepare for subpopulation statistics
 				double bestSubPopFitness = Double.MAX_VALUE;
 				double fitnessSum = 0;
-				
-				
+
+
 				for(Individual ind: sub.individuals)
 				{
 					// 3. Do the actual work
-					
+
 					// 3.1 save individuals
 					writer.writeObject(ind);
-					
+
 					// 3.2 Gather statistics
 					GPIndividual gind = (GPIndividual)ind;
 					Fitness fit = gind.fitness;
@@ -112,25 +112,25 @@ public class FCFStatistics extends SimpleStatistics
 					}
 					fitnessSum += fitness;
 				}
-				
-				// 4. post subpopulation iteration operations 
-				
+
+				// 4. post subpopulation iteration operations
+
 				// 4.2 update global statistics and save it to file.
 				if(bestSubPopFitness < bestGenerationFitness)
 				{
 					bestGenerationFitness = bestSubPopFitness;
 					bestGeneration = state.generation;
 				}
-				
+
 				state.output.println(state.generation + ",\t"
 						+ ReactiveGPHHProblem.getNumEvaluation()
 						+ ",\t" + fitnessSum / state.population.subpops[0].individuals.length
 						+ ",\t" + bestSubPopFitness, statLogID);
 				state.output.flush();
 			}
-			
+
 			// 5. post population iteration statistics.
-			
+
 			// 5.1 close the file.
 			writer.close();
 
@@ -139,7 +139,7 @@ public class FCFStatistics extends SimpleStatistics
 			state.output.fatal(e.toString());
 		}
 	}
-	
+
 	public String generatePopulationFileName(int generation)
 	{
 		return genPopFileName + "." + generation + ".bin";
@@ -164,14 +164,6 @@ public class FCFStatistics extends SimpleStatistics
 			}
 			statLogFile.createNewFile();
 			statLogID = state.output.addLog(statLogFile, false, false);
-
-//			File knowledgeLogFile = new File(genPopFileName + ".know");
-//			if(knowledgeLogFile.exists())
-//			{
-//				knowledgeLogFile.delete();
-//			}
-//			knowledgeLogFile.createNewFile();
-//			LogHelper.LogID = state.output.addLog(knowledgeLogFile, false, false);
 
 		} catch (IOException e)
 		{
