@@ -25,6 +25,8 @@ public enum KnowledgeExtractionMethod
 	
 	public static KnowledgeExtractionMethod parse(String method)
 	{
+		method = method.toLowerCase();
+		
 		if(method.equals("exactcodefragment"))
 			return ExactCodeFragment;
 		if(method.equals("all"))
@@ -35,7 +37,8 @@ public enum KnowledgeExtractionMethod
 			return KnowledgeExtractionMethod.Root;
 		else
 		{
-			return null;
+			throw new IllegalArgumentException("The given extraction method is not recognized: "
+											   + method);
 		}
 	}
 }

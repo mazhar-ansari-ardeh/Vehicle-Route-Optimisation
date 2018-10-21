@@ -1,10 +1,27 @@
+# ==============================
+# The training results
+# ==============================
+policy-type = gp-evolved
+#policy-type = manual
+
+# for manual policies
+manual-policies = 1
+manual-policies.0 = gphhucarp.decisionprocess.routingpolicy.PathScanning5Policy
+
+# for gp-evolved policies
+############ ToChange
+train-path = ./stats/gdb21-v6-writeknow/
+solution-type = simple-solution
+fitness-type = simple-fitness
+num-trains = 1
 
 # ==============================
-# The problem
+# The test set
 # ==============================
-
+state = ec.simple.SimpleEvolutionState
+eval = ec.simple.SimpleEvaluator
 eval.problem = gphhucarp.gp.ReactiveGPHHProblem
-eval.problem.pool-filter = gphhucarp.decisionprocess.poolfilter.ExpFeasibleNoRefillPoolFilter
+eval.problem.pool-filter = gphhucarp.decisionprocess.poolfilter.ExpFeasiblePoolFilter
 eval.problem.tie-breaker = gphhucarp.decisionprocess.tiebreaker.SimpleTieBreaker
 eval.problem.data = gputils.DoubleData
 eval.problem.eval-model = gphhucarp.gp.evaluation.ReactiveEvaluationModel
@@ -13,69 +30,65 @@ eval.problem.eval-model.objectives.0 = total-cost
 eval.problem.eval-model.instances = 1
 ############ ToChange
 eval.problem.eval-model.instances.0.file = gdb/gdb21.dat
-eval.problem.eval-model.instances.0.samples = 5
+eval.problem.eval-model.instances.0.samples = 500
 ############ ToChange
-eval.problem.eval-model.instances.0.vehicles = 7
+eval.problem.eval-model.instances.0.vehicles = 6
 eval.problem.eval-model.instances.0.demand-uncertainty-level = 0.2
 eval.problem.eval-model.instances.0.cost-uncertainty-level = 0.2
-
-
-# ==============================
-# Statistics
-# ==============================
-stat = tl.gp.FCFStatistics
-stat.file = $./stats/gdb21-v6to7-wk-0.5-20-100/job.0.out.stat
-stat.gen-pop-file = ./stats/gdb21-v6to7-wk-0.5-20-100/population.gen
-stat.save-pop = true
-stat.save-tree = false
-
-# gp.tree.print-style=lisp
-
-# ==============================
-# Basic evolution parameters
-# ==============================
-state = gphhucarp.gp.GPHHEvolutionState
 ############ ToChange
-finish = ec.simple.SimpleFinisher
-# finish.final-pop-file-name = final-pop-gdb21-v7.dat
-exch = ec.simple.SimpleExchanger
-breed = ec.simple.SimpleBreeder
-eval = ec.simple.SimpleEvaluator
-#stat.num-children = 1
-#stat.child.0 = ec.gp.koza.KozaShortStatistics
-#stat.child.0.file = $outtabular.stat
-
-generations = 50
-quit-on-run-complete = true
-
-pop = ec.Population
-pop.subpops = 1
-pop.subpop.0 = ec.Subpopulation
-pop.subpop.0.size = 1024
-
-breed.elite.0 = 10
+eval.problem.eval-model.seed = 25234
 
 
 
-# ==============================
-# The GPHH evolution state parameters
-# ==============================
-terminals-from = extended
-include-erc = true
-rotate-eval-model = true
 
-#print-unaccessed-params = true
-#print-used-params = true
+
+
+
+
+
+
+
+# ========================================================================
+# ========================================================================
+# The below parameters are only for making ECJ runnable.
+# They have nothing to do with the GP testing.
+# ========================================================================
+# ========================================================================
 
 # ==============================
 # Administrative parameters
 # ==============================
 evalthreads = 1
 breedthreads = 1
-seed.0 = time
+seed.0 = 0
 checkpoint = false
 checkpoint-modulo = 1
 checkpoint-prefix = ec
+
+# ==============================
+# Basic evolution parameters
+# ==============================
+state = gphhucarp.gp.GPHHEvolutionState
+finish = ec.simple.SimpleFinisher
+exch = ec.simple.SimpleExchanger
+breed =	ec.simple.SimpleBreeder
+eval = ec.simple.SimpleEvaluator
+stat = ec.simple.SimpleStatistics
+stat.file = $out.stat
+#stat.num-children = 1
+#stat.child.0 = ec.gp.koza.KozaShortStatistics
+#stat.child.0.file = $outtabular.stat
+
+generations = 51
+quit-on-run-complete = true
+
+pop = ec.Population
+pop.subpops = 1
+pop.subpop.0 = ec.Subpopulation
+pop.subpop.0.size =	1024
+
+breed.elite.0 = 10
+
 
 # ==============================
 # GP general parameters
@@ -101,9 +114,7 @@ init = ec.gp.GPInitializer
 pop.subpop.0.species.pipe = ec.breed.MultiBreedingPipeline
 pop.subpop.0.species.pipe.generate-max = false
 pop.subpop.0.species.pipe.num-sources = 3
-############ ToChange
-pop.subpop.0.species.pipe.source.0 = tl.gp.FilteredKnowledgeCrossoverPipeline
-pop.subpop.0.species.pipe.source.0.knowledge-log-file=./stats/gdb21-v6to7-wk-0.5-20-100/filterknowxover
+pop.subpop.0.species.pipe.source.0 = ec.gp.koza.CrossoverPipeline
 pop.subpop.0.species.pipe.source.0.prob = 0.80
 pop.subpop.0.species.pipe.source.1 = ec.gp.koza.MutationPipeline
 pop.subpop.0.species.pipe.source.1.prob = 0.15
@@ -245,27 +256,3 @@ gp.fs.0.func.6 = gputils.function.Min
 gp.fs.0.func.6.nc = nc2
 gp.fs.0.func.7 = gputils.function.If
 gp.fs.0.func.7.nc = nc3
-
-# ==============================
-# The output format
-# ==============================
-#gp.tree.print-style = c
-#pop.subpop.0.species.ind.tree.0.c-operators = false
-#gp.tree.print-style = dot
-
-# ==============================
-# Knowledge - This must be the last part of the param file.
-# ==============================
-############ ToChange
-gp.tc.0.init = tl.gp.FilteredFittedCodeFragmentBuilder
-gp.tc.0.init.knowledge-log-file=./stats/gdb21-v6to7-wk-0.5-20-100/filterknowinit
-############ ToChange
-gp.tc.0.init.knowledge-file = ./stats/gdb21-v6to7-wk-0.5-20-100/gdb21-v7.cf
-############ ToChange
-gp.tc.0.init.knowledge-probability = 0.5
-############ ToChange
-gp.tc.0.init.knowledge-tournament-size = 40
-gp.tc.0.init.knowledge-extraction=exactcodefragment
-############ ToChange
-gp.tc.0.init.knowledge-filter-size = 100
-

@@ -1,7 +1,5 @@
 package tl.gp;
 
-import java.io.File;
-
 /*
 Copyright 2006 by Sean Luke
 Licensed under the Academic Free License version 3.0
@@ -11,9 +9,7 @@ See the file "LICENSE" for more information
 
 import ec.*;
 import ec.util.*;
-import tl.gp.FilteredFittedCodeFragmentBuilder;
 import tl.knowledge.KnowledgeExtractor;
-import tl.knowledge.KnowledgeItem;
 import tl.knowledge.codefragment.fitted.FittedCodeFragment;
 import ec.gp.*;
 import ec.gp.koza.GPKozaDefaults;
@@ -496,7 +492,7 @@ public class FittedKnowledgeCrossoverPipeline extends GPBreedingPipeline
 						problem.evaluate(state, je1, subpopulation, thread);
 						if(je1.fitness.betterThan(j1.fitness))
 						{
-							log(state, cf1, je1, j1);
+							log(state, cf1, je1, j1, -1);
 							j1 = je1; // state.output.warning("Better");
 						}
 					}
@@ -537,7 +533,7 @@ public class FittedKnowledgeCrossoverPipeline extends GPBreedingPipeline
 							problem.evaluate(state, je2, subpopulation, thread);
 							if(je2.fitness.betterThan(j2.fitness))
 							{
-								log(state, cf2, je2, j2);
+								log(state, cf2, je2, j2, -1);
 								j2 = je2; // state.output.warning("Better");
 							}
 						}
@@ -564,12 +560,11 @@ public class FittedKnowledgeCrossoverPipeline extends GPBreedingPipeline
 		return n;
 	}
 
-	private static int i = 0;
-
+	private static boolean firstLog = true;
 	private void log(EvolutionState state, FittedCodeFragment it, GPIndividual gindnew,
-			GPIndividual gindold)
+			GPIndividual gindold, int logID)
 	{
-		String cfTree = it.getItem().makeGraphvizTree().replaceAll("\n", "");
+		String itStr = "[" + it.toString() + "]";
 
 		Fitness fitnew = gindnew.fitness;
 		double fitnessnew = fitnew.fitness();
@@ -581,15 +576,18 @@ public class FittedKnowledgeCrossoverPipeline extends GPBreedingPipeline
 		double fitnessold = fitold.fitness();
 		if(gindold.fitness instanceof KozaFitness)
 			fitnessold = ((KozaFitness)fitold).standardizedFitness();
-       	String treeold = gindold.trees[0].child.makeGraphvizTree().replaceAll("\n", "") + ", ";
+		String treeold = gindold.trees[0].child.makeGraphvizTree().replaceAll("\n", "") + ", ";
 
-       	int logID = KnowledgeLogID.getLogID();
-        if(i++ == 0)
-        	state.output.println("# index, " + "cftree, " + "cffitness, newtree, newfitness, oldtree, oldfitness", logID);
+		if(firstLog)
+		{
+			state.output.println("# index, " + "[cftree, " 
+					+ "cffitness on target, cffitness on source], newtree, newfitness, "
+					+ "oldtree, oldfitness", logID);
+			firstLog = false;
+		}
 
-        state.output.print( i + "\t, " + cfTree + "\t, " + it.getFitness() + "\n, " + treenew
-        					  + "\t" + fitnessnew + ",\n" + treeold + ",\t"
-        					  + fitnessold , logID);
+		state.output.print( state.generation + "\t, " + itStr + "\t, " + "\n, " + treenew
+		+ "\t" + fitnessnew + ",\n" + treeold + ",\t" + fitnessold , logID);
 		state.output.flush();
 		state.output.println("\n", logID);
 	}

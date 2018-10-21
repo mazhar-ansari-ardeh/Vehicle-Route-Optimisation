@@ -20,15 +20,23 @@ public class KnowledgeExtractorFinisher extends SimpleFinisher
 	private static final long serialVersionUID = 1L;
 
 	private KnowledgeExtractionMethod extractionMethod;
+	
+	private String knowlegeFileName;
+	
+	public static final String P_KNOWLEDGE_EXTRACTION_METHOD = "tl.gp.knowledge-extractor-finisher.method";
+	public static final String P_KNOWLEDGE_FILE_NAME = "tl.gp.knowledge-extractor-finisher.file-name";
 
 	@Override
 	public void setup(EvolutionState state, Parameter base) 
 	{
 		super.setup(state, base);
 
-		Parameter p = new Parameter("gp.tc.0.init.knowledge-extraction");
+		Parameter p = new Parameter(P_KNOWLEDGE_EXTRACTION_METHOD);
 		String method = state.parameters.getString(p, null);
 		extractionMethod = KnowledgeExtractionMethod.parse(method);
+		
+		p = new Parameter(P_KNOWLEDGE_FILE_NAME);
+		knowlegeFileName = state.parameters.getString(p, null);
 	}
 
 	@Override
@@ -48,17 +56,17 @@ public class KnowledgeExtractorFinisher extends SimpleFinisher
 		}
 
 		// TODO: This is a very bad file name. CHANGE IT.
-		String outputFileName = "output.kb";
+		String outputFileName = this.knowlegeFileName;
 		state.output.warning("Extracting code fragments from the file: " + fileName 
 				+ " and saving to: " + outputFileName);
 		
 		File outputFile = new File(outputFileName);
+		if(outputFile.exists())
+			outputFile.delete();
+		// outputFile.createNewFile();
 		try(ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file)); 
 				ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(outputFile)))
 		{
-			if(outputFile.exists())
-				outputFile.delete();
-			outputFile.createNewFile();
 		
 			int nsub = ois.readInt();
 			for(int i = 0; i < nsub; i++)
@@ -76,14 +84,16 @@ public class KnowledgeExtractorFinisher extends SimpleFinisher
 					extractAndSave(state, oos, (GPIndividual) ind);
 				}
 			}
-			ois.close();
+			//ois.close();
 			oos.flush();
-			oos.close();
+			//oos.close();
 		}
 		catch(IOException | ClassNotFoundException exp)
 		{
 			state.output.fatal("Exception occurred reading knowledge file: " + exp.toString());
 		}
+		state.output.warning("Finished extracting code fragments from the file: " + fileName 
+				+ " and saved to: " + outputFile.getAbsolutePath());
 	}
 	
 	private void extractAndSave(EvolutionState state, ObjectOutputStream oos, 
@@ -116,11 +126,13 @@ public class KnowledgeExtractorFinisher extends SimpleFinisher
 			
 			// Get its fitness
 			problem.evaluate(state, newind, 0, 0);
+			node.parent = null; 
 			
 			// Save it to file
 			DoubleFittedCodeFragment cf = new DoubleFittedCodeFragment(node,
-					newind.fitness.fitness(), null);
+					null, newind.fitness.fitness());
 			oos.writeObject(cf);
+			oos.flush();
 		}
 	}
 }

@@ -64,7 +64,7 @@ public class FilteredFittedCodeFragmentBuilder extends CodeFragmentBuilder
 	    		, (GPProblem)state.evaluator.p_problem, fitness, tournamentSize, filterSize);
 
 		knowledgeBase.addFrom(kbFile, state, extractionMethod);
-		extractor = knowledgeBase.getKnowledgeExtractor();
+		extractor = knowledgeBase.getKnowledgeExtractor();;
 		state.output.warning("FilteredFittedCodeFragmentBuilder loaded. Tournament size: "
 				+ tournamentSize + ", filter size: " + filterSize);
 	}

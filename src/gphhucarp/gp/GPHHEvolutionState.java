@@ -13,6 +13,8 @@ import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import gputils.terminal.DoubleERC;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,6 +53,7 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState {
 
     protected Map<String, DescriptiveStatistics> statisticsMap;
 	protected File statFile;
+	protected String statDir;
 
 	public Map<String, DescriptiveStatistics> getStatisticsMap() {
 		return statisticsMap;
@@ -68,7 +71,7 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState {
 	protected double duration;
 
 	public void initStatFile() {
-		statFile = new File("job." + jobSeed + ".stat.csv");
+		statFile = new File(statDir == null ? "." : statDir, "job." + jobSeed + ".stat.csv");
 		if (statFile.exists()) {
 			statFile.delete();
 		}
@@ -193,6 +196,15 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState {
 		// get the number of subpopulations
 		p = new Parameter(Initializer.P_POP).push(Population.P_SIZE);
 		subpops = parameters.getInt(p,null,1);
+		
+		p = new Parameter("stat.file");
+		String statFile = parameters.getString(p, null);
+		if(statFile != null)
+		{
+			statFile = statFile.replaceFirst("\\$", "");
+			Path statDirPath = Paths.get(statFile.replaceFirst("$", "")).getParent();
+			statDir = statDirPath == null ? "." : statDirPath.toString(); 
+		}
 
 		initTerminalSets();
 	}

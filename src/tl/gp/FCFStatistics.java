@@ -34,6 +34,9 @@ public class FCFStatistics extends SimpleStatistics
 	 * The ID of the logger that will be used to log statistics of each generation of GP.
 	 */
 	private int statLogID;
+	
+	
+	// private int knowledgeLogID;
 
 	/**
 	 * The name that will be used to save population in generation. This is the base name and it
@@ -162,13 +165,13 @@ public class FCFStatistics extends SimpleStatistics
 			statLogFile.createNewFile();
 			statLogID = state.output.addLog(statLogFile, false, false);
 
-			File knowledgeLogFile = new File(genPopFileName + ".know");
-			if(knowledgeLogFile.exists())
-			{
-				knowledgeLogFile.delete();
-			}
-			knowledgeLogFile.createNewFile();
-			KnowledgeLogID.LogID = state.output.addLog(knowledgeLogFile, false, false);
+//			File knowledgeLogFile = new File(genPopFileName + ".know");
+//			if(knowledgeLogFile.exists())
+//			{
+//				knowledgeLogFile.delete();
+//			}
+//			knowledgeLogFile.createNewFile();
+//			LogHelper.LogID = state.output.addLog(knowledgeLogFile, false, false);
 
 		} catch (IOException e)
 		{

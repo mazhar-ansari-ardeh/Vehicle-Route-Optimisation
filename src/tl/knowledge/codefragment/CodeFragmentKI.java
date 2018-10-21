@@ -1,12 +1,25 @@
 package tl.knowledge.codefragment;
 
+import java.io.Serializable;
+
 import ec.gp.GPNode;
 import tl.knowledge.KnowledgeItem;
 
-public class CodeFragmentKI implements KnowledgeItem<GPNode>
+public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	GPNode codeFragment;
 	int counter;
+	
+	protected CodeFragmentKI() 
+	{
+//		codeFragment = null; 
+//		counter = 0;
+	}
 
 	public CodeFragmentKI(GPNode codeFragment)
 	{

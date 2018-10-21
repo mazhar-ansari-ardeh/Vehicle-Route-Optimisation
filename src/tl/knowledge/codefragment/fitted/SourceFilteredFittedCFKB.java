@@ -111,6 +111,7 @@ public class SourceFilteredFittedCFKB extends CodeFragmentKB
 		} 
 		catch (IOException e) 
 		{
+			System.out.println(e.toString());
 			// This is part of the implementation logic. Since the file does not contain any counter
 			// for the number of items in it, end of file IOException is taken as a marker of the 
 			// end. It is not best possible solution but well, I am in a hurry.

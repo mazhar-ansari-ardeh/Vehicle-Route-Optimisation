@@ -23,13 +23,14 @@ eval.problem.eval-model.instances.0.cost-uncertainty-level = 0.2
 # ==============================
 # Statistics
 # ==============================
+############ ToChange
 stat = tl.gp.FCFStatistics
-stat.file = $./stats/gdb21-v6to7-wk-0.5-20-100/job.0.out.stat
-stat.gen-pop-file = ./stats/gdb21-v6to7-wk-0.5-20-100/population.gen
+stat.file = $./stats/gdb21-v7-nok/job.0.out.stat
+stat.gen-pop-file = ./stats/gdb21-v7-nok/population.gen
 stat.save-pop = true
 stat.save-tree = false
 
-# gp.tree.print-style=lisp
+# gp.tree.print-style=dot
 
 # ==============================
 # Basic evolution parameters
@@ -37,7 +38,8 @@ stat.save-tree = false
 state = gphhucarp.gp.GPHHEvolutionState
 ############ ToChange
 finish = ec.simple.SimpleFinisher
-# finish.final-pop-file-name = final-pop-gdb21-v7.dat
+# tl.gp.knowledge-extractor-finisher.method=all
+# tl.gp.knowledge-extractor-finisher.file-name=./stats/gdb21-v6-writeknow/gdb21-v7.cf
 exch = ec.simple.SimpleExchanger
 breed = ec.simple.SimpleBreeder
 eval = ec.simple.SimpleEvaluator
@@ -51,7 +53,7 @@ quit-on-run-complete = true
 pop = ec.Population
 pop.subpops = 1
 pop.subpop.0 = ec.Subpopulation
-pop.subpop.0.size = 1024
+pop.subpop.0.size =    1024
 
 breed.elite.0 = 10
 
@@ -102,8 +104,8 @@ pop.subpop.0.species.pipe = ec.breed.MultiBreedingPipeline
 pop.subpop.0.species.pipe.generate-max = false
 pop.subpop.0.species.pipe.num-sources = 3
 ############ ToChange
-pop.subpop.0.species.pipe.source.0 = tl.gp.FilteredKnowledgeCrossoverPipeline
-pop.subpop.0.species.pipe.source.0.knowledge-log-file=./stats/gdb21-v6to7-wk-0.5-20-100/filterknowxover
+pop.subpop.0.species.pipe.source.0 = ec.gp.koza.CrossoverPipeline
+# pop.subpop.0.species.pipe.source.0.knowledge-log-file=$./stats/gdb21-v6to7-wk-0.5-20-100/filterknowxover
 pop.subpop.0.species.pipe.source.0.prob = 0.80
 pop.subpop.0.species.pipe.source.1 = ec.gp.koza.MutationPipeline
 pop.subpop.0.species.pipe.source.1.prob = 0.15
@@ -247,25 +249,18 @@ gp.fs.0.func.7 = gputils.function.If
 gp.fs.0.func.7.nc = nc3
 
 # ==============================
-# The output format
-# ==============================
-#gp.tree.print-style = c
-#pop.subpop.0.species.ind.tree.0.c-operators = false
-#gp.tree.print-style = dot
-
-# ==============================
 # Knowledge - This must be the last part of the param file.
 # ==============================
 ############ ToChange
-gp.tc.0.init = tl.gp.FilteredFittedCodeFragmentBuilder
-gp.tc.0.init.knowledge-log-file=./stats/gdb21-v6to7-wk-0.5-20-100/filterknowinit
+# gp.tc.0.init = tl.gp.FilteredFittedCodeFragmentBuilder
+# gp.tc.0.init.knowledge-log-file=$./stats/gdb21-v6to7-wk-0.5-20-100/filterknowinit
 ############ ToChange
-gp.tc.0.init.knowledge-file = ./stats/gdb21-v6to7-wk-0.5-20-100/gdb21-v7.cf
+# gp.tc.0.init.knowledge-file = population.gen.0.bin
 ############ ToChange
-gp.tc.0.init.knowledge-probability = 0.5
+# gp.tc.0.init.knowledge-probability = 0.5
 ############ ToChange
-gp.tc.0.init.knowledge-tournament-size = 40
-gp.tc.0.init.knowledge-extraction=exactcodefragment
+# gp.tc.0.init.knowledge-tournament-size = 20
+# gp.tc.0.init.knowledge-extraction=root
 ############ ToChange
-gp.tc.0.init.knowledge-filter-size = 100
+# gp.tc.0.init.knowledge-filter-size = 100
 

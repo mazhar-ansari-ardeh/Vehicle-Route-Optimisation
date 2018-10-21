@@ -13,6 +13,11 @@ public class DoubleFittedCodeFragment extends CodeFragmentKI implements Serializ
 	private static final long serialVersionUID = 1L;
 	Double fitnessOnSource = null;
 	Double fitnessOnTarget = null;
+	
+//	public DoubleFittedCodeFragment()
+//	{
+//		super();
+//	}
 
 	public DoubleFittedCodeFragment(GPNode codeFragment, Double fitnessOnTarget, 
 									Double fitnessOnSource)
@@ -40,6 +45,14 @@ public class DoubleFittedCodeFragment extends CodeFragmentKI implements Serializ
 	public void setFitnessOnTarget(double fitness)
 	{
 		this.fitnessOnTarget = fitness;
+	}
+	
+	public String toString()
+	{
+		String retval = getItem().makeGraphvizTree().replaceAll("\n", "");
+		retval += ", \t" + fitnessOnSource + ", \t" + fitnessOnTarget;
+		
+		return retval;
 	}
 	
 	/**

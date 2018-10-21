@@ -1,12 +1,13 @@
 package tl.gp;
 
+import java.io.*;
+
 import ec.*;
 import ec.gp.*;
 import ec.gp.koza.HalfBuilder;
 import ec.util.Parameter;
 import tl.knowledge.KnowledgeExtractor;
 import tl.knowledge.codefragment.CodeFragmentKI;
-import tl.knowledge.codefragment.fitted.FittedCodeFragment;
 
 public abstract class CodeFragmentBuilder extends HalfBuilder
 {
@@ -14,15 +15,21 @@ public abstract class CodeFragmentBuilder extends HalfBuilder
 
 	public static final String P_KNOWLEDGE_PROBABILITY = "knowledge-probability";
 
+	public static final String P_KNOWLEDGE_LOG_FILE_NAME = "knowledge-log-file";
+
 	/**
 	 * The default value for tournament size of the knowledge base. This value will be
 	 * used if the <code>P_KNOWLEDGE_TOURNAMENT_SIZE</code> is not present.
 	 */
 	public static final int DEFAULT_KNOWLEDGE_TOURNAMENT_SIZE = 10;
 
+
 	private static double knowledgeProbability = 0;
 
 	private KnowledgeExtractor extractor = null;
+
+	private int knowledgeSuccessLogID;
+	private int knowledgeFailLogID;
 
 	@Override
 	public void setup(EvolutionState state, Parameter base)
@@ -30,6 +37,26 @@ public abstract class CodeFragmentBuilder extends HalfBuilder
 		super.setup(state, base);
 
 		knowledgeProbability = state.parameters.getDouble(base.push(P_KNOWLEDGE_PROBABILITY), null);
+
+		try {
+			Parameter knowledgeLogFileNameParam = base.push(P_KNOWLEDGE_LOG_FILE_NAME);
+			String knowledgeLogFile = state.parameters.getString(knowledgeLogFileNameParam, null);
+			File successKnLog = new File(knowledgeLogFile + ".succ.log");
+			if(successKnLog.exists())
+				successKnLog.delete();
+			File failKnLog = new File(knowledgeLogFile + ".fail.log");
+			if(failKnLog.exists())
+				failKnLog.delete();
+			successKnLog.createNewFile();
+			failKnLog.createNewFile();
+			
+			knowledgeSuccessLogID = state.output.addLog(successKnLog, false);
+			knowledgeFailLogID = state.output.addLog(failKnLog, false);
+			
+		} catch (IOException e) {
+			state.output.fatal("Failed to create knowledge log file in CodeFragmentBuilder: " 
+					+ e.getStackTrace());
+		}
 	}
 
 
@@ -94,9 +121,11 @@ public abstract class CodeFragmentBuilder extends HalfBuilder
 				{
 					n.argposition = (byte)argposition;
 					n.parent = parent;
-					log(state, cf);
+					log(state, cf, knowledgeSuccessLogID);
 					return n;
 				}
+				else
+					log(state, cf, knowledgeFailLogID);
 				// else create a new node in the following line and do with it as usual.
 			}
 
@@ -170,9 +199,11 @@ public abstract class CodeFragmentBuilder extends HalfBuilder
 				{
 					n.argposition = (byte)argposition;
 					n.parent = parent;
-					log(state, it);
+					log(state, it, knowledgeSuccessLogID);
 					return n;
 				}
+				else
+					log(state, it, knowledgeFailLogID);
 				// else create a new node in the following line and do with it as usual.
 			}
 			n = (GPNode)(nodesToPick[state.random[thread].nextInt(nodesToPick.length)].lightClone());
@@ -189,20 +220,9 @@ public abstract class CodeFragmentBuilder extends HalfBuilder
 		}
 	}
 
-	private void log(EvolutionState state, CodeFragmentKI it)
+	private void log(EvolutionState state, CodeFragmentKI it, int logID)
 	{
-		int i = state.generation;
-		String cfTree = it.getItem().makeGraphvizTree().replace("\n", "");
-
-       	int logID = KnowledgeLogID.getLogID();
-        if(i == 0)
-        	state.output.println("# index, " + "cftree, " + "cffitness", logID);
-
-        double fitness = -1;
-        if(it instanceof FittedCodeFragment)
-        	fitness = ((FittedCodeFragment)it).getFitness();
-
-        state.output.print(i + "\tinitializing, " + cfTree + "\t, " + fitness, logID);
+		state.output.print(it.toString(), logID);
 		state.output.flush();
 		state.output.println("", logID);
 	}
