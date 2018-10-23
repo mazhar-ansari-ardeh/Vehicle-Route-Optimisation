@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import ec.EvolutionState;
 import ec.Fitness;
@@ -150,6 +152,18 @@ public class FCFStatistics extends SimpleStatistics
 	{
 		try
 		{
+			String statFilePath = state.parameters.getString(new Parameter("stat.file"), null);
+			statFilePath = statFilePath.replaceFirst("\\$", "");
+			Path pathToStatFile = Paths.get(statFilePath);
+			Path statDir = pathToStatFile.getParent();
+			if(statDir != null)
+			{
+				File statDirFile = statDir.toFile();
+				if(statDirFile.exists() == false && statDirFile.mkdirs() == false)
+					state.output.fatal("Failed to create stat directory: " + statDir.toString());
+			}
+
+
 			super.setup(state, base);
 
 			genPopFileName = state.parameters.getStringWithDefault(

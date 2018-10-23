@@ -1,6 +1,8 @@
 package tl.gp;
 
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import ec.*;
 import ec.gp.*;
@@ -47,15 +49,36 @@ public abstract class CodeFragmentBuilder extends HalfBuilder
 			File failKnLog = new File(knowledgeLogFile + ".fail.log");
 			if(failKnLog.exists())
 				failKnLog.delete();
+
+			Path pathToSuccFile = successKnLog.toPath();
+			Path pathToSuccDir = pathToSuccFile.getParent();
+			if(pathToSuccDir != null)
+			{
+				File statDirFile = pathToSuccDir.toFile();
+				if(statDirFile.exists() == false && statDirFile.mkdirs() == false)
+					state.output.fatal("Failed to create stat directory: "
+									   + pathToSuccDir.toString());
+			}
+
+			Path pathToFailFile = successKnLog.toPath();
+			Path pathToFailDir = pathToFailFile.getParent();
+			if(pathToFailDir != null)
+			{
+				File statDirFile = pathToFailDir.toFile();
+				if(statDirFile.exists() == false && statDirFile.mkdirs() == false)
+					state.output.fatal("Failed to create stat directory: "
+									   + pathToFailDir.toString());
+			}
+
 			successKnLog.createNewFile();
 			failKnLog.createNewFile();
-			
+
 			knowledgeSuccessLogID = state.output.addLog(successKnLog, false);
 			knowledgeFailLogID = state.output.addLog(failKnLog, false);
-			
+
 		} catch (IOException e) {
-			state.output.fatal("Failed to create knowledge log file in CodeFragmentBuilder: " 
-					+ e.getStackTrace());
+			state.output.fatal("Failed to create knowledge log file in CodeFragmentBuilder: "
+					+ e.getStackTrace().toString());
 		}
 	}
 

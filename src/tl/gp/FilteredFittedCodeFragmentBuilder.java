@@ -60,7 +60,7 @@ public class FilteredFittedCodeFragmentBuilder extends CodeFragmentBuilder
 		String extraction = state.parameters.getString(knowledgeExtraction, null);
 		KnowledgeExtractionMethod extractionMethod = KnowledgeExtractionMethod.parse(extraction);
 
-	    CodeFragmentKB knowledgeBase = new SourceFilteredFittedCFKB(state
+		SourceFilteredFittedCFKB knowledgeBase = new SourceFilteredFittedCFKB(state
 	    		, (GPProblem)state.evaluator.p_problem, fitness, tournamentSize, filterSize);
 
 		knowledgeBase.addFrom(kbFile, state, extractionMethod);

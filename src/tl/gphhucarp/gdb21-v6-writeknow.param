@@ -30,7 +30,7 @@ stat.gen-pop-file = ./stats/gdb21-v6-writeknow/population.gen
 stat.save-pop = true
 stat.save-tree = false
 
-gp.tree.print-style=dot
+# gp.tree.print-style=dot
 
 # ==============================
 # Basic evolution parameters

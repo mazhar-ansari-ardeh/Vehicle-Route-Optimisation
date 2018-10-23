@@ -79,7 +79,7 @@ stat.file = $out.stat
 #stat.child.0 = ec.gp.koza.KozaShortStatistics
 #stat.child.0.file = $outtabular.stat
 
-generations = 51
+generations = 1
 quit-on-run-complete = true
 
 pop = ec.Population
