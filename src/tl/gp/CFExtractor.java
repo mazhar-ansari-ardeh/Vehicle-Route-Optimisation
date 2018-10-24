@@ -2,6 +2,7 @@ package tl.gp;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import ec.*;
 import ec.gp.*;
@@ -16,10 +17,19 @@ public class CFExtractor
 {
 	static EvolutionState state = null;
 
-	static void loadECJ(String paramFileNamePath)
+	static void loadECJ(String paramFileNamePath, String... ecjParams)
 	{
-        ParameterDatabase parameters = Evolve.loadParameterDatabase(
-        	new String[] {"-file", paramFileNamePath});
+		ArrayList<String> params = new ArrayList<>();
+		params.add("-file");
+		params.add(paramFileNamePath);
+		for(String param : ecjParams)
+		{
+			params.add("-p");
+			params.add(param);
+		}
+		String[] processedParams = new String[params.size()];
+		params.toArray(processedParams);
+        ParameterDatabase parameters = Evolve.loadParameterDatabase(processedParams);
 
         state = Evolve.initialize(parameters, 0);
 
@@ -34,10 +44,11 @@ public class CFExtractor
 
 	public static void main(String[] args)
 	{
-		if(args.length != 4 )
+		if(args.length < 4 )
 		{
 			System.err.println("Invalid number of arguments. Usage: CFExtractor "
-					+ " <test param file> <input population file> <extraction method> <output file>");
+					+ " <test param file> <input population file> <extraction method>"
+					+ " <output file> [<EJC params>...]");
 			// The reason that I am not using a parameter file instead of command line arguments is
 			// that first, I don't like param files; second, I want to use the same param file that
 			// is used during testing without modifying it; third, the experiments already have
@@ -46,7 +57,7 @@ public class CFExtractor
 			return;
 		}
 
-		loadECJ(args[0]);
+		loadECJ(args[0], Arrays.copyOfRange(args, 4, args.length));
 
 
 		String outputFileNamePath = args[3];
