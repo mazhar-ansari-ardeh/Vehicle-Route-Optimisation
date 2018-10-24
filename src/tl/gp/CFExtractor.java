@@ -15,6 +15,8 @@ import tl.knowledge.codefragment.fitted.DoubleFittedCodeFragment;
 public class CFExtractor
 {
 	static EvolutionState state = null;
+	
+	static int maxNodeSize = 6;
 
 	static void loadECJ(String paramFileNamePath)
 	{
@@ -30,6 +32,9 @@ public class CFExtractor
         state.evaluator = (Evaluator)
                 (parameters.getInstanceForParameter(p, null, Evaluator.class));
         state.evaluator.setup(state, p);
+        
+        p = new Parameter("cfextract.max-size");
+        maxNodeSize = parameters.getIntWithDefault(p, null, 6);
 	}
 
 	public static void main(String[] args)
@@ -117,6 +122,9 @@ public class CFExtractor
 
 		for(GPNode node : list)
 		{
+			if(node.depth() > maxNodeSize)
+				continue;
+			
 			// Convert node to individual
 			GPIndividual newind = gind.lightClone();
 			newind.evaluated = false;
