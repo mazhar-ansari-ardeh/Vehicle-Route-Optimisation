@@ -121,10 +121,10 @@ public class FilteredKnowledgeCrossoverPipeline extends GPBreedingPipeline
 {
 	private int knowledgeSuccessLogID;
 	private int knowledgeFailLogID;
-	
+
 	public static final String P_KNOWLEDGE_LOG_FILE_NAME = "knowledge-log-file";
 
-	
+
 	private static final long serialVersionUID = 1;
 
 	public static final String P_NUM_TRIES = "tries";
@@ -248,8 +248,8 @@ public class FilteredKnowledgeCrossoverPipeline extends GPBreedingPipeline
 		}
 		tossSecondParent = state.parameters.getBoolean(base.push(P_TOSS),
 				def.push(P_TOSS),false);
-		
-		
+
+
 		try {
 			Parameter knowledgeLogFileNameParam = base.push(P_KNOWLEDGE_LOG_FILE_NAME);
 			String knowledgeLogFile = state.parameters.getString(knowledgeLogFileNameParam, null);
@@ -261,12 +261,12 @@ public class FilteredKnowledgeCrossoverPipeline extends GPBreedingPipeline
 				failKnLog.delete();
 			successKnLog.createNewFile();
 			failKnLog.createNewFile();
-			
+
 			knowledgeSuccessLogID = state.output.addLog(successKnLog, false);
 			knowledgeFailLogID = state.output.addLog(failKnLog, false);
-			
+
 		} catch (IOException e) {
-			state.output.fatal("Failed to create knowledge log file in CodeFragmentBuilder: " 
+			state.output.fatal("Failed to create knowledge log file in CodeFragmentBuilder: "
 					+ e.getStackTrace());
 		}
 
@@ -428,11 +428,11 @@ public class FilteredKnowledgeCrossoverPipeline extends GPBreedingPipeline
 			for(int x=0;x<numTries;x++)
 			{
 				// pick a node in individual 1
-				p1 = nodeselect1.pickNode(state, subpopulation, thread, parents[0], 
+				p1 = nodeselect1.pickNode(state, subpopulation, thread, parents[0],
 										  parents[0].trees[t1]);
 
 				// pick a node in individual 2
-				p2 = nodeselect2.pickNode(state, subpopulation, thread, parents[1], 
+				p2 = nodeselect2.pickNode(state, subpopulation, thread, parents[1],
 										  parents[1].trees[t2]);
 
 				e1 = (GPNode) cf1.getItem();
@@ -447,12 +447,12 @@ public class FilteredKnowledgeCrossoverPipeline extends GPBreedingPipeline
 
 				// check for depth and swap-compatibility limits
 				// p2 can fill p1's spot -- order is important!
-				res1 = verifyPoints(initializer,p2,p1);  
-				if (n-(q-start)<2 || tossSecondParent) 
+				res1 = verifyPoints(initializer,p2,p1);
+				if (n-(q-start)<2 || tossSecondParent)
 					res2 = true;
-				else 
+				else
 					// p1 can fill p2's spot -- order is important!
-					res2 = verifyPoints(initializer,p1,p2);  
+					res2 = verifyPoints(initializer,p1,p2);
 
 				// did we get something that had both nodes verified?
 				// we reject if EITHER of them is invalid.  This is what lil-gp does.
@@ -483,22 +483,23 @@ public class FilteredKnowledgeCrossoverPipeline extends GPBreedingPipeline
 			// we have to then copy so much stuff over; it's not worth it.
 
 			GPIndividual j1 = (GPIndividual)(parents[0].lightClone());
-			GPIndividual je1 = (GPIndividual)(parents[0].lightClone());
+			GPIndividual jk1 = (GPIndividual)(parents[0].lightClone());
 			GPIndividual j2 = null;
-			GPIndividual je2 = null;
+
+			GPIndividual jk2 = null;
 			if (n-(q-start)>=2 && !tossSecondParent)
 			{
 				j2 = (GPIndividual)(parents[1].lightClone());
-				je2 = (GPIndividual)(parents[1].lightClone());
+				jk2 = (GPIndividual)(parents[1].lightClone());
 			}
 
 			// Fill in various tree information that didn't get filled in there
 			j1.trees = new GPTree[parents[0].trees.length];
-			je1.trees = new GPTree[parents[0].trees.length];
+			jk1.trees = new GPTree[parents[0].trees.length];
 			if (n-(q-start)>=2 && !tossSecondParent)
 			{
 				j2.trees = new GPTree[parents[1].trees.length];
-				je2.trees = new GPTree[parents[1].trees.length];
+				jk2.trees = new GPTree[parents[1].trees.length];
 			}
 
 			// at this point, p1 or p2, or both, may be null.
@@ -520,22 +521,22 @@ public class FilteredKnowledgeCrossoverPipeline extends GPBreedingPipeline
 					if(e1 != null
 							&& state.random[thread].nextDouble() <= builder.getKnowledgeProbability())
 					{
-						je1.trees[x] = (GPTree)(parents[0].trees[x].lightClone());
-						je1.trees[x].owner = je1;
-						je1.trees[x].child = parents[0].trees[x].child.cloneReplacing(e1,p1);
-						je1.trees[x].child.parent = je1.trees[x];
-						je1.trees[x].child.argposition = 0;
-						je1.evaluated = false;
+						jk1.trees[x] = (GPTree)(parents[0].trees[x].lightClone());
+						jk1.trees[x].owner = jk1;
+						jk1.trees[x].child = parents[0].trees[x].child.cloneReplacing(e1,p1);
+						jk1.trees[x].child.parent = jk1.trees[x];
+						jk1.trees[x].child.argposition = 0;
+						jk1.evaluated = false;
 
 						problem.evaluate(state, j1, subpopulation, thread);
-						problem.evaluate(state, je1, subpopulation, thread);
-						if(je1.fitness.betterThan(j1.fitness))
+						problem.evaluate(state, jk1, subpopulation, thread);
+						if(jk1.fitness.betterThan(j1.fitness))
 						{
-							log(state, cf1, je1, j1, knowledgeSuccessLogID);
-							j1 = je1; // state.output.warning("Better");
+							log(state, cf1, jk1, j1, knowledgeSuccessLogID);
+							j1 = jk1; // state.output.warning("Better");
 						}
 						else
-							log(state, cf1, je1, j1, knowledgeSuccessLogID);
+							log(state, cf1, jk1, j1, knowledgeSuccessLogID);
 					}
 				}  // it's changed
 				else
@@ -563,23 +564,23 @@ public class FilteredKnowledgeCrossoverPipeline extends GPBreedingPipeline
 						if(e2 != null
 								&& state.random[thread].nextDouble() <= builder.getKnowledgeProbability())
 						{
-							je2.trees[x] = (GPTree)(parents[1].trees[x].lightClone());
-							je2.trees[x].owner = je2;
-							je2.trees[x].child = parents[1].trees[x].child.cloneReplacing(e2,p2);
-							je2.trees[x].child.parent = je2.trees[x];
-							je2.trees[x].child.argposition = 0;
-							je2.evaluated = false;
+							jk2.trees[x] = (GPTree)(parents[1].trees[x].lightClone());
+							jk2.trees[x].owner = jk2;
+							jk2.trees[x].child = parents[1].trees[x].child.cloneReplacing(e2,p2);
+							jk2.trees[x].child.parent = jk2.trees[x];
+							jk2.trees[x].child.argposition = 0;
+							jk2.evaluated = false;
 
 							problem.evaluate(state, j2, subpopulation, thread);
-							problem.evaluate(state, je2, subpopulation, thread);
-							if(je2.fitness.betterThan(j2.fitness))
+							problem.evaluate(state, jk2, subpopulation, thread);
+							if(jk2.fitness.betterThan(j2.fitness))
 							{
-								log(state, cf2, je2, j2, knowledgeSuccessLogID);
-								j2 = je2; // state.output.warning("Better");
+								log(state, cf2, jk2, j2, knowledgeSuccessLogID);
+								j2 = jk2; // state.output.warning("Better");
 							}
 							else
-								log(state, cf2, je2, j2, knowledgeFailLogID);
-								
+								log(state, cf2, jk2, j2, knowledgeFailLogID);
+
 						}
 					} // it's changed
 					else
@@ -625,7 +626,7 @@ public class FilteredKnowledgeCrossoverPipeline extends GPBreedingPipeline
 
 		if(firstLog)
 		{
-			state.output.println("# index, " + "[cftree, " 
+			state.output.println("# index, " + "[cftree, "
 					+ "cffitness on target, cffitness on source], newtree, newfitness, "
 					+ "oldtree, oldfitness", logID);
 			firstLog = false;

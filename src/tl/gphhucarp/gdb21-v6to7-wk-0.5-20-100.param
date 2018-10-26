@@ -260,7 +260,7 @@ gp.fs.0.func.7.nc = nc3
 gp.tc.0.init = tl.gp.FilteredFittedCodeFragmentBuilder
 gp.tc.0.init.knowledge-log-file=./stats/gdb21-v6to7-wk-0.5-20-100/filterknowinit
 ############ ToChange
-gp.tc.0.init.knowledge-file = ./stats/gdb21-v6to7-wk-0.5-20-100/gdb21-v7.cf
+gp.tc.0.init.knowledge-file = /vol/grid-solar/sgeusers/mazhar/gdb21-v6-to8/27/gdb21-v6.cf
 ############ ToChange
 gp.tc.0.init.knowledge-probability = 0.5
 ############ ToChange

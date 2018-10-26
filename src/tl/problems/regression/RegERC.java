@@ -13,17 +13,30 @@ import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import ec.util.Code;
 import ec.util.DecodeReturn;
+import ec.util.Parameter;
 
 public class RegERC extends ERC
 {
 	private static final long serialVersionUID = 1L;
 
 	// TODO: Do not hardcode this.
-	public static final double max = +1;
+	public static double max = +1;
 
-	public static final double min = -1;
+	public static double min = -1;
 
 	public double value;
+
+	@Override
+	public void setup(EvolutionState state, Parameter base)
+	{
+		super.setup(state, base);
+
+		Parameter p = base.push("min");
+		min = state.parameters.getInt(p, null);
+
+		p = base.push("max");
+		max = state.parameters.getInt(p, null);
+	}
 
 	@Override
 	public boolean decode(DecodeReturn ret)

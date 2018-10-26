@@ -95,7 +95,7 @@ public class BinPop2Text
 					GPIndividual gind = (GPIndividual) ind;
 					String tree = null;
 					if(graphType.equals("dot"))
-						tree = gind.trees[0].child.makeGraphvizTree();
+						tree = gind.trees[0].child.makeGraphvizTree().replaceAll("\\n", "");
 					else if(graphType.equals("c"))
 						tree = gind.trees[0].child.makeCTree(true, true, true);
 					else if(graphType.equals("lisp"))
@@ -137,7 +137,7 @@ public class BinPop2Text
 
 	public static void main(String[] args) throws ClassNotFoundException, IOException
 	{
-		String path = "/home/mazhar/MyPhD/SourceCodes/";
+		String path = "/vol/grid-solar/sgeusers/mazhar/gdb21-v6-to7/18/stats/gdb21-v7-wk-0.5-100-20/";
 		boolean printFitness = true;
 		if(args.length >= 1)
 			path = args[0];

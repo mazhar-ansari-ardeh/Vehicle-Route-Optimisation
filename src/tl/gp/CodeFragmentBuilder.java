@@ -245,7 +245,7 @@ public abstract class CodeFragmentBuilder extends HalfBuilder
 
 	private void log(EvolutionState state, CodeFragmentKI it, int logID)
 	{
-		state.output.print(it.toString(), logID);
+		state.output.println(it.toString(), logID);
 		state.output.flush();
 		state.output.println("", logID);
 	}
