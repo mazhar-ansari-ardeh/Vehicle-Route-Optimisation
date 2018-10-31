@@ -6,17 +6,14 @@ import java.util.Arrays;
 
 import ec.*;
 import ec.gp.*;
+import ec.simple.SimpleProblemForm;
 import ec.util.*;
-import gphhucarp.decisionprocess.RoutingPolicy;
-import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
-import gphhucarp.gp.*;
-import gphhucarp.gp.evaluation.EvaluationModel;
 import tl.knowledge.codefragment.fitted.DoubleFittedCodeFragment;
 
 public class CFExtractor
 {
 	static EvolutionState state = null;
-	
+
 	static int maxNodeSize = 6;
 
 	static void loadECJ(String paramFileNamePath, String... ecjParams)
@@ -42,7 +39,7 @@ public class CFExtractor
         state.evaluator = (Evaluator)
                 (parameters.getInstanceForParameter(p, null, Evaluator.class));
         state.evaluator.setup(state, p);
-        
+
         p = new Parameter("cfextract.max-size");
         maxNodeSize = parameters.getIntWithDefault(p, null, 6);
 	}
@@ -135,7 +132,7 @@ public class CFExtractor
 		{
 			if(node.depth() > maxNodeSize)
 				continue;
-			
+
 			// Convert node to individual
 			GPIndividual newind = gind.lightClone();
 			newind.evaluated = false;
@@ -149,7 +146,7 @@ public class CFExtractor
 			// Save it to file
 			DoubleFittedCodeFragment cf = new DoubleFittedCodeFragment(node,
 					null, newind.fitness.fitness());
-			System.out.println("Wrote: " + cf.toString());
+			// System.out.println("Wrote: " + cf.toString());
 			oos.writeObject(cf);
 			oos.flush();
 		}
@@ -157,18 +154,15 @@ public class CFExtractor
 
 	static double evaluate(EvolutionState state, GPIndividual gind)
 	{
-		RoutingPolicy routingPolicy =
-                new GPRoutingPolicy(((ReactiveGPHHProblem)state.evaluator.p_problem).getPoolFilter()
-                		, gind.trees[0]);
+//		RoutingPolicy routingPolicy =
+//                new GPRoutingPolicy(((ReactiveGPHHProblem)state.evaluator.p_problem).getPoolFilter()
+//                		, gind.trees[0]);
 
-		EvaluationModel testEvaluationModel =
-				((ReactiveGPHHProblem)state.evaluator.p_problem).getEvaluationModel();
+		((SimpleProblemForm)state.evaluator.p_problem).evaluate(state, gind, 0, 0);
 
 //		MultiObjectiveFitness f = new MultiObjectiveFitness();
 //        f.objectives = new double[1];
 //        f.objectives[0] = -1;
-
-		testEvaluationModel.evaluateOriginal(routingPolicy, null, gind.fitness, state);
 
 		return gind.fitness.fitness();
 	}
