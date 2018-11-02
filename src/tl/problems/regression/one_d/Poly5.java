@@ -2,8 +2,7 @@ package tl.problems.regression.one_d;
 
 import static java.lang.Math.pow;
 
-
-public class Poly2 extends RegressionProblem
+public class Poly5 extends RegressionProblem
 {
 	private static final long serialVersionUID = 1L;
 
@@ -12,14 +11,15 @@ public class Poly2 extends RegressionProblem
 	@Override
 	public String toString()
 	{
-		return "Poly2: 2x^4 + 3x^3 + 2x^2 + x";
+		return "Poly4: x^7 + 2x^6 + 3x^5 + 4x^4 + x^3 + x^2 + 3x";
 	}
 
 	@Override
 	protected double doCalculation(double x)
 	{
 		evalCount++;
-		return 2 * pow(x, 4) + 3 * pow(x, 3) + 2 * pow(x, 2) + x;
+		return pow(x, 7) + (2 * pow(x, 6)) + (3 * pow(x, 5)) + (4 * pow(x, 4)) + (pow(x, 3))
+						 + pow(x, 2) + (3 * x);
 	}
 
 	@Override

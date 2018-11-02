@@ -11,6 +11,12 @@ public class X extends GPNode
 {
 	private static final long serialVersionUID = 1L;
 
+	public X()
+	{
+		super();
+		children = new GPNode[0];
+	}
+
 	@Override
 	public String toString()
 	{

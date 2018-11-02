@@ -14,7 +14,14 @@ public class CFExtractor
 {
 	static EvolutionState state = null;
 
-	static int maxNodeSize = 6;
+	/**
+	 * Maximum size of a code fragment that is allowed to be extracted.
+	 * The value of this parameter is read from param file. This parameter is allowed to have a
+	 * negative value which means that this parameter should be ignored and code fragments with any
+	 * size are allowed to be extracted. <p><p>
+	 * If this parameter is zero, no code fragment will be extracted at all.
+	 */
+	static int maxNodeSize;
 
 	static void loadECJ(String paramFileNamePath, String... ecjParams)
 	{
@@ -41,7 +48,7 @@ public class CFExtractor
         state.evaluator.setup(state, p);
 
         p = new Parameter("cfextract.max-size");
-        maxNodeSize = parameters.getIntWithDefault(p, null, 6);
+        maxNodeSize = parameters.getInt(p, null);
 	}
 
 	public static void main(String[] args)
@@ -130,7 +137,7 @@ public class CFExtractor
 
 		for(GPNode node : list)
 		{
-			if(node.depth() > maxNodeSize)
+			if(maxNodeSize >= 0 && node.depth() > maxNodeSize)
 				continue;
 
 			// Convert node to individual

@@ -1,0 +1,11 @@
+parent.0 = /vol/grid-solar/sgeusers/mazhar/param-base.param
+
+stat.file=job.0.out.stat
+stat.gen-pop-file=population.gen
+eval.problem=tl.problems.regression.one_d.Poly5
+gp.tc.0.init=tl.gp.SimpleCodeFragmentBuilder
+gp.tc.0.init.knowledge-log-file=subtree50knowinit
+gp.tc.0.init.knowledge-file=/am/vuwstocoisnrin1.vuw.ac.nz/grid-solar/sgeusers/mazhar/./stats/Poly0-writeknow/population.gen.49.bin
+gp.tc.0.init.transfer-percent=75
+gp.tc.0.init.knowledge-extraction=rootsubtree
+seed.0=1

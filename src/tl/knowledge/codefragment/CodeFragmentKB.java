@@ -114,8 +114,10 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 	 */
 	public boolean addFrom(Population population, KnowledgeExtractionMethod method)
 	{
+		System.out.println("Inside CodeFragmentKB.addFrom");
 		if (population == null)
 		{
+			System.out.println("Population is empty");
 			return false;
 		}
 
@@ -132,6 +134,7 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 			}
 		}
 
+		System.out.println("Exiting CodeFragmentKB.addFrom(pop, method)");
 		return added;
 	}
 
@@ -150,18 +153,22 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 	 * @return <code>true</code> if the function added items from <code>population</code> to this
 	 * base and <code>false</code> otherwise.
 	 */
+	@Deprecated
 	public boolean addFrom(File file, EvolutionState state, KnowledgeExtractionMethod method)
 	{
 		if (file == null)
 		{
+			System.out.println("File is null");
 			return false;
 		}
 
+		System.out.println("Inside CodeFragmentKB.addFrom. File:" + file.getAbsolutePath());
 
 		boolean added = false;
 		try(ObjectInputStream dis = new ObjectInputStream(
 				new BufferedInputStream(new FileInputStream(file), 20 * 1024)))
 		{
+			System.out.println("Loading file");
 			int nsub = dis.readInt();
 			Population pop = new Population();
 			pop.subpops = new Subpopulation[nsub];
@@ -179,11 +186,10 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 					if(!(ind instanceof GPIndividual))
 						continue;
 					pop.subpops[i].individuals[j] = (GPIndividual) ind;
-//					if(addFrom((GPIndividual) ind))
-//						added = true;
 				}
 			}
 
+			System.out.println("Going into: addFrom(2). Which one will it be?");
 			return addFrom(pop, method);
 		} catch (FileNotFoundException e)
 		{
@@ -191,10 +197,11 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 			throw new RuntimeException(e);
 		} catch (IOException e)
 		{
+			e.printStackTrace();
 			return added;
 		} catch (ClassNotFoundException e)
 		{
-			// e.printStackTrace();
+			e.printStackTrace();
 			return added;
 		}
 	}

@@ -125,7 +125,7 @@ public class FCFStatistics extends SimpleStatistics
 				}
 
 				state.output.println(state.generation + ",\t"
-						+ ReactiveGPHHProblem.getNumEvaluation()
+						+ ((KnowledgeableProblemForm)state.evaluator.p_problem).getEvalCount()
 						+ ",\t" + fitnessSum / state.population.subpops[0].individuals.length
 						+ ",\t" + bestSubPopFitness, statLogID);
 				state.output.flush();

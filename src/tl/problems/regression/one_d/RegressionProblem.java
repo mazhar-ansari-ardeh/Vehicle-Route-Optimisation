@@ -2,11 +2,15 @@ package tl.problems.regression.one_d;
 
 import ec.EvolutionState;
 import ec.Individual;
+import ec.gp.GPIndividual;
 import ec.gp.GPProblem;
+import ec.multiobjective.MultiObjectiveFitness;
 import ec.util.Parameter;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import tl.gp.KnowledgeableProblemForm;
 import tl.problems.regression.VectorData;
 
-public abstract class RegressionProblem extends GPProblem
+public class RegressionProblem extends GPProblem implements KnowledgeableProblemForm
 {
 
 	private static final long serialVersionUID = 1L;
@@ -33,12 +37,8 @@ public abstract class RegressionProblem extends GPProblem
 	 * Keeps record of the number of times that that the <code>evaluate</code> function has been
 	 * invoked.
 	 */
-	protected int evalCout = 0;
+	protected static int evalCout = 0;
 
-	public int getEvaluationCount()
-	{
-		return evalCout;
-	}
 
 //	/**
 //	 * Because this class needs to keep track of the number of times that its evaluation method is
@@ -69,18 +69,19 @@ public abstract class RegressionProblem extends GPProblem
 
 		// base is 'eval.problem'
 		// result of base.push(myBaseParameter) will be 'eval.problem.$myBaseParameter'
-		Parameter p = base.push(getMyBaseParameter()).push(P_RANGE_MIN);
-		rangeMin = state.parameters.getIntWithDefault(p, null, -1);
+		Parameter p = base.push(P_RANGE_MIN);
+		rangeMin = state.parameters.getInt(p, null);
 
 		p = base.push(P_RANGE_MAX);
-		rangeMax = state.parameters.getIntWithDefault(p, null, +1);
+		rangeMax = state.parameters.getInt(p, null);
 
 		p = base.push(P_NUM_TESTS);
-		numTests = state.parameters.getIntWithDefault(p, null, 100);
+		numTests = state.parameters.getInt(p, null);
 		if(numTests <= 0)
 			state.output.fatal("Number of tests must be greater than zero. " + VectorData.class
 					, base.push(P_NUM_TESTS), null);
 	}
+
 
 	/**
 	 * This method is empty and must be implemented by classes that inherit this class.
@@ -88,16 +89,37 @@ public abstract class RegressionProblem extends GPProblem
 	public void evaluate(EvolutionState state, Individual ind, int subpopulation,
 			int threadnum)
 	{
+		if(ind.evaluated)
+			return;
 
+		double sum = 0;
+		double result;
+
+		for(int i = 0; i < numTests; i++)
+		{
+			double x = rangeMin + (state.random[threadnum].nextDouble() * (rangeMax - rangeMin));
+			VectorData input = new VectorData(x);
+
+			((GPIndividual)ind).trees[0].child.eval(state, threadnum, input, stack, (GPIndividual)ind, this);
+			double expectedResult = doCalculation(x);
+			result = Math.pow(input.getResult() - expectedResult, 2);
+
+			sum += result;
+		}
+
+		MultiObjectiveFitness f = ((MultiObjectiveFitness)ind.fitness);
+		f.objectives[0] = Math.sqrt(sum);
+		ind.evaluated = true;
 	}
 
-	/**
-	 * The name of the parameter that this class uses to load parameters that are specific to this
-	 * class.
-	 */
-	public String getMyBaseParameter()
+	protected double doCalculation(double x)
 	{
-		return null;
+		throw new NotImplementedException();
 	}
 
+	@Override
+	public int getEvalCount()
+	{
+		throw new NotImplementedException();
+	}
 }

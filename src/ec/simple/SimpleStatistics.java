@@ -12,9 +12,9 @@ import java.io.IOException;
 import ec.util.*;
 import java.io.File;
 
-/* 
+/*
  * SimpleStatistics.java
- * 
+ *
  * Created: Tue Aug 10 21:10:48 1999
  * By: Sean Luke
  */
@@ -26,7 +26,7 @@ import java.io.File;
  * each generation.  At the end of a run, it also prints out the best
  * individual of the run.  SimpleStatistics outputs this data to a log
  * which may either be a provided file or stdout.  Compressed files will
- * be overridden on restart from checkpoint; uncompressed files will be 
+ * be overridden on restart from checkpoint; uncompressed files will be
  * appended on restart.
  *
  * <p>SimpleStatistics implements a simple version of steady-state statistics:
@@ -48,7 +48,7 @@ import java.io.File;
 
  *
  * @author Sean Luke
- * @version 1.0 
+ * @version 1.0
  */
 
 public class SimpleStatistics extends Statistics implements SteadyStateStatisticsForm //, ec.eval.ProvidesBestSoFar
@@ -168,16 +168,16 @@ public class SimpleStatistics extends Statistics implements SteadyStateStatistic
 		{
 			if (doGeneration) state.output.println("Subpopulation " + x + ":",statisticslog);
 			if (doGeneration) best_i[x].printIndividualForHumans(state,statisticslog);
-			if (doMessage && !silentPrint) state.output.message("Subpop " + x + " best fitness of generation" + 
+			if (doMessage && !silentPrint) state.output.message("Subpop " + x + " best fitness of generation" +
 					(best_i[x].evaluated ? " " : " (evaluated flag not set): ") +
 					best_i[x].fitness.fitnessToStringForHumans());
 
 			// describe the winner if there is a description
-			if (doGeneration && doPerGenerationDescription) 
+			if (doGeneration && doPerGenerationDescription)
 			{
 				if (state.evaluator.p_problem instanceof SimpleProblemForm)
-					((SimpleProblemForm)(state.evaluator.p_problem.clone())).describe(state, best_i[x], x, 0, statisticslog);   
-			}   
+					((SimpleProblemForm)(state.evaluator.p_problem.clone())).describe(state, best_i[x], x, 0, statisticslog);
+			}
 		}
 	}
 
@@ -191,7 +191,7 @@ public class SimpleStatistics extends Statistics implements SteadyStateStatistic
 	{
 		super.finalStatistics(state,result);
 
-		// for now we just print the best fitness 
+		// for now we just print the best fitness
 
 		if (doFinal) state.output.println("\nBest Individual of Run:",statisticslog);
 		for(int x=0;x<state.population.subpops.length;x++ )
@@ -201,9 +201,9 @@ public class SimpleStatistics extends Statistics implements SteadyStateStatistic
 			if (doMessage && !silentPrint) state.output.message("Subpop " + x + " best fitness of run: " + best_of_run[x].fitness.fitnessToStringForHumans());
 
 			// finally describe the winner if there is a description
-			if (doFinal && doDescription) 
+			if (doFinal && doDescription)
 				if (state.evaluator.p_problem instanceof SimpleProblemForm)
-					((SimpleProblemForm)(state.evaluator.p_problem.clone())).describe(state, best_of_run[x], x, 0, statisticslog);      
+					((SimpleProblemForm)(state.evaluator.p_problem.clone())).describe(state, best_of_run[x], x, 0, statisticslog);
 		}
 	}
 }

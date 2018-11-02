@@ -1,11 +1,19 @@
 package tl.knowledge.codefragment.simple;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
+import ec.EvolutionState;
+import ec.Individual;
+import ec.Population;
+import ec.gp.GPIndividual;
 import ec.gp.GPNode;
+import tl.gp.KnowledgeExtractionMethod;
+import tl.gp.TreeSlicer;
 import tl.knowledge.KnowledgeExtractor;
-import tl.knowledge.KnowledgeItem;
 import tl.knowledge.codefragment.*;
 
 public class SimpleCodeFragmentKB extends CodeFragmentKB
@@ -13,6 +21,88 @@ public class SimpleCodeFragmentKB extends CodeFragmentKB
 	// Using ConcurrentHashMap instead of HashMap will make this KB capable of
 	// concurrency.
 	ConcurrentHashMap<Integer, CodeFragmentKI> repository = new ConcurrentHashMap<>();
+
+	private double k;
+
+	EvolutionState state;
+
+
+	public SimpleCodeFragmentKB()
+	{
+		super();
+	}
+
+	public SimpleCodeFragmentKB(EvolutionState state, int k)
+	{
+		if(k > 100)
+			throw new IllegalArgumentException("K is a percentage value and cannot be greater "
+					+ "than 100");
+		this.k = k / 100f;
+		this.state = state;
+	}
+
+	@Override
+	public boolean addFrom(Population p, KnowledgeExtractionMethod method)
+	{
+		System.out.println("Inside SimpleCodeFragmentKB.addFrom");
+		if (p == null)
+		{
+			System.out.println("Population is null. Exiting");
+			return false;
+		}
+
+		Comparator<Individual> com2 = (Individual o1, Individual o2) ->
+		{
+			if(o1.fitness.fitness() < o2.fitness.fitness())
+				return -1;
+			if(o1.fitness.fitness() == o2.fitness.fitness())
+				return 0;
+
+			return 1;
+		};
+
+		Arrays.sort(p.subpops[0].individuals, com2);
+
+		boolean added = false;
+		int sampleSize = (int) Math.round(k * p.subpops[0].individuals.length);
+		state.output.warning("Sample size in SimpleCodeFragmentKB.addFrom: " + sampleSize);
+		System.out.println("Sample size in SimpleCodeFragmentKB.addFrom: " + sampleSize);
+		for(int i = 0; i < sampleSize; i++)
+		{
+			added |= addFrom((GPIndividual)p.subpops[0].individuals[i], method);
+		}
+
+		return added;
+	}
+
+	public boolean addFrom(GPIndividual gpIndividual, KnowledgeExtractionMethod method)
+	{
+		if (gpIndividual == null)
+		{
+			return false;
+		}
+
+		GPNode node = null;
+		switch(method)
+		{
+		case Root:
+			node = gpIndividual.trees[0].child;
+			break;
+		case RootSubtree:
+			ArrayList<GPNode> allNodes = TreeSlicer.sliceRootChildrenToNodes(gpIndividual, false);
+			if(allNodes.isEmpty())
+				return false;;
+			node = allNodes.get(state.random[0].nextInt(allNodes.size()));
+			break;
+		default:
+			throw new IllegalArgumentException();
+		}
+
+		addItem(node);
+
+		return true;
+	}
+
 
 	/**
 	 * Adds a new item to the repository. If the repository contains the given item,
@@ -38,6 +128,7 @@ public class SimpleCodeFragmentKB extends CodeFragmentKB
 			return false;
 
 		repository.put(item.hashCode(), cfItem);
+
 
 		return true;
 	}
@@ -103,14 +194,14 @@ public class SimpleCodeFragmentKB extends CodeFragmentKB
 	@Override
 	public KnowledgeExtractor getKnowledgeExtractor()
 	{
-		return new CyclicCodeFragmentKnowledgeExtractor();
+		return new CodeFragmentKnowledgeExtractor();
 	}
 
-	public class CyclicCodeFragmentKnowledgeExtractor implements KnowledgeExtractor
+	public class CodeFragmentKnowledgeExtractor implements KnowledgeExtractor
 	{
 		Iterator<Integer> iter;
 
-		public CyclicCodeFragmentKnowledgeExtractor()
+		public CodeFragmentKnowledgeExtractor()
 		{
 			 iter = repository.keySet().iterator();
 		}
@@ -122,18 +213,18 @@ public class SimpleCodeFragmentKB extends CodeFragmentKB
 		}
 
 		@Override
-		public KnowledgeItem<GPNode> getNext()
+		public CodeFragmentKI getNext()
 		{
-			if(iter.hasNext() == false)
-				iter = repository.keySet().iterator();
-
-			return repository.get(iter.next());
+			if(iter.hasNext())
+				return repository.get(iter.next());
+			else
+				return null;
 		}
 
 		@Override
 		public void reset()
 		{
-			// Do nothing. This extractor is cyclic and reseting does not apply to it.
+			 iter = repository.keySet().iterator();
 		}
 	}
 }

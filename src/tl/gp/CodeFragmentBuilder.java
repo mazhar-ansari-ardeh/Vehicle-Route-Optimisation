@@ -2,7 +2,6 @@ package tl.gp;
 
 import java.io.*;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import ec.*;
 import ec.gp.*;
@@ -136,22 +135,26 @@ public abstract class CodeFragmentBuilder extends HalfBuilder
 			//GPNode n = (GPNode)(nodes[state.random[thread].nextInt(nodes.length)].lightClone());
 			GPNode n = null;
 			double prob = state.random[thread].nextDouble();
-			if(prob < Math.pow(knowledgeProbability, current + 1) && extractor.hasNext())
+			if(extractor.hasNext())
 			{
 				CodeFragmentKI cf =  (CodeFragmentKI) extractor.getNext();
-				n = (GPNode) cf.getItem();
-				if(n.depth() + current < max)
+				if(prob < Math.pow(knowledgeProbability, current + 1))
 				{
-					n.argposition = (byte)argposition;
-					n.parent = parent;
-					log(state, cf, knowledgeSuccessLogID);
-					return n;
+					n = (GPNode) cf.getItem();
+					if(n.depth() + current < 1000) // It was max but i changed it to 1000 to test the effect
+					{
+						n.argposition = (byte)argposition;
+						n.parent = parent;
+						log(state, cf, knowledgeSuccessLogID, " depth used: " + current);
+						return n;
+					}
+					else
+						log(state, cf, knowledgeFailLogID, " depth limit, depth: " + current);
+						// else create a new node in the following line and do with it as usual.
 				}
 				else
-					log(state, cf, knowledgeFailLogID);
-				// else create a new node in the following line and do with it as usual.
+					log(state, cf, knowledgeFailLogID, " probability limit, depth: " + current);
 			}
-
 			n = (GPNode)(nodes[state.random[thread].nextInt(nodes.length)].lightClone());
 
 			n.resetNode(state,thread);  // give ERCs a chance to randomize
@@ -214,20 +217,25 @@ public abstract class CodeFragmentBuilder extends HalfBuilder
 
 			GPNode n = null;
 			double prob = state.random[thread].nextDouble();
-			if(prob < Math.pow(knowledgeProbability, current + 1) && extractor.hasNext())
+			if(extractor.hasNext())
 			{
 				CodeFragmentKI it = (CodeFragmentKI) extractor.getNext();
-				n = (GPNode) it.getItem();
-				if(n.depth() + current < max)
+				if(prob < Math.pow(knowledgeProbability, current + 1) && extractor.hasNext())
 				{
-					n.argposition = (byte)argposition;
-					n.parent = parent;
-					log(state, it, knowledgeSuccessLogID);
-					return n;
+					n = (GPNode) it.getItem();
+					if(n.depth() + current < 1000) // it was max but i changed it to 1000
+					{
+						n.argposition = (byte)argposition;
+						n.parent = parent;
+						log(state, it, knowledgeSuccessLogID, "depth used: " + current);
+						return n;
+					}
+					else
+						log(state, it, knowledgeFailLogID, " depth limit, depth: " + current);
+					// else create a new node in the following line and do with it as usual.
 				}
 				else
-					log(state, it, knowledgeFailLogID);
-				// else create a new node in the following line and do with it as usual.
+					log(state, it, knowledgeFailLogID, " probability limit, depth: " + current);
 			}
 			n = (GPNode)(nodesToPick[state.random[thread].nextInt(nodesToPick.length)].lightClone());
 			n.resetNode(state,thread);  // give ERCs a chance to randomize
@@ -243,9 +251,9 @@ public abstract class CodeFragmentBuilder extends HalfBuilder
 		}
 	}
 
-	private void log(EvolutionState state, CodeFragmentKI it, int logID)
+	private void log(EvolutionState state, CodeFragmentKI it, int logID, String comment)
 	{
-		state.output.println(it.toString(), logID);
+		state.output.println(it.toString() + ": " + comment, logID);
 		state.output.flush();
 		state.output.println("", logID);
 	}

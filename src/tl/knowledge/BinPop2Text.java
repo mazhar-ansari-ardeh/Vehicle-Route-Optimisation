@@ -137,7 +137,7 @@ public class BinPop2Text
 
 	public static void main(String[] args) throws ClassNotFoundException, IOException
 	{
-		String path = "/vol/grid-solar/sgeusers/mazhar/gdb21-v6-to7/18/stats/gdb21-v7-wk-0.5-100-20/";
+		String path = "/vol/grid-solar/sgeusers/mazhar/stats/Poly5-wk-1-500-20/";
 		boolean printFitness = true;
 		if(args.length >= 1)
 			path = args[0];

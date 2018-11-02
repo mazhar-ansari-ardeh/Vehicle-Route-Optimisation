@@ -7,25 +7,25 @@ import ec.gp.GPData;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 
-public class Add extends GPNode
+public class Sin extends GPNode
 {
 	private static final long serialVersionUID = 1L;
 
-	public Add() {
+	public Sin() {
 		super();
-		children = new GPNode[2];
+		children = new GPNode[1];
 	}
 
 	@Override
 	public String toString()
 	{
-		return "+";
+		return "sin";
 	}
 
 	@Override
 	public int expectedChildren()
 	{
-		return 2;
+		return 1;
 	}
 
 	@Override
@@ -38,9 +38,6 @@ public class Add extends GPNode
 		double result1;
 		result1 = rd.getResult();
 
-		children[1].eval(state, thread, rd, stack, individual, problem);;
-		double result2 = rd.getResult();
-
-		rd.setResult(result1 + result2);
+		rd.setResult(Math.sin(result1));
 	}
 }

@@ -8,16 +8,16 @@ import tl.knowledge.KnowledgeItem;
 public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
 {
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	GPNode codeFragment;
 	int counter;
-	
-	protected CodeFragmentKI() 
+
+	protected CodeFragmentKI()
 	{
-//		codeFragment = null; 
+//		codeFragment = null;
 //		counter = 0;
 	}
 
@@ -52,5 +52,22 @@ public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
 	public GPNode getItem()
 	{
 		return codeFragment;
+	}
+
+	public String toDotString()
+	{
+		return "["
+					+ (codeFragment == null ? "null" : codeFragment.makeGraphvizTree())
+					+ "," + Integer.toString(counter)
+					+ "]";
+	}
+
+	@Override
+	public String toString()
+	{
+		return "["
+					+ (codeFragment == null ? "null" : codeFragment.makeCTree(false, false, false))
+					+ "," + Integer.toString(counter)
+					+ "]";
 	}
 }

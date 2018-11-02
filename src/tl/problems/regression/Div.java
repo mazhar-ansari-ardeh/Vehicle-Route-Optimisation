@@ -7,11 +7,11 @@ import ec.gp.GPData;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 
-public class Add extends GPNode
+public class Div extends GPNode
 {
 	private static final long serialVersionUID = 1L;
 
-	public Add() {
+	public Div() {
 		super();
 		children = new GPNode[2];
 	}
@@ -19,7 +19,7 @@ public class Add extends GPNode
 	@Override
 	public String toString()
 	{
-		return "+";
+		return "/";
 	}
 
 	@Override
@@ -41,6 +41,9 @@ public class Add extends GPNode
 		children[1].eval(state, thread, rd, stack, individual, problem);;
 		double result2 = rd.getResult();
 
-		rd.setResult(result1 + result2);
+		if(result2 == 0)
+			rd.setResult(1.0);
+		else
+			rd.setResult(result1 / result2);
 	}
 }

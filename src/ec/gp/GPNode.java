@@ -11,9 +11,9 @@ import ec.util.*;
 import java.io.*;
 import java.util.*;
 
-/* 
+/*
  * GPNode.java
- * 
+ *
  * Created: Fri Aug 27 17:14:12 1999
  * By: Sean Luke
  */
@@ -80,7 +80,7 @@ import java.util.*;
 
  *
  * @author Sean Luke
- * @version 1.0 
+ * @version 1.0
  */
 
 public abstract class GPNode implements GPNodeParent, Prototype
@@ -96,7 +96,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
     static final int NODESEARCH_CUSTOM = 3;  // should not be public
 
     public static final int CHILDREN_UNKNOWN = -1;
-    
+
     // beats me if Java compilers will take advantage of the int->byte shortening.
     // They may want everything aligned, in which case they may buffer the object
     // anyway, hope not!
@@ -104,8 +104,8 @@ public abstract class GPNode implements GPNodeParent, Prototype
     /** The GPNode's parent.  4 bytes.  :-(  But it really helps simplify breeding. */
     public GPNodeParent parent;
     public GPNode children[];
-    /** The argument position of the child in its parent. 
-        This is a byte to save space (GPNode is the critical object space-wise) -- 
+    /** The argument position of the child in its parent.
+        This is a byte to save space (GPNode is the critical object space-wise) --
         besides, how often do you have 256 children? You can change this to a short
         or int easily if you absolutely need to.  It's possible to eliminate even
         this and have the child find itself in its parent, but that's an O(children[])
@@ -113,15 +113,15 @@ public abstract class GPNode implements GPNodeParent, Prototype
     public byte argposition;
     /** The GPNode's constraints.  This is a byte to save space -- how often do
         you have 256 different GPNodeConstraints?  Well, I guess it's not infeasible.
-        You can increase this to an int without much trouble.  You typically 
+        You can increase this to an int without much trouble.  You typically
         shouldn't access the constraints through this variable -- use the constraints(state)
         method instead. */
     public byte constraints;
 
     /* Returns the GPNode's constraints.  A good JIT compiler should inline this. */
-    public final GPNodeConstraints constraints(final GPInitializer initializer) 
-        { 
-        return initializer.nodeConstraints[constraints]; 
+    public final GPNodeConstraints constraints(final GPInitializer initializer)
+        {
+        return initializer.nodeConstraints[constraints];
         }
 
     /** The default base for GPNodes -- defined even though
@@ -137,12 +137,12 @@ public abstract class GPNode implements GPNodeParent, Prototype
 
         <ul>
         <li> children.length is correct
-        <li> certain arguments in constraints.childtypes are 
+        <li> certain arguments in constraints.childtypes are
         swap-compatible with each other
-        <li> constraints.returntype is swap-compatible with appropriate 
+        <li> constraints.returntype is swap-compatible with appropriate
         arguments in constraints.childtypes
         </ul>
-        
+
         You can't check for everything, of course, but you might try some
         obvious checks for blunders.  The default version of this method
         simply calls numChildren() if it's defined (it returns something >= 0).
@@ -152,7 +152,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
         The ultimate caller of this method must guarantee that he will eventually
         call state.output.exitIfErrors(), so you can freely use state.output.error
         instead of state.output.fatal(), which will help a lot.
-        
+
         Warning: this method may get called more than once.
     */
 
@@ -163,11 +163,11 @@ public abstract class GPNode implements GPNodeParent, Prototype
         {
         int numChildren = expectedChildren();
         if (numChildren >= 0 && children.length != numChildren)  // uh oh
-            state.output.error("Incorrect number of children for node " + toStringForError() + " at " + individualBase + 
+            state.output.error("Incorrect number of children for node " + toStringForError() + " at " + individualBase +
                 ", was expecting " + numChildren + " but got " + children.length);
         }
-        
-    /** 
+
+    /**
         Returns the number of children this node expects to have.  This method is
         only called by the default implementation of checkConstraints(...), and by default
         it returns CHILDREN_UNKNOWN.  You can override this method to return a value >= 0,
@@ -175,18 +175,18 @@ public abstract class GPNode implements GPNodeParent, Prototype
         this method alone and override checkConstraints(...) to check for more complex constraints
         as you see fit.
     */
-        
+
     public int expectedChildren() { return CHILDREN_UNKNOWN; }
 
-    /** 
+    /**
         Sets up a <i>prototypical</i> GPNode with those features all nodes of that
-        prototype share, and nothing more.  So no filled-in children, 
+        prototype share, and nothing more.  So no filled-in children,
         no argposition, no parent.  Yet.
 
-        This must be called <i>after</i> the GPTypes and GPNodeConstraints 
+        This must be called <i>after</i> the GPTypes and GPNodeConstraints
         have been set up.  Presently they're set up in GPInitializer,
-        which gets called before this does, so we're safe. 
-        
+        which gets called before this does, so we're safe.
+
         You should override this if you need to load some special features on
         a per-function basis.  Note that base hangs off of a function set, so
         this method may get called for different instances in the same GPNode
@@ -208,7 +208,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
         String s = state.parameters.getString(base.push(P_NODECONSTRAINTS),
             def.push(P_NODECONSTRAINTS));
         if (s==null)
-            state.output.fatal("No node constraints are defined for the GPNode " + 
+            state.output.fatal("No node constraints are defined for the GPNode " +
                 toStringForError(),base.push(P_NODECONSTRAINTS),
                 def.push(P_NODECONSTRAINTS));
         else constraints = GPNodeConstraints.constraintsFor(s,state).constraintNumber;
@@ -223,7 +223,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
         else children = new GPNode[len];
         }
 
-    /** Returns the argument type of the slot that I fit into in my parent.  
+    /** Returns the argument type of the slot that I fit into in my parent.
         If I'm the root, returns the treetype of the GPTree. */
     public final GPType parentType(final GPInitializer initializer)
         {
@@ -239,9 +239,9 @@ public abstract class GPNode implements GPNodeParent, Prototype
         {
         if (!(state.initializer instanceof GPInitializer))
             { state.output.error("" + index + ": Initializer is not a GPInitializer"); return index+1; }
-            
+
         GPInitializer initializer = (GPInitializer)(state.initializer);
-        
+
         // 1. Is the parent and argposition right?
         if (parent == null)
             { state.output.error("" + index + ": null parent"); return index+1; }
@@ -270,19 +270,19 @@ public abstract class GPNode implements GPNodeParent, Prototype
             if (children[x].argposition != x)
                 { state.output.error("" + index + ": child #"+x+" argposition does not match position in the children array"); return index+1; }
             }
-        
+
         // 3. Do I have valid constraints?
         if (constraints < 0 || constraints >= initializer.numNodeConstraints)
             { state.output.error("" + index + ": Preposterous node constraints (" + constraints + ")"); return index+1; }
-        
+
         // 4. Am I swap-compatable with my parent?
-        if (parent instanceof GPNode && !constraints(initializer).returntype.compatibleWith(initializer, 
+        if (parent instanceof GPNode && !constraints(initializer).returntype.compatibleWith(initializer,
                 ((GPNode)(parent)).constraints(initializer).childtypes[argposition]))
             { state.output.error("" + index + ": Incompatable GP type between me and my parent"); return index+1; }
         if (parent instanceof GPTree && !constraints(initializer).returntype.compatibleWith(initializer,
                 ((GPTree)(parent)).constraints(initializer).treetype))
             { state.output.error("" + index + ": I am root, but incompatable GP type between me and my tree return type"); return index+1; }
-        
+
         // 5. Is my class in the GPFunctionSet?
         GPNode[] nodes = set.nodesByArity[constraints(initializer).returntype.type][children.length];
         boolean there = false;
@@ -290,7 +290,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
             if (nodes[x].getClass() == this.getClass()) { there = true; break; }
         if (!there)
             { state.output.error("" + index + ": I'm not in the function set."); return index+1; }
-            
+
         // otherwise we've passed -- go to next node
         index++;
         for(int x=0;x<children.length;x++)
@@ -312,12 +312,12 @@ public abstract class GPNode implements GPNodeParent, Prototype
         // I'm set compatible with his parent's swap-position
         GPType type;
         if (node.parent instanceof GPNode)  // it's a GPNode
-            type = 
+            type =
                 ((GPNode)(node.parent)).constraints(initializer).childtypes[node.argposition];
         else // it's a tree root; I'm set compatible with the GPTree type
-            type = 
+            type =
                 ((GPTree)(node.parent)).constraints(initializer).treetype;
-        
+
         return constraints(initializer).returntype.compatibleWith(initializer,type);
         }
 
@@ -355,22 +355,22 @@ public abstract class GPNode implements GPNodeParent, Prototype
             }
         return d + 1;
         }
-        
+
     /** Returns the path length of the tree, which is the sum of all paths from all nodes to the root.   O(n). */
     public int pathLength(int nodesearch) { return pathLength(NODESEARCH_ALL, 0); }
-    
+
     int pathLength(int nodesearch, int currentDepth)
         {
         int sum = currentDepth;
         if (nodesearch == NODESEARCH_NONTERMINALS && children.length==0 ||  // I'm a leaf, don't include me
             nodesearch == NODESEARCH_TERMINALS && children.length > 0)  // I'm a nonleaf, don't include me
             sum = 0;
-            
+
         for(int x=0;x<children.length;x++)
             sum += pathLength(nodesearch, currentDepth + 1);
         return sum;
         }
-        
+
     /** Returns the mean depth of the tree, which is path length (sum of all paths from all nodes to the root) divided by the number of nodes.  O(n). */
     int meanDepth(int nodesearch)
         {
@@ -407,7 +407,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
             {
             GPNode current;
             Iterator iter = iterator();
-                        
+
             void fill()
                 {
                 if (current == null)
@@ -421,13 +421,13 @@ public abstract class GPNode implements GPNodeParent, Prototype
                             }
                         }
                 }
-                        
+
             public boolean hasNext()
                 {
                 fill();
                 return (current != null);
                 }
-                                
+
             public Object next()
                 {
                 fill();
@@ -435,7 +435,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
                 current = null;
                 return obj;
                 }
-                                
+
             public void remove()
                 {
                 throw new UnsupportedOperationException();
@@ -444,7 +444,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
         }
 
     /** Returns an iterator over all the GPNodes in the subtree rooted by this GPNode,
-        filtered by the provided nodesearch option (either NODSEARCH_TERMINALS, NODESEARCH_NONTERMINALS, 
+        filtered by the provided nodesearch option (either NODSEARCH_TERMINALS, NODESEARCH_NONTERMINALS,
         or NODESEARCH_ALL) */
     public Iterator iterator(final int nodesearch)
         {
@@ -458,7 +458,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
                 }
             });
         }
-                
+
     /** Returns an iterator over all the GPNodes in the subtree rooted by this GPNode. */
     public Iterator iterator()
         {
@@ -466,16 +466,16 @@ public abstract class GPNode implements GPNodeParent, Prototype
             {
             GPNode current = GPNode.this;
             boolean used = false;
-                        
+
             void fill()
                 {
                 if (used && current != null)
-                    { 
+                    {
                     // are we at a terminal node?
                     if (current.children == null || current.children.length == 0)
                         {
                         GPNode node = current;
-                                        
+
                         while(true)  // look for a valid parent
                             {
                             if (node == GPNode.this)  // no parent, give up
@@ -486,7 +486,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
                             else
                                 {
                                 GPNode par = (GPNode)(node.parent);  // this is safe because we're not the root at this point
-                                                
+
                                 if (node.argposition + 1 < par.children.length)  // go here
                                     {
                                     current = par.children[node.argposition + 1];
@@ -506,20 +506,20 @@ public abstract class GPNode implements GPNodeParent, Prototype
                     used = false;
                     }
                 }
-                                
+
             public boolean hasNext()
                 {
                 fill();
                 return (current != null);
                 }
-                                
+
             public Object next()
                 {
                 fill();
                 used = true;
                 return current;
                 }
-                                
+
             public void remove()
                 {
                 throw new UnsupportedOperationException();
@@ -529,7 +529,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
 
     /** Returns the p'th node, constrained by nodesearch,
         in the subtree for which this GPNode is root.
-        Use numNodes(nodesearch) to determine the total number.  
+        Use numNodes(nodesearch) to determine the total number.
         g.demo(...) is used as the constraining predicate.
         p ranges from 0 to this number minus 1. O(n). The
         resultant node is returned in <i>g</i>.*/
@@ -541,7 +541,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
 
     /** Returns the p'th node, constrained by nodesearch,
         in the subtree for which this GPNode is root.
-        Use numNodes(nodesearch) to determine the total number.  
+        Use numNodes(nodesearch) to determine the total number.
         g.demo(...) is used as the constraining predicate.
         p ranges from 0 to this number minus 1. O(n). The
         resultant node is returned in <i>g</i>.*/
@@ -571,13 +571,13 @@ public abstract class GPNode implements GPNodeParent, Prototype
             // is the count now at 0?  Is it me?
             if (p==0)
                 {
-                g.node = this; 
+                g.node = this;
                 return -1; // found it
                 }
             // if it's not me, drop the count by 1
             else p--;
             }
-        
+
         // regardless, check my children if I've not returned by now
         for(int x=0;x<children.length;x++)
             {
@@ -597,7 +597,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
         GPNodeParent cparent = this;
         while(cparent!=null && cparent instanceof GPNode)
             cparent = ((GPNode)(cparent)).parent;
-        return cparent; 
+        return cparent;
         }
 
     /** Returns true if the subtree rooted at this node contains subnode.  O(n). */
@@ -624,7 +624,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
 
 
     public GPNode lightClone()
-        { 
+        {
         try
             {
             GPNode obj = (GPNode)(super.clone());
@@ -641,14 +641,14 @@ public abstract class GPNode implements GPNodeParent, Prototype
         copied tree.  The result has everything set except for the root
         node's parent and argposition.  This method is identical to
         cloneReplacing for historical reasons, except that it returns
-        the object as an Object, not a GPNode. */    
- 
+        the object as an Object, not a GPNode. */
+
     public Object clone()
-        { 
+        {
         GPNode newnode = (GPNode)(lightClone());
         for(int x=0;x<children.length;x++)
             {
-            newnode.children[x] = (GPNode)(children[x].cloneReplacing()); 
+            newnode.children[x] = (GPNode)(children[x].cloneReplacing());
             // if you think about it, the following CAN'T be implemented by
             // the children's clone method.  So it's set here.
             newnode.children[x].parent = newnode;
@@ -661,11 +661,11 @@ public abstract class GPNode implements GPNodeParent, Prototype
         copied tree.  The result has everything set except for the root
         node's parent and argposition.  This method is identical to
         cloneReplacing for historical reasons, except that it returns
-        the object as a GPNode, not an Object. 
+        the object as a GPNode, not an Object.
         @deprecated use clone() instead.
-    */    
- 
-    public final GPNode cloneReplacing() 
+    */
+
+    public final GPNode cloneReplacing()
         {
         return (GPNode)clone();
         }
@@ -676,8 +676,8 @@ public abstract class GPNode implements GPNodeParent, Prototype
         tree, then its subtree is replaced with a deep-cloned copy of
         newSubtree.  The result has everything set except for the root
         node's parent and argposition. */
- 
-    public final GPNode cloneReplacing(final GPNode newSubtree, final GPNode oldSubtree) 
+
+    public final GPNode cloneReplacing(final GPNode newSubtree, final GPNode oldSubtree)
         {
         if (this==oldSubtree)
             return newSubtree.cloneReplacing();
@@ -686,13 +686,13 @@ public abstract class GPNode implements GPNodeParent, Prototype
             GPNode newnode = (GPNode)(lightClone());
             for(int x=0;x<children.length;x++)
                 {
-                newnode.children[x] = (GPNode)(children[x].cloneReplacing(newSubtree,oldSubtree)); 
+                newnode.children[x] = (GPNode)(children[x].cloneReplacing(newSubtree,oldSubtree));
                 // if you think about it, the following CAN'T be implemented by
                 // the children's clone method.  So it's set here.
                 newnode.children[x].parent = newnode;
                 newnode.children[x].argposition = (byte)x;
                 }
-            return newnode;     
+            return newnode;
             }
         }
 
@@ -701,11 +701,11 @@ public abstract class GPNode implements GPNodeParent, Prototype
     /** Deep-clones the tree rooted at this node, and returns the entire
         copied tree.  If the node oldSubtree is located somewhere in this
         tree, then its subtree is replaced with
-        newSubtree (<i>not</i> a copy of newSubtree).  
+        newSubtree (<i>not</i> a copy of newSubtree).
         The result has everything set except for the root
         node's parent and argposition. */
- 
-    public final GPNode cloneReplacingNoSubclone(final GPNode newSubtree, final GPNode oldSubtree) 
+
+    public final GPNode cloneReplacingNoSubclone(final GPNode newSubtree, final GPNode oldSubtree)
         {
         if (this==oldSubtree)
             {
@@ -716,13 +716,13 @@ public abstract class GPNode implements GPNodeParent, Prototype
             GPNode newnode = (GPNode)(lightClone());
             for(int x=0;x<children.length;x++)
                 {
-                newnode.children[x] = (GPNode)(children[x].cloneReplacingNoSubclone(newSubtree,oldSubtree)); 
+                newnode.children[x] = (GPNode)(children[x].cloneReplacingNoSubclone(newSubtree,oldSubtree));
                 // if you think about it, the following CAN'T be implemented by
                 // the children's clone method.  So it's set here.
                 newnode.children[x].parent = newnode;
                 newnode.children[x].argposition = (byte)x;
                 }
-            return newnode;     
+            return newnode;
             }
         }
 
@@ -734,11 +734,11 @@ public abstract class GPNode implements GPNodeParent, Prototype
     /** Deep-clones the tree rooted at this node, and returns the entire
         copied tree.  If a node in oldSubtrees is located somewhere in this
         tree, then its subtree is replaced with a deep-cloned copy of the
-        subtree rooted at its equivalent number in 
+        subtree rooted at its equivalent number in
         newSubtrees.  The result has everything set except for the root
         node's parent and argposition. */
- 
-    public final GPNode cloneReplacing(final GPNode[] newSubtrees, final GPNode[] oldSubtrees) 
+
+    public final GPNode cloneReplacing(final GPNode[] newSubtrees, final GPNode[] oldSubtrees)
         {
         // am I a candidate?
         int candidate = -1;
@@ -752,28 +752,28 @@ public abstract class GPNode implements GPNodeParent, Prototype
             GPNode newnode = (GPNode)(lightClone());
             for(int x=0;x<children.length;x++)
                 {
-                newnode.children[x] = (GPNode)(children[x].cloneReplacing(newSubtrees,oldSubtrees)); 
+                newnode.children[x] = (GPNode)(children[x].cloneReplacing(newSubtrees,oldSubtrees));
                 // if you think about it, the following CAN'T be implemented by
                 // the children's clone method.  So it's set here.
                 newnode.children[x].parent = newnode;
                 newnode.children[x].argposition = (byte)x;
                 }
-            return newnode;     
+            return newnode;
             }
         }
 
 
-    
-    /** Clones a new subtree, but with the single node oldNode 
-        (which may or may not be in the subtree) 
-        replaced with a newNode (not a clone of newNode).  
+
+    /** Clones a new subtree, but with the single node oldNode
+        (which may or may not be in the subtree)
+        replaced with a newNode (not a clone of newNode).
         These nodes should be
         type-compatible both in argument and return types, and should have
         the same number of arguments obviously.  This function will <i>not</i>
         check for this, and if they are not the result is undefined. */
 
 
-    public final GPNode cloneReplacingAtomic(final GPNode newNode, final GPNode oldNode) 
+    public final GPNode cloneReplacingAtomic(final GPNode newNode, final GPNode oldNode)
         {
         int numArgs;
         GPNode curnode;
@@ -792,7 +792,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
 
         for(int x=0;x<numArgs;x++)
             {
-            curnode.children[x] = (GPNode)(children[x].cloneReplacingAtomic(newNode,oldNode)); 
+            curnode.children[x] = (GPNode)(children[x].cloneReplacingAtomic(newNode,oldNode));
             // if you think about it, the following CAN'T be implemented by
             // the children's clone method.  So it's set here.
             curnode.children[x].parent = curnode;
@@ -808,7 +808,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
     /** Clones a new subtree, but with each node in oldNodes[] respectively
         (which may or may not be in the subtree) replaced with
         the equivalent
-        nodes in newNodes[] (and not clones).  
+        nodes in newNodes[] (and not clones).
         The length of oldNodes[] and newNodes[] should
         be the same of course.  These nodes should be
         type-compatible both in argument and return types, and should have
@@ -816,12 +816,12 @@ public abstract class GPNode implements GPNodeParent, Prototype
         check for this, and if they are not the result is undefined. */
 
 
-    public final GPNode cloneReplacingAtomic(final GPNode[] newNodes, final GPNode[] oldNodes) 
+    public final GPNode cloneReplacingAtomic(final GPNode[] newNodes, final GPNode[] oldNodes)
         {
         int numArgs;
         GPNode curnode;
         int found = -1;
-        
+
         for(int x=0;x<newNodes.length;x++)
             {
             if (this==oldNodes[x]) { found=x; break; }
@@ -843,7 +843,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
 
         for(int x=0;x<numArgs;x++)
             {
-            curnode.children[x] = (GPNode)(children[x].cloneReplacingAtomic(newNodes,oldNodes)); 
+            curnode.children[x] = (GPNode)(children[x].cloneReplacingAtomic(newNodes,oldNodes));
             // if you think about it, the following CAN'T be implemented by
             // the children's clone method.  So it's set here.
             curnode.children[x].parent = curnode;
@@ -856,23 +856,23 @@ public abstract class GPNode implements GPNodeParent, Prototype
 
 
 
-    /** Replaces the node with another node in its position in the tree. 
+    /** Replaces the node with another node in its position in the tree.
         newNode should already have been cloned and ready to go.
         We presume that the other node is type-compatible and
         of the same arity (these things aren't checked).  */
-        
+
     public final void replaceWith(final GPNode newNode)
         {
         // copy the parent and argposition
         newNode.parent = parent;
         newNode.argposition = argposition;
-        
+
         // replace the parent pointer
         if (parent instanceof GPNode)
             ((GPNode)(parent)).children[argposition] = newNode;
         else
             ((GPTree)(parent)).child = newNode;
-            
+
         // replace the child pointers
         for(byte x = 0;x<children.length;x++)
             {
@@ -881,7 +881,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
             newNode.children[x].argposition = x;
             }
         }
-    
+
     /** Returns true if I and the provided node are the same kind of
         node -- that is, we could have both been cloned() and reset() from
         the same prototype node.  The default form of this function returns
@@ -894,13 +894,13 @@ public abstract class GPNode implements GPNodeParent, Prototype
         They should NOT be nodeEquals(...) but *should* be nodeEquivalent(...). */
     public boolean nodeEquivalentTo(GPNode node)
         {
-        return (this.getClass().equals(node.getClass()) && 
+        return (this.getClass().equals(node.getClass()) &&
             children.length == node.children.length &&
             constraints == node.constraints);
         }
 
 
-    /** Returns a hashcode usually associated with all nodes that are 
+    /** Returns a hashcode usually associated with all nodes that are
         equal to you (using nodeEquals(...)).  The default form
         of this method returns the hashcode of the node's class.
         ERCs in particular probably will want to override this method.
@@ -910,7 +910,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
         return (this.getClass().hashCode());
         }
 
-    /** Returns a hashcode associated with all the nodes in the tree.  
+    /** Returns a hashcode associated with all the nodes in the tree.
         The default version adds the hash of the node plus its child
         trees, rotated one-off each time, which seems reasonable. */
     public int rootedTreeHashCode()
@@ -928,7 +928,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
     /** Returns true if I am the "genetically" identical to this node, and our
         children arrays are the same length, though
         we may have different parents and children.  The default form
-        of this method simply calls the much weaker nodeEquivalentTo(node).  
+        of this method simply calls the much weaker nodeEquivalentTo(node).
         You may need to override this to perform exact comparisons, if you're
         an ERC, ADF, or ADM for example.  Here's an example of how nodeEquivalentTo(node)
         differs from nodeEquals(node): two ERCs, both of
@@ -951,11 +951,11 @@ public abstract class GPNode implements GPNodeParent, Prototype
         return true;
         }
 
-    /** Prints out a human-readable and Lisp-like atom for the node, 
+    /** Prints out a human-readable and Lisp-like atom for the node,
         and returns the number of bytes in the string that you sent
         to the log (use print(),
         not println()).  The default version gets the atom from
-        toStringForHumans(). 
+        toStringForHumans().
     */
     public int printNodeForHumans(final EvolutionState state,
         final int log)
@@ -963,15 +963,15 @@ public abstract class GPNode implements GPNodeParent, Prototype
         return printNodeForHumans(state, log, Output.V_VERBOSE);
         }
 
-    /** Prints out a human-readable and Lisp-like atom for the node, 
+    /** Prints out a human-readable and Lisp-like atom for the node,
         and returns the number of bytes in the string that you sent
         to the log (use print(),
         not println()).  The default version gets the atom from
-        toStringForHumans(). 
-        @deprecated Verbosity no longer has an effect. 
+        toStringForHumans().
+        @deprecated Verbosity no longer has an effect.
     */
     public int printNodeForHumans(final EvolutionState state,
-        final int log, 
+        final int log,
         final int verbosity)
         {
         String n = toStringForHumans();
@@ -984,7 +984,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
         is also suitable for readNode to read, and returns
         the number of bytes in the string that you sent to the log (use print(),
         not println()).  The default version gets the atom from toString().
-        O(1). 
+        O(1).
     */
     public int printNode(final EvolutionState state, final int log)
         {
@@ -997,10 +997,10 @@ public abstract class GPNode implements GPNodeParent, Prototype
         is also suitable for readNode to read, and returns
         the number of bytes in the string that you sent to the log (use print(),
         not println()).  The default version gets the atom from toString().
-        O(1). 
-        @deprecated Verbosity no longer has an effect. 
+        O(1).
+        @deprecated Verbosity no longer has an effect.
     */
-    public int printNode(final EvolutionState state, final int log, 
+    public int printNode(final EvolutionState state, final int log,
         final int verbosity)
         {
         String n = toString();
@@ -1022,7 +1022,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
         writer.print(n);
         return n.length();
         }
-                
+
     /** Returns a Lisp-like atom for the node and any nodes of the same class.
         This will almost always be identical to the result of toString() (and the default
         does exactly this), but for ERCs it'll be different: toString will include the
@@ -1030,7 +1030,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
         be the same for all ERCs of this type.  If two nodes are nodeEquivalentTo(...)
         each other, then they will have the same name().  If two nodes are nodeEquals(...)
         each other, then they will have the same toString().  */
-                
+
     public String name() { return toString(); }
 
     /** Returns a Lisp-like atom for the node which can be read in again by computer.
@@ -1050,7 +1050,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
         It's okay if this is a reasonably expensive procedure -- it won't be called
         a lot.  */
 
-    public String toStringForError() 
+    public String toStringForError()
         {
         GPTree rootp = (GPTree)rootParent();
         if (rootp!=null)
@@ -1062,15 +1062,15 @@ public abstract class GPNode implements GPNodeParent, Prototype
         }
 
     /** Produces the Graphviz code for a Graphviz tree of the subtree rooted at this node.
-        For this to work, the output of toString() must not contain a double-quote. 
+        For this to work, the output of toString() must not contain a double-quote.
         Note that this isn't particularly efficient and should only be used to generate
         occasional trees for display, not for storing individuals or sending them over networks. */
     public String makeGraphvizTree()
         {
         return "digraph g {\ngraph [ordering=out];\nnode [shape=rectangle];\n" + makeGraphvizSubtree("n") + "}\n";
         }
-    
-    /** Produces the inner code for a graphviz subtree.  Called from makeGraphvizTree(). 
+
+    /** Produces the inner code for a graphviz subtree.  Called from makeGraphvizTree().
         Note that this isn't particularly efficient and should only be used to generate
         occasional trees for display, not for storing individuals or sending them over networks. */
     protected String makeGraphvizSubtree(String prefix)
@@ -1081,7 +1081,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
             String newprefix;
             if (x < 10) newprefix = prefix + x;
             else newprefix = prefix + "n" + x;  // to distinguish it
-            
+
             body = body + children[x].makeGraphvizSubtree(newprefix);
             body = body + prefix + " -> " + newprefix + ";\n";
             }
@@ -1089,26 +1089,26 @@ public abstract class GPNode implements GPNodeParent, Prototype
         }
 
     /** Produces the LaTeX code for a LaTeX tree of the subtree rooted at this node, using the <tt>epic</tt>
-        and <tt>fancybox</tt> packages, as described in sections 10.5.2 (page 307) 
+        and <tt>fancybox</tt> packages, as described in sections 10.5.2 (page 307)
         and 10.1.3 (page 278) of <i>The LaTeX Companion</i>, respectively.  For this to
         work, the output of toStringForHumans() must not contain any weird latex characters, notably { or } or % or \,
         unless you know what you're doing. See the documentation for ec.gp.GPTree for information
-        on how to take this code snippet and insert it into your LaTeX file. 
+        on how to take this code snippet and insert it into your LaTeX file.
         Note that this isn't particularly efficient and should only be used to generate
         occasional trees for display, not for storing individuals or sending them over networks. */
-    
+
     public String makeLatexTree()
         {
         if (children.length==0)
             return "\\gpbox{"+toStringForHumans()+"}";
-            
+
         String s = "\\begin{bundle}{\\gpbox{"+toStringForHumans()+"}}";
         for(int x=0;x<children.length;x++)
             s = s + "\\chunk{"+children[x].makeLatexTree()+"}";
         s = s + "\\end{bundle}";
         return s;
         }
-        
+
     /** Producess a String consisting of the tree in pseudo-C form, given that the parent already will wrap the
         expression in parentheses (or not).  In pseudo-C form, function with one child are printed out as a(b),
         function with more than two children are printed out as a(b, c, d, ...), and function with exactly two
@@ -1117,9 +1117,9 @@ public abstract class GPNode implements GPNodeParent, Prototype
         printed out either in variable form -- a -- or in zero-argument function form -- a() -- depending on
         the setting of <tt>printTerminalsAsVariables</tt>.
         Note that this isn't particularly efficient and should only be used to generate
-        occasional trees for display, not for storing individuals or sending them over networks. 
+        occasional trees for display, not for storing individuals or sending them over networks.
     */
-                
+
     public String makeCTree(boolean parentMadeParens, boolean printTerminalsAsVariables, boolean useOperatorForm)
         {
         if (children.length==0)
@@ -1127,9 +1127,9 @@ public abstract class GPNode implements GPNodeParent, Prototype
         else if (children.length==1)
             return toStringForHumans() + "(" + children[0].makeCTree(true, printTerminalsAsVariables, useOperatorForm) + ")";
         else if (children.length==2 && useOperatorForm)
-            return (parentMadeParens ? "" : "(") + 
-                children[0].makeCTree(false, printTerminalsAsVariables, useOperatorForm) + " " + 
-                toStringForHumans() + " " + children[1].makeCTree(false, printTerminalsAsVariables, useOperatorForm) + 
+            return (parentMadeParens ? "" : "(") +
+                children[0].makeCTree(false, printTerminalsAsVariables, useOperatorForm) + " " +
+                toStringForHumans() + " " + children[1].makeCTree(false, printTerminalsAsVariables, useOperatorForm) +
                 (parentMadeParens ? "" : ")");
         else
             {
@@ -1171,10 +1171,10 @@ public abstract class GPNode implements GPNodeParent, Prototype
 
 
     /** Prints out the tree on a single line, with no ending \n, in a fashion that can
-        be read in later by computer. O(n).  
-        You should call this method with printbytes == 0. 
+        be read in later by computer. O(n).
+        You should call this method with printbytes == 0.
     */
-    
+
     public int printRootedTree(final EvolutionState state,
         final int log, int printbytes)
         {
@@ -1183,11 +1183,11 @@ public abstract class GPNode implements GPNodeParent, Prototype
 
 
     /** Prints out the tree on a single line, with no ending \n, in a fashion that can
-        be read in later by computer. O(n).  
-        You should call this method with printbytes == 0. 
+        be read in later by computer. O(n).
+        You should call this method with printbytes == 0.
         @deprecated Verbosity no longer has an effect.
     */
-    
+
     public int printRootedTree(final EvolutionState state,
         final int log, final int verbosity,
         int printbytes)
@@ -1207,7 +1207,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
     /** Prints out the tree on a single line, with no ending \n, in a fashion that can
         be read in later by computer. O(n).  Returns the number of bytes printed.
         You should call this method with printbytes == 0. */
-    
+
     public int printRootedTree(final EvolutionState state, final PrintWriter writer,
         int printbytes)
         {
@@ -1223,23 +1223,23 @@ public abstract class GPNode implements GPNodeParent, Prototype
         }
 
 
-    /** Prints out the tree in a readable Lisp-like multi-line fashion. O(n).  
-        You should call this method with tablevel and printbytes == 0.  
-        No ending '\n' is printed.  
+    /** Prints out the tree in a readable Lisp-like multi-line fashion. O(n).
+        You should call this method with tablevel and printbytes == 0.
+        No ending '\n' is printed.
     */
-    
+
     public int printRootedTreeForHumans(final EvolutionState state, final int log,
         int tablevel, int printbytes)
         {
         return printRootedTreeForHumans(state, log, Output.V_VERBOSE, tablevel, printbytes);
         }
 
-    /** Prints out the tree in a readable Lisp-like multi-line fashion. O(n).  
-        You should call this method with tablevel and printbytes == 0.  
-        No ending '\n' is printed.  
+    /** Prints out the tree in a readable Lisp-like multi-line fashion. O(n).
+        You should call this method with tablevel and printbytes == 0.
+        No ending '\n' is printed.
         @deprecated Verbosity no longer has an effect.
     */
-    
+
     public int printRootedTreeForHumans(final EvolutionState state, final int log,
         final int verbosity,
         int tablevel, int printbytes)
@@ -1274,7 +1274,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
         be case-SENSITIVE, unlike in Lisp.  The default
         version usually works for "simple" function names, that is, not ERCs
         or other stuff where you have to encode the symbol. */
-    public GPNode readNode(DecodeReturn dret) 
+    public GPNode readNode(DecodeReturn dret)
         {
         int len = dret.data.length();
 
@@ -1313,21 +1313,21 @@ public abstract class GPNode implements GPNodeParent, Prototype
         boolean isTerminal = (children.length == 0);
 
         // identify the node
-        GPNode[] gpfi = isTerminal ? 
-            set.terminals[expectedType.type] : 
+        GPNode[] gpfi = isTerminal ?
+            set.terminals[expectedType.type] :
             set.nonterminals[expectedType.type];
-        
+
         int index=0;
         for( /*int index=0 */; index <gpfi.length;index++)
             if ((gpfi[index].nodeEquivalentTo(this))) break;
-        
+
         if (index==gpfi.length)  // uh oh
-            state.output.fatal("No node in the function set can be found that is equivalent to the node " + this +     
+            state.output.fatal("No node in the function set can be found that is equivalent to the node " + this +
                 " when performing writeRootedTree(EvolutionState, GPType, GPFunctionSet, DataOutput).");
         dataOutput.writeInt(index);  // what kind of node it is
         writeNode(state,dataOutput);
 
-        GPInitializer initializer = ((GPInitializer)state.initializer);        
+        GPInitializer initializer = ((GPInitializer)state.initializer);
         for(int x=0;x<children.length;x++)
             children[x].writeRootedTree(state,constraints(initializer).childtypes[x],set,dataOutput);
         }
@@ -1342,37 +1342,37 @@ public abstract class GPNode implements GPNodeParent, Prototype
         {
         int len = dataInput.readInt();      // num children
         int index = dataInput.readInt();    // index in function set
-        
+
         boolean isTerminal = (len == 0);
-        GPNode[] gpfi = isTerminal ? 
-            set.terminals[expectedType.type] : 
+        GPNode[] gpfi = isTerminal ?
+            set.terminals[expectedType.type] :
             set.nonterminals[expectedType.type];
 
         GPNode node = ((GPNode)(gpfi[index].lightClone()));
-        
+
         if (node.children == null || node.children.length != len)
-            state.output.fatal("Mismatch in number of children (" + len + 
+            state.output.fatal("Mismatch in number of children (" + len +
                 ") when performing readRootedTree(...DataInput...) on " + node);
-        
+
         node.parent = parent;
         node.argposition = (byte)argposition;
         node.readNode(state,dataInput);
 
         // do its children
-        GPInitializer initializer = ((GPInitializer)state.initializer);        
+        GPInitializer initializer = ((GPInitializer)state.initializer);
         for(int x=0;x<node.children.length;x++)
             node.children[x] = readRootedTree(state,dataInput,node.constraints(initializer).childtypes[x],set, node, x);
 
         return node;
         }
 
-    /** Override this to write any additional node-specific information to dataOutput besides: the number of arguments, 
+    /** Override this to write any additional node-specific information to dataOutput besides: the number of arguments,
         the specific node class, the children, and the parent.  The default version of this method does nothing. */
     public void writeNode(final EvolutionState state, final DataOutput dataOutput) throws IOException
         {
         // do nothing
         }
-        
+
     /** Override this to read any additional node-specific information from dataInput besides: the number of arguments,
         the specific node class, the children, and the parent.  The default version of this method does nothing. */
     public void readNode(final EvolutionState state, final DataInput dataInput) throws IOException
@@ -1382,26 +1382,26 @@ public abstract class GPNode implements GPNodeParent, Prototype
 
     /** Reads the node and its children from the form printed out by printRootedTree. */
     public static GPNode readRootedTree(int linenumber,
-        DecodeReturn dret, 
+        DecodeReturn dret,
         GPType expectedType,
         GPFunctionSet set,
         GPNodeParent parent,
         int argposition,
-        EvolutionState state) 
+        EvolutionState state)
         {
         final char REPLACEMENT_CHAR = '@';
 
         // eliminate whitespace if any
         boolean isTerminal = true;
         int len = dret.data.length();
-        for(  ;  dret.pos < len && 
+        for(  ;  dret.pos < len &&
                   Character.isWhitespace(dret.data.charAt(dret.pos)) ; dret.pos++);
-        
+
         // if I'm out of space, complain
-        
+
         if (dret.pos >= len)
             state.output.fatal("Reading line " + linenumber + ": " + "Premature end of tree structure -- did you forget a close-parenthesis?\nThe tree was" + dret.data);
-         
+
         // if I've found a ')', complain
         if (dret.data.charAt(dret.pos) == ')')
             {
@@ -1410,22 +1410,22 @@ public abstract class GPNode implements GPNodeParent, Prototype
             dret.data = sb.toString();
             state.output.fatal("Reading line " + linenumber + ": " + "Premature ')' which I have replaced with a '" + REPLACEMENT_CHAR + "', in tree:\n" + dret.data);
             }
-        
+
         // determine if I'm a terminal or not
         if (dret.data.charAt(dret.pos) == '(')
             {
             isTerminal=false;
             dret.pos++;
             // strip following whitespace
-            for(  ;  dret.pos < len && 
+            for(  ;  dret.pos < len &&
                       Character.isWhitespace(dret.data.charAt(dret.pos)) ; dret.pos++);
             }
-        
+
         // check again if I'm out of space
-        
+
         if (dret.pos >= len)
             state.output.fatal("Reading line " + linenumber + ": " + "Premature end of tree structure -- did you forget a close-parenthesis?\nThe tree was" + dret.data);
-        
+
         // check again if I found a ')'
         if (dret.data.charAt(dret.pos) == ')')
             {
@@ -1434,22 +1434,22 @@ public abstract class GPNode implements GPNodeParent, Prototype
             dret.data = sb.toString();
             state.output.fatal("Reading line " + linenumber + ": " + "Premature ')' which I have replaced with a '" + REPLACEMENT_CHAR + "', in tree:\n" + dret.data);
             }
-        
-        
+
+
         // find that node!
-        GPNode[] gpfi = isTerminal ? 
-            set.terminals[expectedType.type] : 
+        GPNode[] gpfi = isTerminal ?
+            set.terminals[expectedType.type] :
             set.nonterminals[expectedType.type];
-        
+
         GPNode node = null;
         for(int x=0;x<gpfi.length;x++)
             if ((node = gpfi[x].readNode(dret)) != null) break;
-        
+
         // did I find one?
-        
+
         if (node==null)
             {
-            if (dret.pos!=0) 
+            if (dret.pos!=0)
                 {
                 StringBuilder sb = new StringBuilder(dret.data);
                 sb.setCharAt(dret.pos,REPLACEMENT_CHAR);
@@ -1458,48 +1458,48 @@ public abstract class GPNode implements GPNodeParent, Prototype
             else dret.data = "" + REPLACEMENT_CHAR + dret.data;
             state.output.fatal("Reading line " + linenumber + ": " + "I came across a symbol which I could not match up with a type-valid node.\nI have replaced the position immediately before the node in question with a '" + REPLACEMENT_CHAR + "':\n" + dret.data);
             }
-        
+
         node.parent = parent;
         node.argposition = (byte)argposition;
         GPInitializer initializer = ((GPInitializer)state.initializer);
-        
+
         // do its children
         for(int x=0;x<node.children.length;x++)
             node.children[x] = readRootedTree(linenumber,dret,node.constraints(initializer).childtypes[x],set,node,x,state);
-        
+
         // if I'm not a terminal, look for a ')'
-        
+
         if (!isTerminal)
             {
             // clear whitespace
-            for(  ;  dret.pos < len && 
+            for(  ;  dret.pos < len &&
                       Character.isWhitespace(dret.data.charAt(dret.pos)) ; dret.pos++);
-            
+
             if (dret.pos >= len)
                 state.output.fatal("Reading line " + linenumber + ": " + "Premature end of tree structure -- did you forget a close-parenthesis?\nThe tree was" + dret.data);
-            
+
             if (dret.data.charAt(dret.pos) != ')')
                 {
-                if (dret.pos!=0) 
+                if (dret.pos!=0)
                     {
                     StringBuilder sb = new StringBuilder(dret.data);
                     sb.setCharAt(dret.pos,REPLACEMENT_CHAR);
                     dret.data = sb.toString();
                     }
                 else dret.data = "" + REPLACEMENT_CHAR + dret.data;
-                state.output.fatal("Reading line " + linenumber + ": " + "A nonterminal node has too many arguments.  I have put a '" + 
+                state.output.fatal("Reading line " + linenumber + ": " + "A nonterminal node has too many arguments.  I have put a '" +
                     REPLACEMENT_CHAR + "' just before the offending argument.\n" + dret.data);
                 }
             else dret.pos++;  // get rid of the ')'
             }
-        
+
         // return the node
         return node;
         }
-    
+
 
     /** Evaluates the node with the given thread, state, individual, problem, and stack.
-        Your random number generator will be state.random[thread].  
+        Your random number generator will be state.random[thread].
         The node should, as appropriate, evaluate child nodes with these same items
         passed to eval(...).
 
@@ -1513,17 +1513,17 @@ public abstract class GPNode implements GPNodeParent, Prototype
         <p>A tree is typically evaluated by dropping a GPData into the root.  When the
         root returns, the resultant <tt>input</tt> should hold the return value.
 
-        <p>In general, you should not be creating new GPDatas.  
-        If you think about it, in most conditions (excepting ADFs and ADMs) you 
+        <p>In general, you should not be creating new GPDatas.
+        If you think about it, in most conditions (excepting ADFs and ADMs) you
         can use and reuse <tt>input</tt> for most communications purposes between
-        parents and children.  
+        parents and children.
 
         <p>So, let's say that your GPNode function implements the boolean AND function,
         and expects its children to return return boolean values (as it does itself).
         You've implemented your GPData subclass to be, uh, <b>BooleanData</b>, which
-        looks like 
-        
-        * <tt><pre>public class BooleanData extends GPData 
+        looks like
+
+        * <tt><pre>public class BooleanData extends GPData
         *    {
         *    public boolean result;
         *    public GPData copyTo(GPData gpd)
@@ -1546,7 +1546,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
         *
         *    // evaluate the first child
         *    children[0].eval(state,thread,input,stack,individual,problem);
-        *  
+        *
         *    // store away its result
         *    x = dat.result;
         *
@@ -1560,7 +1560,7 @@ public abstract class GPNode implements GPNodeParent, Prototype
         *    }
         </pre></tt>
     */
-    
+
     public abstract void eval(final EvolutionState state,
         final int thread,
         final GPData input,

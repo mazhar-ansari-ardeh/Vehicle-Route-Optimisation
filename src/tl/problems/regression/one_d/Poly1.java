@@ -2,57 +2,28 @@ package tl.problems.regression.one_d;
 
 import static java.lang.Math.pow;
 
-import ec.EvolutionState;
-import ec.Individual;
-import ec.gp.GPIndividual;
-import ec.gp.koza.KozaFitness;
-import tl.problems.regression.VectorData;
-
 public class Poly1 extends RegressionProblem
 {
 	private static final long serialVersionUID = 1L;
 
+	private static int evalCount = 0;
+
 	@Override
-	public void evaluate(EvolutionState state, Individual ind, int subpopulation, int threadnum)
+	public String toString()
 	{
-		if(ind.evaluated)
-			return;
-
-		int hits = 0;
-		double sum = 0;
-		double result;
-
-		double step = (rangeMax - rangeMin) / numTests;
-		for(double x = rangeMin; x < rangeMax; x += step)
-		{
-			VectorData input = new VectorData(x);
-
-			((GPIndividual)ind).trees[0].child.eval(state, threadnum, input, stack, (GPIndividual)ind, this);
-			double expectedResult = pow(x, 6) + pow(x, 5) + pow(x, 4) + pow(x, 3) + pow(x, 2) + x;
-			result = Math.pow(input.getResult() - expectedResult, 2);
-			if(result < 0.01)
-			{
-				hits++;
-			}
-
-			sum += result;
-		}
-
-		KozaFitness f = ((KozaFitness)ind.fitness);
-		f.hits = hits;
-		f.setStandardizedFitness(state, Math.sqrt(sum));
-		ind.evaluated = true;
-		evalCout++;
-		// System.out.println(evalCout);
+		return "Poly1: x^6 + x^5 + x^4 + x^3 + x^2 + x";
 	}
 
-	/**
-	 * The name of the parameter that this class uses to load parameters that are specific to this
-	 * class.
-	 */
 	@Override
-	public String getMyBaseParameter()
+	protected double doCalculation(double x)
 	{
-		return "poly1";
+		evalCount++;
+		return pow(x, 6) + pow(x, 5) + pow(x, 4) + pow(x, 3) + pow(x, 2) + x;
+	}
+
+	@Override
+	public int getEvalCount()
+	{
+		return evalCount;
 	}
 }

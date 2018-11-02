@@ -31,10 +31,10 @@ public class RegERC extends ERC
 	{
 		super.setup(state, base);
 
-		Parameter p = base.push("min");
+		Parameter p = new Parameter("erc.min");
 		min = state.parameters.getInt(p, null);
 
-		p = base.push("max");
+		p = new Parameter("erc.max");
 		max = state.parameters.getInt(p, null);
 	}
 

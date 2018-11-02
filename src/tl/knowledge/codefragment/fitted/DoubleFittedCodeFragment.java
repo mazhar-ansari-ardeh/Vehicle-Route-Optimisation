@@ -13,13 +13,13 @@ public class DoubleFittedCodeFragment extends CodeFragmentKI implements Serializ
 	private static final long serialVersionUID = 1L;
 	Double fitnessOnSource = null;
 	Double fitnessOnTarget = null;
-	
+
 //	public DoubleFittedCodeFragment()
 //	{
 //		super();
 //	}
 
-	public DoubleFittedCodeFragment(GPNode codeFragment, Double fitnessOnTarget, 
+	public DoubleFittedCodeFragment(GPNode codeFragment, Double fitnessOnTarget,
 									Double fitnessOnSource)
 	{
 		super(codeFragment);
@@ -31,38 +31,38 @@ public class DoubleFittedCodeFragment extends CodeFragmentKI implements Serializ
 	{
 		super(codeFragment);
 	}
-	
+
 	public Double getFitnessOnSource()
 	{
 		return fitnessOnSource;
 	}
-	
+
 	public Double getFitnessOnTarget()
 	{
 		return fitnessOnTarget;
 	}
-	
+
 	public void setFitnessOnTarget(double fitness)
 	{
 		this.fitnessOnTarget = fitness;
 	}
-	
+
 	public String toString()
 	{
-		String retval = getItem().makeGraphvizTree().replaceAll("\n", "");
+		String retval = getItem().makeCTree(false, false, false).replaceAll("\n", "");
 		retval += ", \t" + fitnessOnSource + ", \t" + fitnessOnTarget;
-		
+
 		return retval;
 	}
-	
+
 	/**
 	 * Converts this code fragment into a GP individual. This method makes a deep clone of the code
-	 * fragment that it stores so that any modifications to the returned value will not impact the 
+	 * fragment that it stores so that any modifications to the returned value will not impact the
 	 * code fragment stored here. <p>
-	 * <b>Note</b>: the fitness value of the returned object will NOT be set and therefore, any 
-	 * fitness value that may already be stored in {@code this} object will not be transfered to 
+	 * <b>Note</b>: the fitness value of the returned object will NOT be set and therefore, any
+	 * fitness value that may already be stored in {@code this} object will not be transfered to
 	 * the returned value.
-	 * @param fitnessPrototype The fitness object that will be used as the prototype for creating 
+	 * @param fitnessPrototype The fitness object that will be used as the prototype for creating
 	 * the fitness of the returned code fragment.
 	 * @return a new {@code GPIndividual} object that contains this code fragment.
 	 */
@@ -78,7 +78,7 @@ public class DoubleFittedCodeFragment extends CodeFragmentKI implements Serializ
 		ret.trees[0].child = item;
 		item.parent = ret.trees[0].child;
 		item.argposition = 0;
-		
+
 		return ret;
 	}
 }

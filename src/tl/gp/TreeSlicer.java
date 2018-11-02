@@ -67,7 +67,7 @@ public class TreeSlicer
 			return retval;
 
 		if(ind.trees[0].child.children == null
-				|| ind.trees[0].child.children.length < 2)
+				|| ind.trees[0].child.children.length < 1)
 			return retval;
 
 		for(int i = 0; i < ind.trees[0].child.children.length; i++)

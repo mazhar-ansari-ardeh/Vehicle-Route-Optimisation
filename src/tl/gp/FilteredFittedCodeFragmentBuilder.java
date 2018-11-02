@@ -7,7 +7,6 @@ import ec.Fitness;
 import ec.gp.GPProblem;
 import ec.util.Parameter;
 import tl.knowledge.KnowledgeExtractor;
-import tl.knowledge.codefragment.CodeFragmentKB;
 import tl.knowledge.codefragment.fitted.SourceFilteredFittedCFKB;
 
 public class FilteredFittedCodeFragmentBuilder extends CodeFragmentBuilder

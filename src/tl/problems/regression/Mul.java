@@ -11,6 +11,11 @@ public class Mul extends GPNode {
 
 	private static final long serialVersionUID = 1L;
 
+	public Mul() {
+		super();
+		children = new GPNode[2];
+	}
+
 	@Override
 	public String toString()
 	{

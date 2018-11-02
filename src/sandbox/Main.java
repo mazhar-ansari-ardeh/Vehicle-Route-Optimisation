@@ -1,18 +1,27 @@
 package sandbox;
 
-import java.util.ArrayList;
+import java.util.PriorityQueue;
 
 public class Main {
 
 	public static void main(String[] args)
 	{
-		ArrayList<String> list = new ArrayList<>();
-		list.add("1");
-		list.add("2");
-		list.add("3");
-		list.add("4");
+		PriorityQueue<Double> q = new PriorityQueue<>(
+				(Double x, Double y)->
+				{
+					return Double.compare(x, y);
+				});
 
-		list.forEach(it -> {System.out.println(it);});
+		q.add(3.0);
+		q.add(2.0);
+		q.add(5.0);
+		q.add(1.5);
+
+		int size = q.size();
+		for(int i = 0; i < size; i++)
+		{
+			System.out.println(q.poll());
+		}
 	}
 
 }
