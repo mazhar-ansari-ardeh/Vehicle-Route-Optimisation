@@ -11,10 +11,11 @@ import tl.knowledge.KnowledgeExtractor;
 import tl.knowledge.codefragment.CodeFragmentKI;
 
 /**
-* @deprecated The class is marked as deprecated because it has design flaws and 
-* does not capture the correct method of implementing the concept of code fragment 
-* builders. 
-*/
+ * @deprecated This class is marked as deprecated because at its current condition, it does not
+ * implement the concept of code fragment builders correctly.
+ * @author mazhar
+ *
+ */
 @Deprecated
 public abstract class CodeFragmentBuilder extends HalfBuilder
 {
