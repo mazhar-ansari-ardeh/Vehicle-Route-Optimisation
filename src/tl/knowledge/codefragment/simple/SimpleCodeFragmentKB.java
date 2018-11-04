@@ -16,6 +16,17 @@ import tl.gp.TreeSlicer;
 import tl.knowledge.KnowledgeExtractor;
 import tl.knowledge.codefragment.*;
 
+/**
+ * This class, with the class {@code SimpleCodeFragmentBuilder} implements the <i>SubTree</i> and
+ * <i>FullTransfer</i> method that was proposed by Dinh et al. in their paper
+ * "<i>Transfer Learning in Genetic Programming</i>". The selection between the <i>FullTransfer</i>
+ * and <i>SubTree</i> methods is done through the {@code KnowledgeExtractionMethod} instance that
+ * is passed to extraction methods. For a value of {@code KnowledgeExtractionMethod.Root}, the
+ * <i>FullTransfer</i> method is selected. A value of {@code KnowledgeExtractionMethod.RootSubtree}
+ * will select the <i>SubTree</i> method.
+ * @author mazhar
+ *
+ */
 public class SimpleCodeFragmentKB extends CodeFragmentKB
 {
 	// Using ConcurrentHashMap instead of HashMap will make this KB capable of
