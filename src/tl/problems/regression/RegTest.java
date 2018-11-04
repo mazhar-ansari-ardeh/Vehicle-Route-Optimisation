@@ -51,14 +51,7 @@ public class RegTest
         // read the path of the training out.stat files.
         p = new Parameter(P_TRAIN_PATH);
         String trainPath = parameters.getStringWithDefault(p, null, "");
-        // read the solution type, e.g. a single routing policy or ensemble
-//        p = new Parameter(P_SOLUTION_TYPE);
-//        String stString = parameters.getStringWithDefault(p, null, "");
-//        SolutionType solutionType = SolutionType.get(stString);
-        // read the fitness type, e.g. a multiobjective fitness
-//        p = new Parameter(P_FITNESS_TYPE);
-//        String ftString = parameters.getStringWithDefault(p, null, "");
-//        FitnessType fitnessType = FitnessType.get(ftString);
+
         // read the number of trains, i.e. the number of out.stat files
         p = new Parameter(P_NUM_TRAINS);
         int numTrains = parameters.getIntWithDefault(p, null, 1);
@@ -74,52 +67,71 @@ public class RegTest
         // read the results from the training files
         List<RegResult> results = new ArrayList<>();
 
-        // start testing the rules
-        System.out.println("Test rules from path " + trainPath);
-
-        for (int i = 0; i < numTrains; i++) {
-            System.out.println("Testing run " + i);
-
-            File sourceFile = new File(trainPath + "job." + i + ".out.stat");
-
-            // read the rules to a result class
-            RegResult result = RegResult.readFromFile(sourceFile, state.evaluator.p_problem);
-
-            // read the time from the .stat.csv file
-            //File timeFile = new File(trainPath + "job." + i + ".stat.csv");
-            // result.setTimeStat(GPResult.readTimeFromFile(timeFile));
-
-            // test the rules for each generation
-            long start = System.currentTimeMillis();
-
-            for (int j = 0; j < result.getSolutions().size(); j++) {
-                evaluate(result.getSolutionAtGen(j), result.getTestFitnessAtGen(j), state);
-
-                System.out.println("Generation " + j + ": test fitness = " +
-                        result.getTestFitnessAtGen(j).fitness());
-            }
-
-            // test the best rule
-            evaluate(result.getBestSolution(), result.getBestTestFitness(), state);
-            System.out.println("Best indi: test fitness = " +
-                    result.getBestTestFitness().fitness());
-
-            long finish = System.currentTimeMillis();
-            long duration = finish - start;
-            System.out.println("Duration = " + duration + " ms.");
-
-            results.add(result);
-        }
-
         // write to csv file
         File writtenPath = new File(trainPath + "test");
         if (!writtenPath.exists()) {
-            writtenPath.mkdirs();
+        	writtenPath.mkdirs();
         }
+
+        String writtenFileName = "test_results";
+        File csvFile = new File(writtenPath + "/" + writtenFileName + ".txt");
+
+        try(BufferedWriter  writer = new BufferedWriter(new FileWriter(csvFile.getAbsoluteFile()));)
+        {
+        	System.out.println("Test rules from path " + trainPath);
+
+        	for (int i = 0; i < numTrains; i++) {
+        		System.out.println("Testing run " + i);
+        		writer.write("Testing run " + i + "\n");
+
+        		File sourceFile = new File(trainPath + "job." + i + ".out.stat");
+
+        		// read the rules to a result class
+        		RegResult result = RegResult.readFromFile(sourceFile, state.evaluator.p_problem);
+
+        		// read the time from the .stat.csv file
+        		// File timeFile = new File(trainPath + "job." + i + ".stat.csv");
+        		// result.setTimeStat(GPResult.readTimeFromFile(timeFile));
+
+        		// test the rules for each generation
+        		long start = System.currentTimeMillis();
+
+        		for (int j = 0; j < result.getSolutions().size(); j++) {
+        			evaluate(result.getSolutionAtGen(j), result.getTestFitnessAtGen(j), state);
+
+        			writer.write("Generation " + j + ": test fitness = " +
+        					result.getTestFitnessAtGen(j).fitness() + "\n");
+        			System.out.println("Generation " + j + ": test fitness = " +
+        					result.getTestFitnessAtGen(j).fitness());
+        		}
+
+        		// test the best rule
+        		evaluate(result.getBestSolution(), result.getBestTestFitness(), state);
+//        		System.out.println("Best indi: test fitness = " +
+//        				result.getBestTestFitness().fitness());
+
+        		long finish = System.currentTimeMillis();
+        		long duration = finish - start;
+        		System.out.println("Duration = " + duration + " ms.");
+        		writer.write("Duration = " + duration + " ms.\n");
+
+        		results.add(result);
+        	}
+        }
+        catch(IOException e)
+        {
+        	e.printStackTrace();
+        }
+//      // write the title
+//      writer.write(csvTitle(fitnessType));
+//      writer.newLine();
+
+        // start testing the rules
+
 
 //        String writtenFileName = testFileName(testEvaluationModel);
 //        File csvFile = new File(writtenPath + "/" + writtenFileName + ".csv");
-
+//
 //        try {
 //            BufferedWriter writer = new BufferedWriter(new FileWriter(csvFile.getAbsoluteFile()));
 //            // write the title

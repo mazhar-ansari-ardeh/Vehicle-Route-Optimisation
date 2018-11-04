@@ -74,13 +74,13 @@ public class SourceFilteredFittedCFKB extends CodeFragmentKB
 			throw new IllegalArgumentException("Filter size must be greater than zero.");
 		this.filterSize = filterSize;
 	}
-	
+
 
 	@Override
-	public boolean addFrom(File file, EvolutionState state, KnowledgeExtractionMethod method) 
+	public boolean extractFrom(File file, KnowledgeExtractionMethod method)
 	{
 		if(method != KnowledgeExtractionMethod.ExactCodeFragment)
-			return super.addFrom(file, state, method);
+			return super.extractFrom(file, method);
 
 		PriorityQueue<DoubleFittedCodeFragment> q = new PriorityQueue<>(
 				(DoubleFittedCodeFragment cf1, DoubleFittedCodeFragment cf2) ->
@@ -101,22 +101,22 @@ public class SourceFilteredFittedCFKB extends CodeFragmentKB
 				}
 				q.add((DoubleFittedCodeFragment) obj);
 			}
-		} catch (FileNotFoundException e) 
+		} catch (FileNotFoundException e)
 		{
 			state.output.fatal("Knowledge file not found: " + e.toString());
 		}
-		catch (ClassNotFoundException e) 
+		catch (ClassNotFoundException e)
 		{
 			state.output.fatal("Class not found?: " + e.toString());
-		} 
-		catch (IOException e) 
+		}
+		catch (IOException e)
 		{
 			System.out.println(e.toString());
 			// This is part of the implementation logic. Since the file does not contain any counter
-			// for the number of items in it, end of file IOException is taken as a marker of the 
+			// for the number of items in it, end of file IOException is taken as a marker of the
 			// end. It is not best possible solution but well, I am in a hurry.
 			// e.printStackTrace();
-		} 
+		}
 		if(q.isEmpty())
 			state.output.fatal("Knowledge file is empty.");
 
@@ -135,7 +135,7 @@ public class SourceFilteredFittedCFKB extends CodeFragmentKB
 		return added;
 	}
 
-	
+
 	/**
 	 * Receives a population of individuals and adds codes fragments from them. This function
 	 * implements the filtering logic and only selects the top <code>filterSize</code> individuals
@@ -143,10 +143,10 @@ public class SourceFilteredFittedCFKB extends CodeFragmentKB
 	 * assumes that all subpopulations are of type <code>GPIndividuals</code> and fitness of
 	 * individuals is of type <code>KozaFitness</code>.
 	 * @param population The population of individuals from which code fragments will be extracted.
-	 * If this parameter is <code>null</code>, the return value will be <code>false</code>. Because 
-	 * this population is assumed to come from the source problem, fitness value of individuals in 
+	 * If this parameter is <code>null</code>, the return value will be <code>false</code>. Because
+	 * this population is assumed to come from the source problem, fitness value of individuals in
 	 * this population is taken as fitness on source domain and therefore, code fragments that are
-	 * extracted from individuals in this population are evaluated again on target problem when 
+	 * extracted from individuals in this population are evaluated again on target problem when
 	 * needed.
 	 * @param method
 	 * @return <code>true</code> if at least one code fragment is extracted and added and
@@ -157,7 +157,7 @@ public class SourceFilteredFittedCFKB extends CodeFragmentKB
 	public boolean addFrom(Population population, KnowledgeExtractionMethod method)
 	{
 		if(method == KnowledgeExtractionMethod.ExactCodeFragment)
-			throw new IllegalArgumentException("This extraction method is not supported: " 
+			throw new IllegalArgumentException("This extraction method is not supported: "
 											   + method);
 		PriorityQueue<Individual> q = new PriorityQueue<>((Individual i1, Individual i2)->
 		{
@@ -176,17 +176,17 @@ public class SourceFilteredFittedCFKB extends CodeFragmentKB
 		return added;
 	}
 
-	
+
 	/**
 	 * Receives an individuals and adds codes fragments from it. This function
 	 * implements the filtering logic and only selects the top <code>filterSize</code> individuals
-	 * in term of their fitness. This method considers the fitness value of the individual as the 
-	 * fitness value of code fragments. 
+	 * in term of their fitness. This method considers the fitness value of the individual as the
+	 * fitness value of code fragments.
 	 * @param gpIndividual The individual from which code fragments will be extracted.
-	 * If this parameter is <code>null</code>, the return value will be <code>false</code>. Because 
-	 * this individual is assumed to come from the source problem, fitness value of it is taken as 
+	 * If this parameter is <code>null</code>, the return value will be <code>false</code>. Because
+	 * this individual is assumed to come from the source problem, fitness value of it is taken as
 	 * fitness on source domain and therefore, code fragments that are
-	 * extracted from individuals in this population are evaluated again on target problem when 
+	 * extracted from individuals in this population are evaluated again on target problem when
 	 * needed.
 	 * @param method
 	 * @return <code>true</code> if at least one code fragment is extracted and added and
@@ -194,10 +194,10 @@ public class SourceFilteredFittedCFKB extends CodeFragmentKB
 	 */
 	@Deprecated
 	@Override
-	public boolean addFrom(GPIndividual gpIndividual, KnowledgeExtractionMethod method) 
+	public boolean addFrom(GPIndividual gpIndividual, KnowledgeExtractionMethod method)
 	{
 		if(method == KnowledgeExtractionMethod.ExactCodeFragment)
-			throw new IllegalArgumentException("This extraction method is not supported: " 
+			throw new IllegalArgumentException("This extraction method is not supported: "
 												+ method);
 
 		if (gpIndividual == null)
@@ -215,7 +215,7 @@ public class SourceFilteredFittedCFKB extends CodeFragmentKB
 			nodes = TreeSlicer.sliceRootChildrenToNodes(gpIndividual, false);
 			break;
 		default:
-			state.output.fatal("This method does not support the given extraction method: " 
+			state.output.fatal("This method does not support the given extraction method: "
 					+ method);
 		}
 
@@ -227,8 +227,8 @@ public class SourceFilteredFittedCFKB extends CodeFragmentKB
 
 		return !nodes.isEmpty();
 	}
-	
-	
+
+
 	public class TournamentExtractor implements KnowledgeExtractor
 	{
 		@Override
@@ -249,10 +249,10 @@ public class SourceFilteredFittedCFKB extends CodeFragmentKB
 				int selected = state.random[0].nextInt(repository.size());
 				DoubleFittedCodeFragment selectedCF = repository.get(selected);
 				DoubleFittedCodeFragment bestCF = repository.get(best);
-				
+
 				double selectFitness = getFitnessOnTarget(selectedCF);
 				double bestFitness = getFitnessOnTarget(bestCF);
-				
+
 				if(selectFitness < bestFitness)
 					best = selected;
 			}
@@ -260,7 +260,7 @@ public class SourceFilteredFittedCFKB extends CodeFragmentKB
 			repository.get(best).increaseCounter();
 			return repository.get(best);
 		}
-		
+
 		private double getFitnessOnTarget(DoubleFittedCodeFragment cf)
 		{
 			Double fitness = cf.getFitnessOnTarget();
@@ -271,7 +271,7 @@ public class SourceFilteredFittedCFKB extends CodeFragmentKB
 				fitness = ind.fitness.fitness();
 				cf.setFitnessOnTarget(fitness);
 			}
-			
+
 			return fitness;
 		}
 
@@ -280,11 +280,11 @@ public class SourceFilteredFittedCFKB extends CodeFragmentKB
 		{
 			// Do nothing.
 		}
-		
+
 	} // class TournamentExtractor
 
 	@Override
-	public KnowledgeExtractor getKnowledgeExtractor() 
+	public KnowledgeExtractor getKnowledgeExtractor()
 	{
 		return new TournamentExtractor();
 	}
@@ -292,10 +292,10 @@ public class SourceFilteredFittedCFKB extends CodeFragmentKB
 
 	/**
 	 * Adds an item to this knowledge base. This method does not have access to source domain and as
-	 * a result, it will consider the fitness of the item in target domain also as its fitness on 
-	 * source domain. It is better not to use this method unless there is a very good reason that 
+	 * a result, it will consider the fitness of the item in target domain also as its fitness on
+	 * source domain. It is better not to use this method unless there is a very good reason that
 	 * considers this fact.
-	 * @param item an item to be added to this knowledge base. This method will ignore the item if 
+	 * @param item an item to be added to this knowledge base. This method will ignore the item if
 	 * it is {@code null}.
 	 * @return {@code true} if the given item is added to repository and {@code false} otherwise.
 	 */
@@ -329,7 +329,7 @@ public class SourceFilteredFittedCFKB extends CodeFragmentKB
 	}
 
 	@Override
-	public boolean removeItem(GPNode item) 
+	public boolean removeItem(GPNode item)
 	{
 		if (item == null)
 		{
@@ -348,7 +348,7 @@ public class SourceFilteredFittedCFKB extends CodeFragmentKB
 	}
 
 	@Override
-	public boolean contains(GPNode item) 
+	public boolean contains(GPNode item)
 	{
 		if (item == null)
 		{

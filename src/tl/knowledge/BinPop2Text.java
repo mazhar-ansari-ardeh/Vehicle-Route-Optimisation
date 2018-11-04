@@ -10,7 +10,32 @@ import tl.knowledge.codefragment.fitted.DoubleFittedCodeFragment;
 
 public class BinPop2Text
 {
+	public static void main(String[] args) throws ClassNotFoundException, IOException
+	{
+		String path = "/am/vuwstocoisnrin1.vuw.ac.nz/grid-solar/sgeusers/mazhar/./stats/Poly0-writeknow/";
+		boolean printFitness = true;
+		if(args.length >= 1)
+			path = args[0];
+
+		Properties p = loadSettings();
+		printFitness = p.getProperty("load-fitness", "true").equals("true");
+		String graphType = p.getProperty("graph-type", "dot");
+
+		Path rootPath = Paths.get(path);
+		ArrayList<Path> regularFilePaths = Files.list(rootPath)
+				.filter(Files::isRegularFile).filter(file -> file.getFileName().toString().endsWith(".bin") || file.getFileName().toString().endsWith(".cf"))
+				.collect(Collectors.toCollection(ArrayList::new));
+
+		regularFilePaths.forEach(System.out::println);
+
+		for(Path file: regularFilePaths)
+		{
+			process(file, printFitness, graphType);
+		}
+	}
+
 	final static String SettingFile = "BinPop2Text.ini";
+
 	static Properties loadSettings()
 	{
 		Properties p = new Properties();
@@ -135,28 +160,5 @@ public class BinPop2Text
 		}
 	}
 
-	public static void main(String[] args) throws ClassNotFoundException, IOException
-	{
-		String path = "/vol/grid-solar/sgeusers/mazhar/stats/Poly5-wk-1-500-20/";
-		boolean printFitness = true;
-		if(args.length >= 1)
-			path = args[0];
-
-		Properties p = loadSettings();
-		printFitness = p.getProperty("load-fitness", "true").equals("true");
-		String graphType = p.getProperty("graph-type", "dot");
-
-		Path rootPath = Paths.get(path);
-		ArrayList<Path> regularFilePaths = Files.list(rootPath)
-				.filter(Files::isRegularFile).filter(file -> file.getFileName().toString().endsWith(".bin") || file.getFileName().toString().endsWith(".cf"))
-				.collect(Collectors.toCollection(ArrayList::new));
-
-		regularFilePaths.forEach(System.out::println);
-
-		for(Path file: regularFilePaths)
-		{
-			process(file, printFitness, graphType);
-		}
-	}
 
 }

@@ -66,7 +66,7 @@ public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
 	public String toString()
 	{
 		return "["
-					+ (codeFragment == null ? "null" : codeFragment.makeCTree(false, false, false))
+					+ (codeFragment == null ? "null" : codeFragment.makeCTree(false, true, true))
 					+ "," + Integer.toString(counter)
 					+ "]";
 	}

@@ -58,7 +58,7 @@ public class SimpleCodeFragmentKB extends CodeFragmentKB
 		System.out.println("Inside SimpleCodeFragmentKB.addFrom");
 		if (p == null)
 		{
-			System.out.println("Population is null. Exiting");
+			state.output.fatal("Population is null. Exiting");
 			return false;
 		}
 

@@ -129,7 +129,7 @@ public class FilteredFittedCodeFragmentBuilder extends HalfBuilder
 		SourceFilteredFittedCFKB knowledgeBase = new SourceFilteredFittedCFKB(state
 	    		, (GPProblem)state.evaluator.p_problem, fitness, tournamentSize, filterSize);
 
-		knowledgeBase.addFrom(kbFile, state, extractionMethod);
+		knowledgeBase.extractFrom(kbFile, extractionMethod);
 		extractor = knowledgeBase.getKnowledgeExtractor();;
 		state.output.warning("FilteredFittedCodeFragmentBuilder loaded. Tournament size: "
 				+ tournamentSize + ", filter size: " + filterSize);

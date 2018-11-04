@@ -68,7 +68,7 @@ public class FittedCodeFragmentBuilder extends CodeFragmentBuilder
 			return;
 		}
 
-		knowledgeBase.addFrom(kbFile, state, extractionMethod);
+		knowledgeBase.extractFrom(kbFile, extractionMethod);
 		extractor  = knowledgeBase.getKnowledgeExtractor();
 
 		state.output.warning("FittedCodeFragmentBuilder loaded. Tournament size: " + tournamentSize);

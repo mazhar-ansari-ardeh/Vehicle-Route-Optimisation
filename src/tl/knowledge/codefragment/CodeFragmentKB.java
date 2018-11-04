@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
 
-import ec.EvolutionState;
 import ec.Individual;
 import ec.Population;
 import ec.Subpopulation;
@@ -20,9 +19,9 @@ import tl.gp.TreeSlicer;
 import tl.knowledge.KnowledgeItem;
 import tl.knowledge.KnowlegeBase;
 
+// TODO: The design of this class needs a major overhaul.
 public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 {
-
 	/**
 	 * Adds a new item to the repository. If the repository contains the given item,
 	 * the method will not modify the knowledge base and returns <code>false</code>.
@@ -153,8 +152,7 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 	 * @return <code>true</code> if the function added items from <code>population</code> to this
 	 * base and <code>false</code> otherwise.
 	 */
-	@Deprecated
-	public boolean addFrom(File file, EvolutionState state, KnowledgeExtractionMethod method)
+	public boolean extractFrom(File file, KnowledgeExtractionMethod method)
 	{
 		if (file == null)
 		{
@@ -189,7 +187,7 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 				}
 			}
 
-			System.out.println("Going into: addFrom(2). Which one will it be?");
+			// System.out.println("Going into: addFrom(2). Which one will it be?");
 			return addFrom(pop, method);
 		} catch (FileNotFoundException e)
 		{
@@ -279,6 +277,6 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 			return false;
 		}
 
-		return removeItem(item.getItem());
+		return contains(item.getItem());
 	}
 }

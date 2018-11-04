@@ -66,7 +66,7 @@ public class SimpleCodeFragmentBuilder extends HalfBuilder
 
 		SimpleCodeFragmentKB knowledgeBase = new SimpleCodeFragmentKB(state, transferPercent);
 
-		knowledgeBase.addFrom(kbFile, state, extractionMethod);
+		knowledgeBase.extractFrom(kbFile, extractionMethod);
 		extractor = knowledgeBase.getKnowledgeExtractor();
 		state.output.warning("SimpleCodeFragmentBuilder loaded. Transfer percent: "
 							 + transferPercent + ", extraction method: " + extractionMethod);
@@ -108,6 +108,8 @@ public class SimpleCodeFragmentBuilder extends HalfBuilder
 			}
 	}
 
+	private static int cfCounter = 0;
+
 
 	public GPNode newRootedTree(final EvolutionState state, final GPType type, final int thread,
 			final GPNodeParent parent, final GPFunctionSet set,	final int argposition,
@@ -119,11 +121,11 @@ public class SimpleCodeFragmentBuilder extends HalfBuilder
 			log(state, cf, knowledgeSuccessLogID);
 			GPNode node = cf.getItem();
 			node.parent = parent;
-			System.out.println("Loaded a CF: " + node.makeCTree(false, false, false));
+//			System.out.println("Loaded a CF: " + node.makeCTree(false, false, false));
 			return node;
 		}
-		else
-			System.out.println("CF is null");
+//		else
+//			System.out.println("CF is null");
 		if (state.random[thread].nextDouble() < pickGrowProbability)
 			return growNode(state,0,state.random[thread].nextInt(maxDepth-minDepth+1) + minDepth,type,thread,parent,argposition,set);
 		else
@@ -132,7 +134,7 @@ public class SimpleCodeFragmentBuilder extends HalfBuilder
 
 	private void log(EvolutionState state, CodeFragmentKI it, int logID)
 	{
-		state.output.println(it.toString(), logID);
+		state.output.println(cfCounter++ + ": \t" + it.toString(), logID);
 		state.output.flush();
 		state.output.println("", logID);
 	}
