@@ -70,14 +70,15 @@ public class MySimpleCodeFragmentBuilder extends HalfBuilder
 		KnowledgeExtractionMethod extractionMethod = KnowledgeExtractionMethod.parse(extraction);
 
 		Parameter transferPercentParam = base.push(P_TRANSFER_PERCENT);
-		transferPercent = state.parameters.getInt(transferPercentParam, null);
+		transferPercent = state.parameters.getIntWithDefault(transferPercentParam, null, -1);
 
 		MySimpleCodeFragmentKB knowledgeBase = new MySimpleCodeFragmentKB(state, transferPercent);
 
 		knowledgeBase.extractFrom(kbFile, extractionMethod);
 		extractor = knowledgeBase.getKnowledgeExtractor();
 		state.output.warning("MYSimpleCodeFragmentBuilder loaded. Transfer percent: "
-							 + transferPercent + ", extraction method: " + extractionMethod);
+							 + transferPercent + ", extraction method: " + extractionMethod 
+							 + ", transfer percent: " + transferPercent);
 
 		try {
 			Parameter knowledgeLogFileNameParam = base.push(P_KNOWLEDGE_LOG_FILE_NAME);
@@ -124,20 +125,20 @@ public class MySimpleCodeFragmentBuilder extends HalfBuilder
 	{
 		int popSize = state.parameters.getInt(new Parameter("pop.subpop.0.size"), null);
 		int numToTransfer = Math.round(popSize * transferPercent / 100f);
-		if(transferCount < numToTransfer)
+		if(numToTransfer >= 0 && transferCount < numToTransfer)
 		{
-		CodeFragmentKI cf = (CodeFragmentKI) extractor.getNext();
-		if(cf != null)
-		{
-			log(state, cf, knowledgeSuccessLogID);
-			GPNode node = cf.getItem();
-			node.parent = parent;
-			transferCount++;
-			// System.out.println("Loaded a CF: " + node.makeCTree(false, false, false));
-			return node;
-		}
-//		else
-//			System.out.println("CF is null");
+			CodeFragmentKI cf = (CodeFragmentKI) extractor.getNext();
+			if(cf != null)
+			{
+				log(state, cf, knowledgeSuccessLogID);
+				GPNode node = cf.getItem();
+				node.parent = parent;
+				transferCount++;
+				// System.out.println("Loaded a CF: " + node.makeCTree(false, false, false));
+				return node;
+			}
+	//		else
+	//			System.out.println("CF is null");
 		}
 		if (state.random[thread].nextDouble() < pickGrowProbability)
 			return growNode(state,0,state.random[thread].nextInt(maxDepth-minDepth+1) + minDepth,type,thread,parent,argposition,set);
