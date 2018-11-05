@@ -73,7 +73,7 @@ public class FittedCodeFragmentKB extends CodeFragmentKB
 					best = selected;
 			}
 
-			repository.get(best).increaseCounter();
+			repository.get(best).incrementCounter();
 			return repository.get(best);
 		}
 

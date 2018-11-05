@@ -13,7 +13,9 @@ public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
 	private static final long serialVersionUID = 1L;
 
 	GPNode codeFragment;
-	int counter;
+	int useCounter;
+	
+	private int duplicateCount = 0;
 
 	protected CodeFragmentKI()
 	{
@@ -29,23 +31,33 @@ public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
 		}
 
 		this.codeFragment = codeFragment;
-		this.counter = 0;
+		this.useCounter = 0;
+	}
+	
+	public void incrementDuplicateCount()
+	{
+		duplicateCount++;
+	}
+	
+	public int getDuplicateCount()
+	{
+		return duplicateCount;
 	}
 
-	public void increaseCounter()
+	public void incrementCounter()
 	{
-		counter++;
+		useCounter++;
 	}
 
 	int getCounter()
 	{
-		return counter;
+		return useCounter;
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return codeFragment.hashCode();
+		return codeFragment.rootedTreeHashCode();
 	}
 
 	@Override
@@ -58,7 +70,7 @@ public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
 	{
 		return "["
 					+ (codeFragment == null ? "null" : codeFragment.makeGraphvizTree())
-					+ "," + Integer.toString(counter)
+					+ "," + Integer.toString(useCounter) + ", " + Integer.toString(duplicateCount)
 					+ "]";
 	}
 
@@ -67,7 +79,7 @@ public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
 	{
 		return "["
 					+ (codeFragment == null ? "null" : codeFragment.makeCTree(false, true, true))
-					+ "," + Integer.toString(counter)
+					+ "," + Integer.toString(useCounter) + ", " + Integer.toString(duplicateCount)
 					+ "]";
 	}
 }

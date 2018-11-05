@@ -130,10 +130,12 @@ public class MySimpleCodeFragmentKB extends CodeFragmentKB
 		}
 
 		CodeFragmentKI cfItem = new CodeFragmentKI(item);
-		if(repository.containsKey(item.hashCode()))
+		if(repository.containsKey(cfItem.hashCode()))
+		{
+			repository.get(cfItem.hashCode()).incrementDuplicateCount();
 			return false;
-
-		repository.put(item.hashCode(), cfItem);
+		}
+		repository.put(cfItem.hashCode(), cfItem);
 
 
 		return true;

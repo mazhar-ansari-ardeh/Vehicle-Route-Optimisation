@@ -6,7 +6,6 @@ import ec.gp.GPIndividual;
 import ec.gp.GPProblem;
 import ec.multiobjective.MultiObjectiveFitness;
 import ec.util.Parameter;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import tl.gp.KnowledgeableProblemForm;
 import tl.problems.regression.VectorData;
 
@@ -100,7 +99,8 @@ public class RegressionProblem extends GPProblem implements KnowledgeableProblem
 			double x = rangeMin + (state.random[threadnum].nextDouble() * (rangeMax - rangeMin));
 			VectorData input = new VectorData(x);
 
-			((GPIndividual)ind).trees[0].child.eval(state, threadnum, input, stack, (GPIndividual)ind, this);
+			((GPIndividual)ind).trees[0].child.eval(state, threadnum, input, stack, 
+					(GPIndividual)ind, this);
 			double expectedResult = doCalculation(x);
 			result = Math.pow(input.getResult() - expectedResult, 2);
 
@@ -114,12 +114,12 @@ public class RegressionProblem extends GPProblem implements KnowledgeableProblem
 
 	protected double doCalculation(double x)
 	{
-		throw new NotImplementedException();
+		throw new RuntimeException("Not implemented");
 	}
 
 	@Override
 	public int getEvalCount()
 	{
-		throw new NotImplementedException();
+		throw new RuntimeException("Not implemented");
 	}
 }
