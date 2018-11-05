@@ -17,21 +17,30 @@ public class MySimpleCodeFragmentBuilder extends HalfBuilder
 	private static final long serialVersionUID = 1L;
 
 	public static final String P_KNOWLEDGE_FILE = "knowledge-file";
+	
 	public static final String P_KNOWLEDGE_TOURNAMENT_SIZE = "knowledge-tournament-size";
-
-	/**
-	 * The default value for tournament size of the knowledge base. This value will be
-	 * used if the <code>P_KNOWLEDGE_TOURNAMENT_SIZE</code> is not present.
-	 */
-	public static final int DEFAULT_KNOWLEDGE_TOURNAMENT_SIZE = 10;
 
 	public static final String P_FILTER_SIZE = "knowledge-filter-size";
 
 	public static final String P_KNOWLEDGE_LOG_FILE_NAME = "knowledge-log-file";
+	
+	public static final String P_KNOWLEDGE_EXTRACTION = "knowledge-extraction";
+	
+	public static final String P_TRANSFER_PERCENT = "transfer-percent";
+	
 
 	private static KnowledgeExtractor extractor = null;
 
 	private int knowledgeSuccessLogID;
+
+	/**
+	 * Percentage of the source domain knowledge to be transferred. In this implementation, this 
+	 * percentage is used both on source and target domains so that for example, a value of .75 
+	 * means that 75% of individuals in source domain will be considered for knowledge extraction
+	 * and also, at most, 75% of individuals in target domain will also be created with transferred 
+	 * knowledge.
+	 */
+	private int transferPercent;
 
 
 	@Override
@@ -56,12 +65,12 @@ public class MySimpleCodeFragmentBuilder extends HalfBuilder
 //				null, Fitness.class);
 //		fitness.setup(state, problemParam);
 
-		Parameter knowledgeExtraction = base.push("knowledge-extraction");
+		Parameter knowledgeExtraction = base.push(P_KNOWLEDGE_EXTRACTION);
 		String extraction = state.parameters.getString(knowledgeExtraction, null);
 		KnowledgeExtractionMethod extractionMethod = KnowledgeExtractionMethod.parse(extraction);
 
-		Parameter transferPercentParam = base.push("transfer-percent");
-		int transferPercent = state.parameters.getInt(transferPercentParam, null);
+		Parameter transferPercentParam = base.push(P_TRANSFER_PERCENT);
+		transferPercent = state.parameters.getInt(transferPercentParam, null);
 
 		MySimpleCodeFragmentKB knowledgeBase = new MySimpleCodeFragmentKB(state, transferPercent);
 
@@ -108,21 +117,28 @@ public class MySimpleCodeFragmentBuilder extends HalfBuilder
 	}
 
 
+	private int transferCount = 0;
 	public GPNode newRootedTree(final EvolutionState state, final GPType type, final int thread,
 			final GPNodeParent parent, final GPFunctionSet set,	final int argposition,
 			final int requestedSize)
 	{
+		int popSize = state.parameters.getInt(new Parameter("pop.subpop.0.size"), null);
+		int numToTransfer = Math.round(popSize * transferPercent / 100f);
+		if(transferCount < numToTransfer)
+		{
 		CodeFragmentKI cf = (CodeFragmentKI) extractor.getNext();
 		if(cf != null)
 		{
 			log(state, cf, knowledgeSuccessLogID);
 			GPNode node = cf.getItem();
 			node.parent = parent;
+			transferCount++;
 			// System.out.println("Loaded a CF: " + node.makeCTree(false, false, false));
 			return node;
 		}
 //		else
 //			System.out.println("CF is null");
+		}
 		if (state.random[thread].nextDouble() < pickGrowProbability)
 			return growNode(state,0,state.random[thread].nextInt(maxDepth-minDepth+1) + minDepth,type,thread,parent,argposition,set);
 		else
