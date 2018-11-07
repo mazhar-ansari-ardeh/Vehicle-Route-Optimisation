@@ -1,0 +1,7 @@
+parent.0=/am/kings/home1/mazhar/MyPhD/SourceCodes/gpucarp/src/tl/gphhucarp/carp_param_base.param
+
+# stat.file=$./stats/source/job.0.out.stat
+stat.gen-pop-file=./stats/source/population.gen
+eval.problem.eval-model.instances.0.file=gdb/gdb21.dat
+eval.problem.eval-model.instances.0.vehicles=6
+seed.0=2
