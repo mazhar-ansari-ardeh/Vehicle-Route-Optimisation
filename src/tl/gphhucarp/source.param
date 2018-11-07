@@ -1,4 +1,4 @@
-parent.0=/am/kings/home1/mazhar/MyPhD/SourceCodes/gpucarp/src/tl/gphhucarp/carp_param_base.param
+parent.0=carp_param_base.param
 
 # stat.file=$./stats/source/job.0.out.stat
 stat.gen-pop-file=./stats/source/population.gen
