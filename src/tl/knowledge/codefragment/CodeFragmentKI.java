@@ -12,9 +12,19 @@ public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
 	 */
 	private static final long serialVersionUID = 1L;
 
-	GPNode codeFragment;
-	int useCounter;
-	
+	private GPNode codeFragment;
+
+	/**
+	 * Number of times that this item has been used. A value of zero means that the item was not
+	 * used at all.
+	 */
+	private int useCounter = 0;
+
+	/**
+	 * Number of times that a duplicate of this item was found in source domain.
+	 * A value of zero for this field means that the item did not have any duplicate in the source
+	 * domain.
+	 */
 	private int duplicateCount = 0;
 
 	protected CodeFragmentKI()
@@ -31,14 +41,16 @@ public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
 		}
 
 		this.codeFragment = codeFragment;
-		this.useCounter = 0;
 	}
-	
+
 	public void incrementDuplicateCount()
 	{
+//		if(duplicateCount < 0)
+//			duplicateCount = 0;
+
 		duplicateCount++;
 	}
-	
+
 	public int getDuplicateCount()
 	{
 		return duplicateCount;
@@ -46,6 +58,9 @@ public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
 
 	public void incrementCounter()
 	{
+//		if(useCounter < 0)
+//			useCounter = 0;
+
 		useCounter++;
 	}
 

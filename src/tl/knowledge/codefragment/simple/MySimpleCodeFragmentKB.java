@@ -1,10 +1,13 @@
-package tl.knowledge;
+package tl.knowledge.codefragment.simple;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import ec.EvolutionState;
 import ec.Individual;
@@ -209,9 +212,25 @@ public class MySimpleCodeFragmentKB extends CodeFragmentKB
 	{
 		Iterator<Integer> iter;
 
+		private Iterator<Integer> getIterator()
+		{
+			LinkedHashMap<Integer, CodeFragmentKI> rep = repository.entrySet().stream().sorted((entry1, entry2) ->
+			{
+				int entry1Count = entry1.getValue().getDuplicateCount();
+				int entry2Count = entry2.getValue().getDuplicateCount();
+				if(entry1Count < entry2Count)
+					return 1;
+				if(entry1Count > entry2Count)
+					return -1;
+				return 0;
+			})
+			.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
+			return rep.keySet().iterator();
+		}
+
 		public CodeFragmentKnowledgeExtractor()
 		{
-			 iter = repository.keySet().iterator();
+			iter = getIterator();
 		}
 
 		@Override
@@ -224,7 +243,11 @@ public class MySimpleCodeFragmentKB extends CodeFragmentKB
 		public CodeFragmentKI getNext()
 		{
 			if(iter.hasNext())
-				return repository.get(iter.next());
+			{
+				CodeFragmentKI retval = repository.get(iter.next());
+				retval.incrementCounter();
+				return retval;
+			}
 			else
 				return null;
 		}
@@ -232,7 +255,7 @@ public class MySimpleCodeFragmentKB extends CodeFragmentKB
 		@Override
 		public void reset()
 		{
-			 iter = repository.keySet().iterator();
+			 iter = getIterator();
 		}
 	}
 }

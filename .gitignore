@@ -3,6 +3,7 @@
 
 # param and stat are the directories that contain experiment parameter files and outputs. 
 
+stat
 stats
 params
 

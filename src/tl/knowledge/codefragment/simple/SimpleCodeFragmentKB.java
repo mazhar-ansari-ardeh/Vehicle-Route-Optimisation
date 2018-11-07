@@ -227,7 +227,11 @@ public class SimpleCodeFragmentKB extends CodeFragmentKB
 		public CodeFragmentKI getNext()
 		{
 			if(iter.hasNext())
-				return repository.get(iter.next());
+			{
+				CodeFragmentKI retval = repository.get(iter.next());
+				retval.incrementCounter();
+				return retval;
+			}
 			else
 				return null;
 		}

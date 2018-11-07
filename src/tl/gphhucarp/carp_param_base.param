@@ -1,94 +1,84 @@
 # ==============================
-# The training results
+# The problem: UCARP
 # ==============================
-policy-type = gp-evolved
-#policy-type = manual
 
-# for manual policies
-manual-policies = 1
-manual-policies.0 = gphhucarp.decisionprocess.routingpolicy.PathScanning5Policy
-
-# for gp-evolved policies
-############ ToChange
-train-path = ./stats/gdb21-v6to7-wk-0.5-20-100/
-solution-type = simple-solution
-fitness-type = simple-fitness
-num-trains = 1
-
-# ==============================
-# The test set
-# ==============================
-state = ec.simple.SimpleEvolutionState
-eval = ec.simple.SimpleEvaluator
-eval.problem = gphhucarp.gp.ReactiveGPHHProblem
-eval.problem.pool-filter = gphhucarp.decisionprocess.poolfilter.ExpFeasiblePoolFilter
+eval.problem = tl.gphhucarp.ReactiveGPHHProblem
+eval.problem.pool-filter = gphhucarp.decisionprocess.poolfilter.ExpFeasibleNoRefillPoolFilter
 eval.problem.tie-breaker = gphhucarp.decisionprocess.tiebreaker.SimpleTieBreaker
 eval.problem.data = gputils.DoubleData
 eval.problem.eval-model = gphhucarp.gp.evaluation.ReactiveEvaluationModel
 eval.problem.eval-model.objectives = 1
 eval.problem.eval-model.objectives.0 = total-cost
 eval.problem.eval-model.instances = 1
-############ ToChange
-eval.problem.eval-model.instances.0.file = gdb/gdb21.dat
-eval.problem.eval-model.instances.0.samples = 500
-############ ToChange
-eval.problem.eval-model.instances.0.vehicles = 7
+eval.problem.eval-model.instances.0.samples = 5
 eval.problem.eval-model.instances.0.demand-uncertainty-level = 0.2
 eval.problem.eval-model.instances.0.cost-uncertainty-level = 0.2
-############ ToChange
-eval.problem.eval-model.seed = 25234
 
 
+# ==============================
+# The problem: Regression
+# ==============================
+
+eval.problem.data = tl.problems.regression.VectorData
+
+eval.problem.range_min = -1
+eval.problem.range_max = +1
+eval.problem.number-of-tests = 100
+
+# ==============================
+# Basic evolution parameters
+# ==============================
+# state = ec.simple.SimpleEvolutionState
+state = gphhucarp.gp.GPHHEvolutionState
+finish = ec.simple.SimpleFinisher
+exch = ec.simple.SimpleExchanger
+breed = ec.simple.SimpleBreeder
+eval = ec.simple.SimpleEvaluator
+
+stat = tl.gp.FCFStatistics
+stat.save-pop = true
+stat.save-tree = false
+#stat.num-children = 1
+#stat.child.0 = ec.gp.koza.KozaShortStatistics
+#stat.child.0.file = $outtabular.stat
+
+generations = 50
+quit-on-run-complete = true
+
+pop = ec.Population
+pop.subpops = 1
+pop.subpop.0 = ec.Subpopulation
+pop.subpop.0.size = 500
+
+breed.elite.0 = 10
 
 
+stat.file=$./stats/job.0.out.stat
+stat.gen-pop-file=./stats/population.gen
+# seed.0 = time
+erc.min = -2
+erc.max = +2
 
 
+# ==============================
+# The GPHH evolution state parameters
+# ==============================
+terminals-from = extended
+include-erc = true
+rotate-eval-model = true
 
-
-
-
-
-# ========================================================================
-# ========================================================================
-# The below parameters are only for making ECJ runnable.
-# They have nothing to do with the GP testing.
-# ========================================================================
-# ========================================================================
+#print-unaccessed-params = true
+#print-used-params = true
 
 # ==============================
 # Administrative parameters
 # ==============================
 evalthreads = 1
 breedthreads = 1
-seed.0 = 0
+# seed.0 = time
 checkpoint = false
 checkpoint-modulo = 1
 checkpoint-prefix = ec
-
-# ==============================
-# Basic evolution parameters
-# ==============================
-state = gphhucarp.gp.GPHHEvolutionState
-finish = ec.simple.SimpleFinisher
-exch = ec.simple.SimpleExchanger
-breed =	ec.simple.SimpleBreeder
-eval = ec.simple.SimpleEvaluator
-stat = ec.simple.SimpleStatistics
-stat.file = $out.stat
-#stat.num-children = 1
-#stat.child.0 = ec.gp.koza.KozaShortStatistics
-#stat.child.0.file = $outtabular.stat
-
-generations = 51
-quit-on-run-complete = true
-
-pop = ec.Population
-pop.subpops = 1
-pop.subpop.0 = ec.Subpopulation
-pop.subpop.0.size =	1024
-
-breed.elite.0 = 10
-
 
 # ==============================
 # GP general parameters
@@ -101,7 +91,7 @@ pop.subpop.0.species.ind.numtrees = 1
 pop.subpop.0.species.ind.tree.0 = ec.gp.GPTree
 pop.subpop.0.species.ind.tree.0.tc = tc0
 
-#pop.subpop.0.species.fitness = ec.gp.koza.KozaFitness
+# pop.subpop.0.species.fitness = ec.gp.koza.KozaFitness
 pop.subpop.0.species.fitness = ec.multiobjective.MultiObjectiveFitness
 pop.subpop.0.species.fitness.num-objectives = 1
 pop.subpop.0.species.fitness.maximize = false
@@ -256,3 +246,24 @@ gp.fs.0.func.6 = gputils.function.Min
 gp.fs.0.func.6.nc = nc2
 gp.fs.0.func.7 = gputils.function.If
 gp.fs.0.func.7.nc = nc3
+
+
+
+
+# ==============================
+# Knowledge Extraction parameters
+# ==============================
+# The parameters in this group are used by the Knowledge Extraction class 'CFExtrat'
+
+cfextract.max-size = -1
+
+
+# ==============================
+# Test-specific parameters
+# ==============================
+# This value is only used during the testing
+
+num-trains = 1
+policy-type = gp-evolved
+solution-type = simple-solution
+fitness-type = simple-fitness

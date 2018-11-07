@@ -118,12 +118,15 @@ public class SimpleCodeFragmentBuilder extends HalfBuilder
 		CodeFragmentKI cf = (CodeFragmentKI) extractor.getNext();
 		if(cf != null)
 		{
+			cfCounter++;
 			log(state, cf, knowledgeSuccessLogID);
 			GPNode node = cf.getItem();
 			node.parent = parent;
 //			System.out.println("Loaded a CF: " + node.makeCTree(false, false, false));
 			return node;
 		}
+		else
+			log(state, null, knowledgeSuccessLogID);
 //		else
 //			System.out.println("CF is null");
 		if (state.random[thread].nextDouble() < pickGrowProbability)
@@ -134,7 +137,7 @@ public class SimpleCodeFragmentBuilder extends HalfBuilder
 
 	private void log(EvolutionState state, CodeFragmentKI it, int logID)
 	{
-		state.output.println(cfCounter++ + ": \t" + it.toString(), logID);
+		state.output.println(cfCounter + ": \t" + (it == null ? "null" : it.toString()), logID);
 		state.output.flush();
 		state.output.println("", logID);
 	}
