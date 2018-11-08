@@ -4,10 +4,12 @@ import java.util.ArrayList;
 
 import ec.EvolutionState;
 import ec.Fitness;
+import ec.Population;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import ec.gp.GPProblem;
 import ec.gp.GPTree;
+import tl.gp.KnowledgeExtractionMethod;
 import tl.knowledge.KnowledgeExtractor;
 import tl.knowledge.codefragment.CodeFragmentKB;
 
@@ -152,5 +154,19 @@ public class FittedCodeFragmentKB extends CodeFragmentKB
 				return true;
 
 		return false;
+	}
+
+
+	@Override
+	public boolean extractFrom(GPIndividual gpIndividual, KnowledgeExtractionMethod method)
+	{
+		throw new RuntimeException();
+	}
+
+
+	@Override
+	public boolean extractFrom(Population population, KnowledgeExtractionMethod method)
+	{
+		throw new RuntimeException();
 	}
 }
