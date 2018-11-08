@@ -1,21 +1,10 @@
 package tl.knowledge.codefragment;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.util.ArrayList;
+import java.io.*;
 
-import ec.Individual;
-import ec.Population;
-import ec.Subpopulation;
-import ec.gp.GPIndividual;
-import ec.gp.GPNode;
-import ec.gp.GPSpecies;
+import ec.*;
+import ec.gp.*;
 import tl.gp.KnowledgeExtractionMethod;
-import tl.gp.TreeSlicer;
 import tl.knowledge.KnowledgeItem;
 import tl.knowledge.KnowlegeBase;
 
@@ -59,7 +48,7 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 	 *
 	 * @author Mazhar
 	 */
-	public abstract boolean addItem(GPNode item);
+	protected abstract boolean addItem(GPNode item);
 
 	/**
 	 * Extracts code fragments from the given <code>gpIndividual</code> and adds them to this base.
@@ -72,33 +61,33 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 	 * base and <code>false</code> otherwise.
 	 */
 
-	public boolean addFrom(GPIndividual gpIndividual, KnowledgeExtractionMethod method)
-	{
-		if (gpIndividual == null)
-		{
-			return false;
-		}
-
-		ArrayList<GPNode> nodes = null;
-		switch(method)
-		{
-		case AllSubtrees:
-			nodes = TreeSlicer.sliceAllToNodes(gpIndividual, false);
-			break;
-		case RootSubtree:
-			nodes = TreeSlicer.sliceRootChildrenToNodes(gpIndividual, false);
-			break;
-		default:
-			throw new IllegalArgumentException();
-		}
-
-		nodes.forEach(node ->
-			{
-				addItem(node);
-			});
-
-		return !nodes.isEmpty();
-	}
+	public abstract boolean extractFrom(GPIndividual gpIndividual, KnowledgeExtractionMethod method);
+//	{
+//		if (gpIndividual == null)
+//		{
+//			return false;
+//		}
+//
+//		ArrayList<GPNode> nodes = null;
+//		switch(method)
+//		{
+//		case AllSubtrees:
+//			nodes = TreeSlicer.sliceAllToNodes(gpIndividual, false);
+//			break;
+//		case RootSubtree:
+//			nodes = TreeSlicer.sliceRootChildrenToNodes(gpIndividual, false);
+//			break;
+//		default:
+//			throw new IllegalArgumentException();
+//		}
+//
+//		nodes.forEach(node ->
+//			{
+//				addItem(node);
+//			});
+//
+//		return !nodes.isEmpty();
+//	}
 
 	/**
 	 * Extracts code fragments from the given <code>Population</code> object and adds them to this
@@ -111,31 +100,31 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 	 * @return <code>true</code> if the function added items from <code>population</code> to this
 	 * base and <code>false</code> otherwise.
 	 */
-	public boolean addFrom(Population population, KnowledgeExtractionMethod method)
-	{
-		System.out.println("Inside CodeFragmentKB.addFrom");
-		if (population == null)
-		{
-			System.out.println("Population is empty");
-			return false;
-		}
-
-		boolean added = false;
-		for(Subpopulation sub : population.subpops)
-		{
-			if(!(sub.species instanceof GPSpecies)
-			|| !(sub.species.i_prototype instanceof GPIndividual))
-				continue;
-			for(Individual ind : sub.individuals)
-			{
-				if( addFrom((GPIndividual)ind, method) == true)
-					added = true;
-			}
-		}
-
-		System.out.println("Exiting CodeFragmentKB.addFrom(pop, method)");
-		return added;
-	}
+	public abstract boolean extractFrom(Population population, KnowledgeExtractionMethod method);
+//	{
+//		System.out.println("Inside CodeFragmentKB.addFrom");
+//		if (population == null)
+//		{
+//			System.out.println("Population is empty");
+//			return false;
+//		}
+//
+//		boolean added = false;
+//		for(Subpopulation sub : population.subpops)
+//		{
+//			if(!(sub.species instanceof GPSpecies)
+//			|| !(sub.species.i_prototype instanceof GPIndividual))
+//				continue;
+//			for(Individual ind : sub.individuals)
+//			{
+//				if( extractFrom((GPIndividual)ind, method) == true)
+//					added = true;
+//			}
+//		}
+//
+//		System.out.println("Exiting CodeFragmentKB.addFrom(pop, method)");
+//		return added;
+//	}
 
 	/**
 	 * Extracts code fragments that are stored inside the given <code>file</code> object and adds
@@ -156,17 +145,17 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 	{
 		if (file == null)
 		{
-			System.out.println("File is null");
+//			System.out.println("File is null");
 			return false;
 		}
 
-		System.out.println("Inside CodeFragmentKB.addFrom. File:" + file.getAbsolutePath());
+//		System.out.println("Inside CodeFragmentKB.addFrom. File:" + file.getAbsolutePath());
 
 		boolean added = false;
 		try(ObjectInputStream dis = new ObjectInputStream(
 				new BufferedInputStream(new FileInputStream(file), 20 * 1024)))
 		{
-			System.out.println("Loading file");
+//			System.out.println("Loading file");
 			int nsub = dis.readInt();
 			Population pop = new Population();
 			pop.subpops = new Subpopulation[nsub];
@@ -188,7 +177,7 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 			}
 
 			// System.out.println("Going into: addFrom(2). Which one will it be?");
-			return addFrom(pop, method);
+			return extractFrom(pop, method);
 		} catch (FileNotFoundException e)
 		{
 			e.printStackTrace();

@@ -56,7 +56,7 @@ public class MySimpleCodeFragmentKB extends CodeFragmentKB
 	}
 
 	@Override
-	public boolean addFrom(Population p, KnowledgeExtractionMethod method)
+	public boolean extractFrom(Population p, KnowledgeExtractionMethod method)
 	{
 		System.out.println("Inside SimpleCodeFragmentKB.addFrom");
 		if (p == null)
@@ -65,7 +65,7 @@ public class MySimpleCodeFragmentKB extends CodeFragmentKB
 			return false;
 		}
 
-		Comparator<Individual> com2 = (Individual o1, Individual o2) ->
+		Comparator<Individual> comp = (Individual o1, Individual o2) ->
 		{
 			if(o1.fitness.fitness() < o2.fitness.fitness())
 				return -1;
@@ -75,7 +75,7 @@ public class MySimpleCodeFragmentKB extends CodeFragmentKB
 			return 1;
 		};
 
-		Arrays.sort(p.subpops[0].individuals, com2);
+		Arrays.sort(p.subpops[0].individuals, comp);
 
 		boolean added = false;
 		int sampleSize = (int) Math.round(k * p.subpops[0].individuals.length);
@@ -83,13 +83,13 @@ public class MySimpleCodeFragmentKB extends CodeFragmentKB
 		System.out.println("Sample size in MYSimpleCodeFragmentKB.addFrom: " + sampleSize);
 		for(int i = 0; i < sampleSize; i++)
 		{
-			added |= addFrom((GPIndividual)p.subpops[0].individuals[i], method);
+			added |= extractFrom((GPIndividual)p.subpops[0].individuals[i], method);
 		}
 
 		return added;
 	}
 
-	public boolean addFrom(GPIndividual gpIndividual, KnowledgeExtractionMethod method)
+	public boolean extractFrom(GPIndividual gpIndividual, KnowledgeExtractionMethod method)
 	{
 		if (gpIndividual == null)
 		{

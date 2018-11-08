@@ -53,7 +53,7 @@ public class SimpleCodeFragmentKB extends CodeFragmentKB
 	}
 
 	@Override
-	public boolean addFrom(Population p, KnowledgeExtractionMethod method)
+	public boolean extractFrom(Population p, KnowledgeExtractionMethod method)
 	{
 		System.out.println("Inside SimpleCodeFragmentKB.addFrom");
 		if (p == null)
@@ -80,13 +80,13 @@ public class SimpleCodeFragmentKB extends CodeFragmentKB
 		System.out.println("Sample size in SimpleCodeFragmentKB.addFrom: " + sampleSize);
 		for(int i = 0; i < sampleSize; i++)
 		{
-			added |= addFrom((GPIndividual)p.subpops[0].individuals[i], method);
+			added |= extractFrom((GPIndividual)p.subpops[0].individuals[i], method);
 		}
 
 		return added;
 	}
 
-	public boolean addFrom(GPIndividual gpIndividual, KnowledgeExtractionMethod method)
+	public boolean extractFrom(GPIndividual gpIndividual, KnowledgeExtractionMethod method)
 	{
 		if (gpIndividual == null)
 		{

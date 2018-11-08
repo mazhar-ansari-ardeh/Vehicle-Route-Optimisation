@@ -27,11 +27,22 @@ public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
 	 */
 	private int duplicateCount = 0;
 
-	protected CodeFragmentKI()
-	{
-//		codeFragment = null;
-//		counter = 0;
-	}
+	/**
+	 * If a sourceGene
+	 */
+	public final String FINAL_SOURCE_GENERATION = "final-gen";
+
+	/**
+	 * The generation of the source domain that this code fragment was extracted from.
+	 * An empty value means that this field is not set.
+	 */
+	private String origin = "";
+
+//	protected CodeFragmentKI()
+//	{
+////		codeFragment = null;
+////		counter = 0;
+//	}
 
 	public CodeFragmentKI(GPNode codeFragment)
 	{
@@ -41,6 +52,12 @@ public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
 		}
 
 		this.codeFragment = codeFragment;
+	}
+
+	public CodeFragmentKI(GPNode codeFragment, String origin)
+	{
+		this(codeFragment);
+		this.origin = origin;
 	}
 
 	public void incrementDuplicateCount()
@@ -81,11 +98,17 @@ public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
 		return codeFragment;
 	}
 
+	public String getOrigin()
+	{
+		return origin;
+	}
+
 	public String toDotString()
 	{
 		return "["
 					+ (codeFragment == null ? "null" : codeFragment.makeGraphvizTree())
 					+ "," + Integer.toString(useCounter) + ", " + Integer.toString(duplicateCount)
+					+ ", o: " + origin
 					+ "]";
 	}
 
@@ -95,6 +118,6 @@ public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
 		return "["
 					+ (codeFragment == null ? "null" : codeFragment.makeCTree(false, true, true))
 					+ "," + Integer.toString(useCounter) + ", " + Integer.toString(duplicateCount)
-					+ "]";
+					+ ", o:" + origin + "]";
 	}
 }
