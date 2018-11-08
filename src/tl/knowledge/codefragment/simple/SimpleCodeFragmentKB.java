@@ -220,7 +220,7 @@ public class SimpleCodeFragmentKB extends CodeFragmentKB
 		@Override
 		public boolean hasNext()
 		{
-			return !repository.isEmpty();
+			return iter.hasNext();
 		}
 
 		@Override
