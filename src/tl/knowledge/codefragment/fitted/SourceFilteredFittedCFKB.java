@@ -154,7 +154,7 @@ public class SourceFilteredFittedCFKB extends CodeFragmentKB
 	 */
 	@Deprecated // TODO: Maybe it is better to throw a NotSupported exception.
 	@Override
-	public boolean addFrom(Population population, KnowledgeExtractionMethod method)
+	public boolean extractFrom(Population population, KnowledgeExtractionMethod method)
 	{
 		if(method == KnowledgeExtractionMethod.ExactCodeFragment)
 			throw new IllegalArgumentException("This extraction method is not supported: "
@@ -171,7 +171,7 @@ public class SourceFilteredFittedCFKB extends CodeFragmentKB
 
 		boolean added = false;
 		for(int i = 0; i < filterSize; i++)
-			added |= addFrom((GPIndividual) q.poll(), method);
+			added |= extractFrom((GPIndividual) q.poll(), method);
 
 		return added;
 	}
@@ -194,7 +194,7 @@ public class SourceFilteredFittedCFKB extends CodeFragmentKB
 	 */
 	@Deprecated
 	@Override
-	public boolean addFrom(GPIndividual gpIndividual, KnowledgeExtractionMethod method)
+	public boolean extractFrom(GPIndividual gpIndividual, KnowledgeExtractionMethod method)
 	{
 		if(method == KnowledgeExtractionMethod.ExactCodeFragment)
 			throw new IllegalArgumentException("This extraction method is not supported: "
