@@ -3,12 +3,7 @@ package tl.knowledge.codefragment.simple;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 
 import ec.EvolutionState;
 import ec.Individual;
@@ -34,7 +29,7 @@ public class TLGPCriptorKB extends CodeFragmentKB
 	// concurrency.
 	ConcurrentHashMap<Integer, CodeFragmentKI> repository = new ConcurrentHashMap<>();
 
-	private double knowledgeProbability;
+//	private double knowledgeProbability;
 
 	EvolutionState state;
 
@@ -44,12 +39,12 @@ public class TLGPCriptorKB extends CodeFragmentKB
 		super();
 	}
 
-	public TLGPCriptorKB(EvolutionState state, int knowledgeProbability)
+	public TLGPCriptorKB(EvolutionState state)
 	{
-		if(knowledgeProbability > 1)
-			throw new IllegalArgumentException("Knowledge probability must be a value between 0 and"
-					+ " 1.");
-		this.knowledgeProbability = knowledgeProbability;
+//		if(knowledgeProbability > 1)
+//			throw new IllegalArgumentException("Knowledge probability must be a value between 0 and"
+//					+ " 1.");
+//		this.knowledgeProbability = knowledgeProbability;
 		this.state = state;
 	}
 
@@ -100,7 +95,6 @@ public class TLGPCriptorKB extends CodeFragmentKB
 			boolean added = false;
 			for(GPNode node : allNodes)
 				added |= addItem(node);
-			// TODO: Put filters on extracted code fragments.
 			return added;
 		default:
 			throw new IllegalArgumentException();
@@ -200,61 +194,6 @@ public class TLGPCriptorKB extends CodeFragmentKB
 	@Override
 	public KnowledgeExtractor getKnowledgeExtractor()
 	{
-		return new RandomKnowledgeExtractor();
-	}
-
-	public class RandomKnowledgeExtractor implements KnowledgeExtractor
-	{
-		Iterator<Integer> iter;
-
-		private Iterator<Integer> getIterator()
-		{
-			LinkedHashMap<Integer, CodeFragmentKI> rep = repository.entrySet().stream().sorted((entry1, entry2) ->
-			{
-				int entry1Count = entry1.getValue().getDuplicateCount();
-				int entry2Count = entry2.getValue().getDuplicateCount();
-				if(entry1Count < entry2Count)
-					return 1;
-				if(entry1Count > entry2Count)
-					return -1;
-				return 0;
-			})
-			.collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
-			return rep.keySet().iterator();
-		}
-
-		public RandomKnowledgeExtractor()
-		{
-			iter = getIterator();
-		}
-
-		@Override
-		public boolean hasNext()
-		{
-			return !repository.isEmpty();
-		}
-
-		@Override
-		public CodeFragmentKI getNext()
-		{
-			if(repository.isEmpty())
-				return null;
-			ArrayList<Entry<Integer, CodeFragmentKI>> entries = new ArrayList<>(repository.entrySet());
-			entries.get(state.random[0].nextInt(entries.size()));
-			if(iter.hasNext())
-			{
-				CodeFragmentKI retval = repository.get(iter.next());
-				retval.incrementCounter();
-				return retval;
-			}
-			else
-				return null;
-		}
-
-		@Override
-		public void reset()
-		{
-			 iter = getIterator();
-		}
+		return new RandomKnowledgeExtractor<GPNode>(repository, state.random[0]);
 	}
 }
