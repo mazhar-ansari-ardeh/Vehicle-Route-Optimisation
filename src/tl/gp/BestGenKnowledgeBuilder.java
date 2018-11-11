@@ -3,26 +3,30 @@ package tl.gp;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import ec.EvolutionState;
 import ec.gp.*;
 import ec.gp.koza.HalfBuilder;
 import ec.util.Parameter;
+import gphhucarp.gp.CalcPriorityProblem;
+import gphhucarp.gp.GPHHEvolutionState;
+import gphhucarp.gp.terminal.FeatureGPNode;
 import tl.knowledge.KnowledgeExtractor;
 import tl.knowledge.codefragment.CodeFragmentKI;
-import tl.knowledge.codefragment.simple.MySimpleCodeFragmentKB;
+import tl.knowledge.codefragment.simple.BestGenCodeFragmentKB;
 
-public class MySimpleCodeFragmentBuilder extends HalfBuilder
+public class BestGenKnowledgeBuilder extends HalfBuilder
 {
 	private static final long serialVersionUID = 1L;
 
-	public static final String P_KNOWLEDGE_FILE = "knowledge-file";
+// 	public static final String P_KNOWLEDGE_FILE = "knowledge-file";
 
 	public static final String P_KNOWLEDGE_LOG_FILE_NAME = "knowledge-log-file";
 
-	public static final String P_KNOWLEDGE_EXTRACTION = "knowledge-extraction";
+	public static final String P_KNOWLEDGE_FOLDER = "knowledge-folder";
 
-	public static final String P_TRANSFER_PERCENT = "transfer-percent";
+	public static final String P_K = "k";
 
 
 	private static KnowledgeExtractor extractor = null;
@@ -36,7 +40,7 @@ public class MySimpleCodeFragmentBuilder extends HalfBuilder
 	 * and also, at most, 75% of individuals in target domain will also be created with transferred
 	 * knowledge.
 	 */
-	private int transferPercent;
+	private int k;
 
 
 	@Override
@@ -44,37 +48,18 @@ public class MySimpleCodeFragmentBuilder extends HalfBuilder
 	{
 		super.setup(state, base);
 
-		Parameter knowledgeFileName = base.push(P_KNOWLEDGE_FILE);
-		String fileName = state.parameters.getString(knowledgeFileName, null);
-		if(fileName == null)
-		{
-			state.output.fatal("Failed to load parameter", knowledgeFileName);
-		}
-		File kbFile = new File(fileName);
-		if(kbFile.exists() == false)
-		{
-			state.output.fatal("Knowledge file does not exist: " + fileName, knowledgeFileName);
-		}
+		Parameter knowledgeFolderParam = base.push(P_KNOWLEDGE_FOLDER);
+		String knowledgeFolder = state.parameters.getString(knowledgeFolderParam, null);
+// 		KnowledgeExtractionMethod extractionMethod = KnowledgeExtractionMethod.parse(extraction);
 
-//		Parameter problemParam = new Parameter("pop.subpop.0.species.fitness");
-//		Fitness fitness = (Fitness) state.parameters.getInstanceForParameter(problemParam,
-//				null, Fitness.class);
-//		fitness.setup(state, problemParam);
+		Parameter kParam = base.push(P_K);
+		k = state.parameters.getIntWithDefault(kParam, null, -1);
 
-		Parameter knowledgeExtraction = base.push(P_KNOWLEDGE_EXTRACTION);
-		String extraction = state.parameters.getString(knowledgeExtraction, null);
-		KnowledgeExtractionMethod extractionMethod = KnowledgeExtractionMethod.parse(extraction);
+		BestGenCodeFragmentKB knowledgeBase = new BestGenCodeFragmentKB(k);
 
-		Parameter transferPercentParam = base.push(P_TRANSFER_PERCENT);
-		transferPercent = state.parameters.getIntWithDefault(transferPercentParam, null, -1);
-
-		MySimpleCodeFragmentKB knowledgeBase = new MySimpleCodeFragmentKB(state, transferPercent);
-
-		knowledgeBase.extractFrom(kbFile, extractionMethod);
+		knowledgeBase.extractFrom(Paths.get(knowledgeFolder), ".bin");
 		extractor = knowledgeBase.getKnowledgeExtractor();
-		state.output.warning("MYSimpleCodeFragmentBuilder loaded. Transfer percent: "
-							 + transferPercent + ", extraction method: " + extractionMethod
-							 + ", transfer percent: " + transferPercent);
+		state.output.warning("BestGenKnowledgeBuilder loaded. Transfer percent: " + k);
 
 		try {
 			Parameter knowledgeLogFileNameParam = base.push(P_KNOWLEDGE_LOG_FILE_NAME);
@@ -93,16 +78,6 @@ public class MySimpleCodeFragmentBuilder extends HalfBuilder
 									   + pathToSuccDir.toString());
 			}
 
-			Path pathToFailFile = successKnLog.toPath();
-			Path pathToFailDir = pathToFailFile.getParent();
-			if(pathToFailDir != null)
-			{
-				File statDirFile = pathToFailDir.toFile();
-				if(statDirFile.exists() == false && statDirFile.mkdirs() == false)
-					state.output.fatal("Failed to create stat directory: "
-									   + pathToFailDir.toString());
-			}
-
 			successKnLog.createNewFile();
 
 			knowledgeSuccessLogID = state.output.addLog(successKnLog, false);
@@ -119,9 +94,27 @@ public class MySimpleCodeFragmentBuilder extends HalfBuilder
 			final GPNodeParent parent, final GPFunctionSet set,	final int argposition,
 			final int requestedSize)
 	{
+//		GPHHEvolutionState s = (GPHHEvolutionState) state;
+//		class CB extends FeatureGPNode {
+//			private static final long serialVersionUID = 1L;
+//			public CB()
+//			{
+//				this.name = "MYMYCBCB";
+//			}
+//
+//			@Override
+//			public double value(CalcPriorityProblem calcPriorityProblem)
+//			{
+//				// TODO Auto-generated method stub
+//				return 0;
+//			}
+//
+//		}
+//		if(transferCount == 0)
+//			s.getTerminalSet(0).add(new CB());
 		int popSize = state.parameters.getInt(new Parameter("pop.subpop.0.size"), null);
-		int numToTransfer = Math.round(popSize * transferPercent / 100f);
-		if(numToTransfer >= 0 && transferCount < numToTransfer)
+		int numToTransfer = k;
+		for(int i = 0; i < numToTransfer && transferCount < popSize; i++)
 		{
 			CodeFragmentKI cf = (CodeFragmentKI) extractor.getNext();
 			if(cf != null)
@@ -131,13 +124,10 @@ public class MySimpleCodeFragmentBuilder extends HalfBuilder
 				GPNode node = cf.getItem();
 				node.parent = parent;
 				transferCount++;
-				// System.out.println("Loaded a CF: " + node.makeCTree(false, false, false));
 				return node;
 			}
 			else
 				log(state, null, knowledgeSuccessLogID);
-	//		else
-	//			System.out.println("CF is null");
 		}
 		if (state.random[thread].nextDouble() < pickGrowProbability)
 			return growNode(state,0,state.random[thread].nextInt(maxDepth-minDepth+1) + minDepth,type,thread,parent,argposition,set);

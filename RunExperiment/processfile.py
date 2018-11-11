@@ -117,14 +117,16 @@ def process_grid_output(path):
                 break
 
     for exp in experiment_ts_fitnesses:
-        print(exp + ':', end=' ')
+        print(exp + ':')
         run_values = experiment_ts_fitnesses[exp].values()
         min_val = min(run_values)
         for ind in experiment_ts_fitnesses[exp].keys():
             if min_val == experiment_ts_fitnesses[exp][ind]:
                 min_ind = ind
                 break
-        print(min_ind, ':', min(experiment_ts_fitnesses[exp].values()))
+        print('\tmin:\t ', min_ind, ':', min(experiment_ts_fitnesses[exp].values()))
+        print('\tmean:\t ', statistics.mean(experiment_ts_fitnesses[exp].values()))
+        print('\tstdev:\t ', statistics.stdev(experiment_ts_fitnesses[exp].values()))
 
 
 

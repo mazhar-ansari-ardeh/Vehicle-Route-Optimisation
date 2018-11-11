@@ -12,7 +12,7 @@ public class BinPop2Text
 {
 	public static void main(String[] args) throws ClassNotFoundException, IOException
 	{
-		String path = "/am/vuwstocoisnrin1.vuw.ac.nz/grid-solar/sgeusers/mazhar/./stats/Poly0-writeknow/";
+		String path = "/am/kings/home1/mazhar/MyPhD/SourceCodes/gpucarp/stats/target-wk/";
 		boolean printFitness = true;
 		if(args.length >= 1)
 			path = args[0];
