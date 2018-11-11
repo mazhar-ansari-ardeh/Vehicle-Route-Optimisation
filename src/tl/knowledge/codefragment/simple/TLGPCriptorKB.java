@@ -240,6 +240,7 @@ public class TLGPCriptorKB extends CodeFragmentKB
 			if(repository.isEmpty())
 				return null;
 			ArrayList<Entry<Integer, CodeFragmentKI>> entries = new ArrayList<>(repository.entrySet());
+			entries.get(state.random[0].nextInt(entries.size()));
 			if(iter.hasNext())
 			{
 				CodeFragmentKI retval = repository.get(iter.next());
