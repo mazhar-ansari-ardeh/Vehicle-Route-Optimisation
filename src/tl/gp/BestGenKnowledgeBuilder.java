@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import ec.BreedingPipeline;
 import ec.EvolutionState;
 import ec.gp.*;
 import ec.gp.koza.HalfBuilder;

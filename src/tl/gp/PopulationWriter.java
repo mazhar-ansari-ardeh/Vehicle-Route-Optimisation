@@ -5,16 +5,16 @@ import ec.*;
 
 public class PopulationWriter implements AutoCloseable
 {
-	private boolean isSaving; 
+	private boolean isSaving;
 	private File file;
 	ObjectOutputStream output = null;
-	
+
 	public PopulationWriter(String pathname, boolean save)
 	{
 		this.isSaving = save;
 		file = new File(pathname);
 	}
-	
+
 	public void prepareForWriting(Population population, Subpopulation sub) throws IOException
 	{
 		if(!isSaving)
@@ -24,21 +24,21 @@ public class PopulationWriter implements AutoCloseable
 			output = new ObjectOutputStream(new FileOutputStream(file));
 			output.writeInt(population.subpops.length);
 		}
-		
+
 		output.writeInt(sub.individuals.length);
 	}
-	
+
 	public void write(Individual ind) throws IOException
 	{
 		if(!isSaving)
 			throw new IOException("This object is not initialized for saving objects.");
-		
+
 		output.writeObject(ind);
 	}
-	
-	public static void savePopulation(Population pop, String fileName) 
+
+	public static void savePopulation(Population pop, String fileName)
 			throws FileNotFoundException, IOException
-	{	
+	{
 		File file = new File(fileName);
 		if(file.exists())
 			file.delete();
@@ -57,11 +57,10 @@ public class PopulationWriter implements AutoCloseable
 			}
 		}
 	}
-	
-	public static Population loadPopulation(String fileName) 
+
+	public static Population loadPopulation(File file)
 			throws FileNotFoundException, IOException, ClassNotFoundException, InvalidObjectException
 	{
-		File file = new File(fileName);
 		Population retval = new Population();
 		try(ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file)))
 		{
@@ -82,19 +81,26 @@ public class PopulationWriter implements AutoCloseable
 				}
 			}
 		}
-		
+
 		return retval;
 	}
 
+	public static Population loadPopulation(String fileName)
+			throws FileNotFoundException, IOException, ClassNotFoundException, InvalidObjectException
+	{
+		File file = new File(fileName);
+		return loadPopulation(file);
+	}
+
 	@Override
-	public void close() throws Exception 
+	public void close() throws Exception
 	{
 		if(output != null)
 		{
 			output.flush();
 			output.close();
 			output = null;
-			file = null; 
+			file = null;
 		}
 	}
 }

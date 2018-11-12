@@ -1,5 +1,7 @@
 package tl.knowledge.codefragment.simple;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -11,6 +13,7 @@ import ec.Population;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import tl.gp.KnowledgeExtractionMethod;
+import tl.gp.PopulationWriter;
 import tl.gp.TreeSlicer;
 import tl.knowledge.KnowledgeExtractor;
 import tl.knowledge.codefragment.*;
@@ -29,22 +32,10 @@ public class TLGPCriptorKB extends CodeFragmentKB
 	// concurrency.
 	ConcurrentHashMap<Integer, CodeFragmentKI> repository = new ConcurrentHashMap<>();
 
-//	private double knowledgeProbability;
-
 	EvolutionState state;
-
-
-	public TLGPCriptorKB()
-	{
-		super();
-	}
 
 	public TLGPCriptorKB(EvolutionState state)
 	{
-//		if(knowledgeProbability > 1)
-//			throw new IllegalArgumentException("Knowledge probability must be a value between 0 and"
-//					+ " 1.");
-//		this.knowledgeProbability = knowledgeProbability;
 		this.state = state;
 	}
 
@@ -75,10 +66,44 @@ public class TLGPCriptorKB extends CodeFragmentKB
 		state.output.warning("Sample size in TLGPCriptorKB.addFrom: " + sampleSize);
 		for(int i = 0; i < sampleSize; i++)
 		{
-			added |= extractFrom((GPIndividual)p.subpops[0].individuals[i], method);
+			added |= extractFrom((GPIndividual)p.subpops[0].individuals[i],
+					KnowledgeExtractionMethod.RootSubtree);
 		}
 
 		return added;
+	}
+
+	/**
+	 * Extracts code fragments that are stored inside the given <code>file</code> object and adds
+	 * them to this base. To do this, the function extracts code fragments from each individual that
+	 * are stored inside the given file. The function assumes that first, number of sub-populations
+	 * is written and also, it assumes that for each sub-population, first, the number of
+	 * individuals in the population is written. If the file contains objects that are not of the
+	 * type <code>GPIndividual</code>, it will ignore the object.
+	 * In the context of this class, a code fragment is a child of the root node of the given
+	 * <code>gpIndividual</code> object.
+	 * @param population A <code>Population</code> object from which code fragments will be
+	 * extracted and added to this base. If <code>population</code> is <code>null</code>, it will
+	 * be ignored.
+	 * @return <code>true</code> if the function added items from <code>population</code> to this
+	 * base and <code>false</code> otherwise.
+	 */
+	public boolean extractFrom(File file, KnowledgeExtractionMethod method)
+	{
+		if (file == null)
+		{
+			return false;
+		}
+
+		try
+		{
+			Population p = PopulationWriter.loadPopulation(file);
+			return extractFrom(p, KnowledgeExtractionMethod.RootSubtree);
+		} catch (ClassNotFoundException | IOException e)
+		{
+			throw new RuntimeException(e);
+		}
+
 	}
 
 	public boolean extractFrom(GPIndividual gpIndividual, KnowledgeExtractionMethod method)
