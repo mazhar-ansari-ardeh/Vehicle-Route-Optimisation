@@ -14,4 +14,5 @@ gp.tc.0.init.knowledge-probability=0.5
 gp.tc.0.init.k=2
 # gp.tc.0.init.knowledge-extraction=rootsubtree
 pop.subpop.0.species.pipe.source.1 = tl.gp.TLGPCriptorMutation
+pop.subpop.0.species.pipe.source.1.knowledge-log-file=./stats/target-wk/TLGPCriptorMutationLog
 pop.subpop.0.species.pipe.source.1.knowledge-probability=0.5

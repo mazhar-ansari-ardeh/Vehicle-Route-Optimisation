@@ -58,6 +58,7 @@ else
    export JAVA_HOME
    PATH="/usr/pkg/java/bin:${JAVA_HOME}/bin:${PATH}"; export PATH
 
+	chmod 777 ./gridscript_base.sh
    ./gridscript_base.sh
 fi
 

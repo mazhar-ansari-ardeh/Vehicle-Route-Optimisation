@@ -18,17 +18,14 @@ public class SimpleCodeFragmentBuilder extends HalfBuilder
 	private static final long serialVersionUID = 1L;
 
 	public static final String P_KNOWLEDGE_FILE = "knowledge-file";
-	public static final String P_KNOWLEDGE_TOURNAMENT_SIZE = "knowledge-tournament-size";
-
-	/**
-	 * The default value for tournament size of the knowledge base. This value will be
-	 * used if the <code>P_KNOWLEDGE_TOURNAMENT_SIZE</code> is not present.
-	 */
-	public static final int DEFAULT_KNOWLEDGE_TOURNAMENT_SIZE = 10;
-
-	public static final String P_FILTER_SIZE = "knowledge-filter-size";
 
 	public static final String P_KNOWLEDGE_LOG_FILE_NAME = "knowledge-log-file";
+
+	public static final String P_KNOWLEDGE_EXTRACTION_METHOD = "knowledge-extraction";
+
+	public static final String P_TRANSFER_PERCENT = "transfer-percent";
+
+
 
 	private static KnowledgeExtractor extractor = null;
 
@@ -57,11 +54,11 @@ public class SimpleCodeFragmentBuilder extends HalfBuilder
 				null, Fitness.class);
 		fitness.setup(state, problemParam);
 
-		Parameter knowledgeExtraction = base.push("knowledge-extraction");
+		Parameter knowledgeExtraction = base.push(P_KNOWLEDGE_EXTRACTION_METHOD);
 		String extraction = state.parameters.getString(knowledgeExtraction, null);
 		KnowledgeExtractionMethod extractionMethod = KnowledgeExtractionMethod.parse(extraction);
 
-		Parameter transferPercentParam = base.push("transfer-percent");
+		Parameter transferPercentParam = base.push(P_TRANSFER_PERCENT);
 		int transferPercent = state.parameters.getInt(transferPercentParam, null);
 
 		SimpleCodeFragmentKB knowledgeBase = new SimpleCodeFragmentKB(state, transferPercent);

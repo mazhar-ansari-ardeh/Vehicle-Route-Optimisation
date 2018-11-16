@@ -15,6 +15,12 @@ import tl.knowledge.KnowledgeExtractor;
 import tl.knowledge.codefragment.CodeFragmentKI;
 import tl.knowledge.codefragment.simple.TLGPCriptorKB;
 
+/**
+ * This class, along with the {@code TLGPCriptorKB} and {@code TLGPCriptorMutation} classes,
+ * implement the idea in paper "<i>Reusing Extracted Knowledge in Genetic Programming to Solve
+ * Complex Texture Image Classification Problems</i>".
+ * @author mazhar
+ */
 public class TLGPCriptorBuilder extends HalfBuilder
 {
 	private static final long serialVersionUID = 1L;

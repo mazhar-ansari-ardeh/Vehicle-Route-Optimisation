@@ -4,7 +4,7 @@ import statistics
 from scipy import stats
 from pathlib import Path
 
-dirpath = '/vol/grid-solar/sgeusers/mazhar/gdb21-v6-to7/'
+dirpath = '/vol/grid-solar/sgeusers/mazhar/gdb21-v6-to7-14-11-18-12-40/'
 # filepath = '/vol/grid-solar/sgeusers/mazhar/gdb21-v6-to7/gdb21-v6to7.sh.o3465564.30'
 
 generations = 100
@@ -116,6 +116,12 @@ def process_grid_output(path):
                 experiment_ts_fitnesses[exp][run] = ts_fit
                 break
 
+    wok_exp = ''
+    for exp in experiment_ts_fitnesses:
+        if 'wok' in exp:
+            wok_exp = exp
+            break
+
     for exp in experiment_ts_fitnesses:
         print(exp + ':')
         run_values = experiment_ts_fitnesses[exp].values()
@@ -127,6 +133,10 @@ def process_grid_output(path):
         print('\tmin:\t ', min_ind, ':', min(experiment_ts_fitnesses[exp].values()))
         print('\tmean:\t ', statistics.mean(experiment_ts_fitnesses[exp].values()))
         print('\tstdev:\t ', statistics.stdev(experiment_ts_fitnesses[exp].values()))
+        if exp == wok_exp:
+            continue
+        print("\tWilcoxon:", end='')
+        print(stats.wilcoxon(list(experiment_ts_fitnesses[exp].values()), list(experiment_ts_fitnesses[wok_exp].values()))[1])
 
 
 

@@ -5,14 +5,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import ec.BreedingPipeline;
-import ec.EvolutionState;
+import ec.*;
 import ec.gp.*;
 import ec.gp.koza.HalfBuilder;
 import ec.util.Parameter;
-import gphhucarp.gp.CalcPriorityProblem;
-import gphhucarp.gp.GPHHEvolutionState;
-import gphhucarp.gp.terminal.FeatureGPNode;
 import tl.knowledge.KnowledgeExtractor;
 import tl.knowledge.codefragment.CodeFragmentKI;
 import tl.knowledge.codefragment.simple.BestGenCodeFragmentKB;
@@ -95,36 +91,16 @@ public class BestGenKnowledgeBuilder extends HalfBuilder
 			final GPNodeParent parent, final GPFunctionSet set,	final int argposition,
 			final int requestedSize)
 	{
-//		GPHHEvolutionState s = (GPHHEvolutionState) state;
-//		class CB extends FeatureGPNode {
-//			private static final long serialVersionUID = 1L;
-//			public CB()
-//			{
-//				this.name = "MYMYCBCB";
-//			}
-//
-//			@Override
-//			public double value(CalcPriorityProblem calcPriorityProblem)
-//			{
-//				// TODO Auto-generated method stub
-//				return 0;
-//			}
-//
-//		}
-//		if(transferCount == 0)
-//			s.getTerminalSet(0).add(new CB());
 		int popSize = state.parameters.getInt(new Parameter("pop.subpop.0.size"), null);
-		int numToTransfer = k;
-		for(int i = 0; i < numToTransfer && transferCount < popSize; i++)
+		if(transferCount < popSize)
 		{
 			CodeFragmentKI cf = (CodeFragmentKI) extractor.getNext();
 			if(cf != null)
 			{
-				cfCounter++;
+				transferCount++;
 				log(state, cf, knowledgeSuccessLogID);
 				GPNode node = cf.getItem();
 				node.parent = parent;
-				transferCount++;
 				return node;
 			}
 			else
@@ -136,11 +112,9 @@ public class BestGenKnowledgeBuilder extends HalfBuilder
 			return fullNode(state,0,state.random[thread].nextInt(maxDepth-minDepth+1) + minDepth,type,thread,parent,argposition,set);
 	}
 
-	private static int cfCounter = 0;
-
 	private void log(EvolutionState state, CodeFragmentKI it, int logID)
 	{
-		state.output.println(cfCounter + ": \t" + (it == null ? "null" : it.toString()), logID);
+		state.output.println(transferCount + ": \t" + (it == null ? "null" : it.toString()), logID);
 		state.output.flush();
 		state.output.println("", logID);
 	}

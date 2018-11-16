@@ -22,7 +22,7 @@ import tl.knowledge.codefragment.*;
  * "<i>Transfer Learning in Genetic Programming</i>". The selection between the <i>FullTransfer</i>
  * and <i>SubTree</i> methods is done through the {@code KnowledgeExtractionMethod} instance that
  * is passed to extraction methods. For a value of {@code KnowledgeExtractionMethod.Root}, the
- * <i>FullTransfer</i> method is selected. A value of {@code KnowledgeExtractionMethod.RootSubtree}
+ * <i>FullTree</i> method is selected. A value of {@code KnowledgeExtractionMethod.RootSubtree}
  * will select the <i>SubTree</i> method.
  * @author mazhar
  *

@@ -1,11 +1,8 @@
 package tl.gp;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-
 import ec.*;
 import ec.util.*;
+import tl.TLLogger;
 import tl.knowledge.KnowledgeExtractor;
 import tl.knowledge.codefragment.CodeFragmentKI;
 import ec.gp.*;
@@ -18,13 +15,11 @@ import ec.gp.koza.MutationPipeline;
  * @author mazhar
  *
  */
-public class TLGPCriptorMutation extends MutationPipeline
+public class TLGPCriptorMutation extends MutationPipeline implements TLLogger<GPNode>
 {
 	private static final long serialVersionUID = 1;
 
 	public static final String P_KNOWLEDGE_PROBABILITY = "knowledge-probability";
-
-	public static final String P_KNOWLEDGE_LOG_FILE_NAME = "knowledge-log-file";
 
 	private double knowledgeProbability;
 
@@ -46,32 +41,7 @@ public class TLGPCriptorMutation extends MutationPipeline
 		Parameter p = base.push(P_KNOWLEDGE_PROBABILITY);
 		knowledgeProbability = state.parameters.getDouble(p, null);
 
-		try {
-			Parameter knowledgeLogFileNameParam = base.push(P_KNOWLEDGE_LOG_FILE_NAME);
-			String knowledgeLogFile = state.parameters.getStringWithDefault(
-					knowledgeLogFileNameParam, null, "TLGPCriptorMutationLog");
-			File successKnLog = new File(knowledgeLogFile + ".succ.log");
-			if(successKnLog.exists())
-				successKnLog.delete();
-
-			Path pathToSuccFile = successKnLog.toPath();
-			Path pathToSuccDir = pathToSuccFile.getParent();
-			if(pathToSuccDir != null)
-			{
-				File statDirFile = pathToSuccDir.toFile();
-				if(statDirFile.exists() == false && statDirFile.mkdirs() == false)
-					state.output.fatal("Failed to create stat directory: "
-									   + pathToSuccDir.toString());
-			}
-
-			successKnLog.createNewFile();
-
-			knowledgeSuccessLogID = state.output.addLog(successKnLog, false);
-		}
-		catch (IOException e) {
-			state.output.fatal("Failed to create knowledge log file in CodeFragmentBuilder: "
-					+ e.getStackTrace().toString());
-		}
+		knowledgeSuccessLogID = setupLogger(state, base);
 	}
 
 
@@ -88,7 +58,7 @@ public class TLGPCriptorMutation extends MutationPipeline
 			// grab individuals from our source and stick 'em right into inds.
 			// we'll modify them from there
 			int m = sources[0].produce(min,max,start,subpopulation,inds,state,thread);
-			if(m != 0)
+			if(m != 1)
 				state.output.fatal("This mutator accepts only one individual from its source.");
 
 			// GPInitializer initializer = ((GPInitializer)state.initializer);
@@ -116,9 +86,9 @@ public class TLGPCriptorMutation extends MutationPipeline
 			node.argposition = (byte) selectedChild;
 			j.evaluated = false;
 			inds[start] = j;
-			log(state, item, knowledgeSuccessLogID);
 			cfCounter++;
-			return start;
+			log(state, item, cfCounter, knowledgeSuccessLogID);
+			return m;
 		}
 		else
 			return super.produce(min, max, start, subpopulation, inds, state, thread);
@@ -126,11 +96,11 @@ public class TLGPCriptorMutation extends MutationPipeline
 
 	private static int cfCounter = 0;
 
-	private void log(EvolutionState state, CodeFragmentKI it, int logID)
-	{
-		state.output.println(cfCounter + ": \t" + (it == null ? "null" : it.toString()), logID);
-		state.output.flush();
-		state.output.println("", logID);
-	}
+//	private void log(EvolutionState state, CodeFragmentKI it, int logID)
+//	{
+//		state.output.println(cfCounter + ": \t" + (it == null ? "null" : it.toString()), logID);
+//		state.output.flush();
+//		state.output.println("", logID);
+//	}
 }
 

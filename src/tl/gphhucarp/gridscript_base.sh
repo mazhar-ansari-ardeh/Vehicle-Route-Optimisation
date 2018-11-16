@@ -61,6 +61,7 @@ fi
 echo "JOB_ID: $JOB_ID"
 
 
+######################################################################################################################
 echo "Begining to write knowledge"
 java -cp .:tl.jar ec.Evolve        -file carp_param_base.param \
                                    -p stat.file="\$$WRITE_KNOW_STAT_DIR/job.0.out.stat" \
@@ -69,7 +70,10 @@ java -cp .:tl.jar ec.Evolve        -file carp_param_base.param \
                                    -p eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_SOURCE  \
                                    -p seed.0=$SGE_TASK_ID
 echo "Finished writing knowledge"
+######################################################################################################################
 
+
+######################################################################################################################
 echo "Begining to test the source problem results"
 java -cp .:tl.jar gphhucarp.gp.GPTest  -file carp_param_base.param \
                                        -p train-path=$WRITE_KNOW_STAT_DIR/ \
@@ -77,7 +81,10 @@ java -cp .:tl.jar gphhucarp.gp.GPTest  -file carp_param_base.param \
                                        -p eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_SOURCE\
                                        -p seed.0=$TEST_SEED
 echo "Finished performing test on source problem results"
+######################################################################################################################
 
+
+######################################################################################################################
 #echo "Begining to extract knowledge"
 #java -cp .:tl.jar tl.gp.CFExtractor carp_param_base.param  $WRITE_KNOW_STAT_DIR/population.gen.49.bin all $KNOWLEDGE_FILE \
 #                                                        stat.file="\$$WRITE_KNOW_STAT_DIR/job.0.out.stat" \
@@ -86,7 +93,10 @@ echo "Finished performing test on source problem results"
 #                                                        eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_SOURCE  \
 #                                                        seed.0=$SGE_TASK_ID
 #echo "Finished extracting knowledge"
+######################################################################################################################
 
+
+######################################################################################################################
 echo "Running experiment on target problem without knowledge"
 WITHOUT_KNOW_STAT_DIR="./$STAT_ROOT/$DATASET-v$NUM_VEHICLES_TARGET-wok"
 java -cp .:tl.jar ec.Evolve        -file carp_param_base.param \
@@ -105,7 +115,10 @@ java -cp .:tl.jar gphhucarp.gp.GPTest -file carp_param_base.param \
                                        -p eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_TARGET \
                                        -p seed.0=$TEST_SEED
 printf "Finished running tests on target without knowledge\n\n\n"
+######################################################################################################################
 
+
+######################################################################################################################
 printf "Running experiment on target problem with subtree50 knowledge\n\n"
 WITH_KNOW_STAT_DIR="./$STAT_ROOT/$DATASET-v$NUM_VEHICLES_SOURCE-to-$NUM_VEHICLES_TARGET-wk-subtree50"
 java -cp .:tl.jar ec.Evolve         -file carp_param_base.param \
@@ -129,9 +142,10 @@ java -cp .:tl.jar gphhucarp.gp.GPTest -file carp_param_base.param \
                                         -p eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_TARGET \
                                         -p seed.0=$TEST_SEED
 printf "Finished running tests on target with subtree knowledge\n\n\n"
+######################################################################################################################
 
 
-
+######################################################################################################################
 printf "Running experiment on target problem with subtree75 knowledge\n\n"
 WITH_KNOW_STAT_DIR="./$STAT_ROOT/$DATASET-v$NUM_VEHICLES_SOURCE-to-$NUM_VEHICLES_TARGET-wk-subtree75"
 java -cp .:tl.jar ec.Evolve         -file carp_param_base.param \
@@ -155,9 +169,10 @@ java -cp .:tl.jar gphhucarp.gp.GPTest -file carp_param_base.param \
                                         -p eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_TARGET \
                                         -p seed.0=$TEST_SEED
 printf "Finished running tests on target with subtree75 knowledge\n\n\n"
+######################################################################################################################
 
 
-
+######################################################################################################################
 printf "Running tests on target problem with MY knowledge\n\n"
 WITH_KNOW_STAT_DIR="./$STAT_ROOT/$DATASET-v$NUM_VEHICLES_SOURCE-to-$NUM_VEHICLES_TARGET-wk-MY"
 java -cp .:tl.jar ec.Evolve         -file carp_param_base.param \
@@ -181,3 +196,4 @@ java -cp .:tl.jar gphhucarp.gp.GPTest -file carp_param_base.param \
                                         -p eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_TARGET \
                                         -p seed.0=$TEST_SEED
 printf "Finished running tests on target with MY knowledge\n\n"
+######################################################################################################################
