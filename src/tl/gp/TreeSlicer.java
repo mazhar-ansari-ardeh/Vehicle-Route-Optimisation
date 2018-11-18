@@ -9,16 +9,17 @@ import ec.gp.GPTree;
 public class TreeSlicer
 {
 	/**
-	 * Extracts trees, in the form of <code>GPIndividuals</code> from a <code>GPIndividual</code> object. The method extracts
-	 * immediate children of the root of the <code>ind</code> input parameter and returns them as new <code>GPIndividual</code>
-	 * objects. <p>
-	 * <b>Note:</b> This method modifies the <code>ind</code> input parameter so that it loses all its children, even the
-	 * children that are terminals.
+	 * Extracts trees, in the form of <code>GPIndividuals</code> from a <code>GPIndividual</code>
+	 * object. The method extracts immediate children of the root of the <code>ind</code> input
+	 * parameter and returns them as new <code>GPIndividual</code> objects. <p>
+	 * <b>Note:</b> This method modifies the <code>ind</code> input parameter so that it loses all
+	 * its children, even the children that are terminals.
 	 * @param ind A <code>GPIndividual</code> to be used to extract trees from.
-	 * @param includeTerminals if <code>true</code>, the method will also extract terminals from <code>ind</code>. Otherwise,
-	 * immediate terminal children of the root of <code>ind</code> will be ignored.
-	 * @return A list of <GPIndividual> objects that are extracted from the given <code>ind</code>. The return value is never
-	 * <code>null</code>.
+	 * @param includeTerminals if <code>true</code>, the method will also extract terminals from
+	 * <code>ind</code>. Otherwise, immediate terminal children of the root of <code>ind</code> will
+	 * be ignored.
+	 * @return A list of <GPIndividual> objects that are extracted from the given <code>ind</code>.
+	 * The return value is never <code>null</code>.
 	 */
 	public static ArrayList<GPIndividual> extractToTrees(GPIndividual ind, boolean includeTerminals)
 	{
@@ -35,7 +36,8 @@ public class TreeSlicer
 		{
 			GPIndividual x = ind.lightClone();
 			x.trees[0].child = x.trees[0].child.children[i];
-			if(x.trees[0].child.children.length > 0 || (x.trees[0].child.children.length == 0 && includeTerminals))
+			if(x.trees[0].child.children.length > 0
+					|| (x.trees[0].child.children.length == 0 && includeTerminals))
 			{
 				x.trees[0].child.parent = x.trees[0];
 				retval.add(x);
@@ -49,16 +51,17 @@ public class TreeSlicer
 	}
 
 	/**
-	 * Extracts trees, in the form of <code>GPNode</code> objects from a <code>GPIndividual</code> object. The method extracts
-	 * immediate children of the root of the <code>ind</code> input parameter and returns them as new <code>GPIndividual</code>
-	 * objects. <p>
-	 * <b>Note:</b> This method modifies the <code>ind</code> input parameter so that it loses all its children, even the
-	 * children that are terminals.
+	 * Extracts trees, in the form of <code>GPNode</code> objects from a <code>GPIndividual</code>
+	 * object. The method extracts immediate children of the root of the <code>ind</code> input
+	 * parameter and returns them as new <code>GPIndividual</code> objects. <p>
+	 * <b>Note:</b> This method modifies the <code>ind</code> input parameter so that it loses all
+	 * its children, even the children that are terminals.
 	 * @param ind A <code>GPIndividual</code> to be used to extract trees from.
-	 * @param includeTerminals if <code>true</code>, the method will also extract terminals from <code>ind</code>. Otherwise,
-	 * immediate terminal children of the root of <code>ind</code> will be ignored.
-	 * @return A list of <GPIndividual> objects that are extracted from the given <code>ind</code>. The return value is never
-	 * <code>null</code>.
+	 * @param includeTerminals if <code>true</code>, the method will also extract terminals from
+	 * <code>ind</code>. Otherwise, immediate terminal children of the root of <code>ind</code>
+	 * will be ignored.
+	 * @return A list of <GPIndividual> objects that are extracted from the given <code>ind</code>.
+	 * The return value is never <code>null</code>.
 	 */
 	public static ArrayList<GPNode> sliceRootChildrenToNodes(GPIndividual ind, boolean includeTerminals)
 	{
@@ -85,13 +88,26 @@ public class TreeSlicer
 		return retval;
 	}
 
+	/**
+	 * Extracts trees, in the form of <code>GPNode</code> objects from a <code>GPIndividual</code>
+	 * object. The method extracts recursively all possible subtrees of the <code>ind</code> input
+	 * parameter and returns them.
+	 * <b>Note:</b> This method modifies the <code>ind</code> input parameter so that it loses all
+	 * its children, even the children that are terminals.
+	 * @param root A <code>GPNode</code> to be used to extract subtrees from.
+	 * @param includeTerminals if <code>true</code>, the method will also extract terminals
+	 * from <code>ind</code>. Otherwise, terminals will be ignored.
+	 * @return A list of <GPNode> objects that are extracted from the given <code>ind</code>.
+	 * The return value is never <code>null</code>.
+	 */
 	public static ArrayList<GPNode> sliceAllToNodes(GPNode root, boolean includeTerminals)
 	{
 		ArrayList<GPNode> retval = new ArrayList<>();
 		if(root == null)
 			return retval;
 
-		if(root.children == null || root.children.length == 0) // It does not have any children then it is a terminal
+		// It does not have any children then it is a terminal
+		if(root.children == null || root.children.length == 0)
 		{
 			if(includeTerminals)
 				retval.add((GPNode)root.clone());
