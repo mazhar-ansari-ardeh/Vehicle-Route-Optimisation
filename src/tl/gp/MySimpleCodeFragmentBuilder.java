@@ -18,8 +18,6 @@ public class MySimpleCodeFragmentBuilder extends HalfBuilder implements TLLogger
 
 	public static final String P_KNOWLEDGE_FILE = "knowledge-file";
 
-	public static final String P_KNOWLEDGE_LOG_FILE_NAME = "knowledge-log-file";
-
 	public static final String P_KNOWLEDGE_EXTRACTION = "knowledge-extraction";
 
 	public static final String P_TRANSFER_PERCENT = "transfer-percent";
@@ -91,13 +89,10 @@ public class MySimpleCodeFragmentBuilder extends HalfBuilder implements TLLogger
 				log(state, cf, cfCounter, knowledgeSuccessLogID);
 				GPNode node = cf.getItem();
 				node.parent = parent;
-				// System.out.println("Loaded a CF: " + node.makeCTree(false, false, false));
 				return node;
 			}
 			else
 				log(state, null, cfCounter, knowledgeSuccessLogID);
-	//		else
-	//			System.out.println("CF is null");
 		}
 		if (state.random[thread].nextDouble() < pickGrowProbability)
 			return growNode(state,0,state.random[thread].nextInt(maxDepth-minDepth+1) + minDepth,type,thread,parent,argposition,set);
