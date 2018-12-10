@@ -12,9 +12,9 @@ import ec.Individual;
 import ec.Population;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
-import tl.gp.KnowledgeExtractionMethod;
 import tl.gp.PopulationWriter;
 import tl.gp.TreeSlicer;
+import tl.knowledge.KnowledgeExtractionMethod;
 import tl.knowledge.KnowledgeExtractor;
 import tl.knowledge.codefragment.*;
 

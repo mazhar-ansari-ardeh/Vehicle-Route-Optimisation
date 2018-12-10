@@ -85,7 +85,6 @@ public class BestGenKnowledgeBuilder extends HalfBuilder
 			}
 	}
 
-
 	private int transferCount = 0;
 	public GPNode newRootedTree(final EvolutionState state, final GPType type, final int thread,
 			final GPNodeParent parent, final GPFunctionSet set,	final int argposition,

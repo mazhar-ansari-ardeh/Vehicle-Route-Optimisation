@@ -2,7 +2,10 @@ package tl.knowledge.codefragment;
 
 import java.io.Serializable;
 
+import ec.gp.GPIndividual;
 import ec.gp.GPNode;
+import ec.gp.GPTree;
+import ec.multiobjective.MultiObjectiveFitness;
 import tl.knowledge.KnowledgeItem;
 
 public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
@@ -98,6 +101,23 @@ public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
 		return codeFragment;
 	}
 
+	public GPIndividual getAsIndividual()
+	{
+		GPIndividual retval = new GPIndividual();
+		retval.trees = new GPTree[1];
+		retval.trees[0] = new GPTree();
+		retval.trees[0].child = codeFragment;
+		codeFragment.parent =retval.trees[0];
+
+		MultiObjectiveFitness fitness = new MultiObjectiveFitness();
+		fitness.objectives = new double[1];
+
+		retval.fitness = fitness;
+		retval.evaluated = false;
+
+		return retval;
+	}
+
 	public String getOrigin()
 	{
 		return origin;
@@ -107,9 +127,8 @@ public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
 	{
 		return "["
 					+ (codeFragment == null ? "null" : codeFragment.makeGraphvizTree())
-					+ "," + Integer.toString(useCounter) + ", " + Integer.toString(duplicateCount)
-					+ ", o: " + origin
-					+ "]";
+					+ ", use: " + Integer.toString(useCounter) + ", dup: "
+					+ Integer.toString(duplicateCount) + ", o: " + origin + "]";
 	}
 
 	@Override
@@ -117,7 +136,7 @@ public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
 	{
 		return "["
 					+ (codeFragment == null ? "null" : codeFragment.makeCTree(false, true, true))
-					+ "," + Integer.toString(useCounter) + ", " + Integer.toString(duplicateCount)
-					+ ", o:" + origin + "]";
+					+ ", use:" + Integer.toString(useCounter) + ", dup: "
+					+ Integer.toString(duplicateCount) + ", o:" + origin + "]";
 	}
 }

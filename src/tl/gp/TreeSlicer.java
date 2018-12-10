@@ -2,9 +2,14 @@ package tl.gp;
 
 import java.util.ArrayList;
 
+import ec.EvolutionState;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import ec.gp.GPTree;
+import ec.simple.SimpleProblemForm;
+import gputils.terminal.DoubleERC;
+import gputils.terminal.TerminalERC;
+import javafx.util.Pair;
 
 public class TreeSlicer
 {
@@ -21,7 +26,8 @@ public class TreeSlicer
 	 * @return A list of <GPIndividual> objects that are extracted from the given <code>ind</code>.
 	 * The return value is never <code>null</code>.
 	 */
-	public static ArrayList<GPIndividual> extractToTrees(GPIndividual ind, boolean includeTerminals)
+	public static ArrayList<GPIndividual> extractToTreesz(GPIndividual ind,
+			boolean includeTerminals)
 	{
 		ArrayList<GPIndividual> retval = new ArrayList<>();
 		if(ind == null)
@@ -63,7 +69,8 @@ public class TreeSlicer
 	 * @return A list of <GPIndividual> objects that are extracted from the given <code>ind</code>.
 	 * The return value is never <code>null</code>.
 	 */
-	public static ArrayList<GPNode> sliceRootChildrenToNodes(GPIndividual ind, boolean includeTerminals)
+	public static ArrayList<GPNode> sliceRootChildrenToNodes(GPIndividual ind,
+			boolean includeTerminals)
 	{
 		ArrayList<GPNode> retval = new ArrayList<>();
 		if(ind == null)
@@ -130,6 +137,122 @@ public class TreeSlicer
 
 		for(GPTree tree : ind.trees)
 			retval.addAll(sliceAllToNodes(tree.child, includeTerminals));
+
+		return retval;
+	}
+
+
+	private static void insertConstantERC(GPNode root, String featureName)
+	{
+		// It does not have any children then it is a terminal
+		if(root.children == null || root.children.length == 0)
+		{
+			if(((TerminalERC)root).getTerminal().name().equals(featureName))
+			{
+				DoubleERC constNode = new DoubleERC();
+				constNode.value = 1;
+
+				GPNode parent = (GPNode)root.parent;
+				constNode.parent = parent;
+				constNode.argposition = root.argposition;
+				parent.children[root.argposition] = constNode;
+				root.parent = null;
+			}
+			return;
+		}
+		for(GPNode child : root.children)
+		{
+			insertConstantERC(child, featureName);
+		}
+	}
+
+	public static Pair<Double, Double> getFeatureContribution(EvolutionState state, GPIndividual ind
+			, String featureName)
+	{
+		ind.evaluated = false;
+		((SimpleProblemForm)state.evaluator.p_problem).evaluate(state, ind, 0, 0);
+		double oldFitness = ind.fitness.fitness();
+
+		System.out.println(oldFitness);
+ 		System.out.println(ind.trees[0].child.makeGraphvizTree());
+
+		GPIndividual gind = (GPIndividual)ind.clone();
+
+		insertConstantERC(gind.trees[0].child, featureName);
+
+		gind.evaluated = false;
+		((SimpleProblemForm)state.evaluator.p_problem).evaluate(state, gind, 0, 0);
+		double newFitness = gind.fitness.fitness();
+		System.out.println(newFitness);
+		System.out.println(gind.trees[0].child.makeGraphvizTree());
+
+		return new Pair<>(oldFitness, newFitness);
+	}
+
+	private static double getSubtreeContrib(EvolutionState state, GPIndividual theIndividual,
+			GPNode theNode)
+	{
+		// Insert the constant into the original tree
+		DoubleERC constNode = new DoubleERC();
+		constNode.value = 1;
+		constNode.parent = theNode.parent;
+		GPNode parent = (GPNode) theNode.parent;
+		parent.children[theNode.argposition] = constNode;
+
+		// Evaluate the tree with the inserted constant
+		theIndividual.evaluated = false;
+		((SimpleProblemForm)state.evaluator.p_problem).evaluate(state, theIndividual, 0, 0);
+		double newFitness = theIndividual.fitness.fitness();
+
+		// Replace back the constant
+		theNode.parent = parent;
+		parent.children[theNode.argposition] = theNode;
+		constNode.parent = null;
+
+		return newFitness;
+	}
+
+	public static ArrayList<Pair<GPNode, Double>> sliceAllWithContrib(EvolutionState state,
+			GPIndividual theIndividual, GPNode root, boolean includeTerminals)
+	{
+		ArrayList<Pair<GPNode, Double>> retval = new ArrayList<>();
+		if(root == null)
+			return retval;
+
+		// It does not have any children then it is a terminal
+		if(root.children == null || root.children.length == 0)
+		{
+			if(includeTerminals)
+			{
+				double theFitness = getSubtreeContrib(state, theIndividual, root);
+				retval.add(new Pair<>((GPNode)root.clone(), theFitness));
+			}
+			return retval;
+		}
+		GPNode rootClone = (GPNode)root.clone();
+		rootClone.parent = null;
+
+		double newFitness = getSubtreeContrib(state, theIndividual, root);
+
+		retval.add(new Pair<>(rootClone, newFitness));
+
+		for(int i = 0; i < root.children.length; i++)
+			retval.addAll(sliceAllWithContrib(state, theIndividual, root.children[i],
+					includeTerminals));
+
+		return retval;
+	}
+
+	public static ArrayList<Pair<GPNode, Double>> sliceAllWithContrib(EvolutionState state,
+											GPIndividual ind, boolean includeTerminals)
+	{
+		ArrayList<Pair<GPNode, Double>> retval = new ArrayList<>();
+		if(ind == null)
+			return retval;
+
+		GPIndividual gind = (GPIndividual) ind.clone();
+		for(GPTree tree : gind.trees)
+			retval.addAll(sliceAllWithContrib(state, gind, tree.child, includeTerminals));
 
 		return retval;
 	}

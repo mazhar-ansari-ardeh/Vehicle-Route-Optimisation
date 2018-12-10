@@ -9,6 +9,7 @@ import ec.Fitness;
 import ec.gp.*;
 import ec.gp.koza.HalfBuilder;
 import ec.util.Parameter;
+import tl.knowledge.KnowledgeExtractionMethod;
 import tl.knowledge.KnowledgeExtractor;
 import tl.knowledge.codefragment.CodeFragmentKI;
 import tl.knowledge.codefragment.simple.SimpleCodeFragmentKB;
@@ -24,7 +25,6 @@ public class SimpleCodeFragmentBuilder extends HalfBuilder
 	public static final String P_KNOWLEDGE_EXTRACTION_METHOD = "knowledge-extraction";
 
 	public static final String P_TRANSFER_PERCENT = "transfer-percent";
-
 
 
 	private static KnowledgeExtractor extractor = null;

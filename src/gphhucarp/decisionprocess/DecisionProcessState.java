@@ -82,7 +82,7 @@ public class DecisionProcessState {
 
         initTaskToTaskMap();
         initRouteToTaskMap();
-        initFloodMaps();
+//        initFloodMaps();
     }
 
     public DecisionProcessState(Instance instance, long seed) {
@@ -294,14 +294,14 @@ public class DecisionProcessState {
             taskToTaskMap.get(anotherTask).remove(task.getInverse());
         }
 
-        for (Arc floodTask : floodMap.get(task))
-            onFloodMap.get(floodTask).remove(task);
-
-        for (Arc floodTask : floodMap.get(task.getInverse()))
-            onFloodMap.get(floodTask).remove(task.getInverse());
-
-        floodMap.remove(task);
-        floodMap.remove(task.getInverse());
+//        for (Arc floodTask : floodMap.get(task))
+//            onFloodMap.get(floodTask).remove(task);
+//
+//        for (Arc floodTask : floodMap.get(task.getInverse()))
+//            onFloodMap.get(floodTask).remove(task.getInverse());
+//
+//        floodMap.remove(task);
+//        floodMap.remove(task.getInverse());
 
     }
 

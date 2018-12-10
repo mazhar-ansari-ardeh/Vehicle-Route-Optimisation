@@ -19,11 +19,11 @@ eval.problem.eval-model.instances.0.cost-uncertainty-level = 0.2
 # The problem: Regression
 # ==============================
 
-eval.problem.data = tl.problems.regression.VectorData
+# eval.problem.data = tl.problems.regression.VectorData
 
-eval.problem.range_min = -1
-eval.problem.range_max = +1
-eval.problem.number-of-tests = 100
+# eval.problem.range_min = -1
+# eval.problem.range_max = +1
+# eval.problem.number-of-tests = 100
 
 # ==============================
 # Basic evolution parameters

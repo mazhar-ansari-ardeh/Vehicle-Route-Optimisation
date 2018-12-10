@@ -3,71 +3,81 @@ import re
 import statistics
 from scipy import stats
 from pathlib import Path
+import subprocess
+import matplotlib.pyplot as plt
 
-dirpath = '/vol/grid-solar/sgeusers/mazhar/gdb21-v6-to7-14-11-18-12-40/'
 # filepath = '/vol/grid-solar/sgeusers/mazhar/gdb21-v6-to7/gdb21-v6to7.sh.o3465564.30'
 
-generations = 100
-def processfile(path):
-    fitnesses = []
-    with open(path) as file:
-        for line in file:
-            if not line.startswith('Generation'):
-                continue
+# generations = 100
+# def processfile(path):
+#     fitnesses = []
+#     with open(path) as file:
+#         for line in file:
+#             if not line.startswith('Generation'):
+#                 continue
 
-            fitnesses.append(float(line.split(" = ")[-1]))
+#             fitnesses.append(float(line.split(" = ")[-1]))
 
-    wo = fitnesses[100:200]
-    wi = fitnesses[200:300]
+#     wo = fitnesses[100:200]
+#     wi = fitnesses[200:300]
 
-    # print(min(wo), min(wi))
-    return [wo[-1], min(wo), wi[-1], min(wi)]
+#     # print(min(wo), min(wi))
+#     return [wo[-1], min(wo), wi[-1], min(wi)]
 
-def getColumn(resutls, index):
-    col = []
-    for ind in resutls.keys():
-        col.append(resutls[ind][index])
+# def getColumn(resutls, index):
+#     col = []
+#     for ind in resutls.keys():
+#         col.append(resutls[ind][index])
 
-    return col
+#     return col
 
 
-def processexperiment(path):
-    w = os.walk(path)
-    files = next(w)[-1]
-    files = sorted(files)
-    results = {}
+# def processexperiment(path):
+#     w = os.walk(path)
+#     files = next(w)[-1]
+#     files = sorted(files)
+#     results = {}
 
-    for file in files:
-        if re.search(r'e\d+', file):
-            continue
+#     for file in files:
+#         if re.search(r'e\d+', file):
+#             continue
 
-        results[int(file.split('.')[-1])] = processfile(path + file)
+#         results[int(file.split('.')[-1])] = processfile(path + file)
 
-    out = open(dirpath + 'summary.csv', 'w')
-    out.write('run, without - last, without - best, with - last, with - best\n')
-    for ind in sorted(results.keys()):
-        line = ','.join(map(str, [ind, *results[ind]]))
-        out.write(line + '\n')
+#     out = open(dirpath + 'summary.csv', 'w')
+#     out.write('run, without - last, without - best, with - last, with - best\n')
+#     for ind in sorted(results.keys()):
+#         line = ','.join(map(str, [ind, *results[ind]]))
+#         out.write(line + '\n')
 
-    wo_last_col = getColumn(results, 0)
-    wo_best_col = getColumn(results, 1)
-    wi_last_col = getColumn(results, 2)
-    wi_best_col = getColumn(results, 3)
+#     wo_last_col = getColumn(results, 0)
+#     wo_best_col = getColumn(results, 1)
+#     wi_last_col = getColumn(results, 2)
+#     wi_best_col = getColumn(results, 3)
 
-    wo_last, wo_best, wi_last, wi_best = map(min, [wo_last_col, wo_best_col, wi_last_col, wi_best_col])
-    out.write(','.join(map(str, ['min', wo_last, wo_best, wi_last, wi_best])) + '\n')
+#     wo_last, wo_best, wi_last, wi_best = map(min, [wo_last_col, wo_best_col, wi_last_col, wi_best_col])
+#     out.write(','.join(map(str, ['min', wo_last, wo_best, wi_last, wi_best])) + '\n')
     
-    wo_last_mean, wo_best_mean, wi_last_mean, wi_best_mean = map(statistics.mean, [wo_last_col, wo_best_col, wi_last_col, wi_best_col])
-    out.write(','.join(map(str, ['mean', wo_last_mean, wo_best_mean, wi_last_mean, wi_best_mean])) + '\n')
+#     wo_last_mean, wo_best_mean, wi_last_mean, wi_best_mean = map(statistics.mean, [wo_last_col, wo_best_col, wi_last_col, wi_best_col])
+#     out.write(','.join(map(str, ['mean', wo_last_mean, wo_best_mean, wi_last_mean, wi_best_mean])) + '\n')
     
-    wo_last_std, wo_best_std, wi_last_std, wi_best_std = map(statistics.stdev, [wo_last_col, wo_best_col, wi_last_col, wi_best_col])
-    out.write(','.join(map(str, ['std', wo_last_std, wo_best_std, wi_last_std, wi_best_std ])) + '\n')
+#     wo_last_std, wo_best_std, wi_last_std, wi_best_std = map(statistics.stdev, [wo_last_col, wo_best_col, wi_last_col, wi_best_col])
+#     out.write(','.join(map(str, ['std', wo_last_std, wo_best_std, wi_last_std, wi_best_std ])) + '\n')
 
-    wilcox_last = stats.wilcoxon(wo_last_col, wi_last_col)
-    wilcox_best = stats.wilcoxon(wo_best_col, wi_best_col)
-    out.write(','.join(map(str, ['wilcox', '',  wilcox_last, '', wilcox_best])) + '\n')
+#     wilcox_last = stats.wilcoxon(wo_last_col, wiexi_last_col)
+#     wilcox_best = stats.wilcoxon(wo_best_col, wi_best_col)
+#     out.write(','.join(map(str, ['wilcox', '',  wilcox_last, '', wilcox_best])) + '\n')
 
-    out.close()
+#     out.close()
+
+dirpath = '/vol/grid-solar/sgeusers/mazhar/val9C-v6-to7-depthed-frequent/'
+generations = 50
+
+def bin_to_txt_pop(path_to_folder, print_output = True):
+    '''Convert binary population to text population'''
+
+    tmp_path = str(path_to_folder)
+    subprocess.call(['java', '-jar', 'tl.jar', tmp_path])
 
 def process_csv(file, train_fitness_ind = 6, test_fitness_ind = 7):
     file = open(file)
@@ -87,58 +97,318 @@ def process_csv(file, train_fitness_ind = 6, test_fitness_ind = 7):
 
     return train_fitness[-1], test_fitness[-1]
 
-def process_grid_output(path):
-    path = Path(path)
-    (_, folders, _) = next(os.walk(path))
+def process_grid_output(experiment_path):
+    experiment_path = Path(experiment_path)
+    (_, runs, _) = next(os.walk(experiment_path))
 
     experiment_tr_fitnesses = {}
     experiment_ts_fitnesses = {}
-    for run in folders:
+
+    for run in runs:
         if run.isnumeric() == False:
             continue
         
-        (_, experiments, _) = next(os.walk(path / run / 'stats'))
-        for exp in experiments:
-            if not exp in experiment_tr_fitnesses:
-                experiment_tr_fitnesses[exp] = {}
-            if not exp in experiment_ts_fitnesses: 
-                experiment_ts_fitnesses[exp] = {}
-            if not (path / run / 'stats' / exp / 'test').exists():
-                continue 
+        (_, experiments, _) = next(os.walk(experiment_path / run / 'stats'))
+        for algorithm in experiments:
+            # inside the directory: experiment_path/run/stats/algorithm/ 
 
-            (_, _, files) = next(os.walk(path / run / 'stats' / exp / 'test'))
-            for file in files: 
+            # Convert binary population to text population
+            # bin_to_txt_pop(experiment_path / run / 'stats' / algorithm)
+
+            if not algorithm in experiment_tr_fitnesses:
+                experiment_tr_fitnesses[algorithm] = {}  
+            if not algorithm in experiment_ts_fitnesses: 
+                experiment_ts_fitnesses[algorithm] = {}
+ 
+            if not (experiment_path / run / 'stats' / algorithm / 'test').exists():
+                continue 
+            (_, _, files) = next(os.walk(experiment_path / run / 'stats' / algorithm / 'test'))
+            for file in files:
+                # inside the directory: experiment_path/run/stats/algorithm/test
+
+
                 if not file.endswith('.csv'):
                     continue
 
-                tr_fit, ts_fit = process_csv(path / run / 'stats' / exp / 'test' / file)
-                experiment_tr_fitnesses[exp][run] = tr_fit
-                experiment_ts_fitnesses[exp][run] = ts_fit
+                tr_fit, ts_fit = process_csv(experiment_path / run / 'stats' / algorithm / 'test' / file)
+                experiment_tr_fitnesses[algorithm][run] = tr_fit
+                experiment_ts_fitnesses[algorithm][run] = ts_fit
                 break
 
     wok_exp = ''
-    for exp in experiment_ts_fitnesses:
-        if 'wok' in exp:
-            wok_exp = exp
+    for algorithm in experiment_ts_fitnesses:
+        if 'wok' in algorithm:
+            wok_exp = algorithm
             break
 
-    for exp in experiment_ts_fitnesses:
-        print(exp + ':')
-        run_values = experiment_ts_fitnesses[exp].values()
+    for algorithm in experiment_ts_fitnesses:
+        print(algorithm + ':')
+        run_values = experiment_ts_fitnesses[algorithm].values()
         min_val = min(run_values)
-        for ind in experiment_ts_fitnesses[exp].keys():
-            if min_val == experiment_ts_fitnesses[exp][ind]:
+        for ind in experiment_ts_fitnesses[algorithm].keys():
+            if min_val == experiment_ts_fitnesses[algorithm][ind]:
                 min_ind = ind
                 break
-        print('\tmin:\t ', min_ind, ':', min(experiment_ts_fitnesses[exp].values()))
-        print('\tmean:\t ', statistics.mean(experiment_ts_fitnesses[exp].values()))
-        print('\tstdev:\t ', statistics.stdev(experiment_ts_fitnesses[exp].values()))
-        if exp == wok_exp:
+        print('\tmin:\t ', min_ind, ':', min(experiment_ts_fitnesses[algorithm].values()))
+        print('\tmean:\t ', statistics.mean(experiment_ts_fitnesses[algorithm].values()))
+        print('\tstdev:\t ', statistics.stdev(experiment_ts_fitnesses[algorithm].values()))
+        if algorithm == wok_exp:
             continue
         print("\tWilcoxon:", end='')
-        print(stats.wilcoxon(list(experiment_ts_fitnesses[exp].values()), list(experiment_ts_fitnesses[wok_exp].values()))[1])
+        print(stats.wilcoxon(list(experiment_ts_fitnesses[algorithm].values()), list(experiment_ts_fitnesses[wok_exp].values()))[1])
+
+
+
+
+def load_csv(file, comma=','):
+    
+    csv_matrix = []
+    for line in open(file):
+        line = line.strip('\n')
+        items = line.split(comma)
+        items = map(lambda item: item.strip('\t').strip(' '), items)
+        csv_matrix.append(list(items))
+
+    return csv_matrix
+
+def iterate_grid_output(experiment_path):
+
+    # Folder structure is 'experiment_path/run/stats/algorithm/test'
+
+    # experiment_path is the top-level folder that contains all the runs: 
+    experiment_path = Path(experiment_path)
+    (_, runs, _) = next(os.walk(experiment_path))
+
+    gen_mean_tr = {}
+    gen_mean_ts = {}
+
+    # experiment_tr_fitnesses = {}
+    experiment_ts_fitnesses = {}
+
+    def update_gen_mean_tr():
+        nonlocal gen_mean_tr
+        csv = load_csv(experiment_path / run / 'stats' / algorithm / 'population.gen.statistics')
+        if not algorithm in gen_mean_tr:
+            gen_mean_tr[algorithm] = {}
+        for gen in range(generations):
+            if not gen in gen_mean_tr[algorithm]:
+                gen_mean_tr[algorithm][gen] = {}
+            gen_mean_tr[algorithm][gen][int(run)] = float(csv[gen][3])
+            # if gen == 9 and ('wok' in algorithm):
+            #     print(run, ': ', float(csv[gen][3]))
+
+    def update_gen_mean_ts(file):
+        nonlocal gen_mean_ts
+        csv = load_csv(file)
+        if not algorithm in gen_mean_ts:
+            gen_mean_ts[algorithm] = {}
+        for gen in range(generations):
+            if not gen in gen_mean_ts[algorithm]:
+                gen_mean_ts[algorithm][gen] = {}
+            gen_mean_ts[algorithm][gen][int(run)] = float(csv[gen + 1][7])
+            # if 'wok' in algorithm and gen == 7:
+            #     print(run, ':', gen_mean_ts[algorithm][gen][int(run)])
+
+
+    def checkKnowTrace():
+        # tree_regex = r'\[([A-Z]|\s|[a-z]|[+\-*/]|\(|\)|\d|\.)+'
+
+        if 'wok' in algorithm:
+            return
+
+        (_, _, files) = next(os.walk(experiment_path / run / 'stats' / algorithm))
+        knowFile = [file for file in files if file.endswith('.log')]
+        if not knowFile:
+            print('Could not file knowledge file', algorithm)
+            return 
+        knowFile = knowFile[0]
+
+        knowledge_items = []
+        for line in open(experiment_path / run/ 'stats' / algorithm / knowFile):
+            if 'null' in line or not line.strip():
+                continue
+
+            orig_line = line
+            line = line.split(',')[0]
+            line = line[line.find('[') + 1:]
+            line = line.lstrip('(').rstrip(')')
+            knowledge_items.append((line, orig_line))
+
+        for a_file in files:
+            if not a_file.endswith('.ind'):
+                continue 
+
+            for line in open(experiment_path / run/ 'stats' / algorithm / a_file):
+                for item in knowledge_items:
+                    if item[0] in line:
+                        print('Found: ', item[1], 'in\n', line, 'of', algorithm + '/' + a_file, '\n')
+
+        
+
+    def get_exp_stats():
+        nonlocal experiment_ts_fitnesses
+
+        # if not algorithm in experiment_tr_fitnesses:
+        #     experiment_tr_fitnesses[algorithm] = {}  
+        if not algorithm in experiment_ts_fitnesses: 
+            experiment_ts_fitnesses[algorithm] = {}
+
+        if not test_file.endswith('.csv'):
+            return
+
+        # tr_fit, ts_fit = process_csv(experiment_path / run / 'stats' / algorithm / 'test' / test_file)
+        # experiment_tr_fitnesses[algorithm][run] = tr_fit
+        # experiment_ts_fitnesses[algorithm][run] = ts_fit
+
+        csv_matrix = load_csv(experiment_path / run / 'stats' / algorithm / 'test' / test_file)
+        ts_fit = float(csv_matrix[-1][7])
+        # experiment_tr_fitnesses[algorithm][run] = tr_fit
+        experiment_ts_fitnesses[algorithm][run] = ts_fit
+
+    def save_exp_stats():
+        wok_exp = ''
+        for algorithm in experiment_ts_fitnesses:
+            if 'wok' in algorithm:
+                wok_exp = algorithm
+                break
+
+        if not Path(experiment_path.name).exists(): 
+            Path(experiment_path.name).mkdir()
+
+        csv_file = open(f'{experiment_path.name + "/" + "stats"}.csv', 'w')
+        csv_file.write('Algorithm, Min, Mean, Stdev, WilcoxPVal\n')
+
+        for algorithm in experiment_ts_fitnesses:
+            run_values = experiment_ts_fitnesses[algorithm].values()
+            print(algorithm, run_values)
+            min_val = min(run_values)
+            # for ind in experiment_ts_fitnesses[algorithm].keys():
+            #     if min_val == experiment_ts_fitnesses[algorithm][ind]:
+            #         min_ind = ind
+            #         break
+            miin = min(experiment_ts_fitnesses[algorithm].values())
+            mean = statistics.mean(experiment_ts_fitnesses[algorithm].values())
+            stdev = statistics.stdev(experiment_ts_fitnesses[algorithm].values())
+            if algorithm != wok_exp:
+                pval = stats.wilcoxon(list(experiment_ts_fitnesses[algorithm].values()), list(experiment_ts_fitnesses[wok_exp].values()))[1]
+            else:
+                pval = '--'
+            if 'writeknow' in algorithm:
+                continue
+
+            csv_file.write(f'{algorithm}, {miin}, {mean}, {stdev}, {pval}\n')
+
+        csv_file.close()
+
+    def plot_mean_of_genbest_tr(gen_mean):
+        # figsize=(width, height)
+        fig_all = plt.figure(figsize=(200, 32))
+        ax_all = fig_all.add_subplot(111)
+        ax_all.set_xlabel('Generation')
+        ax_all.set_ylabel('Fitness')
+        
+        for algorithm in sorted(gen_mean):
+            box_data = []
+            mean_data = []
+            for gen in gen_mean[algorithm]:
+                box_data.append((list(gen_mean[algorithm][gen].values())))
+                mean_data.append(statistics.mean(list(gen_mean[algorithm][gen].values())))
+                # print(algorithm, ', ', gen, ': ', statistics.mean(list(gen_mean[algorithm][gen].values())))
+
+            fig = plt.figure(figsize=(12,14))
+            ax = fig.add_subplot(311)
+            ax.set_title(algorithm)
+            ax.set_xlabel('Generation')
+            ax.set_ylabel('Fitness')
+            ax.boxplot(box_data)
+
+            ax = fig.add_subplot(312)
+            ax.set_title(algorithm + ': average of 30 runs per generation')
+            ax.set_xlabel('Generation')
+            ax.set_ylabel('Average fitness')
+            ax.plot(range(1, len(mean_data) + 1), mean_data)
+            if not 'writeknow' in algorithm:
+                if 'wok' in algorithm:
+                    ax_all.plot(range(1, len(mean_data) + 1), mean_data, label=algorithm, color='k')
+                else:
+                    ax_all.plot(range(1, len(mean_data) + 1), mean_data, label=algorithm)
+
+            ax = fig.add_subplot(313)
+            ax.set_title(algorithm + ': combo')
+            ax.set_xlabel('Generation')
+            ax.set_ylabel('Fitness')
+            ax.boxplot(box_data)
+            ax.plot(range(1, len(mean_data) + 1), mean_data)
+            if not Path(experiment_path.name).exists(): 
+                Path(experiment_path.name).mkdir()
+            fig.savefig(f'{experiment_path.name + "/" + algorithm}.jpg')
+            print('Saved', f'{experiment_path.name + "/" + algorithm}.jpg')
+        ax_all.legend()
+        fig_all.savefig(experiment_path.name + "/" +'all.jpg')
+
+
+
+    for run in runs:
+        if run.isnumeric() == False:
+            continue
+        # Now inside 'experiment_path/run'
+        
+
+        (_, algorithms, files) = next(os.walk(experiment_path / run / 'stats'))
+        for algorithm in algorithms:
+            # Now inside 'experiment_path/run/stats/algorithm'
+            # checkKnowTrace()
+
+            # update_gen_mean_tr()
+            # bin_to_txt_pop(experiment_path/run/'stats'/algorithm)
+
+            if (experiment_path / run / 'stats' / algorithm / 'test').exists():
+                # Now inside 'experiment_path/run/stats/algorithm/test'
+
+                (_, _, test_files) = next(os.walk(experiment_path / run / 'stats' / algorithm / 'test'))
+                for test_file in test_files:
+                    if not test_file.endswith('.csv'):
+                        continue
+                    get_exp_stats()
+                    update_gen_mean_ts(experiment_path / run / 'stats' / algorithm / 'test' / test_file)
+
+    # Iteration finished. Do any processing here
+
+    save_exp_stats()
+    # plot_mean_of_genbest_tr(gen_mean_ts)
+    print('Finished')
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 if __name__ == '__main__':
-    process_grid_output(dirpath)
+    # process_grid_output(dirpath)
+    iterate_grid_output(dirpath)
+
+    # subtree50= \
+    # "/vol/grid-solar/sgeusers/mazhar/gdb8-v10-to11/{run}/stats/gdb8-v10-to-11-wk-subtree50/"
+    # wok_template = '/vol/grid-solar/sgeusers/mazhar/gdb8-v10-to11/{run}/stats/gdb8-v11-wok/'
+    # s50 = []
+    # wok = []
+    # for run in range(1, 31):
+    #     path = subtree50.format(run=run)
+    #     _, fitness = process_csv(path + 'test/total-cost-gdb8-11-0.2-0.2.csv')
+    #     s50.append(fitness)
+    #
+    #     path = wok_template.format(run=run)
+    #     _, fitness = process_csv(path + 'test/total-cost-gdb8-11-0.2-0.2.csv')
+    #     wok.append(fitness)
+    #
+    # print(statistics.mean(wok), statistics.stdev(wok))
+    # print(statistics.mean(s50), statistics.stdev(s50))

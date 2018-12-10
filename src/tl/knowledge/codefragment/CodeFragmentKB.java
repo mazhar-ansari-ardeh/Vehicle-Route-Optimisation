@@ -4,7 +4,7 @@ import java.io.*;
 
 import ec.*;
 import ec.gp.*;
-import tl.gp.KnowledgeExtractionMethod;
+import tl.knowledge.KnowledgeExtractionMethod;
 import tl.knowledge.KnowledgeItem;
 import tl.knowledge.KnowlegeBase;
 
@@ -61,7 +61,7 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 	 * base and <code>false</code> otherwise.
 	 */
 
-	public abstract boolean extractFrom(GPIndividual gpIndividual, KnowledgeExtractionMethod method);
+	protected abstract boolean extractFrom(GPIndividual gpIndividual, KnowledgeExtractionMethod method);
 //	{
 //		if (gpIndividual == null)
 //		{
@@ -100,7 +100,7 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 	 * @return <code>true</code> if the function added items from <code>population</code> to this
 	 * base and <code>false</code> otherwise.
 	 */
-	public abstract boolean extractFrom(Population population, KnowledgeExtractionMethod method);
+	protected abstract boolean extractFrom(Population population, KnowledgeExtractionMethod method);
 //	{
 //		System.out.println("Inside CodeFragmentKB.addFrom");
 //		if (population == null)
@@ -205,7 +205,7 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 	 *
 	 * @author Mazhar
 	 */
-	public abstract boolean removeItem(GPNode item);
+	protected abstract boolean removeItem(GPNode item);
 
 	/**
 	 * Removes a given <code>KnowledgeItem</code> from knowledge base.

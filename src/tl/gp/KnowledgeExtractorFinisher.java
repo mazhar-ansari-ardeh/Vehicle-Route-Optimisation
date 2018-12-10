@@ -13,6 +13,7 @@ import ec.gp.*;
 import ec.simple.SimpleFinisher;
 import ec.simple.SimpleProblemForm;
 import ec.util.Parameter;
+import tl.knowledge.KnowledgeExtractionMethod;
 import tl.knowledge.codefragment.fitted.DoubleFittedCodeFragment;
 
 public class KnowledgeExtractorFinisher extends SimpleFinisher 

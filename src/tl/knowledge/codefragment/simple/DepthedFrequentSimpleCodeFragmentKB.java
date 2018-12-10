@@ -14,57 +14,64 @@ import ec.Individual;
 import ec.Population;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
-import tl.gp.KnowledgeExtractionMethod;
 import tl.gp.TreeSlicer;
+import tl.knowledge.KnowledgeExtractionMethod;
 import tl.knowledge.KnowledgeExtractor;
 import tl.knowledge.codefragment.*;
 
 /**
- * This class, with the class {@code SimpleCodeFragmentBuilder} implements the <i>SubTree</i> and
- * <i>FullTransfer</i> method that was proposed by Dinh et al. in their paper
- * "<i>Transfer Learning in Genetic Programming</i>". The selection between the <i>FullTransfer</i>
- * and <i>SubTree</i> methods is done through the {@code KnowledgeExtractionMethod} instance that
- * is passed to extraction methods. For a value of {@code KnowledgeExtractionMethod.Root}, the
- * <i>FullTransfer</i> method is selected. A value of {@code KnowledgeExtractionMethod.RootSubtree}
- * will select the <i>SubTree</i> method.
+ * This class, with {@code DepthedFrequentSimpleCodeFragmentBuilder}, implements the idea of using
+ * code frequents based on the frequency of their occurrence in source domain.
+ * <p>
+ * In this class, code fragments are extracted based on either Root, RootSubtree or All
+ * extraction methods. <p>
+ * The class also can limit code fragment extraction to with min and max depth limit. <p>
+ * This class uses individual fitness values for sorting the source individuals but does not make
+ * any assumptions about the type of fitness value (whether it is from train or test scenario).
  * @author mazhar
- *
  */
-public class MySimpleCodeFragmentKB extends CodeFragmentKB
+public class DepthedFrequentSimpleCodeFragmentKB extends CodeFragmentKB
 {
 	// Using ConcurrentHashMap instead of HashMap will make this KB capable of
 	// concurrency.
 	ConcurrentHashMap<Integer, CodeFragmentKI> repository = new ConcurrentHashMap<>();
 
-	private double k;
-
 	EvolutionState state;
 
+	private int minDepth = -1;
+	private int maxDepth = -1;
 
-	public MySimpleCodeFragmentKB()
-	{
-		super();
-	}
+	private double topPercentage;
 
-	public MySimpleCodeFragmentKB(EvolutionState state, int k)
+	public DepthedFrequentSimpleCodeFragmentKB(EvolutionState state, double topPercentage,
+			int minDepth, int maxDepth)
 	{
-		if(k > 100)
-			throw new IllegalArgumentException("K is a percentage value and cannot be greater "
-					+ "than 100");
-		this.k = k / 100f;
 		this.state = state;
+		if(minDepth > maxDepth)
+			throw new IllegalArgumentException("Min depth limit cannot be higher than max depth limit.");
+
+		if(topPercentage <= 0 || topPercentage > 1)
+			throw new IllegalArgumentException("Top percentage must be a value in (0, 1]: "
+												+ topPercentage);
+
+		this.topPercentage = topPercentage;
+		this.minDepth = minDepth;
+		this.maxDepth = maxDepth;
 	}
 
 	@Override
 	public boolean extractFrom(Population p, KnowledgeExtractionMethod method)
 	{
-		System.out.println("Inside SimpleCodeFragmentKB.addFrom");
+		System.out.println("Inside DepthedFrequentSimpleCodeFragmentKB.addFrom");
 		if (p == null)
 		{
 			System.out.println("Population is null. Exiting");
+			System.err.println("Population is null. Exiting");
 			return false;
 		}
 
+		// This class does support fitness-based sorting but it does make any assumptions about
+		// the domain of fitness, whether it is on test scenario or train scenario.
 		Comparator<Individual> comp = (Individual o1, Individual o2) ->
 		{
 			if(o1.fitness.fitness() < o2.fitness.fitness())
@@ -78,7 +85,7 @@ public class MySimpleCodeFragmentKB extends CodeFragmentKB
 		Arrays.sort(p.subpops[0].individuals, comp);
 
 		boolean added = false;
-		int sampleSize = (int) Math.round(k * p.subpops[0].individuals.length);
+		int sampleSize = (int) Math.round(topPercentage * p.subpops[0].individuals.length);
 		state.output.warning("Sample size in MYSimpleCodeFragmentKB.addFrom: " + sampleSize);
 		System.out.println("Sample size in MYSimpleCodeFragmentKB.addFrom: " + sampleSize);
 		for(int i = 0; i < sampleSize; i++)
@@ -89,6 +96,14 @@ public class MySimpleCodeFragmentKB extends CodeFragmentKB
 		return added;
 	}
 
+
+	/**
+	 * Extracts code fragments from an individual.
+	 * @param gpIndividual the individual to extract codes from
+	 * @param method extraction method. The acceptable methods are
+	 * {@code KnowledgeExtractionMethod.AllSubtrees}, {@code KnowledgeExtractionMethod.RootSubtree}
+	 * and {@code KnowledgeExtractionMethod.Root}.
+	 */
 	public boolean extractFrom(GPIndividual gpIndividual, KnowledgeExtractionMethod method)
 	{
 		if (gpIndividual == null)
@@ -96,20 +111,30 @@ public class MySimpleCodeFragmentKB extends CodeFragmentKB
 			return false;
 		}
 
+		ArrayList<GPNode> allNodes = null;
 		switch(method)
 		{
 		case Root:
 			return addItem(gpIndividual.trees[0].child);
 		case RootSubtree:
-			ArrayList<GPNode> allNodes = TreeSlicer.sliceRootChildrenToNodes(gpIndividual, false);
-			boolean added = false;
-			for(GPNode node : allNodes)
-				added |= addItem(node);
-			// TODO: Put filters on extracted code fragments.
-			return added;
+			allNodes = TreeSlicer.sliceRootChildrenToNodes(gpIndividual, false);
+			break;
+		case AllSubtrees:
+			allNodes = TreeSlicer.sliceAllToNodes(gpIndividual, false);
+			break;
 		default:
-			throw new IllegalArgumentException();
+			throw new IllegalArgumentException("Given extraction method is not supported: "
+												+ method);
 		}
+
+		boolean added = false;
+		for(GPNode node : allNodes)
+		{
+			int depth = node.depth();
+			if((minDepth <= 0 || depth >= minDepth) &&  (maxDepth <= 0 || depth <= maxDepth))
+				added |= addItem(node);
+		}
+		return added;
 	}
 
 

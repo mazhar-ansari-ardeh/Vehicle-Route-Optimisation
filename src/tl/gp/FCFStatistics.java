@@ -138,6 +138,7 @@ public class FCFStatistics extends SimpleStatistics
 
 		} catch (IOException e)
 		{
+			e.printStackTrace();
 			state.output.fatal(e.toString());
 		}
 	}

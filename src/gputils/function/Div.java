@@ -66,7 +66,10 @@ public class Div extends GPNode {
 
         children[1].eval(state,thread,input,stack,individual,problem);
 
-        rd.value = result / rd.value;
+        if(rd.value == 0)
+        	rd.value = 1;
+        else
+        	rd.value = result / rd.value;
     }
 }
 

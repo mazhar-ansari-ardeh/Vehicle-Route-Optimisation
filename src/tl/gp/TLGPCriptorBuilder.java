@@ -11,6 +11,7 @@ import ec.gp.GPNodeParent;
 import ec.gp.GPType;
 import ec.gp.koza.HalfBuilder;
 import ec.util.Parameter;
+import tl.knowledge.KnowledgeExtractionMethod;
 import tl.knowledge.KnowledgeExtractor;
 import tl.knowledge.codefragment.CodeFragmentKI;
 import tl.knowledge.codefragment.simple.TLGPCriptorKB;

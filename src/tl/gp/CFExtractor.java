@@ -8,6 +8,7 @@ import ec.*;
 import ec.gp.*;
 import ec.simple.SimpleProblemForm;
 import ec.util.*;
+import tl.knowledge.KnowledgeExtractionMethod;
 import tl.knowledge.codefragment.fitted.DoubleFittedCodeFragment;
 
 public class CFExtractor
@@ -23,6 +24,15 @@ public class CFExtractor
 	 */
 	static int maxNodeSize;
 
+
+	/**
+	 * Initialize ECJ. For this purpose, the function loads ECJ with a param file and any additional
+	 * features that are passed to the method. Because this class evaluates the (test) fitness of
+	 * individuals, the param file should be a relevant to this goal.
+	 *
+	 * @param paramFileNamePath the path to a param file including the name of the file.
+	 * @param ecjParams additional parameters for ECJ.
+	 */
 	static void loadECJ(String paramFileNamePath, String... ecjParams)
 	{
 		ArrayList<String> params = new ArrayList<>();
@@ -92,6 +102,8 @@ public class CFExtractor
 					extractAndSave(state, oos, (GPIndividual)ind, extractionMethod);
 				}
 			}
+
+			PopulationWriter.savePopulation(pop, outputFileNamePath + ".pop.bin");
 
 		}
 		catch (FileNotFoundException e)

@@ -1,4 +1,3 @@
-
 #!/bin/sh
 #
 # Force Bourne Shell if not Sun Grid Engine default shell (you never know!)
@@ -27,10 +26,35 @@ fi
 
 
 # Setting variables that config the experiment.
-NUM_VEHICLES_SOURCE=6; export NUM_VEHICLES_SOURCE
-NUM_VEHICLES_TARGET=7; export NUM_VEHICLES_TARGET
-DATASET_CATEGORY="gdb"; export DATASET_CATEGORY
-DATASET="gdb21"; export DATASET
+if test -z $1
+then
+    echo 'Arg 1 is empty. Sctript terminated.'
+    exit
+else
+    DATASET_CATEGORY=$1; export DATASET_CATEGORY
+fi
+
+if test -z $2
+then
+    echo 'Arg 2 is empty. Sctript terminated.'
+    exit
+else
+    DATASET=$2; export DATASET
+fi
+if test -z $3
+then
+    echo 'Arg 3 is empty. Sctript terminated.'
+    exit
+else
+    NUM_VEHICLES_SOURCE=$3; export NUM_VEHICLES_SOURCE
+fi
+if test -z $4
+then
+    echo 'Arg 4 is empty. Sctript terminated.'
+    exit
+else
+    NUM_VEHICLES_TARGET=$4; export NUM_VEHICLES_TARGET
+fi
 
 # The directory that will contain all the results from grid.
 RESULT_DIR="$DATASET-v$NUM_VEHICLES_SOURCE-to$NUM_VEHICLES_TARGET"
@@ -38,7 +62,9 @@ RESULT_DIR="$DATASET-v$NUM_VEHICLES_SOURCE-to$NUM_VEHICLES_TARGET"
 
 
 cp -r /vol/grid-solar/sgeusers/mazhar/data/ .
-cp /vol/grid-solar/sgeusers/mazhar/*.* .
+cp /vol/grid-solar/sgeusers/mazhar/*.jar .
+cp /vol/grid-solar/sgeusers/mazhar/*.sh .
+cp /vol/grid-solar/sgeusers/mazhar/*.param .
 
 echo "All required files copied. Directory content: "
 
@@ -58,7 +84,7 @@ else
    export JAVA_HOME
    PATH="/usr/pkg/java/bin:${JAVA_HOME}/bin:${PATH}"; export PATH
 
-	chmod 777 ./gridscript_base.sh
+   chmod 777 ./gridscript_base.sh
    ./gridscript_base.sh
 fi
 

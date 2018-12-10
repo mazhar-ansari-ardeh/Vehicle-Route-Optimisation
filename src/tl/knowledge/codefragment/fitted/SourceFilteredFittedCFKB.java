@@ -18,8 +18,8 @@ import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import ec.gp.GPProblem;
 import ec.gp.GPTree;
-import tl.gp.KnowledgeExtractionMethod;
 import tl.gp.TreeSlicer;
+import tl.knowledge.KnowledgeExtractionMethod;
 import tl.knowledge.KnowledgeExtractor;
 import tl.knowledge.codefragment.CodeFragmentKB;
 
