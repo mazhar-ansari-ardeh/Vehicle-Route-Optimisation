@@ -12,6 +12,9 @@ params
 *.png
 *.jpg
 
+# Experiment statistics are not needed in the repository
+*.csv
+
 # Don't use pydev anymore.
 *.pydevproject
 
