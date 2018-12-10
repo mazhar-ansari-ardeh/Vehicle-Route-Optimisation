@@ -7,6 +7,14 @@ stat
 stats
 params
 
+# Don't need plots and other images in the repository
+*.jpeg
+*.png
+*.jpg
+
+# Don't use pydev anymore.
+*.pydevproject
+
 # Don't know what it is but it is not mine. 
 .directory
 
