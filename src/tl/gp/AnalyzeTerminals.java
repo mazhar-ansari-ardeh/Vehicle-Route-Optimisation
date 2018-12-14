@@ -17,6 +17,16 @@ public class AnalyzeTerminals
 {
 	static EvolutionState state = null;
 
+	/**
+	 * The percent of the individuals in the source domain to consider to analyzing. The value of
+	 * this parameter must be in [0, 1].
+	 * If this value is less than 1, the individuals in the population will be sorted according to
+	 * their fitness and then will be selected.
+	 */
+	private static double k;
+
+	static final String P_BASE = "analyze-terminals";
+
 	static void loadECJ(String paramFileNamePath, String... ecjParams)
 	{
 		ArrayList<String> params = new ArrayList<>();
@@ -40,6 +50,13 @@ public class AnalyzeTerminals
         state.evaluator = (Evaluator)
                 (parameters.getInstanceForParameter(p, null, Evaluator.class));
         state.evaluator.setup(state, p);
+
+        Parameter base = new Parameter(P_BASE);
+        p = base.push("k");
+        k = state.parameters.getDouble(p, null);
+        if(k < 0 || k > 1)
+        	state.output.fatal("K percent is not a valid value for AnalyzeTerminal: " + k);
+        state.output.warning("K percent is: " + k);
 	}
 
 	public static void main(String[] args)
@@ -63,20 +80,31 @@ public class AnalyzeTerminals
 		try
 		{
 			String inputFileNamePath = args[1];
+//			String inputFileNamePath = "/vol/grid-solar/sgeusers/mazhar/gdb2-v7-to8/1/stats/gdb2-v7-writeknow/population.gen.49.bin";
 			Population pop = PopulationWriter.loadPopulation(inputFileNamePath);
+
+			state.output.warning(k + " percent of each subpopulation is loaded");
+
 			for(Subpopulation sub : pop.subpops)
 			{
-				for(Individual ind : sub.individuals)
+				for(Individual gind : sub.individuals)
+					evaluate(state, (GPIndividual) gind);
+			}
+
+			PopulationWriter.sort(pop);
+			for(Subpopulation sub : pop.subpops)
+			{
+				for(int i = 0; i < Math.round(sub.individuals.length * k); i++)
 				{
-					if(!(ind instanceof GPIndividual))
+					if(!(sub.individuals[i] instanceof GPIndividual))
 					{
 						System.err.println("WARNING: Found and object in the saved population file"
-								+ " that is not of type GPIndividual:" + ind.getClass()
-								+ " The individule is ignored.");
+								+ " that is not of type GPIndividual:"
+								+ sub.individuals[i].getClass() + " The individule is ignored.");
 						continue;
 					}
-					extractAndSave(state, (GPIndividual)ind);
-
+					extractAndSave(state, (GPIndividual)sub.individuals[i]);
+					state.output.warning("Finished work on individual: " + i);
 				}
 			}
 
@@ -141,8 +169,6 @@ public class AnalyzeTerminals
 			if((((TerminalERCUniform)root).getTerminal() instanceof ERC))
 			{
 				nodeName = "ERC";
-//				retval.add(erc);
-//				return retval;
 			}
 			else
 				nodeName = ((TerminalERCUniform)root).getTerminal().name();
@@ -163,22 +189,28 @@ public class AnalyzeTerminals
 
 		HashMap<String, HashMap<GPIndividual, GPIndividualFeatureStatistics>> book = new HashMap<>();
 
-		void add(String terminal, GPIndividual ind)
+		void add(String terminal, GPIndividual ind, ArrayList<String> allIndTerminals)
 		{
 			if(book.containsKey(terminal))
 			{
 				HashMap<GPIndividual, GPIndividualFeatureStatistics> h = book.get(terminal);
 				if(h.containsKey(ind))
 				{
-					h.get(ind).incrementFrequency();
-//					h.put(ind, h.get(ind)+1);
+					GPIndividualFeatureStatistics stat = h.get(ind);
+					if(!stat.getTerminal().equals(terminal))
+						state.output.fatal("Statistics inconsistency: " + terminal + "!="
+											+ stat.getTerminal());
+
+					stat.incrementFrequency();
 				}
 				else
 				{
 					Pair<Double, Double> contrib = TreeSlicer.getFeatureContribution(state, ind
-															 						 , terminal);
+															 						 , terminal
+															 						 , false);
 					GPIndividualFeatureStatistics stats
-						= new GPIndividualFeatureStatistics(contrib);
+						= new GPIndividualFeatureStatistics(ind, terminal,allIndTerminals, contrib);
+					stats.incrementFrequency();
 
 					h.put(ind, stats);
 				}
@@ -186,9 +218,10 @@ public class AnalyzeTerminals
 			else
 			{
 				Pair<Double, Double> contrib = TreeSlicer.getFeatureContribution(state, ind
-					, terminal);
+					, terminal
+					, false);
 				GPIndividualFeatureStatistics stats
-					= new GPIndividualFeatureStatistics(contrib);
+					= new GPIndividualFeatureStatistics(ind, terminal,allIndTerminals, contrib);
 				HashMap<GPIndividual, GPIndividualFeatureStatistics> h = new HashMap<GPIndividual
 															, GPIndividualFeatureStatistics>();
 				h.put(ind, stats);
@@ -201,12 +234,13 @@ public class AnalyzeTerminals
 
 	private static void extractAndSave(EvolutionState state, GPIndividual gind)
 	{
+		// evaluate(state, gind);
 		ArrayList<String> terminals = getTerminals(gind.trees[0].child);
 
 		for(int i = 0; i < terminals.size(); i++)
 		{
 			String terminal = terminals.get(i);
-			keeper.add(terminal, gind);
+			keeper.add(terminal, gind, terminals);
 		}
 	}
 

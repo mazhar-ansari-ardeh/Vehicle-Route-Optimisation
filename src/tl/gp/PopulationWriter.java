@@ -1,6 +1,9 @@
 package tl.gp;
 
 import java.io.*;
+import java.util.Arrays;
+import java.util.Comparator;
+
 import ec.*;
 
 public class PopulationWriter implements AutoCloseable
@@ -13,6 +16,32 @@ public class PopulationWriter implements AutoCloseable
 	{
 		this.isSaving = save;
 		file = new File(pathname);
+	}
+
+	/**
+	 * Sorts individuals based on their fitness. The method iterates over all subpopulations
+	 * and sorts the array of individuals in them based on their fitness so that the first
+	 * individual has the best (i.e. least) fitness.
+	 *
+	 * @param pop a population to sort. Can't be {@code null}.
+	 * @return the given pop with individuals sorted.
+	 */
+	public static Population sort(Population pop)
+	{
+		Comparator<Individual> comp = (Individual o1, Individual o2) ->
+		{
+			if(o1.fitness.fitness() < o2.fitness.fitness())
+				return -1;
+			if(o1.fitness.fitness() == o2.fitness.fitness())
+				return 0;
+
+			return 1;
+		};
+
+		for(Subpopulation subpop : pop.subpops)
+			Arrays.sort(subpop.individuals, comp);
+
+		return pop;
 	}
 
 	public void prepareForWriting(Population population, Subpopulation sub) throws IOException

@@ -151,12 +151,22 @@ public class TreeSlicer
 			{
 				DoubleERC constNode = new DoubleERC();
 				constNode.value = 1;
-
-				GPNode parent = (GPNode)root.parent;
-				constNode.parent = parent;
-				constNode.argposition = root.argposition;
-				parent.children[root.argposition] = constNode;
-				root.parent = null;
+				if(root.parent instanceof GPNode)
+				{
+					GPNode parent = (GPNode)root.parent;
+					constNode.parent = parent;
+					constNode.argposition = root.argposition;
+					parent.children[root.argposition] = constNode;
+					root.parent = null;
+				}
+				else if (root.parent instanceof GPTree)
+				{
+					GPTree parent = (GPTree)root.parent;
+					constNode.parent = parent;
+					constNode.argposition = root.argposition;
+					parent.child = constNode;
+					root.parent = null;
+				}
 			}
 			return;
 		}
@@ -166,15 +176,28 @@ public class TreeSlicer
 		}
 	}
 
+	/**
+	 * Calculates the contribution of a feature to an individual's fitness.
+	 * @param state
+	 * @param ind The individual that has the effect terminal on its contribution is desired.
+	 * @param featureName The name of feature to get its contribution.
+	 * @param evaluateIndividual if true, the individual will be evaluated and otherwise, it will be
+	 * assumed that it has been evaluated before being passed into this method.
+	 * @return Contribution as a pair in which the first is the individual's fitness and the new is
+	 * the fitness after feature removal.
+	 */
 	public static Pair<Double, Double> getFeatureContribution(EvolutionState state, GPIndividual ind
-			, String featureName)
+			, String featureName, boolean evaluateIndividual)
 	{
-		ind.evaluated = false;
-		((SimpleProblemForm)state.evaluator.p_problem).evaluate(state, ind, 0, 0);
+		if(evaluateIndividual)
+		{
+			ind.evaluated = false;
+			((SimpleProblemForm)state.evaluator.p_problem).evaluate(state, ind, 0, 0);
+		}
 		double oldFitness = ind.fitness.fitness();
 
-		System.out.println(oldFitness);
- 		System.out.println(ind.trees[0].child.makeGraphvizTree());
+//		System.out.println(oldFitness);
+// 		System.out.println(ind.trees[0].child.makeGraphvizTree());
 
 		GPIndividual gind = (GPIndividual)ind.clone();
 
@@ -183,8 +206,8 @@ public class TreeSlicer
 		gind.evaluated = false;
 		((SimpleProblemForm)state.evaluator.p_problem).evaluate(state, gind, 0, 0);
 		double newFitness = gind.fitness.fitness();
-		System.out.println(newFitness);
-		System.out.println(gind.trees[0].child.makeGraphvizTree());
+// 		System.out.println(newFitness + "\n");
+//		System.out.println(gind.trees[0].child.makeGraphvizTree());
 
 		return new Pair<>(oldFitness, newFitness);
 	}

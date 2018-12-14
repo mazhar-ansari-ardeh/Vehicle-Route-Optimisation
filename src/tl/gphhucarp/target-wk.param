@@ -26,14 +26,27 @@ seed.0=2
 # gp.fs.0.func.0.knowledge-log-file=./stats/target-wk/TerminalERCWeightedLog
 # ==============================
 
-gp.tc.0.init=tl.gp.DepthedFrequentSimpleCodeFragmentBuilder
-gp.tc.0.init.knowledge-file=/vol/grid-solar/sgeusers/mazhar/gdb21-v6-to7-depthed-frequent/28/gdb21-v6.cf.pop.bin
-gp.tc.0.init.knowledge-extraction=rootsubtree
+# ==============================
+# Terminal Weight Transfer
+# ==============================
+gp.fs.0.func.0 = tl.gphhucarp.TerminalERCContribWeighted
+gp.fs.0.func.0.terminal-file = book.bk
+gp.fs.0.func.0.knowledge-log-file=./stats/target-wk/TerminalERCContribWeightedLog
+# ==============================
+
+# ==============================
+# Depthed Frequent Simple CodeFragment Builder
+# ==============================
+# gp.tc.0.init=tl.gp.DepthedFrequentSimpleCodeFragmentBuilder
+# gp.tc.0.init.knowledge-file=/vol/grid-solar/sgeusers/mazhar/gdb21-v6-to7-depthed-frequent/28/gdb21-v6.cf.pop.bin
+# gp.tc.0.init.knowledge-extraction=rootsubtree
 # percentage of initial population that is created from extracted knowledge
-gp.tc.0.init.transfer-percent=0.50
-gp.tc.0.init.extract-percent=0.50
-gp.tc.0.init.min-cf-depth=2
-gp.tc.0.init.max-cf-depth=5
+# gp.tc.0.init.transfer-percent=0.50
+# gp.tc.0.init.extract-percent=0.50
+# gp.tc.0.init.min-cf-depth=2
+# gp.tc.0.init.max-cf-depth=5
+# ==============================
+
 
 # ==============================
 # The training results

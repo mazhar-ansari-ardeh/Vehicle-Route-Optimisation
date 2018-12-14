@@ -21,7 +21,7 @@ import tl.TLLogger;
 public class TerminalERCWeighted extends TerminalERC implements TLLogger<GPNode>
 {
 	private static final long serialVersionUID = 1L;
-	private HashMap<String, HashMap<GPIndividual, Integer>> book = null;
+	protected HashMap<String, HashMap<GPIndividual, GPIndividualFeatureStatistics>> book = null;
 
 	public static final String P_TERMINAL_FILE = "terminal-file";
 
@@ -42,7 +42,7 @@ public class TerminalERCWeighted extends TerminalERC implements TLLogger<GPNode>
 		try
 		{
 			oi = new ObjectInputStream(new FileInputStream(in));
-			this.book = (HashMap<String, HashMap<GPIndividual, Integer>>)oi.readObject();
+			this.book = (HashMap<String, HashMap<GPIndividual, GPIndividualFeatureStatistics>>)oi.readObject();
 
 			terminal = null;
 		} catch (IOException e)
@@ -54,12 +54,15 @@ public class TerminalERCWeighted extends TerminalERC implements TLLogger<GPNode>
 			e.printStackTrace();
 			state.output.fatal(e.toString());
 		}
+		state.output.warning("Loaded terminal file: " + fileName);
+		state.output.warning("TerminalERCWeighted loaded");
 
         terminal = null;
     }
 
 	static double[] weights = null;
-	static double[] sourceUseCount = null;
+
+	private static double[] sourceUseCount = null;
 
 	double[] calculateWeights(List<GPNode> terminals)
 	{
@@ -71,10 +74,15 @@ public class TerminalERCWeighted extends TerminalERC implements TLLogger<GPNode>
 			//	System.out.println(terminals.get(i) + ", " + terminals.get(i).hashCode());
 			//	book.keySet().forEach(node -> System.out.println(node + ", " + node.hashCode()));
 			GPNode terminal = terminals.get(i);
-			HashMap<GPIndividual, Integer> h = book.get(terminal.name());
+			HashMap<GPIndividual, GPIndividualFeatureStatistics> h = book.get(terminal.name());
+			if(h == null)
+			{
+				System.err.println("Terminal " + terminal.name() + " not found in the book shelf.");
+				continue;
+			}
 			int useCount = 0;
-			for(Integer value : h.values())
-				useCount += value;
+			for(GPIndividualFeatureStatistics value : h.values())
+				useCount += value.getFrequency();
 
 			sourceUseCount[i] = useCount;
 		}
@@ -102,7 +110,7 @@ public class TerminalERCWeighted extends TerminalERC implements TLLogger<GPNode>
 		int winner = RandomChoice.pickFromDistribution(weights,state.random[thread].nextDouble());
 		terminal = terminals.get(winner);
 		useCount.put(terminal, useCount.get(terminal) + 1);
-		log(state, terminal, logID, "terminal: " + terminal, "sourceUseCount: " + sourceUseCount[winner]
+		log(state, terminal, logID, "terminal: " + terminal, "weight: " + weights[winner]
 				 , "useCount: " + useCount.get(terminal));
 
 		if (terminal instanceof ERC) {
