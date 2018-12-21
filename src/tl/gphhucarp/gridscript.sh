@@ -56,6 +56,17 @@ else
     NUM_VEHICLES_TARGET=$4; export NUM_VEHICLES_TARGET
 fi
 
+if test -z $5
+then
+    echo "Base grid script not provided. Using the default script 'gridscript_base.sh'"
+    GRIDSCRIPT_BASE="gridscript_base.sh"
+else
+    GRIDSCRIPT_BASE=$5
+    echo "Running $GRIDSCRIPT_BASE"
+fi
+
+exec 2>&1
+
 # The directory that will contain all the results from grid.
 RESULT_DIR="$DATASET-v$NUM_VEHICLES_SOURCE-to$NUM_VEHICLES_TARGET"
 
@@ -68,7 +79,7 @@ cp /vol/grid-solar/sgeusers/mazhar/*.param .
 
 echo "All required files copied. Directory content: "
 
-ls -la
+# ls -la
 
 if [ -z "$SGE_ARCH" ]; then
    echo "Can't determine SGE ARCH"
@@ -84,12 +95,12 @@ else
    export JAVA_HOME
    PATH="/usr/pkg/java/bin:${JAVA_HOME}/bin:${PATH}"; export PATH
 
-   chmod 777 ./gridscript_base.sh
-   ./gridscript_base.sh
+   chmod 777 ./$GRIDSCRIPT_BASE
+   ./$GRIDSCRIPT_BASE
 fi
 
 #
-ls -la
+# ls -la
 #
 # Now we move the output to a place to pick it up from later
 #  noting that we need to distinguish between the TASKS
