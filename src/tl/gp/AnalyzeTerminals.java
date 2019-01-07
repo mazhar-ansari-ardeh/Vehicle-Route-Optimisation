@@ -1,9 +1,13 @@
 package tl.gp;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.stream.Collectors;
 
 import ec.*;
 import ec.gp.*;
@@ -77,35 +81,60 @@ public class AnalyzeTerminals
 		loadECJ(args[0], Arrays.copyOfRange(args, 3, args.length));
 
 		String outputFileNamePath = args[2];
+		ArrayList<Population> popList = new ArrayList<>();
 		try
 		{
+			//	String inputFileNamePath = "/vol/grid-solar/sgeusers/mazhar/gdb2-v7-to8/1/stats/gdb2-v7-writeknow/population.gen.49.bin";
 			String inputFileNamePath = args[1];
-//			String inputFileNamePath = "/vol/grid-solar/sgeusers/mazhar/gdb2-v7-to8/1/stats/gdb2-v7-writeknow/population.gen.49.bin";
-			Population pop = PopulationWriter.loadPopulation(inputFileNamePath);
+			File f = new File(inputFileNamePath);
+			if(f.isDirectory())
+			{
+				Path rootPath = Paths.get(inputFileNamePath);
+				ArrayList<Path> regularFilePaths = Files.list(rootPath)
+						.filter(Files::isRegularFile).filter(file -> file.getFileName().toString().endsWith(".bin"))
+						.collect(Collectors.toCollection(ArrayList::new));
+
+				regularFilePaths.forEach(System.out::println);
+				for(Path path: regularFilePaths)
+				{
+					popList.add(PopulationWriter.loadPopulation(path.toFile()));
+				}
+			}
+			else
+				popList.add(PopulationWriter.loadPopulation(inputFileNamePath));
+
 
 			state.output.warning(k + " percent of each subpopulation is loaded");
-
-			for(Subpopulation sub : pop.subpops)
+			for(Population pop : popList)
 			{
-				for(Individual gind : sub.individuals)
-					evaluate(state, (GPIndividual) gind);
-			}
-
-			PopulationWriter.sort(pop);
-			for(Subpopulation sub : pop.subpops)
-			{
-				for(int i = 0; i < Math.round(sub.individuals.length * k); i++)
+				for(Subpopulation sub : pop.subpops)
 				{
-					if(!(sub.individuals[i] instanceof GPIndividual))
-					{
-						System.err.println("WARNING: Found and object in the saved population file"
-								+ " that is not of type GPIndividual:"
-								+ sub.individuals[i].getClass() + " The individule is ignored.");
-						continue;
-					}
-					extractAndSave(state, (GPIndividual)sub.individuals[i]);
-					state.output.warning("Finished work on individual: " + i);
+					for(Individual gind : sub.individuals)
+						evaluate(state, (GPIndividual) gind);
 				}
+
+				PopulationWriter.sort(pop);
+				for(Subpopulation sub : pop.subpops)
+				{
+					for(int i = 0; i < Math.round(sub.individuals.length * k); i++)
+					{
+						if(!(sub.individuals[i] instanceof GPIndividual))
+						{
+							System.err.println("WARNING: Found and object in the saved population file"
+									+ " that is not of type GPIndividual:"
+									+ sub.individuals[i].getClass() + " The individule is ignored.");
+							continue;
+						}
+						extractAndSave(state, (GPIndividual)sub.individuals[i]);
+						state.output.warning("Finished work on individual: " + i);
+					}
+				}
+
+				File out = new File(outputFileNamePath);
+				ObjectOutputStream os = new ObjectOutputStream(
+						new BufferedOutputStream(new FileOutputStream(out)));
+				os.writeObject(keeper.book);
+				os.close();
 			}
 
 			for(String node : keeper.book.keySet())
@@ -121,12 +150,6 @@ public class AnalyzeTerminals
 				}
 				System.out.println("Total usage: " + terminalUsage);
 			}
-
-			File out = new File(outputFileNamePath);
-			ObjectOutputStream os = new ObjectOutputStream(
-					new BufferedOutputStream(new FileOutputStream(out)));
-			os.writeObject(keeper.book);
-			os.close();
 
 //			ObjectInputStream oi = new ObjectInputStream(new FileInputStream(out));
 //			Object o = oi.readObject();
