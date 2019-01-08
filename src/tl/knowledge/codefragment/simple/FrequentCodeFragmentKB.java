@@ -1,5 +1,9 @@
 package tl.knowledge.codefragment.simple;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -14,6 +18,7 @@ import ec.Individual;
 import ec.Population;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
+import tl.gp.PopulationWriter;
 import tl.gp.TreeSlicer;
 import tl.knowledge.KnowledgeExtractionMethod;
 import tl.knowledge.KnowledgeExtractor;
@@ -30,7 +35,7 @@ import tl.knowledge.codefragment.*;
  * any assumptions about the type of fitness value (whether it is from train or test scenario).
  * @author mazhar
  */
-public class DepthedFrequentSimpleCodeFragmentKB extends CodeFragmentKB
+public class FrequentCodeFragmentKB extends CodeFragmentKB
 {
 	// Using ConcurrentHashMap instead of HashMap will make this KB capable of
 	// concurrency.
@@ -38,12 +43,33 @@ public class DepthedFrequentSimpleCodeFragmentKB extends CodeFragmentKB
 
 	EvolutionState state;
 
+	/**
+	 * Minimum limit on depth of a subtree to extract. Subtrees that have length
+	 * less than this are ignored.
+	 */
 	private int minDepth = -1;
+
+	/**
+	 * Maximum limit on depth of a subtree to extract. Subtrees that have length
+	 * greater than this are ignored.
+	 */
 	private int maxDepth = -1;
 
+	/**
+	 * Percentage of top performing individuals to select for extraction.
+	 */
 	private double topPercentage;
 
-	public DepthedFrequentSimpleCodeFragmentKB(EvolutionState state, double topPercentage,
+	/**
+	 * Creates a new {@code DepthedFrequentSimpleCodeFragmentKB} object
+	 * @param state The evolutionary state
+	 * @param topPercentage percentage of top performing individuals to select for extraction.
+	 * @param minDepth minimum limit on depth of a subtree to extract. Subtrees that have length
+	 * less than this are ignored.
+	 * @param maxDepth maximum limit on depth of a subtree to extract. Subtrees that have length
+	 * greater than this are ignored.
+	 */
+	public FrequentCodeFragmentKB(EvolutionState state, double topPercentage,
 			int minDepth, int maxDepth)
 	{
 		this.state = state;
@@ -57,6 +83,55 @@ public class DepthedFrequentSimpleCodeFragmentKB extends CodeFragmentKB
 		this.topPercentage = topPercentage;
 		this.minDepth = minDepth;
 		this.maxDepth = maxDepth;
+	}
+
+	@Override
+	public boolean extractFrom(File file, KnowledgeExtractionMethod method)
+	{
+		throw new UnsupportedOperationException("This operation is not supported. Only, extraction "
+				+ "from a directory is supported.");
+	}
+
+	public boolean extractFrom(Path knowledgeDirectory, String fileExtention, KnowledgeExtractionMethod method)
+	{
+		if(knowledgeDirectory == null )
+			throw new NullPointerException("Knowledge directory cannot be null");
+		if(fileExtention == null || fileExtention.trim().isEmpty())
+			throw new IllegalArgumentException("File extension cannot be null or empty");
+
+		if(knowledgeDirectory.toFile().isFile())
+			throw new IllegalArgumentException("Received a file object for knowledge directory");
+
+		boolean added = false;
+		try
+		{
+			ArrayList<Path> regularFilePaths = Files.list(knowledgeDirectory)
+				.filter(Files::isRegularFile)
+				.filter(file -> file.getFileName().toString().endsWith(fileExtention))
+				.collect(Collectors.toCollection(ArrayList::new));
+			for(Path path : regularFilePaths)
+			{
+				Population p = PopulationWriter.loadPopulation(path.toString());
+				Comparator<Individual> com2 = (Individual o1, Individual o2) ->
+				{
+					if(o1.fitness.fitness() < o2.fitness.fitness())
+						return -1;
+					if(o1.fitness.fitness() == o2.fitness.fitness())
+						return 0;
+
+					return 1;
+				};
+
+				Arrays.sort(p.subpops[0].individuals, com2);
+				added |= extractFrom(p, method);
+			}
+
+		}
+		catch(IOException | ClassNotFoundException e)
+		{
+			throw new RuntimeException(e);
+		}
+		return added;
 	}
 
 	@Override
