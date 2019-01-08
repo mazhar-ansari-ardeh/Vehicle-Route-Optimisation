@@ -59,8 +59,18 @@ public class FCFStatistics extends SimpleStatistics
 	/**
 	 * The best generation, i.e. the generation that has the individual with the best fitness.
 	 */
-	int bestGeneration = 0;
-	double bestGenerationFitness = Double.MAX_VALUE;
+	private int bestGeneration = 0;
+	private double bestGenerationFitness = Double.MAX_VALUE;
+
+	public int getBestGeneration()
+	{
+		return bestGeneration;
+	}
+
+	public double getBestGenerationFitness()
+	{
+		return bestGenerationFitness;
+	}
 
 	/**
 	 * Iterate population and perform a collection of tasks defined inside the function.
