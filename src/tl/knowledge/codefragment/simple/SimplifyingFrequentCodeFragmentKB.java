@@ -19,13 +19,14 @@ import ec.Population;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import tl.gp.PopulationWriter;
+import tl.gp.TreeSimplifier;
 import tl.gp.TreeSlicer;
 import tl.knowledge.KnowledgeExtractionMethod;
 import tl.knowledge.KnowledgeExtractor;
 import tl.knowledge.codefragment.*;
 
 /**
- * This class, with {@code DepthedFrequentSimpleCodeFragmentBuilder}, implements the idea of using
+ * This class, with {@code SimplifyingFrequentCodeFragmentBuilder}, implements the idea of using
  * code frequents based on the frequency of their occurrence in source domain.
  * <p>
  * In this class, code fragments are extracted based on either Root, RootSubtree or All
@@ -35,7 +36,7 @@ import tl.knowledge.codefragment.*;
  * any assumptions about the type of fitness value (whether it is from train or test scenario).
  * @author mazhar
  */
-public class FrequentCodeFragmentKB extends CodeFragmentKB
+public class SimplifyingFrequentCodeFragmentKB extends CodeFragmentKB
 {
 	// Using ConcurrentHashMap instead of HashMap will make this KB capable of
 	// concurrency.
@@ -60,10 +61,15 @@ public class FrequentCodeFragmentKB extends CodeFragmentKB
 	 */
 	private double topPercentage;
 
-//
-//	private boolean simplify = false;
-//
-//	private TreeSimplifier simplifier = null;
+
+	private double topGenerationPercent = 1;
+
+
+	private boolean simplify = false;
+
+	private TreeSimplifier simplifier = null;
+
+	private int tournamentSize = 20;
 
 	/**
 	 * Creates a new {@code DepthedFrequentSimpleCodeFragmentKB} object
@@ -74,7 +80,7 @@ public class FrequentCodeFragmentKB extends CodeFragmentKB
 	 * @param maxDepth maximum limit on depth of a subtree to extract. Subtrees that have length
 	 * greater than this are ignored.
 	 */
-	public FrequentCodeFragmentKB(EvolutionState state, double topPercentage,
+	public SimplifyingFrequentCodeFragmentKB(EvolutionState state, double topPercentage,
 			int minDepth, int maxDepth)
 	{
 		this.state = state;
@@ -92,36 +98,41 @@ public class FrequentCodeFragmentKB extends CodeFragmentKB
 	}
 
 
-//	/**
-//	 * Creates a new {@code DepthedFrequentSimpleCodeFragmentKB} object
-//	 * @param state The evolutionary state
-//	 * @param topPercentage percentage of top performing individuals to select for extraction.
-//	 * @param minDepth minimum limit on depth of a subtree to extract. Subtrees that have length
-//	 * less than this are ignored.
-//	 * @param maxDepth maximum limit on depth of a subtree to extract. Subtrees that have length
-//	 * greater than this are ignored.
-//	 * @param simplify if true, the algorithm will simplify and remove redundant subtrees from the
-//	 * an individual before adding it to the repository.
-//	 */
-//	public FrequentCodeFragmentKB(EvolutionState state, double topPercentage,
-//			int minDepth, int maxDepth)
-//	{
-//		this.state = state;
-//		if(minDepth > maxDepth)
-//			throw new IllegalArgumentException("Min depth limit cannot be higher than max depth "
-//					+ "limit.");
-//
-//		if(topPercentage <= 0 || topPercentage > 1)
-//			throw new IllegalArgumentException("Top percentage must be a value in (0, 1]: "
-//												+ topPercentage);
-//
-//		this.topPercentage = topPercentage;
-//		this.minDepth = minDepth;
-//		this.maxDepth = maxDepth;
-//		this.simplify = simplify;
-//		if(simplify)
-//			simplifier = new TreeSimplifier(state, threadnum);
-//	}
+	/**
+	 * Creates a new {@code DepthedFrequentSimpleCodeFragmentKB} object
+	 * @param state The evolutionary state
+	 * @param topPercentage percentage of top performing individuals to select for extraction.
+	 * @param minDepth minimum limit on depth of a subtree to extract. Subtrees that have length
+	 * less than this are ignored.
+	 * @param maxDepth maximum limit on depth of a subtree to extract. Subtrees that have length
+	 * greater than this are ignored.
+	 * @param threadnum The thread number for ECJ thread that is running this class objects. This
+	 * parameter is used for generating random numbers and if {@code simplify} is {@code false}, it
+	 * can be ignored.
+	 * @param simplify if true, the algorithm will simplify and remove redundant subtrees from the
+	 * an individual before adding it to the repository.
+	 */
+	public SimplifyingFrequentCodeFragmentKB(EvolutionState state, double topPercentage
+			, double topGenerationPercent, int minDepth
+			, int maxDepth, int threadnum, boolean simplify, int tournamentSize)
+	{
+		this.state = state;
+		if(minDepth > maxDepth)
+			throw new IllegalArgumentException("Min depth limit cannot be higher than max depth "
+					+ "limit.");
+
+		if(topPercentage <= 0 || topPercentage > 1)
+			throw new IllegalArgumentException("Top percentage must be a value in (0, 1]: "
+												+ topPercentage);
+		this.topPercentage = topPercentage;
+		this.topGenerationPercent = topGenerationPercent;
+		this.tournamentSize = tournamentSize;
+		this.minDepth = minDepth;
+		this.maxDepth = maxDepth;
+		this.simplify = simplify;
+		if(simplify)
+			simplifier = new TreeSimplifier(state, threadnum);
+	}
 
 	@Override
 	public boolean extractFrom(File file, KnowledgeExtractionMethod method)
@@ -130,12 +141,12 @@ public class FrequentCodeFragmentKB extends CodeFragmentKB
 				+ "from a directory is supported.");
 	}
 
-	public boolean extractFrom(Path knowledgeDirectory, String fileExtention, KnowledgeExtractionMethod method)
+	public boolean extractFrom(Path knowledgeDirectory, KnowledgeExtractionMethod method)
 	{
 		if(knowledgeDirectory == null )
 			throw new NullPointerException("Knowledge directory cannot be null");
-		if(fileExtention == null || fileExtention.trim().isEmpty())
-			throw new IllegalArgumentException("File extension cannot be null or empty");
+//		if(fileExtention == null || fileExtention.trim().isEmpty())
+//			throw new IllegalArgumentException("File extension cannot be null or empty");
 
 		if(knowledgeDirectory.toFile().isFile())
 			throw new IllegalArgumentException("Received a file object for knowledge directory");
@@ -145,14 +156,28 @@ public class FrequentCodeFragmentKB extends CodeFragmentKB
 		{
 			ArrayList<Path> regularFilePaths = Files.list(knowledgeDirectory)
 				.filter(Files::isRegularFile)
-				.filter(file -> file.getFileName().toString().endsWith(fileExtention))
+				.filter(file -> file.getFileName().toString().endsWith(".bin"))
+				.sorted((a, b) ->{
+					String fileName1 = a.toString();
+					int index = fileName1.indexOf("gen.") + 4;
+					int num1 = Integer.parseInt(fileName1.substring(index, fileName1.indexOf(".bin")));
+
+					String fileName2 = b.toString();
+					index = fileName2.indexOf("gen.") + 4;
+					int num2 = Integer.parseInt(fileName2.substring(index, fileName2.indexOf(".bin")));
+
+					return Long.compare(num1, num2);})
 				.collect(Collectors.toCollection(ArrayList::new));
+
 			if(regularFilePaths.isEmpty())
 				state.output.fatal("Knowledge directory is empty: " + knowledgeDirectory.toString());
+
+			regularFilePaths = regularFilePaths
+					.stream().skip(
+							(long)(regularFilePaths.size() * (1 - topGenerationPercent)))
+							.collect(Collectors.toCollection(ArrayList::new));
 			for(Path path : regularFilePaths)
 			{
-				if(!path.toString().contains("population.gen.49.bin"))
-					continue;
 				Population p = PopulationWriter.loadPopulation(path.toString());
 				Comparator<Individual> com2 = (Individual o1, Individual o2) ->
 				{
@@ -226,6 +251,11 @@ public class FrequentCodeFragmentKB extends CodeFragmentKB
 		if (gpIndividual == null)
 		{
 			return false;
+		}
+
+		if(simplify)
+		{
+			simplifier.simplify(gpIndividual.trees[0].child);
 		}
 
 		ArrayList<GPNode> allNodes = null;
@@ -347,7 +377,7 @@ public class FrequentCodeFragmentKB extends CodeFragmentKB
 	@Override
 	public KnowledgeExtractor getKnowledgeExtractor()
 	{
-		return new CodeFragmentKnowledgeExtractor();
+		return new FrequentTournamentKnowledgeExtraction(state, 0, repository, tournamentSize);
 	}
 
 	public class CodeFragmentKnowledgeExtractor implements KnowledgeExtractor

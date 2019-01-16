@@ -36,7 +36,7 @@ breed = ec.simple.SimpleBreeder
 eval = ec.simple.SimpleEvaluator
 
 stat = tl.gp.FCFStatistics
-stat.save-pop = false
+stat.save-pop = true
 stat.save-tree = false
 #stat.num-children = 1
 #stat.child.0 = ec.gp.koza.KozaShortStatistics
@@ -49,7 +49,7 @@ quit-on-run-complete = true
 pop = ec.Population
 pop.subpops = 1
 pop.subpop.0 = ec.Subpopulation
-pop.subpop.0.size = 10240
+pop.subpop.0.size = 1024
 
 breed.elite.0 = 10
 
@@ -111,6 +111,11 @@ pop.subpop.0.species.pipe.source.1 = ec.gp.koza.MutationPipeline
 pop.subpop.0.species.pipe.source.1.prob = 0.7
 pop.subpop.0.species.pipe.source.2 = ec.breed.ReproductionPipeline
 pop.subpop.0.species.pipe.source.2.prob = 0.05
+# pop.subpop.0.species.pipe.source.0.prob = 0.80
+# pop.subpop.0.species.pipe.source.1 = ec.gp.koza.MutationPipeline
+# pop.subpop.0.species.pipe.source.1.prob = 0.15
+# pop.subpop.0.species.pipe.source.2 = ec.breed.ReproductionPipeline
+# pop.subpop.0.species.pipe.source.2.prob = 0.05
 
 # Selection for reproduction
 breed.reproduce.source.0 = ec.select.TournamentSelection

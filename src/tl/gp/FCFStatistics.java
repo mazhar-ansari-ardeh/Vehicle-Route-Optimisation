@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 
 import ec.EvolutionState;
 import ec.Fitness;
@@ -38,8 +39,6 @@ public class FCFStatistics extends SimpleStatistics
 	private int statLogID;
 
 
-	// private int knowledgeLogID;
-
 	/**
 	 * The name that will be used to save population in generation. This is the base name and it
 	 * will be augmented for each generation.
@@ -56,20 +55,32 @@ public class FCFStatistics extends SimpleStatistics
 	public final static String P_SAVE_POP = "save-pop";
 	// public final static String P_SAVE_POP_TREE = "save-tree";
 
-	/**
-	 * The best generation, i.e. the generation that has the individual with the best fitness.
-	 */
-	private int bestGeneration = 0;
-	private double bestGenerationFitness = Double.MAX_VALUE;
 
-	public int getBestGeneration()
+	/**
+	 * Gets the best generation, i.e. the generation that has the individual with the best fitness.
+	 *
+	 * @return Index of the best generation.
+	 */
+	public int getBestOverallGeneration()
 	{
-		return bestGeneration;
+		int bestIndex = 0;
+		for (int i = 1; i < generationBests.size(); i++)
+			if(generationBests.get(i) < generationBests.get(bestIndex))
+				bestIndex = i;
+		return bestIndex;
 	}
 
-	public double getBestGenerationFitness()
+	/**
+	 * The best fitness, i.e. the best fitness over all generations that GP has ever achieved.
+	 *
+	 * @return The best overall fitness.
+	 */
+	public double getBestOverallFitness()
 	{
-		return bestGenerationFitness;
+		int index = getBestOverallGeneration();
+		if(index < 0)
+			return Double.NaN;
+		return generationBests.get(index);
 	}
 
 	/**
@@ -128,11 +139,11 @@ public class FCFStatistics extends SimpleStatistics
 				// 4. post subpopulation iteration operations
 
 				// 4.2 update global statistics and save it to file.
-				if(bestSubPopFitness < bestGenerationFitness)
-				{
-					bestGenerationFitness = bestSubPopFitness;
-					bestGeneration = state.generation;
-				}
+//				if(bestSubPopFitness < bestGenerationFitness)
+//				{
+//					bestGenerationFitness = bestSubPopFitness;
+////					bestGeneration = state.generation;
+//				}
 
 				state.output.println(state.generation + ",\t"
 						+ ((KnowledgeableProblemForm)state.evaluator.p_problem).getEvalCount()
@@ -151,6 +162,50 @@ public class FCFStatistics extends SimpleStatistics
 			e.printStackTrace();
 			state.output.fatal(e.toString());
 		}
+	}
+
+	/**
+	 * A list that holds best fitness for each generation of GP.
+	 */
+	private ArrayList<Double> generationBests = new ArrayList<>();
+
+	public double[] getGenerationsBestFitness()
+	{
+		double[] retval = new double[generationBests.size()];
+		for(int i = 0; i < generationBests.size(); i++)
+			retval[i] = generationBests.get(i);
+
+//		generationBests.toArray(retval);
+//		Double[] retval = (Double[])generationBests.toArray();
+		return retval;
+	}
+
+
+	private void updateGenerationalFitness(EvolutionState state)
+	{
+
+		Subpopulation sub = state.population.subpops[0];
+		double bestSubPopFitness = Double.MAX_VALUE;
+		for(Individual ind: sub.individuals)
+		{
+			GPIndividual gind = (GPIndividual)ind;
+			Fitness fit = gind.fitness;
+			double fitness = fit.fitness();
+			if(gind.fitness instanceof KozaFitness)
+				fitness = ((KozaFitness)fit).standardizedFitness();
+
+			if(fitness < bestSubPopFitness)
+			{
+				bestSubPopFitness = fitness;
+			}
+		}
+		generationBests.add(bestSubPopFitness);
+
+//		if(bestSubPopFitness < bestGenerationFitness)
+//		{
+//			bestGenerationFitness = bestSubPopFitness;
+//			bestGeneration = state.generation;
+//		}
 	}
 
 	public String generatePopulationFileName(int generation)
@@ -200,6 +255,8 @@ public class FCFStatistics extends SimpleStatistics
 	public void postEvaluationStatistics(EvolutionState state)
 	{
 		super.postEvaluationStatistics(state);
+		updateGenerationalFitness(state);
+
 		if(saveGenerations)
 		{
 			iteratePopulation(state);

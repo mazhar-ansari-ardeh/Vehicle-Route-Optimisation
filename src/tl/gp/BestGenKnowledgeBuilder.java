@@ -80,8 +80,8 @@ public class BestGenKnowledgeBuilder extends HalfBuilder
 			knowledgeSuccessLogID = state.output.addLog(successKnLog, false);
 		}
 		 catch (IOException e) {
-				state.output.fatal("Failed to create knowledge log file in CodeFragmentBuilder: "
-						+ e.getStackTrace().toString());
+			 e.printStackTrace();
+				state.output.fatal("Failed to create knowledge log file in CodeFragmentBuilder");
 			}
 	}
 

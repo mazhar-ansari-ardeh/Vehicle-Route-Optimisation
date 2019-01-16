@@ -14,7 +14,7 @@ public class GPIndividualFeatureStatistics implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
-	private int frequency = 0;
+	private int frequency;
 
 	private GPIndividual ind = null;
 
@@ -31,6 +31,7 @@ public class GPIndividualFeatureStatistics implements Serializable
 		this.terminal = terminal;
 		this.ind = gind;
 		this.allIndTerminals = allIndTermials;
+		this.frequency = 1;
 	}
 
 	public GPIndividual getIndividual()

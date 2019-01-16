@@ -1,22 +1,38 @@
 package tl.gp;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.nio.file.*;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import ec.*;
 import ec.gp.*;
-import ec.simple.SimpleProblemForm;
 import ec.util.*;
 import gputils.terminal.TerminalERCUniform;
 import javafx.util.Pair;
 import tl.gphhucarp.GPIndividualFeatureStatistics;
 
+
+/**
+ * Analyzes terminals of GP individuals in a population file or all the population files in a folder
+ * and saves the result as a dictionary in a file that is specified as a command line argument. <p>
+ * <b>Note</b>: This program assumes that a GP individuals that this program loads are already
+ * evaluated on test domain and therefore, it does not evaluate them when it starts its work. On the
+ * other hand, if the program needs to evaluate an individual, it does the evaluation, assuming that
+ * it has given parameters for test environments.<p>
+ *
+ * This program introduces the parameter base 'analyze-terminals' and requires the a parameter
+ * 'percent' which is the percent of each population to consider for analysis.
+ *
+ * The program receives its requirements from command line. Usage:
+ * 		AnalyzeTerminals <test param file> <input population file/folder> <output file> [<EJC params>...]"
+ *
+ * ECJ parameters are optional but important parameters, like sample size, can be passed to this
+ * program this way. A sample command line running of the program: <p>
+ * AnalyzeTerminals bin/tl/gphhucarp/source.param /home/mazhar/MyPhD/SourceCodes/gpucarp/stats/source/population.gen.0.bin book.bk eval.problem.eval-model.instances.0.samples=500 analyze-terminals.percent=0.5
+ * @author mazhar
+ *
+ */
 public class AnalyzeTerminals
 {
 	static EvolutionState state = null;
@@ -27,9 +43,11 @@ public class AnalyzeTerminals
 	 * If this value is less than 1, the individuals in the population will be sorted according to
 	 * their fitness and then will be selected.
 	 */
-	private static double k;
+	private static double percent;
 
 	static final String P_BASE = "analyze-terminals";
+
+	static final String P_PERCENT = "percent";
 
 	static void loadECJ(String paramFileNamePath, String... ecjParams)
 	{
@@ -56,11 +74,18 @@ public class AnalyzeTerminals
         state.evaluator.setup(state, p);
 
         Parameter base = new Parameter(P_BASE);
-        p = base.push("k");
-        k = state.parameters.getDouble(p, null);
-        if(k < 0 || k > 1)
-        	state.output.fatal("K percent is not a valid value for AnalyzeTerminal: " + k);
-        state.output.warning("K percent is: " + k);
+        p = base.push(P_PERCENT);
+        percent = state.parameters.getDouble(p, null);
+        if(percent < 0 || percent > 1)
+        	state.output.fatal("K percent is not a valid value for AnalyzeTerminal: " + percent);
+        state.output.warning("Percent is: " + percent);
+
+        p = new Parameter("eval.problem.eval-model.instances.0.samples");
+        int samples = state.parameters.getInt(p, null);
+        if(samples < 100)
+        	state.output.fatal("Sample size is too small: " + samples);
+        else
+        	state.output.warning("Sample size in AnalyzeTerminals: " + samples);
 	}
 
 	public static void main(String[] args)
@@ -68,7 +93,7 @@ public class AnalyzeTerminals
 		if(args.length < 3 )
 		{
 			System.err.println("Invalid number of arguments. Usage: AnalyzeTerminals "
-					+ " <test param file> <input population file>"
+					+ " <test param file> <input population file/folder>"
 					+ " <output file> [<EJC params>...]");
 			// The reason that I am not using a parameter file instead of command line arguments is
 			// that first, I don't like param files; second, I want to use the same param file that
@@ -91,7 +116,9 @@ public class AnalyzeTerminals
 			{
 				Path rootPath = Paths.get(inputFileNamePath);
 				ArrayList<Path> regularFilePaths = Files.list(rootPath)
-						.filter(Files::isRegularFile).filter(file -> file.getFileName().toString().endsWith(".bin"))
+						.filter(Files::isRegularFile).filter(file -> file.getFileName()
+																		 .toString()
+																		 .endsWith(".bin"))
 						.collect(Collectors.toCollection(ArrayList::new));
 
 				regularFilePaths.forEach(System.out::println);
@@ -104,19 +131,21 @@ public class AnalyzeTerminals
 				popList.add(PopulationWriter.loadPopulation(inputFileNamePath));
 
 
-			state.output.warning(k + " percent of each subpopulation is loaded");
+			state.output.warning(percent + " percent of each subpopulation is loaded");
 			for(Population pop : popList)
 			{
-				for(Subpopulation sub : pop.subpops)
-				{
-					for(Individual gind : sub.individuals)
-						evaluate(state, (GPIndividual) gind);
-				}
+				// This method is not used any more. Use the program EvaluateOnTest to evaluate a population
+				// file before passing it up to this program.
+//				for(Subpopulation sub : pop.subpops)
+//				{
+//					for(Individual gind : sub.individuals)
+//						evaluate(state, (GPIndividual) gind);
+//				}
 
 				PopulationWriter.sort(pop);
 				for(Subpopulation sub : pop.subpops)
 				{
-					for(int i = 0; i < Math.round(sub.individuals.length * k); i++)
+					for(int i = 0; i < Math.round(sub.individuals.length * percent); i++)
 					{
 						if(!(sub.individuals[i] instanceof GPIndividual))
 						{
@@ -267,11 +296,13 @@ public class AnalyzeTerminals
 		}
 	}
 
-	static double evaluate(EvolutionState state, GPIndividual gind)
-	{
-		((SimpleProblemForm)state.evaluator.p_problem).evaluate(state, gind, 0, 0);
-
-		return gind.fitness.fitness();
-	}
+	// This method is not used any more. Use the program EvaluateOnTest to evaluate a population
+	// file before passing it up to this program.
+//	static double evaluate(EvolutionState state, GPIndividual gind)
+//	{
+//		((SimpleProblemForm)state.evaluator.p_problem).evaluate(state, gind, 0, 0);
+//
+//		return gind.fitness.fitness();
+//	}
 
 }

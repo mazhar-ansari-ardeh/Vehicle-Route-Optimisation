@@ -145,9 +145,10 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 	{
 		if (file == null)
 		{
-//			System.out.println("File is null");
-			return false;
+			throw new IllegalArgumentException("File cannot be null");
 		}
+		if(file.isDirectory())
+			throw new IllegalArgumentException("The 'file' argument is pointing to a directory");
 
 //		System.out.println("Inside CodeFragmentKB.addFrom. File:" + file.getAbsolutePath());
 

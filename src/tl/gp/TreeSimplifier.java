@@ -1,10 +1,9 @@
-package sandbox;
+package tl.gp;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InvalidObjectException;
 import java.util.ArrayList;
-import java.util.Random;
 
 import ec.Evaluator;
 import ec.EvolutionState;
@@ -24,30 +23,22 @@ import gputils.terminal.TerminalERC;
 import gputils.terminal.TerminalERCUniform;
 import tl.gp.PopulationWriter;
 
-public class Main {
+public class TreeSimplifier
+{
 
-//	public static long[] xgcd(long a, long b){
-//		long[] retvals={0,0,0};
-//		long aa[]={1,0}, bb[]={0,1}, q=0;
-//		while(true) {
-//			q = a / b; a = a % b;
-//			aa[0] = aa[0] - q*aa[1];  bb[0] = bb[0] - q*bb[1];
-//			if (a == 0) {
-//				retvals[0] = b; retvals[1] = aa[1]; retvals[2] = bb[1];
-//				return retvals;
-//			};
-//			q = b / a; b = b % a;
-//			aa[1] = aa[1] - q*aa[0];  bb[1] = bb[1] - q*bb[0];
-//			if (b == 0) {
-//				retvals[0] = a; retvals[1] = aa[0]; retvals[2] = bb[0];
-//				return retvals;
-//			};
-//		}
-//	}
+	private EvolutionState state = null;
 
-	private static EvolutionState state = null;
+	private int threadNum;
 
-	static void loadECJ(String paramFileNamePath, String... ecjParams)
+	public TreeSimplifier(EvolutionState eState, int threadNumber)
+	{
+		if(state == null || state.random == null)
+			throw new IllegalArgumentException("State or its random generator is null");
+		state = eState;
+		threadNum = threadNumber;
+	}
+
+	static EvolutionState loadECJ(String paramFileNamePath, String... ecjParams)
 	{
 		ArrayList<String> params = new ArrayList<>();
 		params.add("-file");
@@ -61,22 +52,24 @@ public class Main {
 		params.toArray(processedParams);
 		ParameterDatabase parameters = Evolve.loadParameterDatabase(processedParams);
 
-		state = Evolve.initialize(parameters, 0);
+		EvolutionState retval = Evolve.initialize(parameters, 0);
 
 		Parameter p;
 
 		// setup the evaluator, essentially the test evaluation model
 		p = new Parameter(EvolutionState.P_EVALUATOR);
-		state.evaluator = (Evaluator)
+		retval.evaluator = (Evaluator)
 				(parameters.getInstanceForParameter(p, null, Evaluator.class));
-		state.evaluator.setup(state, p);
+		retval.evaluator.setup(retval, p);
 
 		p = new Parameter("eval.problem.eval-model.instances.0.samples");
-		int samples = state.parameters.getInt(p, null);
+		int samples = retval.parameters.getInt(p, null);
 		if(samples < 100)
-			state.output.fatal("Sample size is too small: " + samples);
+			retval.output.fatal("Sample size is too small: " + samples);
 		else
-			state.output.warning("Sample size in AnalyzeTerminals: " + samples);
+			retval.output.warning("Sample size in AnalyzeTerminals: " + samples);
+
+		return retval;
 	}
 
 	private static int mod(int a, int b)
@@ -128,33 +121,32 @@ public class Main {
 	}
 
 	private static ArrayList<Integer> seenNumbers = new ArrayList<>();
-	private static int nextRand()
+	private int nextRand()
 	{
-		Random rng = new Random();
-		int rnd = rng.nextInt(prime); //state.random[0].nextInt(prime);
+		int rnd = state.random[threadNum].nextInt(prime);
 		while(seenNumbers.contains(rnd) == true)
-			rnd = rng.nextInt(prime); //state.random[0].nextInt(prime);
+			rnd = state.random[threadNum].nextInt(prime);
 
 		seenNumbers.add(rnd);
 		return rnd;
 	}
 
-	private static int SCHash = nextRand();
-	private static int CFDHash = nextRand();
-	private static int CFHHash = nextRand();
-	private static int CTDHash = nextRand();
-	private static int CRHash = nextRand();
-	private static int DCHash = nextRand();
-	private static int DEMHash = nextRand();
-	private static int RQHash = nextRand();
-	private static int FULLHash = nextRand();
-	private static int FRTHash = nextRand();
-	private static int FUTHash = nextRand();
-	private static int CFR1Hash = nextRand();
-	private static int CTT1Hash = nextRand();
-	private static int DEM1Hash = nextRand();
+	private int SCHash = nextRand();
+	private int CFDHash = nextRand();
+	private int CFHHash = nextRand();
+	private int CTDHash = nextRand();
+	private int CRHash = nextRand();
+	private int DCHash = nextRand();
+	private int DEMHash = nextRand();
+	private int RQHash = nextRand();
+	private int FULLHash = nextRand();
+	private int FRTHash = nextRand();
+	private int FUTHash = nextRand();
+	private int CFR1Hash = nextRand();
+	private int CTT1Hash = nextRand();
+	private int DEM1Hash = nextRand();
 
-	private static int hashOf(TerminalERCUniform t)
+	private int hashOf(TerminalERCUniform t)
 	{
 		String name = t.getTerminal().name();
 		switch(name)
@@ -205,7 +197,7 @@ public class Main {
 		return retval;
 	}
 
-	private static int hashOfTree(GPNode tree)
+	private int hashOfTree(GPNode tree)
 	{
 		if(tree.children == null || tree.children.length == 0)
 			return hashOf((TerminalERCUniform) tree);
@@ -316,7 +308,7 @@ public class Main {
 		return true;
 	}
 
-	private static boolean applyMinMaxEqualRule(GPNode tree)
+	private boolean applyMinMaxEqualRule(GPNode tree)
 	{
 		if(!tree.toString().equals("min") && !tree.toString().equals("max"))
 			return false;
@@ -352,7 +344,7 @@ public class Main {
 		return true;
 	}
 
-	private static boolean applySelfDivSubRule(GPNode tree)
+	private boolean applySelfDivSubRule(GPNode tree)
 	{
 		if(!tree.toString().equals("/") && !tree.toString().equals("-"))
 			return false;
@@ -459,7 +451,6 @@ public class Main {
 			parent.child = tree.children[0];
 			tree.children[0].parent = parent;
 			tree.children[0].argposition = tree.argposition;
-//			treeParent = parent;
 		}
 		else
 			throw new RuntimeException("Parent type is not a tree or a node: " + oparent);
@@ -467,8 +458,6 @@ public class Main {
 		tree.children[0] = null;
 		return true;
 	}
-
-//	static GPTree treeParent = null;
 
 	private static boolean applyMultipliedByOne(GPNode tree)
 	{
@@ -505,7 +494,6 @@ public class Main {
 			parent.child = res;
 			res.parent = parent;
 			res.argposition = tree.argposition;
-//			treeParent = parent;
 		}
 		else
 			throw new RuntimeException("Parent type is not a tree or a node: " + oparent);
@@ -548,7 +536,6 @@ public class Main {
 			parent.child = res;
 			res.parent = parent;
 			res.argposition = tree.argposition;
-//			treeParent = parent;
 		}
 		else
 			throw new RuntimeException("Parent type is not a tree or a node: " + oparent);
@@ -591,7 +578,6 @@ public class Main {
 			parent.child = res;
 			res.parent = parent;
 			res.argposition = tree.argposition;
-//			treeParent = parent;
 		}
 		else
 			throw new RuntimeException("Parent type is not a tree or a node: " + oparent);
@@ -638,48 +624,7 @@ public class Main {
 		return true;
 	}
 
-	//	static boolean selfSubtracted(GPNode tree)
-	//	{
-	//		if(!tree.toString().equals("-"))
-	//			return false;
-	//		if(tree.children == null || tree.children.length == 0)
-	//			throw new RuntimeException("Received a division operator without any operands");
-	//
-	//		GPNode ch1 = tree.children[0];
-	//		GPNode ch2 = tree.children[1];
-	//
-	//		if(!isDoubleERC(ch1, 0) && !isDoubleERC(ch2, 0))
-	//			return false;
-	//
-	//		GPNode res = null;
-	//		if(isDoubleERC(ch1, 0))
-	//			res = ch2;
-	//		else
-	//			res = ch1;
-	//
-	//		Object oparent = tree.parent;
-	//		tree.parent = null;
-	//
-	//		if(oparent instanceof GPNode)
-	//		{
-	//			GPNode parent = (GPNode) oparent;
-	//			parent.children[tree.argposition] = res;
-	//			res.parent = parent;
-	//			res.argposition = tree.argposition;
-	//		}
-	//		else if(oparent instanceof GPTree)
-	//		{
-	//			GPTree parent = (GPTree) oparent;
-	//			parent.child = res;
-	//			res.parent = parent;
-	//			res.argposition = tree.argposition;
-	//		}
-	//
-	//		return true;
-	//	}
-
-
-	private static boolean applyAllRules(GPNode tree)
+	private boolean applyAllRules(GPNode tree)
 	{
 		boolean simplified = false;
 
@@ -728,7 +673,7 @@ public class Main {
 		return simplified;
 	}
 
-	public static boolean simplify(GPNode tree)
+	public boolean simplify(GPNode tree)
 	{
 		if(tree.children == null || tree.children.length == 0)
 			return false;
@@ -765,13 +710,8 @@ public class Main {
 		ch2.parent = node;
 	}
 
-	public static void main(String[] args) throws InvalidObjectException, FileNotFoundException, ClassNotFoundException, IOException
+	static void main(String[] args) throws InvalidObjectException, FileNotFoundException, ClassNotFoundException, IOException
 	{
-		String fileName2 = "population.gen.21.bin";
-		int index = fileName2.indexOf("gen.") + 4;
-		String num = fileName2.substring(index, fileName2.indexOf(".bin"));
-
-
 		TerminalERCUniform n1 = new TerminalERCUniform();
 		ServeCost sc = new ServeCost();
 		n1.children = new GPNode[0];
@@ -805,8 +745,13 @@ public class Main {
 		min.parent = tree;
 		min.argposition = 0;
 
+		String paramFileNamePath = "";
+		EvolutionState eState = loadECJ(paramFileNamePath);
+
+		TreeSimplifier ts = new TreeSimplifier(eState, 0);
+
 		System.out.println(tree.child.makeGraphvizTree());
-		simplify(min);
+		ts.simplify(min);
 		System.out.println(tree.child.makeGraphvizTree());
 
 
@@ -816,7 +761,7 @@ public class Main {
 		{
 			GPIndividual ind = (GPIndividual)p.subpops[0].individuals[i];
 			GPIndividual c = (GPIndividual) ind.clone();
-			if(simplify(ind.trees[0].child))
+			if(ts.simplify(ind.trees[0].child))
 			{
 				System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++");
 				System.out.println("Before: " + c.trees[0].child.makeGraphvizTree() + "\n");

@@ -1,8 +1,9 @@
 parent.0=carp_param_base.param
+print-params = true
 
 stat.file=$./stats/target-wk/job.0.out.stat
 stat.gen-pop-file=./stats/target-wk/population.gen
-eval.problem.eval-model.instances.0.file=gdb/gdb21.dat
+eval.problem.eval-model.instances.0.file=gdb/gdb2.dat
 eval.problem.eval-model.instances.0.vehicles=7
 seed.0=2
 # gp.tc.0.init=tl.gp.IqKnowledgeBuilder
@@ -23,28 +24,34 @@ seed.0=2
 # ==============================
 # gp.fs.0.func.0 = tl.gphhucarp.TerminalERCWeighted
 # gp.fs.0.func.0.terminal-file = book.bk
+# gp.fs.0.func.0.weight-use-degeneration-rate=0.8
+# gp.fs.0.func.0.weight-use-probability=0.8
+# gp.fs.0.func.0.weight-use-policy=all
 # gp.fs.0.func.0.knowledge-log-file=./stats/target-wk/TerminalERCWeightedLog
 # ==============================
 
 # ==============================
 # Terminal Weight Transfer
 # ==============================
-gp.fs.0.func.0 = tl.gphhucarp.TerminalERCContribWeighted
-gp.fs.0.func.0.terminal-file = book.bk
-gp.fs.0.func.0.knowledge-log-file=./stats/target-wk/TerminalERCContribWeightedLog
+# gp.fs.0.func.0 = tl.gphhucarp.TerminalERCContribWeighted
+# gp.fs.0.func.0.terminal-file = book.bk
+# gp.fs.0.func.0.weight-use-degeneration-rate=0.8
+# gp.fs.0.func.0.weight-use-probability=0.8
+# gp.fs.0.func.0.weight-use-policy=first
+# gp.fs.0.func.0.knowledge-log-file=./stats/target-wk/TerminalERCContribWeightedLog
 # ==============================
 
 # ==============================
-# Depthed Frequent Simple CodeFragment Builder
+# Frequent CodeFragment Builder
 # ==============================
-# gp.tc.0.init=tl.gp.DepthedFrequentSimpleCodeFragmentBuilder
-# gp.tc.0.init.knowledge-file=/vol/grid-solar/sgeusers/mazhar/gdb21-v6-to7-depthed-frequent/28/gdb21-v6.cf.pop.bin
-# gp.tc.0.init.knowledge-extraction=rootsubtree
+gp.tc.0.init=tl.gp.FrequentCodeFragmentBuilder
+gp.tc.0.init.knowledge-directory=/home/mazhar/grid/gdb2-v6-to5/1/stats/gdb2-v6-writeknow/
+gp.tc.0.init.knowledge-extraction=rootsubtree
 # percentage of initial population that is created from extracted knowledge
-# gp.tc.0.init.transfer-percent=0.50
-# gp.tc.0.init.extract-percent=0.50
-# gp.tc.0.init.min-cf-depth=2
-# gp.tc.0.init.max-cf-depth=5
+gp.tc.0.init.transfer-percent=0.50
+gp.tc.0.init.extract-percent=0.50
+gp.tc.0.init.min-cf-depth=2
+gp.tc.0.init.max-cf-depth=5
 # ==============================
 
 
@@ -63,6 +70,7 @@ train-path = /home/mazhar/MyPhD/SourceCodes/gpucarp/stats/target-wk/
 solution-type = simple-solution
 fitness-type = simple-fitness
 num-trains = 1
+generations=50
 
 # ==============================
 # The test set
@@ -77,7 +85,7 @@ num-trains = 1
 # eval.problem.eval-model.objectives = 1
 # eval.problem.eval-model.objectives.0 = total-cost
 # eval.problem.eval-model.instances = 1
-# eval.problem.eval-model.instances.0.file = gdb/gdb21.dat
+# eval.problem.eval-model.instances.0.file = gdb/gdb2.dat
 # eval.problem.eval-model.instances.0.samples = 500
 # eval.problem.eval-model.instances.0.vehicles = from-file
 # eval.problem.eval-model.instances.0.demand-uncertainty-level = 0.2

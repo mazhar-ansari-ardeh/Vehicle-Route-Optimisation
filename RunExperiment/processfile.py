@@ -6,82 +6,18 @@ from pathlib import Path
 import subprocess
 import matplotlib.pyplot as plt
 
-# filepath = '/vol/grid-solar/sgeusers/mazhar/gdb21-v6-to7/gdb21-v6to7.sh.o3465564.30'
-
-# generations = 100
-# def processfile(path):
-#     fitnesses = []
-#     with open(path) as file:
-#         for line in file:
-#             if not line.startswith('Generation'):
-#                 continue
-
-#             fitnesses.append(float(line.split(" = ")[-1]))
-
-#     wo = fitnesses[100:200]
-#     wi = fitnesses[200:300]
-
-#     # print(min(wo), min(wi))
-#     return [wo[-1], min(wo), wi[-1], min(wi)]
-
-# def getColumn(resutls, index):
-#     col = []
-#     for ind in resutls.keys():
-#         col.append(resutls[ind][index])
-
-#     return col
-
-
-# def processexperiment(path):
-#     w = os.walk(path)
-#     files = next(w)[-1]
-#     files = sorted(files)
-#     results = {}
-
-#     for file in files:
-#         if re.search(r'e\d+', file):
-#             continue
-
-#         results[int(file.split('.')[-1])] = processfile(path + file)
-
-#     out = open(dirpath + 'summary.csv', 'w')
-#     out.write('run, without - last, without - best, with - last, with - best\n')
-#     for ind in sorted(results.keys()):
-#         line = ','.join(map(str, [ind, *results[ind]]))
-#         out.write(line + '\n')
-
-#     wo_last_col = getColumn(results, 0)
-#     wo_best_col = getColumn(results, 1)
-#     wi_last_col = getColumn(results, 2)
-#     wi_best_col = getColumn(results, 3)
-
-#     wo_last, wo_best, wi_last, wi_best = map(min, [wo_last_col, wo_best_col, wi_last_col, wi_best_col])
-#     out.write(','.join(map(str, ['min', wo_last, wo_best, wi_last, wi_best])) + '\n')
-    
-#     wo_last_mean, wo_best_mean, wi_last_mean, wi_best_mean = map(statistics.mean, [wo_last_col, wo_best_col, wi_last_col, wi_best_col])
-#     out.write(','.join(map(str, ['mean', wo_last_mean, wo_best_mean, wi_last_mean, wi_best_mean])) + '\n')
-    
-#     wo_last_std, wo_best_std, wi_last_std, wi_best_std = map(statistics.stdev, [wo_last_col, wo_best_col, wi_last_col, wi_best_col])
-#     out.write(','.join(map(str, ['std', wo_last_std, wo_best_std, wi_last_std, wi_best_std ])) + '\n')
-
-#     wilcox_last = stats.wilcoxon(wo_last_col, wiexi_last_col)
-#     wilcox_best = stats.wilcoxon(wo_best_col, wi_best_col)
-#     out.write(','.join(map(str, ['wilcox', '',  wilcox_last, '', wilcox_best])) + '\n')
-
-#     out.close()
-
 # dirpath = '/vol/grid-solar/sgeusers/mazhar/val9C-v5-to6/'
 experiments = ['gdb1-v5-to4', 'gdb1-v5-to6', 'gdb2-v6-to5', 'gdb2-v6-to7'
-                            # , 'gdb9-v10-to11'
+                            , 'gdb9-v10-to11'
                             , 'gdb21-v6-to5'
                             , 'gdb21-v6-to7'
-                            # , 'gdb8-v10-to9', 'gdb8-v10-to11', 'gdb9-v10-to9'
-                            # , 'gdb23-v10-to9', 'gdb23-v10-to11', 'val9C-v5-to4', 'val9C-v5-to6', 'val9D-v10-to9', 'val9D-v10-to11'
-                            # , 'val10C-v5-to4'
-                            # , 'val10C-v5-to6'
-                            # , 'val10D-v10-to9', 'val10D-v10-to11'
+                            , 'gdb8-v10-to9', 'gdb8-v10-to11', 'gdb9-v10-to9'
+                            , 'gdb23-v10-to9', 'gdb23-v10-to11', 'val9C-v5-to4', 'val9C-v5-to6', 'val9D-v10-to9', 'val9D-v10-to11'
+                            , 'val10C-v5-to4'
+                            , 'val10C-v5-to6'
+                            , 'val10D-v10-to9', 'val10D-v10-to11'
                             ]
-dirbase = Path('/home/mazhar/scratch/NewCEC/')
+dirbase = Path('/home/mazhar/scratch/CEC/')
 dirpath = dirbase / 'val10D-v10-to9'
 generations = 50
 
@@ -215,8 +151,8 @@ def plot_grid_output(experiment_path):
         # figsize=(width, height)
         fig_all = plt.figure(figsize=(60, 32))
         ax_all = fig_all.add_subplot(111)
-        ax_all.set_xlabel('Generation')
-        ax_all.set_ylabel('Fitness')
+        ax_all.set_xlabel('Generation', fontdict={'fontsize':45 })
+        ax_all.set_ylabel('Fitness', fontdict={'fontsize':45 })
         
         for algorithm in sorted(gen_mean):
             box_data = []
@@ -247,13 +183,13 @@ def plot_grid_output(experiment_path):
                 label = label[0].upper() + label[1:]
 
                 if 'wok' in algorithm:
-                    ax_all.plot(range(1, len(mean_data) + 1), mean_data, label="Without Transfer", color='k')
+                    ax_all.plot(range(1, len(mean_data) + 1), mean_data, linewidth = 5,  markersize=12, label="Without Transfer", color='k')
                 else:
                     sc += 1 
                     sc %= 3 
 
-                    ax_all.plot(range(1, len(mean_data) + 1), mean_data, label=label
-                                       , linestyle=line_styles[sc], marker=next(markers), markersize=10)
+                    ax_all.plot(range(1, len(mean_data) + 1), mean_data, label=label, linewidth = 5
+                                       , linestyle=line_styles[sc], marker=next(markers), markersize=12)
 
             ax = fig.add_subplot(313)
             ax.set_title(algorithm + ': combo')
@@ -266,9 +202,15 @@ def plot_grid_output(experiment_path):
             # fig.savefig(f'{experiment_path.name + "/" + algorithm}.jpg')
             print('Saved', f'{experiment_path.name + "/" + algorithm}.jpg')
         output_folder = Path('/home/mazhar/MyPhD/MyPapers/Generalizability of GPTL/')
-        ax_all.legend(fontsize=48)
+        leg = ax_all.legend(fontsize=72, ncol=2, markerscale=2)
+        # for line in leg.get_lines():
+        #     line.set_linewidth(10)
+        
+        for handle in leg.legendHandles:
+            handle._markersize = [30]
         # fig_all.savefig(experiment_path.name + "/" + algorithm.split('-')[0] + '-all.jpg')
         fig_all.savefig(output_folder / (experiment_path.name + '-all.jpg'))
+        
 
     for run in runs:
         if run.isnumeric() == False:
@@ -422,6 +364,8 @@ def plot_best_of_algorithms(experiment_path):
 
 if __name__ == '__main__':
     # process_grid_output(dirpath)
-    for exp in experiments:
-        plot_grid_output(dirbase / exp)
-        get_experiment_stats(dirbase / exp)
+    # for exp in experiments:
+    #     # plot_grid_output(dirbase / exp)
+    #     get_experiment_stats(dirbase / exp)
+
+    get_experiment_stats('/home/mazhar/grid/gdb1-v5-to4/')

@@ -9,14 +9,14 @@ import ec.util.Parameter;
 import tl.TLLogger;
 import tl.knowledge.*;
 import tl.knowledge.codefragment.CodeFragmentKI;
-import tl.knowledge.codefragment.simple.FrequentCodeFragmentKB;
+import tl.knowledge.codefragment.simple.SimplifyingFrequentCodeFragmentKB;
 
 /**
  *
  * @author mazhar
  *
  */
-public class FrequentCodeFragmentBuilder 	extends HalfBuilder
+public class SimplifyingFrequentCodeFragmentBuilder 	extends HalfBuilder
 											implements TLLogger<GPNode>
 {
 	private static final long serialVersionUID = 1L;
@@ -60,7 +60,29 @@ public class FrequentCodeFragmentBuilder 	extends HalfBuilder
 	 */
 	public static final String P_MAX_CF_DEPTH = "max-cf-depth";
 
+	/**
+	 * A boolean parameter that if true, the knowledge base will simplify and remove redundant
+	 * subtrees from the GP individuals before extracting subtrees.
+	 */
+	public static final String P_SIMPLIFY = "simplify";
+
+	/**
+	 * {@code FrequentCodeFragmentKB} can extract its knowledge from a set of population files in a
+	 * directory. This parameter specifies what percent of most recent generations should be
+	 * considered. The value of this parameter is must be in the range [0, 1].
+	 */
+	public static final String P_GENERATION_PERCENT = "generation-percent";
+
+	public static final String P_KNOWLEDGE_FREQ_TOURNAMENT_SIZE = "know-freq-tournament-size";
+
 	private static KnowledgeExtractor extractor = null;
+
+	private static SimplifyingFrequentCodeFragmentKB knowledgeBase = null;
+
+	public static SimplifyingFrequentCodeFragmentKB getKnowledgeBase()
+	{
+		return knowledgeBase;
+	}
 
 	private int knowledgeSuccessLogID;
 
@@ -107,11 +129,21 @@ public class FrequentCodeFragmentBuilder 	extends HalfBuilder
 		p = base.push(P_EXTRACT_PERCENT);
 		double extractPercent = state.parameters.getDouble(p, null);
 
-		FrequentCodeFragmentKB knowledgeBase =
-				new FrequentCodeFragmentKB(state, extractPercent, minDepth, maxDepth);
+		p = base.push(P_SIMPLIFY);
+		boolean simplyfy = state.parameters.getBoolean(p, null, false);
+
+		double genPercent = state.parameters.getIntWithDefault(base.push(P_GENERATION_PERCENT)
+																, null, 1);
+
+		int tournamentSize = state.parameters.getIntWithDefault(base.push(P_KNOWLEDGE_FREQ_TOURNAMENT_SIZE), null, 10);
+		if(genPercent < 0 || genPercent > 1)
+			state.output.fatal(P_GENERATION_PERCENT + " must have a value in the range [0, 1]");
+
+		knowledgeBase =	new SimplifyingFrequentCodeFragmentKB(state, extractPercent, genPercent
+												, minDepth, maxDepth, 0, simplyfy, tournamentSize); // TODO: Use a correct thread number.
 
 
-		knowledgeBase.extractFrom(kbDirectory, ".bin", extractionMethod);
+		knowledgeBase.extractFrom(kbDirectory, extractionMethod);
 
 
 		extractor = knowledgeBase.getKnowledgeExtractor();

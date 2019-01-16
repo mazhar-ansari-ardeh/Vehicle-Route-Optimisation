@@ -47,7 +47,7 @@ public class KnowledgeExtractorFinisher extends SimpleFinisher
 
 		FCFStatistics stats = (FCFStatistics) state.statistics;
 
-		String fileName = stats.generatePopulationFileName(stats.getBestGeneration());
+		String fileName = stats.generatePopulationFileName(stats.getBestOverallGeneration());
 
 		File file = new File(fileName);
 		if(!file.exists())

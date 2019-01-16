@@ -83,7 +83,7 @@ public class CFExtractor
 		try(ObjectOutputStream oos = new ObjectOutputStream(
 				new BufferedOutputStream(new FileOutputStream(outputFileNamePath))))
 		{
-			String inputFileNamePath = args[1];
+			File inputFileNamePath = new File(args[1]);
 			KnowledgeExtractionMethod extractionMethod = KnowledgeExtractionMethod.parse(args[2]);
 
 			Population pop = PopulationWriter.loadPopulation(inputFileNamePath);

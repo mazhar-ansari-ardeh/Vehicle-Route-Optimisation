@@ -83,8 +83,8 @@ public abstract class CodeFragmentBuilder extends HalfBuilder
 			knowledgeFailLogID = state.output.addLog(failKnLog, false);
 
 		} catch (IOException e) {
-			state.output.fatal("Failed to create knowledge log file in CodeFragmentBuilder: "
-					+ e.getStackTrace().toString());
+			e.printStackTrace();
+			state.output.fatal("Failed to create knowledge log file in CodeFragmentBuilder");
 		}
 	}
 

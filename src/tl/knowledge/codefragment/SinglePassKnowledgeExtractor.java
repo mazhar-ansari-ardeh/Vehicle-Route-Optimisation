@@ -11,6 +11,7 @@ public class SinglePassKnowledgeExtractor<T> implements KnowledgeExtractor
 
 	private Iterator<Integer> iter;
 
+	// integer is hashcode
 	private Map<Integer, ? extends KnowledgeItem<T>> repository;
 
 	public SinglePassKnowledgeExtractor(Map<Integer, ? extends KnowledgeItem<T>> repository)

@@ -25,9 +25,8 @@ import java.util.Map;
  * @author gphhucarp
  *
  */
-
-public class GPHHEvolutionState extends TerminalERCEvolutionState {
-
+public class GPHHEvolutionState extends TerminalERCEvolutionState
+{
 	/**
 	 * Statistics to store.
 	 */
@@ -233,7 +232,7 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState {
 		finish(result);
     }
 
-    @Override
+	@Override
 	public int evolve() {
 
 	    if (generation > 0)
@@ -247,11 +246,12 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState {
 		finish = util.Timer.getCpuTime();
 		duration = 1.0 * (finish - start) / 1000000000;
 
-		output.message("Generation " + generation + " elapsed " + duration + " seconds.");
-
 		writeToStatFile();
 
 		start = util.Timer.getCpuTime();
+
+//		System.out.println(((FCFStatistics)statistics).getBestOverallGeneration());
+//		System.out.println(((FCFStatistics)statistics).getBestOverallFitness());
 
 	    // SHOULD WE QUIT?
 	    if (evaluator.runComplete(this) && quitOnRunComplete) {
