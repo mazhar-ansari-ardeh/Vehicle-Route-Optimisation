@@ -7,18 +7,30 @@ import subprocess
 import matplotlib.pyplot as plt
 
 # dirpath = '/vol/grid-solar/sgeusers/mazhar/val9C-v5-to6/'
-experiments = ['gdb1-v5-to4', 'gdb1-v5-to6', 'gdb2-v6-to5', 'gdb2-v6-to7'
-                            , 'gdb9-v10-to11'
-                            , 'gdb21-v6-to5'
-                            , 'gdb21-v6-to7'
-                            , 'gdb8-v10-to9', 'gdb8-v10-to11', 'gdb9-v10-to9'
-                            , 'gdb23-v10-to9', 'gdb23-v10-to11', 'val9C-v5-to4', 'val9C-v5-to6', 'val9D-v10-to9', 'val9D-v10-to11'
-                            , 'val10C-v5-to4'
-                            , 'val10C-v5-to6'
-                            , 'val10D-v10-to9', 'val10D-v10-to11'
+experiments = [
+                            # 'gdb1-v5-to4'
+                            # , 'gdb2-v6-to5'
+                            # , 'gdb1-v5-to6'
+                            # , 'gdb2-v6-to7'
+                            # , 'gdb9-v10-to11'
+                            # , 'gdb21-v6-to5'
+                            # , 'gdb21-v6-to7'
+                            # , 'gdb8-v10-to9'
+                            # , 'gdb8-v10-to11'
+                            'gdb9-v10-to9'
+                            #  'gdb23-v10-to9'
+                            # 'gdb23-v10-to11'
+                            # , 'val9C-v5-to4'
+                            # , 'val9C-v5-to6'
+                            # , 'val9D-v10-to9'
+                            # , 'val9D-v10-to11'
+                            # , 'val10C-v5-to4'
+                            # , 'val10C-v5-to6'
+                            # , 'val10D-v10-to9'
+                            # , 'val10D-v10-to11'
                             ]
-dirbase = Path('/home/mazhar/scratch/CEC/')
-dirpath = dirbase / 'val10D-v10-to9'
+dirbase = Path('/home/mazhar/grid/')
+# dirpath = dirbase / 'val10D-v10-to9'
 generations = 50
 
 def bin_to_txt_pop(path_to_folder, print_output = True):
@@ -142,19 +154,32 @@ def plot_grid_output(experiment_path):
             #     print(run, ':', gen_mean_ts[algorithm][gen][int(run)])
 
     def plot_mean_of_genbest_tr(gen_mean):
+
+        def should_plot(alg):
+            filter = ['subtree', 'fulltree', 'GTLKnowlege', 'TLGPCriptor', 'FrequentSub', 'analyze_terminals']
+            for f in filter:
+                if f.lower() in alg.lower():
+                    return False
+            return True
+
         markers = (marker for marker in ['.', ',', 'o', 'v', '^', '<', '>'
                                             , '1', '2', '3', '4', 's', 'p', '*', 'h', 'H', '+', 'x'
                                             , 'D', 'd', '|', '_'])
         line_styles = ['--', '-.', ':']
-        sc = 0
+        sc = 0 # line style counter
         
         # figsize=(width, height)
         fig_all = plt.figure(figsize=(60, 32))
         ax_all = fig_all.add_subplot(111)
         ax_all.set_xlabel('Generation', fontdict={'fontsize':45 })
         ax_all.set_ylabel('Fitness', fontdict={'fontsize':45 })
+
+        # Algorithms in this list will be ignored and filtered out
         
         for algorithm in sorted(gen_mean):
+            if not should_plot(algorithm):
+                continue
+
             box_data = []
             mean_data = []
             for gen in gen_mean[algorithm]:
@@ -167,13 +192,13 @@ def plot_grid_output(experiment_path):
             ax.set_title(algorithm)
             ax.set_xlabel('Generation')
             ax.set_ylabel('Fitness')
-            # ax.boxplot(box_data)
+            ax.boxplot(box_data)
 
             ax = fig.add_subplot(312)
             ax.set_title(algorithm + ': average of 30 runs per generation')
             ax.set_xlabel('Generation')
             ax.set_ylabel('Average fitness')
-            # ax.plot(range(1, len(mean_data) + 1), mean_data)
+            ax.plot(range(1, len(mean_data) + 1), mean_data)
             if not 'writeknow' in algorithm:
                 label = algorithm.replace('Knowledge', '')\
                                     .replace('depthed_frequent', 'FrequentSub')\
@@ -195,13 +220,13 @@ def plot_grid_output(experiment_path):
             ax.set_title(algorithm + ': combo')
             ax.set_xlabel('Generation')
             ax.set_ylabel('Fitness')
-            # ax.boxplot(box_data)
-            # ax.plot(range(1, len(mean_data) + 1), mean_data)
+            ax.boxplot(box_data)
+            ax.plot(range(1, len(mean_data) + 1), mean_data)
             if not Path(experiment_path.name).exists(): 
                 Path(experiment_path.name).mkdir()
-            # fig.savefig(f'{experiment_path.name + "/" + algorithm}.jpg')
+            fig.savefig(f'{experiment_path.name + "/" + algorithm}.jpg')
             print('Saved', f'{experiment_path.name + "/" + algorithm}.jpg')
-        output_folder = Path('/home/mazhar/MyPhD/MyPapers/Generalizability of GPTL/')
+        output_folder = Path('/am/kings/home1/mazhar/MyPhD/SourceCodes/gpucarp/RunExperiment/')
         leg = ax_all.legend(fontsize=72, ncol=2, markerscale=2)
         # for line in leg.get_lines():
         #     line.set_linewidth(10)
@@ -282,6 +307,7 @@ def get_experiment_stats(experiment_path):
             mean = statistics.mean(experiment_ts_fitnesses[algorithm].values())
             stdev = statistics.stdev(experiment_ts_fitnesses[algorithm].values())
             if algorithm != wok_exp:
+                print(algorithm, wok_exp)
                 pval = stats.wilcoxon(list(experiment_ts_fitnesses[algorithm].values()), list(experiment_ts_fitnesses[wok_exp].values()))[1]
             else:
                 pval = '--'
@@ -363,9 +389,8 @@ def plot_best_of_algorithms(experiment_path):
 
 
 if __name__ == '__main__':
-    # process_grid_output(dirpath)
-    # for exp in experiments:
-    #     # plot_grid_output(dirbase / exp)
-    #     get_experiment_stats(dirbase / exp)
+    for exp in experiments:
+        # plot_grid_output(dirbase / exp)
+        get_experiment_stats(dirbase / exp)
 
-    get_experiment_stats('/home/mazhar/grid/gdb1-v5-to4/')
+    # get_experiment_stats('/home/mazhar/grid/gdb1-v5-to4/')
