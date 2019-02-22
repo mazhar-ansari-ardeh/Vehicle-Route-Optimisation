@@ -32,10 +32,25 @@ public class TreeSimplifier
 
 	public TreeSimplifier(EvolutionState eState, int threadNumber)
 	{
-		if(state == null || state.random == null)
+		if(eState == null || eState.random == null)
 			throw new IllegalArgumentException("State or its random generator is null");
 		state = eState;
 		threadNum = threadNumber;
+
+		SCHash = nextRand();
+		CFDHash = nextRand();
+		CFHHash = nextRand();
+		CTDHash = nextRand();
+		CRHash = nextRand();
+		DCHash = nextRand();
+		DEMHash = nextRand();
+		RQHash = nextRand();
+		FULLHash = nextRand();
+		FRTHash = nextRand();
+		FUTHash = nextRand();
+		CFR1Hash = nextRand();
+		CTT1Hash = nextRand();
+		DEM1Hash = nextRand();
 	}
 
 	static EvolutionState loadECJ(String paramFileNamePath, String... ecjParams)
@@ -131,20 +146,20 @@ public class TreeSimplifier
 		return rnd;
 	}
 
-	private int SCHash = nextRand();
-	private int CFDHash = nextRand();
-	private int CFHHash = nextRand();
-	private int CTDHash = nextRand();
-	private int CRHash = nextRand();
-	private int DCHash = nextRand();
-	private int DEMHash = nextRand();
-	private int RQHash = nextRand();
-	private int FULLHash = nextRand();
-	private int FRTHash = nextRand();
-	private int FUTHash = nextRand();
-	private int CFR1Hash = nextRand();
-	private int CTT1Hash = nextRand();
-	private int DEM1Hash = nextRand();
+	private int SCHash;
+	private int CFDHash;
+	private int CFHHash;
+	private int CTDHash;
+	private int CRHash;
+	private int DCHash;
+	private int DEMHash;
+	private int RQHash;
+	private int FULLHash;
+	private int FRTHash;
+	private int FUTHash;
+	private int CFR1Hash;
+	private int CTT1Hash;
+	private int DEM1Hash;
 
 	private int hashOf(TerminalERCUniform t)
 	{
@@ -187,7 +202,7 @@ public class TreeSimplifier
 		}
 	}
 
-	private static final int prime = 101;
+	private static final int prime = 3373;
 
 	private static int hashOf(double value)
 	{
@@ -197,7 +212,7 @@ public class TreeSimplifier
 		return retval;
 	}
 
-	private int hashOfTree(GPNode tree)
+	public int hashOfTree(GPNode tree)
 	{
 		if(tree.children == null || tree.children.length == 0)
 			return hashOf((TerminalERCUniform) tree);

@@ -1,17 +1,22 @@
 package gphhucarp.gp;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+
 import ec.*;
 import ec.gp.GPIndividual;
+import ec.gp.GPNode;
+import ec.multiobjective.MultiObjectiveFitness;
 import ec.util.*;
+import tl.TLLogger;
 import tl.gp.FCFStatistics;
-import tl.gp.SimplifyingFrequentCodeFragmentBuilder;
+import tl.gp.PopulationWriter;
 import tl.knowledge.codefragment.simple.FrequentCodeFragmentKB;
-import tl.knowledge.codefragment.simple.SimplifyingFrequentCodeFragmentKB;
 import tl.knowledge.driftdetection.BaseDriftDetector;
 import tl.knowledge.driftdetection.PageHinkley;
-import tl.knowledge.driftdetection.SimpleDetector;
+import tl.knowledge.driftdetection.SimpleDriftDetector;
 
-public class KnowledgeableState extends GPHHEvolutionState
+public class KnowledgeableState extends GPHHEvolutionState implements TLLogger<GPNode>
 {
 	private static final long serialVersionUID = 1L;
 
@@ -30,6 +35,14 @@ public class KnowledgeableState extends GPHHEvolutionState
 	 */
 	public static final String P_NUM_INSTANCES = "num-instance";
 
+
+	/**
+	 * Percentage of the population to be replaced with random immigrants. The value of this
+	 * parameter needs to be in [0, 1].
+	 */
+	public static final String P_IMMIGRANT_PERCENT = "immigrant-percent";
+	private double immigrantPercent;
+
 	/**
 	 * A parameter for the Page-Hinkley algorthim's lambda. The default value for this paramter is
 	 * 10.
@@ -40,18 +53,16 @@ public class KnowledgeableState extends GPHHEvolutionState
 
 	FrequentCodeFragmentKB knowledgeBase = null;
 
-	@Override
-	public void setup(EvolutionState state, Parameter base)
-	{
-		super.setup(this, base);
+	private int logID;
 
+	void setupDriftDetection(EvolutionState state, Parameter base)
+	{
 		Parameter changeDetectParam = base.push(P_CHANGE_DETECTION);
 		String changeDetection = state.parameters.getString(changeDetectParam, null);
 		Parameter numInstancesParam = changeDetectParam.push(P_NUM_INSTANCES);
 		int numInstances = parameters.getIntWithDefault(numInstancesParam, null, 10);
 		Parameter lambdaParam = changeDetectParam.push(P_PH_LAMBDA);
 		int lambda = parameters.getIntWithDefault(lambdaParam, null, 10);
-
 
 		if(changeDetection == null)
 			changeDetection = "none";
@@ -63,7 +74,7 @@ public class KnowledgeableState extends GPHHEvolutionState
 			driftDetector = null;
 			break;
 		case "simple":
-			driftDetector = new SimpleDetector(numInstances);
+			driftDetector = new SimpleDriftDetector(numInstances);
 			break;
 		case "page-hinkley":
 			driftDetector = new PageHinkley(numInstances, 0.005, lambda, 1 - 0.0001);
@@ -73,26 +84,106 @@ public class KnowledgeableState extends GPHHEvolutionState
 									   + changeDetection);
 		}
 
+		output.warning("KnowledgeableState loaded. Change detection: " + changeDetection
+				+ ", numInstances: " + numInstances);
+//				+ ", immigrantPercent: " + immigrantPercent);
+	}
+
+	void setupImmigrants(EvolutionState state, Parameter base)
+	{
+		Parameter immigPercent = base.push(P_IMMIGRANT_PERCENT);
+		immigrantPercent = parameters.getDouble(immigPercent, null);
+	}
+
+	public static final String P_NICHE_RADIUS = "niche-radius";
+	private double nicheRadius;
+	void setupNiching(EvolutionState state, Parameter base)
+	{
+		Parameter p = base.push(P_NICHE_RADIUS);
+		nicheRadius = state.parameters.getDouble(p, null);
+		output.warning("Niche radius: " + nicheRadius);
+	}
+
+	@Override
+	public void setup(EvolutionState state, Parameter base)
+	{
+		super.setup(this, base);
+
+		base = new Parameter("knowledge-state");
+
+		logID = setupLogger(this, base);
+
 		if(!(statistics instanceof FCFStatistics))
 			throw new RuntimeException("KnowledgeableState needs an instance of FCStatistics "
 					+ "as its statistics handler.");
+
+		setupNiching(state, base);
 	}
 
-	private void handleChange()
+	void handleChange()
 	{
-		SimplifyingFrequentCodeFragmentKB base = SimplifyingFrequentCodeFragmentBuilder.getKnowledgeBase();
-		if(base == null)
-			output.fatal("Knowledgebase is empty");
-
 		GPIndividual ind = (GPIndividual) bestIndi(0);
 		double fitness = ind.fitness.fitness();
+
 		driftDetector.add_element(fitness);
 		if(driftDetector.detected_change())
 		{
+			System.out.println("Change detected");
+			Individual[] inds = population.subpops[0].individuals;
+			PopulationWriter.sort(inds);
 
+			for(int i = 0; i < inds.length * immigrantPercent; i++)
+			{
+				inds[inds.length - i - 1] = population.subpops[0].species.newIndividual(this, 0);
+			}
 		}
-//		else
-//			base.extractFrom(ind, method);
+	}
+
+	private void sortNiche(ArrayList<GPIndividual> niche)
+	{
+		Comparator<GPIndividual> com = (a, b) -> {
+			int fitnessCompare = Double.compare(a.fitness.fitness(), b.fitness.fitness());
+			if(fitnessCompare == 0)
+				return Long.compare(a.trees[0].child.depth(), b.trees[0].child.depth());
+			return fitnessCompare;
+		};
+		niche.sort(com);
+	}
+
+	void applyNiching()
+	{
+		double radius = nicheRadius;
+		int capacity = 1;
+
+		Individual[] inds = (Individual[]) population.subpops[0].individuals;
+		PopulationWriter.sort(inds);
+
+		GPIndividual center = (GPIndividual)inds[0];
+		ArrayList<GPIndividual> niche = new ArrayList<>();;
+		niche.add(center);
+		for(int i = 1; i < inds.length; i++)
+		{
+			if(Math.abs(center.fitness.fitness() - inds[i].fitness.fitness()) < radius)
+			{
+				niche.add((GPIndividual)inds[i]);
+			}
+			else
+			{
+				sortNiche(niche);
+				log(this, logID, "Niche formed. Center: ",
+						niche.get(0).trees[0].child.makeCTree(true, true, true),
+						"fitness: " + niche.get(0).fitness.fitness(), "\n");
+				for(int j = capacity; j < niche.size(); j++)
+				{
+					log(this, logID, "Discarded from niche: ",
+							niche.get(j).trees[0].child.makeCTree(true, true, true),
+							"fitness: " + niche.get(j).fitness.fitness(), "\n");
+					((MultiObjectiveFitness)niche.get(j).fitness).objectives[0] = Double.MAX_VALUE;
+				}
+				niche.clear();
+				niche.add((GPIndividual)inds[i]);
+			}
+		}
 	}
 
     @Override
@@ -106,6 +197,7 @@ public class KnowledgeableState extends GPHHEvolutionState
 	    evaluator.evaluatePopulation(this);
 	    statistics.postEvaluationStatistics(this);
 
+	    applyNiching();
 
 		finish = util.Timer.getCpuTime();
 		duration = 1.0 * (finish - start) / 1000000000;
@@ -167,6 +259,7 @@ public class KnowledgeableState extends GPHHEvolutionState
 			ReactiveGPHHProblem problem = (ReactiveGPHHProblem)evaluator.p_problem;
 			problem.rotateEvaluationModel();
 		}
+
 
 	    // INCREMENT GENERATION AND CHECKPOINT
 	    generation++;

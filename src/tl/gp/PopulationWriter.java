@@ -44,6 +44,21 @@ public class PopulationWriter implements AutoCloseable
 		return pop;
 	}
 
+	public static void sort(Individual[] ind)
+	{
+		Comparator<Individual> comp = (Individual o1, Individual o2) ->
+		{
+			if(o1.fitness.fitness() < o2.fitness.fitness())
+				return -1;
+			if(o1.fitness.fitness() == o2.fitness.fitness())
+				return 0;
+
+			return 1;
+		};
+
+		Arrays.sort(ind, comp);
+	}
+
 	public void prepareForWriting(Population population, Subpopulation sub) throws IOException
 	{
 		if(!isSaving)

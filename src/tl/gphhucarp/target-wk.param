@@ -41,17 +41,34 @@ seed.0=2
 # gp.fs.0.func.0.knowledge-log-file=./stats/target-wk/TerminalERCContribWeightedLog
 # ==============================
 
+
+# ==============================
+# TerminalERCContribOnlyWeighted Transfer
+# ==============================
+gp.fs.0.func.0 = tl.gphhucarp.TerminalERCContribOnlyWeighted
+gp.fs.0.func.0.terminal-file = /home/mazhar/grid/gdb1-v5-to4/1/gdb1-v5.bk
+gp.fs.0.func.0.weight-use-degeneration-rate=0.8
+gp.fs.0.func.0.weight-use-probability=0.8
+gp.fs.0.func.0.weight-use-policy=all
+gp.fs.0.func.0.knowledge-log-file=./stats/target-wk/TerminalERCContribWeightedLog
+gp.fs.0.func.0.min-weight=0.2
+gp.fs.0.func.0.max-weight=0.8
+gp.fs.0.func.0.normalize-weights=false
+# ==============================
+
+
+
 # ==============================
 # Frequent CodeFragment Builder
 # ==============================
-gp.tc.0.init=tl.gp.FrequentCodeFragmentBuilder
-gp.tc.0.init.knowledge-directory=/home/mazhar/grid/gdb2-v6-to5/1/stats/gdb2-v6-writeknow/
-gp.tc.0.init.knowledge-extraction=rootsubtree
+# gp.tc.0.init=tl.gp.FrequentCodeFragmentBuilder
+# gp.tc.0.init.knowledge-directory=/home/mazhar/grid/gdb2-v6-to5/1/stats/gdb2-v6-writeknow/
+# gp.tc.0.init.knowledge-extraction=rootsubtree
 # percentage of initial population that is created from extracted knowledge
-gp.tc.0.init.transfer-percent=0.50
-gp.tc.0.init.extract-percent=0.50
-gp.tc.0.init.min-cf-depth=2
-gp.tc.0.init.max-cf-depth=5
+# gp.tc.0.init.transfer-percent=0.50
+# gp.tc.0.init.extract-percent=0.50
+# gp.tc.0.init.min-cf-depth=2
+# gp.tc.0.init.max-cf-depth=5
 # ==============================
 
 
@@ -71,6 +88,17 @@ solution-type = simple-solution
 fitness-type = simple-fitness
 num-trains = 1
 generations=50
+
+
+# ==============================
+# KnowledgeableState
+# ==============================
+state=gphhucarp.gp.KnowledgeableState
+knowledge-state.change-detction=simple
+knowledge-state.niche-radius=0.5
+knowledge-state.num-instance=8
+knowledge-state.immigrant-percent=0.1
+knowledge-state.knowledge-log-file=./stats/target-wk/KnowledgeState.Log
 
 # ==============================
 # The test set

@@ -30,6 +30,8 @@ public interface TLLogger<T>
 		try {
 			Parameter knowledgeLogFileNameParam = base.push(P_KNOWLEDGE_LOG_FILE_NAME);
 			String knowledgeLogFile = state.parameters.getString(knowledgeLogFileNameParam, null);
+			if(knowledgeLogFile == null)
+				throw new RuntimeException("log file not specified.");
 			File successKnLog = new File(knowledgeLogFile + ".succ.log");
 			if(successKnLog.exists())
 				successKnLog.delete();
@@ -60,6 +62,16 @@ public interface TLLogger<T>
 		state.output.println("CFCounter: " + cfCounter + ": \t" + (it == null ? "null" : it.toString()), logID);
 		state.output.flush();
 		state.output.println("", logID);
+	}
+
+	default void log(EvolutionState state, int logID, String... messages)
+	{
+		for(int i = 0; i < messages.length; i++)
+		{
+			state.output.print(messages[i] + (i == messages.length - 1 ? "" : ", "), logID);
+			state.output.warning(messages[i] + (i == messages.length - 1 ? "" : ", "));
+		}
+		state.output.flush();
 	}
 
 	default void log(EvolutionState state, T it, int logID, String... messages)

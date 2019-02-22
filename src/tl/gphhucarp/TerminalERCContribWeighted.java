@@ -23,7 +23,7 @@ public class TerminalERCContribWeighted extends TerminalERCWeighted
 	}
 
 	@Override
-	double[] calculateWeights(List<GPNode> terminals)
+	double[] calculateWeights(EvolutionState state, List<GPNode> terminals)
 	{
 		weightUnnormalized = new double[terminals.size()];
 

@@ -25,17 +25,15 @@ import tl.gphhucarp.GPIndividualFeatureStatistics;
  * 'percent' which is the percent of each population to consider for analysis.
  *
  * The program receives its requirements from command line. Usage:
- * AnalyzeTerminals <test param file> <input population file/folder> <output file> [<EJC params>...]"
+ * 		AnalyzeTerminals <test param file> <input population file/folder> <output file> [<EJC params>...]"
  *
  * ECJ parameters are optional but important parameters, like sample size, can be passed to this
  * program this way. A sample command line running of the program: <p>
- * AnalyzeTerminals bin/tl/gphhucarp/source.param \
- *   /home/mazhar/MyPhD/SourceCodes/gpucarp/stats/source/population.gen.0.bin \
- *   book.bk eval.problem.eval-model.instances.0.samples=500 analyze-terminals.percent=0.5
+ * AnalyzeTerminals bin/tl/gphhucarp/source.param /home/mazhar/MyPhD/SourceCodes/gpucarp/stats/source/population.gen.0.bin book.bk eval.problem.eval-model.instances.0.samples=500 analyze-terminals.percent=0.5
  * @author mazhar
  *
  */
-public class AnalyzeTerminals
+public class AnalyzeTerminalsOfExperiment
 {
 	static EvolutionState state = null;
 
@@ -50,12 +48,6 @@ public class AnalyzeTerminals
 	public static final String P_BASE = "analyze-terminals";
 
 	public static final String P_PERCENT = "percent";
-
-	/**
-	 * Total number of generations on the source domain. This parameter is counted from 1.
-	 */
-	public static final String P_NUM_GENERATIONS = "num-generations";
-	private static int numGenerations = -1;
 
 	/**
 	 * When the knowledge source is a directory, this parameter specifies from which generation on
@@ -141,17 +133,13 @@ public class AnalyzeTerminals
         	state.output.fatal("Sample size is too small: " + samples);
         else
         	state.output.warning("Sample size in AnalyzeTerminals: " + samples);
+        state.output.warning("AnalyzeTerminals loaded.");
 
         logger = new TLLogger<GPNode>()
 		{
 		};
 
 		logID = logger.setupLogger(state, base);
-
-		p = base.push(P_NUM_GENERATIONS);
-		numGenerations = state.parameters.getInt(p, null);
-		state.output.warning("Number of generations on source domain: " + numGenerations);
-		state.output.warning("AnalyzeTerminals loaded.");
 	}
 
 	public static void main(String[] args)
@@ -169,40 +157,25 @@ public class AnalyzeTerminals
 			return;
 		}
 
-		loadECJ(args[0], Arrays.copyOfRange(args, 3, args.length));
+		loadECJ(args[0], Arrays.copyOfRange(args, 4, args.length));
 
 		TreeSimplifier sim = new TreeSimplifier(state, 0);
 
-		String outputFileNamePath = args[2];
+		String outputFileNamePath = args[3];
 		ArrayList<Population> popList = new ArrayList<>();
 		try
 		{
 			//	String inputFileNamePath = "/vol/grid-solar/sgeusers/mazhar/gdb2-v7-to8/1/stats/gdb2-v7-writeknow/population.gen.49.bin";
 			String inputFileNamePath = args[1];
+			String knowledgeFolder = args[2];
 			File f = new File(inputFileNamePath);
-			double minFit = Double.MAX_VALUE;
-			double maxFit = Double.MIN_VALUE;
 			if(f.isDirectory())
 			{
-				if(fromGeneration == -1 || toGeneration == -1)
-				{
-					logger.log(state, logID, "Generation ragnge is invalid: " + fromGeneration + " to "
-							+  toGeneration + "\n");
-					state.output.fatal("Generation ragnge is invalid: " + fromGeneration + " to "
-																		+  toGeneration);
-				}
-				for(int i = 0; i < numGenerations; i++)
-				{
-					Population p = PopulationWriter.loadPopulation(
-							Paths.get(inputFileNamePath, "population.gen." + i + ".bin").toFile());
-					p = PopulationWriter.sort(p);
-					double fit = p.subpops[0].individuals[0].fitness.fitness();
-					if(fit > maxFit)
-						maxFit = fit;
-					if(fit < minFit)
-						minFit = fit;
-					popList.add(p);
-				}
+				for(int i = 1; i <= 30; i++)
+					popList.add(PopulationWriter.loadPopulation(
+							Paths.get(inputFileNamePath, "" + i, "stats", knowledgeFolder
+													   , "population.gen.49.bin").toFile()));
+
 //				Path rootPath = Paths.get(inputFileNamePath);
 //				ArrayList<Path> regularFilePaths = Files.list(rootPath)
 //						.filter(Files::isRegularFile).filter(file -> file.getFileName()
@@ -217,16 +190,13 @@ public class AnalyzeTerminals
 //				}
 			}
 			else
-			{
-				fromGeneration = 0;
-				toGeneration = 0;
 				popList.add(PopulationWriter.loadPopulation(inputFileNamePath));
-			}
+
 
 			logger.log(state, logID, percent + " percent of each subpopulation is loaded\n");
-			for(int gen = fromGeneration; gen <= toGeneration; gen++)
+			for(Population pop : popList)
 			{
-				Population pop = popList.get(gen);
+				PopulationWriter.sort(pop);
 				for(Subpopulation sub : pop.subpops)
 				{
 					double fitness = -1; // sub.individuals[0].fitness.fitness();
@@ -234,14 +204,12 @@ public class AnalyzeTerminals
 					{
 						if(!(sub.individuals[i] instanceof GPIndividual))
 						{
-							System.err.println("WARNING: Found and object in the saved population "
-									+ " file that is not of type GPIndividual:"
-									+ sub.individuals[i].getClass() + " The individule is ignored.");
-							logger.log(state, logID,
-									"WARNING: Found and object in the saved population file"
+							System.err.println("WARNING: Found and object in the saved population file"
 									+ " that is not of type GPIndividual:"
-									+ sub.individuals[i].getClass() + " The individule is ignored."
-									+ "\n");
+									+ sub.individuals[i].getClass() + " The individule is ignored.");
+							logger.log(state, logID, "WARNING: Found and object in the saved population file"
+									+ " that is not of type GPIndividual:"
+									+ sub.individuals[i].getClass() + " The individule is ignored." + "\n");
 							continue;
 						}
 						GPIndividual ind = (GPIndividual)sub.individuals[i];
@@ -251,28 +219,25 @@ public class AnalyzeTerminals
 
 						if(Math.abs(fitness - ind.fitness.fitness()) <= fitnessNicheRadius)
 						{
-							logger.log(state, logID, "Individual ignored due to falling in niche: "
-										+(ind).trees[0].child.makeCTree(true, true, true)
-										+ ", fitness: " + ind.fitness.fitness() + "\n\n");
+							logger.log(state, logID, "Individual ignored due to falling in niche: " +
+									(ind).trees[0].child.makeCTree(true, true, true) + ", fitness: " + ind.fitness.fitness() + "\n\n");
 							continue;
 						}
 						else // a new niche detected.
 							fitness = ind.fitness.fitness();
 
 						extractAndSave(state, ind);
+						System.out.println("Finished individual " + i);
 						logger.log(state, logID, "Finished work on individual: " + i + "\n");
 					}
 				}
 
+				File out = new File(outputFileNamePath);
+				ObjectOutputStream os = new ObjectOutputStream(
+						new BufferedOutputStream(new FileOutputStream(out)));
+				os.writeObject(keeper.book);
+				os.close();
 			}
-
-			File out = new File(outputFileNamePath);
-			ObjectOutputStream os = new ObjectOutputStream(
-					new BufferedOutputStream(new FileOutputStream(out)));
-			os.writeDouble(minFit);
-			os.writeDouble(maxFit);
-			os.writeObject(keeper.book);
-			os.close();
 
 			for(String node : keeper.book.keySet())
 			{
@@ -290,6 +255,11 @@ public class AnalyzeTerminals
 				logger.log(state, logID, "Total usage: " + terminalUsage + "\n");
 			}
 
+//			ObjectInputStream oi = new ObjectInputStream(new FileInputStream(out));
+//			Object o = oi.readObject();
+//			BookKeeper bk = (BookKeeper) oi.readObject();
+//			oi.close();
+//			System.out.println(bk.book.size());
 		}
 		catch (FileNotFoundException e)
 		{

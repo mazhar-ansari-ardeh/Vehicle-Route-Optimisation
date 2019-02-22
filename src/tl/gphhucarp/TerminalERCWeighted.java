@@ -50,7 +50,7 @@ public class TerminalERCWeighted extends TerminalERC implements TLLogger<GPNode>
 
 
 
-	int logID;
+	protected int logID;
 
 	/**
 	 * The probability of using feature weights. A value of 1 will mean that feature weights will
@@ -64,6 +64,18 @@ public class TerminalERCWeighted extends TerminalERC implements TLLogger<GPNode>
 	 * Acceptable values are all, none and first.
 	 */
 	private String policy;
+
+	/**
+	 * Maximum value of individual fitness in the source domain. This fitness is assumed to be the
+	 * max over all generations.
+	 */
+	protected double maxFit;
+
+	/**
+	 * Maximum value of individual fitness in the source domain. This fitness is assumed to be the
+	 * max over all generations.
+	 */
+	protected double minFit;
 
 
 	@SuppressWarnings("unchecked")
@@ -107,6 +119,8 @@ public class TerminalERCWeighted extends TerminalERC implements TLLogger<GPNode>
 		try
 		{
 			oi = new ObjectInputStream(new FileInputStream(in));
+			minFit = oi.readDouble();
+			maxFit = oi.readDouble();
 			this.book = (HashMap<String, HashMap<GPIndividual, GPIndividualFeatureStatistics>>)oi.readObject();
 
 			terminal = null;
@@ -129,7 +143,7 @@ public class TerminalERCWeighted extends TerminalERC implements TLLogger<GPNode>
 
 	static double[] weightUnnormalized = null;
 
-	double[] calculateWeights(List<GPNode> terminals)
+	double[] calculateWeights(EvolutionState state, List<GPNode> terminals)
 	{
 //		weights = new double[terminals.size()];
 		weightUnnormalized = new double[terminals.size()];
@@ -164,7 +178,7 @@ public class TerminalERCWeighted extends TerminalERC implements TLLogger<GPNode>
 	{
 		switch(policy)
 		{
-		case "all":
+		case "all": // Use feature weights in all generations.
 			if(state.random[thread].nextDouble() < prob)
 			{
 				int winner = RandomChoice.pickFromDistribution(weights,state.random[thread].nextDouble());
@@ -176,10 +190,10 @@ public class TerminalERCWeighted extends TerminalERC implements TLLogger<GPNode>
 			else
 				terminal = ((TerminalERCEvolutionState)state).pickTerminalUniform(subpop);
 			break;
-		case "none":
+		case "none": // Do not use feature weights.
 			terminal = ((TerminalERCEvolutionState)state).pickTerminalUniform(subpop);
 			break;
-		case "first":
+		case "first": // Use feature weights only in the first generation.
 			if(state.generation == 0 && state.random[thread].nextDouble() < prob)
 			{
 				int winner = RandomChoice.pickFromDistribution(weights,state.random[thread].nextDouble());
@@ -203,11 +217,23 @@ public class TerminalERCWeighted extends TerminalERC implements TLLogger<GPNode>
 	@Override
 	public void resetNode(EvolutionState state, int thread)
 	{
+		// The condition is true when GP has just advanced into its next generation and therefore,
+		// we need to update the weights, ...
+		if(currentGen != state.generation)
+		{
+			if(weightUseDegenerationRate < 0)
+				weightUseDegenerationRate = 0;
+
+			prob = prob * weightUseDegenerationRate;
+
+			currentGen = state.generation;
+		}
+
 		TerminalERCEvolutionState tstate = ((TerminalERCEvolutionState)state);
 		List<GPNode> terminals = tstate.getTerminalSet(subpop).getList();
 		if(weights == null)
 		{
-			weights = calculateWeights(terminals);
+			weights = calculateWeights(state, terminals);
 			for(GPNode term : terminals)
 				useCount.put(term, 0);
 		}
@@ -219,15 +245,6 @@ public class TerminalERCWeighted extends TerminalERC implements TLLogger<GPNode>
 			terminal.resetNode(state, thread);
 		}
 
-		if(currentGen != state.generation)
-		{
-			if(weightUseDegenerationRate < 0)
-				weightUseDegenerationRate = 0;
-
-			prob = prob * weightUseDegenerationRate;
-
-			currentGen = state.generation;
-		}
 	}
 
 	@Override
