@@ -81,5 +81,8 @@ public interface TLLogger<T>
 			state.output.print(message + ", ", logID);
 		state.output.flush();
 		state.output.println("]", logID);
+
+		ktest t = new ktest();
+		t.ret();
 	}
 }
