@@ -6,17 +6,17 @@ import java.util.Comparator;
 
 import ec.*;
 
-public class PopulationWriter implements AutoCloseable
+public class PopulationUtils
 {
-	private boolean isSaving;
-	private File file;
-	ObjectOutputStream output = null;
+//	private boolean isSaving;
+//	private File file;
+//	ObjectOutputStream output = null;
 
-	public PopulationWriter(String pathname, boolean save)
-	{
-		this.isSaving = save;
-		file = new File(pathname);
-	}
+//	public PopulationWriter(String pathname, boolean save)
+//	{
+//		this.isSaving = save;
+//		file = new File(pathname);
+//	}
 
 	/**
 	 * Sorts individuals based on their fitness. The method iterates over all subpopulations
@@ -59,26 +59,26 @@ public class PopulationWriter implements AutoCloseable
 		Arrays.sort(ind, comp);
 	}
 
-	public void prepareForWriting(Population population, Subpopulation sub) throws IOException
-	{
-		if(!isSaving)
-			throw new IOException("This object is not initialized for saving objects.");
-		if(output == null)
-		{
-			output = new ObjectOutputStream(new FileOutputStream(file));
-			output.writeInt(population.subpops.length);
-		}
+//	public void prepareForWriting(Population population, Subpopulation sub) throws IOException
+//	{
+//		if(!isSaving)
+//			throw new IOException("This object is not initialized for saving objects.");
+//		if(output == null)
+//		{
+//			output = new ObjectOutputStream(new FileOutputStream(file));
+//			output.writeInt(population.subpops.length);
+//		}
+//
+//		output.writeInt(sub.individuals.length);
+//	}
 
-		output.writeInt(sub.individuals.length);
-	}
-
-	public void write(Individual ind) throws IOException
-	{
-		if(!isSaving)
-			throw new IOException("This object is not initialized for saving objects.");
-
-		output.writeObject(ind);
-	}
+//	public void write(Individual ind) throws IOException
+//	{
+//		if(!isSaving)
+//			throw new IOException("This object is not initialized for saving objects.");
+//
+//		output.writeObject(ind);
+//	}
 
 	public static void savePopulation(Population pop, String fileName)
 			throws FileNotFoundException, IOException
@@ -136,15 +136,15 @@ public class PopulationWriter implements AutoCloseable
 		return loadPopulation(file);
 	}
 
-	@Override
-	public void close() throws Exception
-	{
-		if(output != null)
-		{
-			output.flush();
-			output.close();
-			output = null;
-			file = null;
-		}
-	}
+//	@Override
+//	public void close() throws Exception
+//	{
+//		if(output != null)
+//		{
+//			output.flush();
+//			output.close();
+//			output = null;
+//			file = null;
+//		}
+//	}
 }
