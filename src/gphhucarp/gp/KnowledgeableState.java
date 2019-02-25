@@ -10,7 +10,7 @@ import ec.multiobjective.MultiObjectiveFitness;
 import ec.util.*;
 import tl.TLLogger;
 import tl.gp.FCFStatistics;
-import tl.gp.PopulationWriter;
+import tl.gp.PopulationUtils;
 import tl.knowledge.codefragment.simple.FrequentCodeFragmentKB;
 import tl.knowledge.driftdetection.BaseDriftDetector;
 import tl.knowledge.driftdetection.PageHinkley;
@@ -130,7 +130,7 @@ public class KnowledgeableState extends GPHHEvolutionState implements TLLogger<G
 		{
 			System.out.println("Change detected");
 			Individual[] inds = population.subpops[0].individuals;
-			PopulationWriter.sort(inds);
+			PopulationUtils.sort(inds);
 
 			for(int i = 0; i < inds.length * immigrantPercent; i++)
 			{
@@ -156,7 +156,7 @@ public class KnowledgeableState extends GPHHEvolutionState implements TLLogger<G
 		int capacity = 1;
 
 		Individual[] inds = (Individual[]) population.subpops[0].individuals;
-		PopulationWriter.sort(inds);
+		PopulationUtils.sort(inds);
 
 		GPIndividual center = (GPIndividual)inds[0];
 		ArrayList<GPIndividual> niche = new ArrayList<>();;

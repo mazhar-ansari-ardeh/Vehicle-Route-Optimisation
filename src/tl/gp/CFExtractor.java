@@ -86,7 +86,7 @@ public class CFExtractor
 			File inputFileNamePath = new File(args[1]);
 			KnowledgeExtractionMethod extractionMethod = KnowledgeExtractionMethod.parse(args[2]);
 
-			Population pop = PopulationWriter.loadPopulation(inputFileNamePath);
+			Population pop = PopulationUtils.loadPopulation(inputFileNamePath);
 
 			for(Subpopulation sub : pop.subpops)
 			{
@@ -103,7 +103,7 @@ public class CFExtractor
 				}
 			}
 
-			PopulationWriter.savePopulation(pop, outputFileNamePath + ".pop.bin");
+			PopulationUtils.savePopulation(pop, outputFileNamePath + ".pop.bin");
 
 		}
 		catch (FileNotFoundException e)

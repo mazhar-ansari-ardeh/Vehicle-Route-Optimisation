@@ -12,7 +12,7 @@ import gputils.TerminalERCEvolutionState;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import gputils.terminal.DoubleERC;
 import tl.gp.FCFStatistics;
-import tl.gp.PopulationWriter;
+import tl.gp.PopulationUtils;
 import tl.knowledge.driftdetection.BaseDriftDetector;
 import tl.knowledge.driftdetection.SimpleDriftDetector;
 
@@ -246,7 +246,7 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState
 		{
 			System.out.println("Change detected");
 			Individual[] inds = population.subpops[0].individuals;
-			PopulationWriter.sort(inds);
+			PopulationUtils.sort(inds);
 
 			for(int i = 0; i < inds.length * 0.1; i++)
 			{

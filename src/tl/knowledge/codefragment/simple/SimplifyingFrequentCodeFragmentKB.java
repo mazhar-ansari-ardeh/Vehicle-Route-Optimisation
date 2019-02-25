@@ -18,7 +18,7 @@ import ec.Individual;
 import ec.Population;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
-import tl.gp.PopulationWriter;
+import tl.gp.PopulationUtils;
 import tl.gp.TreeSimplifier;
 import tl.gp.TreeSlicer;
 import tl.knowledge.KnowledgeExtractionMethod;
@@ -36,6 +36,7 @@ import tl.knowledge.codefragment.*;
  * any assumptions about the type of fitness value (whether it is from train or test scenario).
  * @author mazhar
  */
+@Deprecated // I cannot remember why I started working on this class but it is not important now.
 public class SimplifyingFrequentCodeFragmentKB extends CodeFragmentKB
 {
 	// Using ConcurrentHashMap instead of HashMap will make this KB capable of
@@ -178,7 +179,7 @@ public class SimplifyingFrequentCodeFragmentKB extends CodeFragmentKB
 							.collect(Collectors.toCollection(ArrayList::new));
 			for(Path path : regularFilePaths)
 			{
-				Population p = PopulationWriter.loadPopulation(path.toString());
+				Population p = PopulationUtils.loadPopulation(path.toString());
 				Comparator<Individual> com2 = (Individual o1, Individual o2) ->
 				{
 					if(o1.fitness.fitness() < o2.fitness.fitness())

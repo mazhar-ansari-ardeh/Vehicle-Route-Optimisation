@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import ec.Individual;
 import ec.Population;
 import ec.gp.*;
-import tl.gp.PopulationWriter;
+import tl.gp.PopulationUtils;
 import tl.knowledge.KnowledgeExtractionMethod;
 import tl.knowledge.KnowledgeExtractor;
 import tl.knowledge.codefragment.CodeFragmentKB;
@@ -58,7 +58,7 @@ public class GTLCodeFragmentKB extends CodeFragmentKB
 				.collect(Collectors.toCollection(ArrayList::new));
 			for(Path path : regularFilePaths)
 			{
-				Population p = PopulationWriter.loadPopulation(path.toString());
+				Population p = PopulationUtils.loadPopulation(path.toString());
 				Comparator<Individual> com2 = (Individual o1, Individual o2) ->
 				{
 					if(o1.fitness.fitness() < o2.fitness.fitness())

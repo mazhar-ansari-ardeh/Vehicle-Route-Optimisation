@@ -12,7 +12,7 @@ import ec.Individual;
 import ec.Population;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
-import tl.gp.PopulationWriter;
+import tl.gp.PopulationUtils;
 import tl.gp.TreeSlicer;
 import tl.knowledge.KnowledgeExtractionMethod;
 import tl.knowledge.KnowledgeExtractor;
@@ -97,7 +97,7 @@ public class TLGPCriptorKB extends CodeFragmentKB
 
 		try
 		{
-			Population p = PopulationWriter.loadPopulation(file);
+			Population p = PopulationUtils.loadPopulation(file);
 			return extractFrom(p, KnowledgeExtractionMethod.RootSubtree);
 		} catch (ClassNotFoundException | IOException e)
 		{

@@ -22,7 +22,7 @@ import gputils.function.Sub;
 import gputils.terminal.DoubleERC;
 import gputils.terminal.TerminalERC;
 import gputils.terminal.TerminalERCUniform;
-import tl.gp.PopulationWriter;
+import tl.gp.PopulationUtils;
 
 public class Main {
 
@@ -811,7 +811,7 @@ public class Main {
 
 
 		String fileName = "/home/mazhar/MyPhD/SourceCodes/gpucarp/stats/source/population.gen.0.bin";
-		Population p = PopulationWriter.loadPopulation(fileName);
+		Population p = PopulationUtils.loadPopulation(fileName);
 		for(int i = 0; i < 500; i++)
 		{
 			GPIndividual ind = (GPIndividual)p.subpops[0].individuals[i];

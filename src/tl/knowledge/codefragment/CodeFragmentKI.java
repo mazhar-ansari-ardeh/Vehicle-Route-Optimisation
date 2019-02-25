@@ -6,6 +6,7 @@ import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import ec.gp.GPTree;
 import ec.multiobjective.MultiObjectiveFitness;
+import tl.gp.GPIndividualUtils;
 import tl.knowledge.KnowledgeItem;
 
 public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
@@ -104,19 +105,20 @@ public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
 
 	public GPIndividual getAsIndividual()
 	{
-		GPIndividual retval = new GPIndividual();
-		retval.trees = new GPTree[1];
-		retval.trees[0] = new GPTree();
-		retval.trees[0].child = codeFragment;
-		codeFragment.parent =retval.trees[0];
-
-		MultiObjectiveFitness fitness = new MultiObjectiveFitness();
-		fitness.objectives = new double[1];
-
-		retval.fitness = fitness;
-		retval.evaluated = false;
-
-		return retval;
+		return GPIndividualUtils.asGPIndividual(codeFragment);
+//		GPIndividual retval = new GPIndividual();
+//		retval.trees = new GPTree[1];
+//		retval.trees[0] = new GPTree();
+//		retval.trees[0].child = codeFragment;
+//		codeFragment.parent =retval.trees[0];
+//
+//		MultiObjectiveFitness fitness = new MultiObjectiveFitness();
+//		fitness.objectives = new double[1];
+//
+//		retval.fitness = fitness;
+//		retval.evaluated = false;
+//
+//		return retval;
 	}
 
 	public String getOrigin()

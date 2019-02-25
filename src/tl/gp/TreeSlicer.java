@@ -215,6 +215,8 @@ public class TreeSlicer
 	private static double getSubtreeContrib(EvolutionState state, GPIndividual theIndividual,
 			GPNode theNode)
 	{
+		double oldFitness = theIndividual.fitness.fitness();
+
 		// Insert the constant into the original tree
 		DoubleERC constNode = new DoubleERC();
 		constNode.value = 1;
@@ -232,12 +234,51 @@ public class TreeSlicer
 		parent.children[theNode.argposition] = theNode;
 		constNode.parent = null;
 
-		return newFitness;
+		return oldFitness - newFitness;
+	}
+
+	public static ArrayList<Pair<GPNode, Double>> sliceRootSubTreesWithContrib(EvolutionState state,
+			GPIndividual theIndividual)
+	{
+		if(theIndividual instanceof TLGPIndividual)
+		{
+			if(((TLGPIndividual)theIndividual).getTested() == false)
+			{
+				state.output.fatal("GPIndividual is not evaluated on test scenario");
+			}
+		}
+		else
+			state.output.warning("GPIndividual is not of type TLGPIndividual");
+
+		ArrayList<Pair<GPNode, Double>> retval = new ArrayList<>();
+
+		for(GPTree tree : theIndividual.trees)
+		{
+			for(GPNode node: tree.child.children)
+			{
+				double contrib = getSubtreeContrib(state, theIndividual, node);
+				GPNode nodeClone = (GPNode) node.clone();
+				nodeClone.parent = null;
+				retval.add(new Pair<GPNode, Double>(nodeClone, contrib));
+			}
+		}
+
+		return retval;
 	}
 
 	public static ArrayList<Pair<GPNode, Double>> sliceAllWithContrib(EvolutionState state,
 			GPIndividual theIndividual, GPNode root, boolean includeTerminals)
 	{
+		if(theIndividual instanceof TLGPIndividual)
+		{
+			if(((TLGPIndividual)theIndividual).getTested() == false)
+			{
+				state.output.fatal("GPIndividual is not evaluated on test scenario");
+			}
+		}
+		else
+			state.output.warning("GPIndividual is not of type TLGPIndividual");
+
 		ArrayList<Pair<GPNode, Double>> retval = new ArrayList<>();
 		if(root == null)
 			return retval;
@@ -247,8 +288,8 @@ public class TreeSlicer
 		{
 			if(includeTerminals)
 			{
-				double theFitness = getSubtreeContrib(state, theIndividual, root);
-				retval.add(new Pair<>((GPNode)root.clone(), theFitness));
+				double contrib = getSubtreeContrib(state, theIndividual, root);
+				retval.add(new Pair<>((GPNode)root.clone(), contrib));
 			}
 			return retval;
 		}
@@ -269,6 +310,16 @@ public class TreeSlicer
 	public static ArrayList<Pair<GPNode, Double>> sliceAllWithContrib(EvolutionState state,
 											GPIndividual ind, boolean includeTerminals)
 	{
+		if(ind instanceof TLGPIndividual)
+		{
+			if(((TLGPIndividual)ind).getTested() == false)
+			{
+				state.output.fatal("GPIndividual is not evaluated on test scenario");
+			}
+		}
+		else
+			state.output.warning("GPIndividual is not of type TLGPIndividual");
+
 		ArrayList<Pair<GPNode, Double>> retval = new ArrayList<>();
 		if(ind == null)
 			return retval;

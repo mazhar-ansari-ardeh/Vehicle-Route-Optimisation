@@ -1,6 +1,8 @@
 package tl.gp;
 
 import java.io.*;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 
@@ -8,16 +10,6 @@ import ec.*;
 
 public class PopulationUtils
 {
-//	private boolean isSaving;
-//	private File file;
-//	ObjectOutputStream output = null;
-
-//	public PopulationWriter(String pathname, boolean save)
-//	{
-//		this.isSaving = save;
-//		file = new File(pathname);
-//	}
-
 	/**
 	 * Sorts individuals based on their fitness. The method iterates over all subpopulations
 	 * and sorts the array of individuals in them based on their fitness so that the first
@@ -128,6 +120,26 @@ public class PopulationUtils
 
 		return retval;
 	}
+//
+//	public static ArrayList<Population> loadPopulation(String inputFileNamePath, int numGenerations)
+//	{
+//		ArrayList<Population> retval = new ArrayList<>();
+//
+//		for(int i = 0; i < numGenerations; i++)
+//		{
+//			Population p = PopulationUtils.loadPopulation(
+//					Paths.get(inputFileNamePath, "population.gen." + i + ".bin").toFile());
+//			p = PopulationUtils.sort(p);
+//			double fit = p.subpops[0].individuals[0].fitness.fitness();
+//			if(fit > maxFit)
+//				maxFit = fit;
+//			if(fit < minFit)
+//				minFit = fit;
+//			popList.add(p);
+//		}
+//
+//		return retval;
+//	}
 
 	public static Population loadPopulation(String fileName)
 			throws FileNotFoundException, IOException, ClassNotFoundException, InvalidObjectException
@@ -135,16 +147,4 @@ public class PopulationUtils
 		File file = new File(fileName);
 		return loadPopulation(file);
 	}
-
-//	@Override
-//	public void close() throws Exception
-//	{
-//		if(output != null)
-//		{
-//			output.flush();
-//			output.close();
-//			output = null;
-//			file = null;
-//		}
-//	}
 }

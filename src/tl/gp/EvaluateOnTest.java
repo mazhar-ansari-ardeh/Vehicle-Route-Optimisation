@@ -113,7 +113,7 @@ public class EvaluateOnTest
 		trainArchive = Paths.get(trainArchive.toString(), path.getFileName().toString());
 
 
-		Population pop = PopulationWriter.loadPopulation(path.toFile());
+		Population pop = PopulationUtils.loadPopulation(path.toFile());
 		for(Subpopulation sub : pop.subpops)
 		{
 			for(Individual ind : sub.individuals)
@@ -129,7 +129,7 @@ public class EvaluateOnTest
 			}
 		}
 		Files.move(path, trainArchive, StandardCopyOption.REPLACE_EXISTING);
-		PopulationWriter.savePopulation(pop, path.toString());
+		PopulationUtils.savePopulation(pop, path.toString());
 	}
 //		catch (FileNotFoundException e)
 //		{

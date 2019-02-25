@@ -172,7 +172,7 @@ public class AnalyzeTerminalsOfExperiment
 			if(f.isDirectory())
 			{
 				for(int i = 1; i <= 30; i++)
-					popList.add(PopulationWriter.loadPopulation(
+					popList.add(PopulationUtils.loadPopulation(
 							Paths.get(inputFileNamePath, "" + i, "stats", knowledgeFolder
 													   , "population.gen.49.bin").toFile()));
 
@@ -190,13 +190,13 @@ public class AnalyzeTerminalsOfExperiment
 //				}
 			}
 			else
-				popList.add(PopulationWriter.loadPopulation(inputFileNamePath));
+				popList.add(PopulationUtils.loadPopulation(inputFileNamePath));
 
 
 			logger.log(state, logID, percent + " percent of each subpopulation is loaded\n");
 			for(Population pop : popList)
 			{
-				PopulationWriter.sort(pop);
+				PopulationUtils.sort(pop);
 				for(Subpopulation sub : pop.subpops)
 				{
 					double fitness = -1; // sub.individuals[0].fitness.fitness();
