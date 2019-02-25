@@ -30,10 +30,10 @@ public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
 	 */
 	private int duplicateCount = 0;
 
-	/**
-	 * If a sourceGene
-	 */
-	public final String FINAL_SOURCE_GENERATION = "final-gen";
+//	/**
+//	 * If a sourceGene
+//	 */
+//	public final String FINAL_SOURCE_GENERATION = "final-gen";
 
 	/**
 	 * The generation of the source domain that this code fragment was extracted from.
@@ -76,6 +76,7 @@ public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
 		return duplicateCount;
 	}
 
+	@Override
 	public void incrementCounter()
 	{
 //		if(useCounter < 0)
