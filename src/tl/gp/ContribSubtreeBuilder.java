@@ -7,13 +7,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import ec.EvolutionState;
-import ec.gp.*;
+import ec.gp.GPFunctionSet;
+import ec.gp.GPIndividual;
+import ec.gp.GPNode;
+import ec.gp.GPNodeParent;
+import ec.gp.GPType;
 import ec.gp.koza.HalfBuilder;
 import ec.util.Parameter;
+import ec.util.RandomChoice;
 import javafx.util.Pair;
 import tl.TLLogger;
-import tl.knowledge.*;
-import tl.knowledge.codefragment.CodeFragmentKI;
 
 /**
  *
@@ -39,8 +42,6 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
 
 	private HashMap<GPIndividual, ArrayList<Pair<GPNode, Double>>> subtrees;
 
-	private static KnowledgeExtractor extractor = null;
-
 
 	private int knowledgeSuccessLogID;
 
@@ -52,7 +53,10 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
 
 	private static int cfCounter = 0;
 
-	@SuppressWarnings("unchecked")
+	ArrayList<TLGPIndividual> kItems = new ArrayList<>();
+
+	double[] kWeights = null;
+
 	@Override
 	public void setup(EvolutionState state, Parameter base)
 	{
@@ -103,11 +107,11 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
 		}
 	}
 
-	HashMap<TLGPIndividual, Double> weights = new HashMap<>();
-
 	void calculateWeights(HashMap<GPIndividual, ArrayList<Pair<GPNode, Double>>> subtree,
 			double minFit, double maxFit)
 	{
+		ArrayList<Double> weights = new ArrayList<>();
+
 		double gmax = 1.0 / (1 + minFit);
 		double gmin = 1.0 / (1 + maxFit);
 
@@ -120,16 +124,41 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
 				double contrib = pair.getValue();
 				double nfit = 1f / (ind.fitness.fitness() + 1);
 				nfit = Math.max(0, (nfit - gmin)/(gmax - gmin));
-				// contrib is (oldfit - newfit) so a positive value means positive impact on fitness
-				if(contrib > 0.001)
+				// contrib is (oldfit - newfit) so a positive value means negative impact on fitness
+				// That is why -contrib is used.
+				if(-contrib > 0.001)
 				{
-					if(weights.containsKey(i))
-						weights.put(i, weights.get(i) + nfit);
+					if(kItems.contains(i))
+					{
+						int index = kItems.indexOf(i);
+						double weight = weights.get(index);
+						weight += nfit;
+						weights.set(index, weight);
+					}
 					else
-						weights.put(i, nfit);
+					{
+						kItems.add(i);
+						weights.add(nfit);
+					}
 				}
 			}
 		}
+		kWeights = new double[weights.size()];
+		for(int i = 0; i < kWeights.length; i++)
+			kWeights[i] = weights.get(i);
+
+
+//		kWeights = Arrays.copyOf(weights.to, newLength)
+		RandomChoice.organizeDistribution(kWeights, true);
+	}
+
+	GPNode getNext(EvolutionState state, int thread)
+	{
+		// GPIndividualUtils.stripRoots(ind)
+		int winner = RandomChoice.pickFromDistribution(kWeights,state.random[thread].nextDouble());
+		GPIndividual winnerInd = kItems.get(winner);
+		GPNode retval = GPIndividualUtils.stripRoots(winnerInd).get(0);
+		return retval;
 	}
 
 
@@ -142,7 +171,7 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
 		int numToTransfer = (int) Math.round(popSize * transferPercent);
 		if(numToTransfer >= 0 && cfCounter < numToTransfer)
 		{
-			CodeFragmentKI cf = (CodeFragmentKI) extractor.getNext();
+//			CodeFragmentKI cf = (CodeFragmentKI) extractor.getNext();
 			if(cf != null)
 			{
 				cfCounter++;
