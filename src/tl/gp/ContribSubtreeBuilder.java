@@ -3,8 +3,8 @@ package tl.gp;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.io.Serializable;
+import java.util.*;
 
 import ec.EvolutionState;
 import ec.gp.GPFunctionSet;
@@ -14,7 +14,6 @@ import ec.gp.GPNodeParent;
 import ec.gp.GPType;
 import ec.gp.koza.HalfBuilder;
 import ec.util.Parameter;
-import ec.util.RandomChoice;
 import javafx.util.Pair;
 import tl.TLLogger;
 
@@ -40,9 +39,6 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
 	public static final String P_KNOWLEDGE_FILE = "knowledge-file";
 
 
-	private HashMap<GPIndividual, ArrayList<Pair<GPNode, Double>>> subtrees;
-
-
 	private int knowledgeSuccessLogID;
 
 	/**
@@ -52,10 +48,7 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
 	private double transferPercent;
 
 	private static int cfCounter = 0;
-
-	ArrayList<TLGPIndividual> kItems = new ArrayList<>();
-
-	double[] kWeights = null;
+	private Iterator<TLGPIndividual> iter;
 
 	@Override
 	public void setup(EvolutionState state, Parameter base)
@@ -83,13 +76,6 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
 	}
 
 
-	/**
-	 * This structure contains the knowledge transfered from source domain. The key is the
-	 * transferred subtree and the value is the weight of the subtree based on its contribution in
-	 * the source domain.
-	 */
-	HashMap<TLGPIndividual, Double> knowledgeBase = new HashMap<>();
-
 	@SuppressWarnings("unchecked")
 	private void loadSubtrees(String knowFile)
 	{
@@ -97,7 +83,7 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
 		{
 			double minFit = ois.readDouble(); // read minFit
 			double maxFit = ois.readDouble(); // read maxFit
-			subtrees = (HashMap<GPIndividual, ArrayList<Pair<GPNode, Double>>>) ois.readObject();
+			HashMap<GPIndividual, ArrayList<Pair<GPNode, Double>>> subtrees = (HashMap<GPIndividual, ArrayList<Pair<GPNode, Double>>>) ois.readObject();
 
 			calculateWeights(subtrees, minFit, maxFit);
 
@@ -107,10 +93,18 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
 		}
 	}
 
-	void calculateWeights(HashMap<GPIndividual, ArrayList<Pair<GPNode, Double>>> subtree,
-			double minFit, double maxFit)
+//	private ArrayList<TLGPIndividual> kItems = new ArrayList<>();
+//	private double[] kWeights = null;
+
+	private void calculateWeights(HashMap<GPIndividual, ArrayList<Pair<GPNode, Double>>> subtree,
+								  double minFit, double maxFit)
 	{
-		ArrayList<Double> weights = new ArrayList<>();
+		/*
+		 * This structure contains the knowledge transferred from source domain. The key is the
+		 * transferred subtree and the value is the weight of the subtree based on its contribution in
+		 * the source domain.
+		 */
+		HashMap<TLGPIndividual, Double> knowledgeBase = new HashMap<>();
 
 		double gmax = 1.0 / (1 + minFit);
 		double gmin = 1.0 / (1 + maxFit);
@@ -128,38 +122,55 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
 				// That is why -contrib is used.
 				if(-contrib > 0.001)
 				{
-					if(kItems.contains(i))
+					if(knowledgeBase.containsKey(i))
 					{
-						int index = kItems.indexOf(i);
-						double weight = weights.get(index);
+//						int index = kItems.indexOf(i);
+						double weight = knowledgeBase.get(i);
 						weight += nfit;
-						weights.set(index, weight);
+                        knowledgeBase.put(i, weight);
 					}
 					else
 					{
-						kItems.add(i);
-						weights.add(nfit);
+					    knowledgeBase.put(i, nfit);
 					}
 				}
 			}
 		}
-		kWeights = new double[weights.size()];
-		for(int i = 0; i < kWeights.length; i++)
-			kWeights[i] = weights.get(i);
 
-
-//		kWeights = Arrays.copyOf(weights.to, newLength)
-		RandomChoice.organizeDistribution(kWeights, true);
+		Map<TLGPIndividual, Double> skb = sortByValue(knowledgeBase); // sorted knowledge base
+		iter = skb.keySet().iterator();
 	}
 
-	GPNode getNext(EvolutionState state, int thread)
-	{
-		// GPIndividualUtils.stripRoots(ind)
-		int winner = RandomChoice.pickFromDistribution(kWeights,state.random[thread].nextDouble());
-		GPIndividual winnerInd = kItems.get(winner);
-		GPNode retval = GPIndividualUtils.stripRoots(winnerInd).get(0);
-		return retval;
+	private static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
+		List<Map.Entry<K, V>> list = new ArrayList<>(map.entrySet());
+
+		Comparator<Map.Entry<K, V>> cmp = (Comparator<Map.Entry<K, V>> & Serializable) (c1, c2) -> c2.getValue().compareTo(c1.getValue());
+
+		list.sort(cmp);
+
+		Map<K, V> result = new LinkedHashMap<>();
+		for (Map.Entry<K, V> entry : list) {
+			result.put(entry.getKey(), entry.getValue());
+		}
+
+		return result;
 	}
+
+
+//	private void sortKnowledgeBase(HashMap<TLGPIndividual, Double> kb)
+//	{
+//		Map<TLGPIndividual, Double> tlgpIndividuals = sortByValue(kb);
+//		Iterator<TLGPIndividual> iter = tlgpIndividuals.keySet().iterator();
+//	}
+
+//	GPNode getNext(EvolutionState state, int thread)
+//	{
+//		// GPIndividualUtils.stripRoots(ind)
+//		int winner = RandomChoice.pickFromDistribution(kWeights,state.random[thread].nextDouble());
+//		GPIndividual winnerInd = kItems.get(winner);
+//		GPNode retval = GPIndividualUtils.stripRoots(winnerInd).get(0);
+//		return retval;
+//	}
 
 
 	@Override
@@ -169,15 +180,18 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
 	{
 		int popSize = state.parameters.getInt(new Parameter("pop.subpop.0.size"), null);
 		int numToTransfer = (int) Math.round(popSize * transferPercent);
-		if(numToTransfer >= 0 && cfCounter < numToTransfer)
+		if(numToTransfer >= 0 && cfCounter < numToTransfer && iter.hasNext())
 		{
 //			CodeFragmentKI cf = (CodeFragmentKI) extractor.getNext();
+			TLGPIndividual cf = iter.next();
+
 			if(cf != null)
 			{
 				cfCounter++;
-				log(state, cf, cfCounter, knowledgeSuccessLogID);
-				GPNode node = cf.getItem();
+				GPNode node = GPIndividualUtils.stripRoots(cf).get(0);
+				log(state, node, knowledgeSuccessLogID);
 				node.parent = parent;
+				node.argposition = (byte) argposition;
 				return node;
 			}
 			else
