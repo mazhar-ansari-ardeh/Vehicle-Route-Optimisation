@@ -90,37 +90,37 @@ public class AnalyzeSubtrees
 	public static final String P_MAX_ST_DEPTH = "max-st-depth";
 	private static int maxDepth;
 
+    /**
+	 * This program implements a simple niching algorithm and this parameter indicates its radius.
+	 */
+	public static final String P_FITNESS_NICHE_RADIUS = "fitness-niche-radius";
+
+	private static double fitnessNicheRadius;
+
+    private static int toGeneration = -1;
+
+    //	public static final String P_SIMPLIFY = "simplify";
+    //	 */
+    //	 * simplify the GP tree before analyzing features. NOT IMPLEMENTED.
+    //	 * If {@code true}, the program will use the algorithm implemented in {@code TreeSimplifier} to
 //	/**
-//	 * This program implements a simple niching algorithm and this parameter indicates its radius.
-//	 */
-//	public static final String P_FITNESS_NICHE_RADIUS = "fitness-niche-radius";
 
+    //	public static final String P_USE_EQUIVALENCY_FILTER = "use-equival-filter";
+    //	 */
+    //	 * {@code TreeSimplifier} to identify similar trees and ignore them. NOT IMPLEMENTED.
+    //	 * If {@code true}, the program will use the hashing algorithm implemented in
 //	/**
-//	 * If {@code true}, the program will use the algorithm implemented in {@code TreeSimplifier} to
-//	 * simplify the GP tree before analyzing features. NOT IMPLEMENTED.
-//	 */
-//	public static final String P_SIMPLIFY = "simplify";
-
-//	/**
-//	 * If {@code true}, the program will use the hashing algorithm implemented in
-//	 * {@code TreeSimplifier} to identify similar trees and ignore them. NOT IMPLEMENTED.
-//	 */
-//	public static final String P_USE_EQUIVALENCY_FILTER = "use-equival-filter";
 
 
-	static int fromGeneration = -1;
+    private static int fromGeneration = -1;
 
-	static int toGeneration = -1;
-
-//	private static double fitnessNicheRadius;
-
-	static TLLogger<GPNode> logger;
+	private static TLLogger<GPNode> logger;
 
 	private static int logID;
 
-	static HashMap<GPIndividual, ArrayList<Pair<GPNode, Double>>> book = new HashMap<>();
+	private static HashMap<GPIndividual, ArrayList<Pair<GPNode, Double>>> book = new HashMap<>();
 
-	static void loadECJ(String paramFileNamePath, String... ecjParams)
+	private static void loadECJ(String paramFileNamePath, String... ecjParams)
 	{
 		ArrayList<String> params = new ArrayList<>();
 		params.add("-file");
@@ -155,8 +155,8 @@ public class AnalyzeSubtrees
         state.output.warning("From generation: " + fromGeneration);
         toGeneration = state.parameters.getIntWithDefault(base.push(P_GENERATION_TO), null, -1);
         state.output.warning("To generation: " + toGeneration);
-//        fitnessNicheRadius = state.parameters.getDouble(base.push(P_FITNESS_NICHE_RADIUS), null);
-//        state.output.warning("Niche radius: " + fitnessNicheRadius);
+        fitnessNicheRadius = state.parameters.getDouble(base.push(P_FITNESS_NICHE_RADIUS), null);
+        state.output.warning("Niche radius: " + fitnessNicheRadius);
 
         p = base.push(P_KNOWLEDGE_EXTRACTION);
 		String extraction = state.parameters.getString(p, null);
@@ -249,42 +249,41 @@ public class AnalyzeSubtrees
 				popList.add(PopulationUtils.loadPopulation(inputFileNamePath));
 			}
 
-			logger.log(state, logID, percent + " percent of each subpopulation is loaded\n");
-			for(int gen = fromGeneration; gen <= toGeneration; gen++)
+            logger.log(state, logID, percent + " percent of each subpopulation is loaded\n");
+            for(int gen = fromGeneration; gen <= toGeneration; gen++)
 			{
-				Population pop = popList.get(gen);
-				for(Subpopulation sub : pop.subpops)
+                Population pop = popList.get(gen);
+                for(Subpopulation sub : pop.subpops)
 				{
-					for(int i = 0; i < Math.round(sub.individuals.length * percent); i++)
+                    double fitness = -1; // sub.individuals[0].fitness.fitness();
+                    for(int i = 0; i < Math.round(sub.individuals.length * percent); i++)
 					{
-						if(!(sub.individuals[i] instanceof GPIndividual))
+                        if(!(sub.individuals[i] instanceof GPIndividual))
 						{
-							System.err.println("WARNING: Found and object in the saved population "
+                            System.err.println("WARNING: Found and object in the saved population "
 									+ " file that is not of type GPIndividual:"
 									+ sub.individuals[i].getClass()+ " The individule is ignored.");
-							logger.log(state, logID,
+                            logger.log(state, logID,
 									"WARNING: Found and object in the saved population file"
 									+ " that is not of type GPIndividual:"
 									+ sub.individuals[i].getClass() + " The individule is ignored."
 									+ "\n");
-							continue;
-						}
-						GPIndividual ind = (GPIndividual)sub.individuals[i];
-						logger.log(state, logID, "Processing individual " + i + " with hash value: "
+                            continue;
+                        }
+                        GPIndividual ind = (GPIndividual)sub.individuals[i];
+                        logger.log(state, logID, "Processing individual " + i + " with hash value: "
 								   + sim.hashOfTree(ind.trees[0].child) + " and fitness: "
 								   + ind.fitness.fitness() + "\n");
 
-//						Don't want niching at this stage.
-//						double fitness = -1; // sub.individuals[0].fitness.fitness();
-//						if(Math.abs(fitness - ind.fitness.fitness()) <= fitnessNicheRadius)
-//						{
-//							logger.log(state, logID, "Individual ignored due to falling in niche: "
-//										+(ind).trees[0].child.makeCTree(true, true, true)
-//										+ ", fitness: " + ind.fitness.fitness() + "\n\n");
-//							continue;
-//						}
-//						else // a new niche detected.
-//							fitness = ind.fitness.fitness();
+						if(Math.abs(fitness - ind.fitness.fitness()) <= fitnessNicheRadius)
+						{
+							logger.log(state, logID, "Individual ignored due to falling in niche: "
+										+(ind).trees[0].child.makeCTree(true, true, true)
+										+ ", fitness: " + ind.fitness.fitness() + "\n\n");
+							continue;
+						}
+						else // a new niche detected.
+							fitness = ind.fitness.fitness();
 
 						extractAndSave(state, ind);
 						logger.log(state, logID, "Finished work on individual: " + i + "\n");
@@ -332,7 +331,7 @@ public class AnalyzeSubtrees
 	{
 		if(gind instanceof TLGPIndividual)
 		{
-			if(((TLGPIndividual)gind).getTested() == false)
+			if(!((TLGPIndividual) gind).getTested())
 			{
 				state.output.fatal("GPIndividual is not evaluated on test scenario");
 			}
@@ -344,7 +343,7 @@ public class AnalyzeSubtrees
 		switch(extractionMethod)
 		{
 		case Root:
-			state.output.fatal("Root extraction method is not supported.");;
+			state.output.fatal("Root extraction method is not supported.");
 		case RootSubtree:
 			subtrees = TreeSlicer.sliceRootSubTreesWithContrib(state, gind);
 			break;

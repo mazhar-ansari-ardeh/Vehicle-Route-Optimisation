@@ -78,13 +78,13 @@ public class AnalyzeTerminals
 	 * If {@code true}, the program will use the algorithm implemented in {@code TreeSimplifier} to
 	 * simplify the GP tree before analyzing features. NOT IMPLEMENTED.
 	 */
-	public static final String P_SIMPLIFY = "simplify";
+//	public static final String P_SIMPLIFY = "simplify";
 
 	/**
 	 * If {@code true}, the program will use the hashing algorithm implemented in
 	 * {@code TreeSimplifier} to identify similar trees and ignore them. NOT IMPLEMENTED.
 	 */
-	public static final String P_USE_EQUIVALENCY_FILTER = "use-equival-filter";
+//	public static final String P_USE_EQUIVALENCY_FILTER = "use-equival-filter";
 
 
 	static int fromGeneration = -1;

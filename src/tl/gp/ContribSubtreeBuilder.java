@@ -99,7 +99,8 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
 
         for (GPIndividual ind : subtree.keySet()) {
             ArrayList<Pair<GPNode, Double>> subs = subtree.get(ind);
-            for (Pair<GPNode, Double> pair : subs) {
+            for (Pair<GPNode, Double> pair : subs)
+            {
                 TLGPIndividual i = GPIndividualUtils.asGPIndividual(pair.getKey());
                 double contrib = pair.getValue();
                 double nfit = 1f / (ind.fitness.fitness() + 1);
@@ -113,7 +114,9 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
                         double weight = knowledgeBase.get(i);
                         weight += nfit;
                         knowledgeBase.put(i, weight);
-                    } else {
+                    }
+                    else
+                    {
                         knowledgeBase.put(i, nfit);
                     }
                 }
