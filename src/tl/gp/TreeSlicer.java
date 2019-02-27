@@ -178,7 +178,7 @@ public class TreeSlicer
 
 	/**
 	 * Calculates the contribution of a feature to an individual's fitness.
-	 * @param state
+	 * @param state The EvolutionState object.
 	 * @param ind The individual that has the effect terminal on its contribution is desired.
 	 * @param featureName The name of feature to get its contribution.
 	 * @param evaluateIndividual if true, the individual will be evaluated and otherwise, it will be
@@ -237,12 +237,23 @@ public class TreeSlicer
 		return oldFitness - newFitness;
 	}
 
+	/**
+	 * extracts root subtrees from an individual and also calculates its contribution to it.
+	 *
+	 * @param state The <code>EvolutionState</code> object
+	 * @param theIndividual the individual to slice.
+	 * @param minDepth minimum allowed size of subtrees to consider. Size of a subtree is less than (but not equal to) this,
+	 *                 it will be ignored.
+	 * @param maxDepth maximum allowed size of subtrees to consider. Size of a subtree is greater than (but not equal to)
+	 *                 this, it will be ignored.
+	 * @return A list of extracted subtrees paired with their contribution.
+	 */
 	public static ArrayList<Pair<GPNode, Double>> sliceRootSubTreesWithContrib(EvolutionState state,
-			GPIndividual theIndividual)
+			GPIndividual theIndividual, int minDepth, int maxDepth)
 	{
 		if(theIndividual instanceof TLGPIndividual)
 		{
-			if(((TLGPIndividual)theIndividual).getTested() == false)
+			if(!((TLGPIndividual) theIndividual).isTested())
 			{
 				state.output.fatal("GPIndividual is not evaluated on test scenario");
 			}
@@ -256,6 +267,10 @@ public class TreeSlicer
 		{
 			for(GPNode node: tree.child.children)
 			{
+				int depth = node.depth();
+				if(depth < minDepth || depth > maxDepth)
+					continue;
+
 				double contrib = getSubtreeContrib(state, theIndividual, node);
 				GPNode nodeClone = (GPNode) node.clone();
 				nodeClone.parent = null;
@@ -266,12 +281,27 @@ public class TreeSlicer
 		return retval;
 	}
 
-	public static ArrayList<Pair<GPNode, Double>> sliceAllWithContrib(EvolutionState state,
-			GPIndividual theIndividual, GPNode root, boolean includeTerminals)
+	/**
+	 * extracts all possible subtrees from an individual and also calculates its contribution to it.
+	 *
+	 * @param state The <code>EvolutionState</code> object
+	 * @param theIndividual the individual to slice.
+	 * @param root the root of the tree in
+	 * @param includeTerminals if true, the function will also consider terminals as subtrees and extract them too. In this
+	 *                         case, the min and max constraints are not applied to terminals.
+	 * @param minDepth minimum allowed size of subtrees to consider. Size of a subtree is less than (but not equal to) this,
+	 *                 it will be ignored.
+	 * @param maxDepth maximum allowed size of subtrees to consider. Size of a subtree is greater than (but not equal to)
+	 *                 this, it will be ignored.
+	 * @return A list of extracted subtrees paired with their contribution.
+	 */
+	private static ArrayList<Pair<GPNode, Double>> sliceAllWithContrib(EvolutionState state, GPIndividual theIndividual,
+																	   GPNode root, boolean includeTerminals, int minDepth,
+																	   int maxDepth)
 	{
 		if(theIndividual instanceof TLGPIndividual)
 		{
-			if(((TLGPIndividual)theIndividual).getTested() == false)
+			if(!((TLGPIndividual) theIndividual).isTested())
 			{
 				state.output.fatal("GPIndividual is not evaluated on test scenario");
 			}
@@ -293,6 +323,10 @@ public class TreeSlicer
 			}
 			return retval;
 		}
+		int depth = root.depth();
+		if(depth < minDepth || depth > maxDepth)
+			return retval;
+
 		GPNode rootClone = (GPNode)root.clone();
 		rootClone.parent = null;
 
@@ -302,17 +336,30 @@ public class TreeSlicer
 
 		for(int i = 0; i < root.children.length; i++)
 			retval.addAll(sliceAllWithContrib(state, theIndividual, root.children[i],
-					includeTerminals));
+					includeTerminals, minDepth, maxDepth));
 
 		return retval;
 	}
 
+	/**
+	 * extracts all possible subtrees from an individual and also calculates its contribution to it.
+	 *
+	 * @param state The <code>EvolutionState</code> object
+	 * @param theIndividual the individual to slice.
+	 * @param includeTerminals if true, the function will also consider terminals as subtrees and extract them too. In this
+	 *                         case, the min and max constraints are not applied to terminals.
+	 * @param minDepth minimum allowed size of subtrees to consider. Size of a subtree is less than (but not equal to) this,
+	 *                 it will be ignored.
+	 * @param maxDepth maximum allowed size of subtrees to consider. Size of a subtree is greater than (but not equal to)
+	 *                 this, it will be ignored.
+	 * @return A list of extracted subtrees paired with their contribution.
+	 */
 	public static ArrayList<Pair<GPNode, Double>> sliceAllWithContrib(EvolutionState state,
-											GPIndividual ind, boolean includeTerminals)
+											GPIndividual theIndividual, boolean includeTerminals, int minDepth, int maxDepth)
 	{
-		if(ind instanceof TLGPIndividual)
+		if(theIndividual instanceof TLGPIndividual)
 		{
-			if(((TLGPIndividual)ind).getTested() == false)
+			if(!((TLGPIndividual) theIndividual).isTested())
 			{
 				state.output.fatal("GPIndividual is not evaluated on test scenario");
 			}
@@ -321,12 +368,12 @@ public class TreeSlicer
 			state.output.warning("GPIndividual is not of type TLGPIndividual");
 
 		ArrayList<Pair<GPNode, Double>> retval = new ArrayList<>();
-		if(ind == null)
+		if(theIndividual == null)
 			return retval;
 
-		GPIndividual gind = (GPIndividual) ind.clone();
+		GPIndividual gind = (GPIndividual) theIndividual.clone();
 		for(GPTree tree : gind.trees)
-			retval.addAll(sliceAllWithContrib(state, gind, tree.child, includeTerminals));
+			retval.addAll(sliceAllWithContrib(state, gind, tree.child, includeTerminals, minDepth, maxDepth));
 
 		return retval;
 	}
