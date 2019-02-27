@@ -122,7 +122,7 @@ public class EvaluateOnTest
 				{
 					System.err.println("WARNING: Found and object in the saved population file"
 							+ " that is not of type GPIndividual:" + ind.getClass()
-							+ " The individule is ignored.");
+							+ " The individual is ignored.");
 					continue;
 				}
 				evaluate(state, (GPIndividual)ind);
@@ -131,33 +131,23 @@ public class EvaluateOnTest
 		Files.move(path, trainArchive, StandardCopyOption.REPLACE_EXISTING);
 		PopulationUtils.savePopulation(pop, path.toString());
 	}
-//		catch (FileNotFoundException e)
-//		{
-//			System.err.println("\nFile not found: " + e.getMessage());
-//		}
-//		catch (ClassNotFoundException e)
-//		{
-//			System.err.println("A class not found exception occurred. Could not find class of the"
-//					+ "object in the saved file. Is the file OK?");
-//			e.printStackTrace();
-//		}
-//		catch(InvalidObjectException e)
-//		{
-//			System.err.println("File contains objects that are not of type GPIndividual.");
-//			e.printStackTrace();
-//		}
-//		catch (IOException e)
-//		{
-//			e.printStackTrace();
-//		}
-//		catch (IllegalArgumentException e)
-//		{
-//			System.err.println(e.getMessage());
-//		}
-//	}
 
 	static double evaluate(EvolutionState state, GPIndividual gind)
 	{
+		if(gind instanceof TLGPIndividual)
+		{
+			TLGPIndividual tlg = (TLGPIndividual) gind;
+			if(tlg.isTested())
+			{
+				state.output.warning("Individual is already tested. Ignoring the individual");
+				return tlg.fitness.fitness();
+			}
+			tlg.setTested(true);
+			tlg.setFitnessOnTrain(((TLGPIndividual) gind).fitness.fitness());
+		}
+		else
+			state.output.warning("GP individual is not of type TLGPIndividual");
+
 		((SimpleProblemForm)state.evaluator.p_problem).evaluate(state, gind, 0, 0);
 
 		return gind.fitness.fitness();
