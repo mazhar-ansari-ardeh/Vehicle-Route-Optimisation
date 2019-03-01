@@ -1,15 +1,19 @@
 package tl.gp;
 
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
-
 import ec.*;
-import ec.gp.*;
-import ec.util.*;
+import ec.gp.GPIndividual;
+import ec.gp.GPNode;
+import ec.util.Parameter;
+import ec.util.ParameterDatabase;
 import javafx.util.Pair;
 import tl.TLLogger;
 import tl.knowledge.KnowledgeExtractionMethod;
+
+import java.io.*;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 
 
 /**
@@ -24,17 +28,18 @@ import tl.knowledge.KnowledgeExtractionMethod;
  * 'percent' which is the percent of each population to consider for analysis.
  *
  * The program receives its requirements from command line. Usage:
- * AnalyzeTerminals <test param file> <input population file/folder> <output file> [<EJC params>...]"
+ * AnalyzeSubtrees <test param file> <input population file/folder> <output file> [<EJC params>...]"
  *
  * ECJ parameters are optional but important parameters, like sample size, can be passed to this
  * program this way. A sample command line running of the program: <p>
- * AnalyzeTerminals bin/tl/gphhucarp/source.param \
+ * AnalyzeSubtrees bin/tl/gphhucarp/source.param \
  *   /home/mazhar/MyPhD/SourceCodes/gpucarp/stats/source/population.gen.0.bin \
  *   book.bk eval.problem.eval-model.instances.0.samples=500 analyze-terminals.percent=0.5
  * @author mazhar
  *
  */
 //@SuppressWarnings("Duplicates")
+@SuppressWarnings("ALL")
 public class AnalyzeSubtrees
 {
 	static EvolutionState state = null;
@@ -77,15 +82,13 @@ public class AnalyzeSubtrees
 	static KnowledgeExtractionMethod extractionMethod;
 
 	/**
-	 * Minimum allowed size of code fragments to use, inclusive. A value of zero or less means
-	 * anything.
+	 * Minimum allowed size of code fragments to use, inclusive.
 	 */
 	public static final String P_MIN_ST_DEPTH = "min-st-depth";
 	private static int minDepth;
 
 	/**
-	 * Maximum allowed size of code fragments to use, exclusive. A value of zero or less means
-	 * everything.
+	 * Maximum allowed size of code fragments to use, inclusive.
 	 */
 	public static final String P_MAX_ST_DEPTH = "max-st-depth";
 	private static int maxDepth;
@@ -148,7 +151,7 @@ public class AnalyzeSubtrees
         p = base.push(P_PERCENT);
         percent = state.parameters.getDouble(p, null);
         if(percent < 0 || percent > 1)
-        	state.output.fatal("K percent is not a valid value for AnalyzeTerminal: " + percent);
+        	state.output.fatal("K percent is not a valid value for AnalyzeSubtrees: " + percent);
         state.output.warning("Percent is: " + percent);
 
         fromGeneration = state.parameters.getIntWithDefault(base.push(P_GENERATION_FROM), null, -1);
@@ -177,7 +180,7 @@ public class AnalyzeSubtrees
         if(samples < 100)
         	state.output.fatal("Sample size is too small: " + samples);
         else
-        	state.output.warning("Sample size in AnalyzeTerminals: " + samples);
+        	state.output.warning("Sample size in AnalyzeSubtrees: " + samples);
 
         logger = new TLLogger<GPNode>()
 		{
@@ -188,7 +191,7 @@ public class AnalyzeSubtrees
 		p = base.push(P_NUM_GENERATIONS);
 		numGenerations = state.parameters.getInt(p, null);
 		state.output.warning("Number of generations on source domain: " + numGenerations);
-		state.output.warning("AnalyzeTerminals loaded.");
+		state.output.warning("AnalyzeSubtrees loaded.");
 	}
 
 
@@ -196,7 +199,7 @@ public class AnalyzeSubtrees
 	{
 		if(args.length < 3 )
 		{
-			System.err.println("Invalid number of arguments. Usage: AnalyzeTerminals "
+			System.err.println("Invalid number of arguments. Usage: AnalyzeSubtrees "
 					+ " <test param file> <input population file/folder>"
 					+ " <output file> [<EJC params>...]");
 			// The reason that I am not using a parameter file instead of command line arguments is
@@ -278,7 +281,7 @@ public class AnalyzeSubtrees
 						if(Math.abs(fitness - ind.fitness.fitness()) <= fitnessNicheRadius)
 						{
 							logger.log(state, logID, "Individual ignored due to falling in niche: "
-										+(ind).trees[0].child.makeCTree(true, true, true)
+										+ (ind).trees[0].child.makeCTree(true, true, true)
 										+ ", fitness: " + ind.fitness.fitness() + "\n\n");
 							continue;
 						}
@@ -331,7 +334,7 @@ public class AnalyzeSubtrees
 	{
 		if(gind instanceof TLGPIndividual)
 		{
-			if(!((TLGPIndividual) gind).getTested())
+			if(!((TLGPIndividual) gind).isTested())
 			{
 				state.output.fatal("GPIndividual is not evaluated on test scenario");
 			}
@@ -345,10 +348,10 @@ public class AnalyzeSubtrees
 		case Root:
 			state.output.fatal("Root extraction method is not supported.");
 		case RootSubtree:
-			subtrees = TreeSlicer.sliceRootSubTreesWithContrib(state, gind);
+			subtrees = TreeSlicer.sliceRootSubTreesWithContrib(state, gind, minDepth, maxDepth);
 			break;
 		case AllSubtrees:
-			subtrees = TreeSlicer.sliceAllWithContrib(state, gind, false);
+			subtrees = TreeSlicer.sliceAllWithContrib(state, gind, false, minDepth, maxDepth);
 			break;
 		default:
 			throw new IllegalArgumentException("Given extraction method is not supported: "
@@ -357,83 +360,4 @@ public class AnalyzeSubtrees
 
 		book.put(gind, subtrees);
 	}
-
-//	static ArrayList<GPNode> getSubtrees(GPIndividual gpIndividual)
-//	{
-//		ArrayList<GPNode> allNodes = null;
-//		switch(extractionMethod)
-//		{
-//		case Root:
-//			state.output.fatal("Root extraction method is not supported.");;
-//		case RootSubtree:
-//			allNodes = TreeSlicer.sliceRootChildrenToNodes(gpIndividual, false);
-//			break;
-//		case AllSubtrees:
-//			allNodes = TreeSlicer.sliceAllToNodes(gpIndividual, false);
-//			break;
-//		default:
-//			throw new IllegalArgumentException("Given extraction method is not supported: "
-//												+ extractionMethod);
-//		}
-//
-//		ArrayList<GPNode> retval = new ArrayList<>();
-//		for(GPNode node : allNodes)
-//		{
-//			int depth = node.depth();
-//			if((minDepth <= 0 || depth >= minDepth) &&  (maxDepth <= 0 || depth <= maxDepth))
-//				retval.add(node);
-//		}
-//		return retval;
-//	}
-
-
-//	static class SubtreeKeeper implements Serializable
-//	{
-//		private static final long serialVersionUID = 1L;
-//
-//		HashMap<String, HashMap<GPIndividual, GPIndividualFeatureStatistics>> book = new HashMap<>();
-//
-//		void add(String terminal, GPIndividual ind, ArrayList<String> allIndTerminals)
-//		{
-//			if(book.containsKey(terminal))
-//			{
-//				HashMap<GPIndividual, GPIndividualFeatureStatistics> h = book.get(terminal);
-//				if(h.containsKey(ind))
-//				{
-//					GPIndividualFeatureStatistics stat = h.get(ind);
-//					if(!stat.getTerminal().equals(terminal))
-//					{
-//						logger.log(state, logID, "Statistics inconsistency: " + terminal + "!="
-//								+ stat.getTerminal());
-//						state.output.fatal("Statistics inconsistency: " + terminal + "!="
-//											+ stat.getTerminal());
-//					}
-//					stat.incrementFrequency();
-//				}
-//				else
-//				{
-//					Pair<Double, Double> contrib = TreeSlicer.getFeatureContribution(state, ind
-//															 						 , terminal
-//															 						 , false);
-//					GPIndividualFeatureStatistics stats
-//						= new GPIndividualFeatureStatistics(ind, terminal,allIndTerminals, contrib);
-//					stats.incrementFrequency();
-//
-//					h.put(ind, stats);
-//				}
-//			}
-//			else
-//			{
-//				Pair<Double, Double> contrib = TreeSlicer.getFeatureContribution(state, ind
-//					, terminal
-//					, false);
-//				GPIndividualFeatureStatistics stats
-//					= new GPIndividualFeatureStatistics(ind, terminal,allIndTerminals, contrib);
-//				HashMap<GPIndividual, GPIndividualFeatureStatistics> h = new HashMap<GPIndividual
-//															, GPIndividualFeatureStatistics>();
-//				h.put(ind, stats);
-//				book.put(terminal, h);
-//			}
-//		}
-//	}
 }

@@ -107,9 +107,10 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
                 nfit = Math.max(0, (nfit - gmin) / (gmax - gmin));
                 // contrib is (oldfit - newfit) so a positive value means negative impact on fitness
                 // That is why -contrib is used.
-                if (-contrib > 0.001)
+                if (contrib > 0.001)
                 {
-                    if (knowledgeBase.containsKey(i)) {
+                    if (knowledgeBase.containsKey(i))
+                    {
 //						int index = kItems.indexOf(i);
                         double weight = knowledgeBase.get(i);
                         weight += nfit;
@@ -141,22 +142,6 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
 
         return result;
     }
-
-
-//	private void sortKnowledgeBase(HashMap<TLGPIndividual, Double> kb)
-//	{
-//		Map<TLGPIndividual, Double> tlgpIndividuals = sortByValue(kb);
-//		Iterator<TLGPIndividual> iter = tlgpIndividuals.keySet().iterator();
-//	}
-
-//	GPNode getNext(EvolutionState state, int thread)
-//	{
-//		// GPIndividualUtils.stripRoots(ind)
-//		int winner = RandomChoice.pickFromDistribution(kWeights,state.random[thread].nextDouble());
-//		GPIndividual winnerInd = kItems.get(winner);
-//		GPNode retval = GPIndividualUtils.stripRoots(winnerInd).get(0);
-//		return retval;
-//	}
 
 
     @Override

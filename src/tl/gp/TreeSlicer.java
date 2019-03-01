@@ -179,7 +179,7 @@ public class TreeSlicer
 	/**
 	 * Calculates the contribution of a feature to an individual's fitness.
 	 * @param state The EvolutionState object.
-	 * @param ind The individual that has the effect terminal on its contribution is desired.
+	 * @param ind The individual that the effect of terminal on its contribution is desired.
 	 * @param featureName The name of feature to get its contribution.
 	 * @param evaluateIndividual if true, the individual will be evaluated and otherwise, it will be
 	 * assumed that it has been evaluated before being passed into this method.
@@ -212,6 +212,15 @@ public class TreeSlicer
 		return new Pair<>(oldFitness, newFitness);
 	}
 
+
+	/**
+	 * Calculates the contribution of a feature to an individual's fitness.
+	 * @param state The EvolutionState object.
+	 * @param theIndividual The individual that the contribution of subtree on its contribution is desired.
+	 * @param theNode The root of subtree to get its contribution.
+	 * @return Contribution of subtree to individual's fitness. This is measured as
+	 * 		   (fitnessWithSubtree - fitnessWithoutSubtree).
+	 */
 	private static double getSubtreeContrib(EvolutionState state, GPIndividual theIndividual,
 			GPNode theNode)
 	{
@@ -323,17 +332,16 @@ public class TreeSlicer
 			}
 			return retval;
 		}
+
 		int depth = root.depth();
-		if(depth < minDepth || depth > maxDepth)
-			return retval;
+		if(!(depth < minDepth || depth > maxDepth) )
+		{
+			GPNode rootClone = (GPNode) root.clone();
+			rootClone.parent = null;
 
-		GPNode rootClone = (GPNode)root.clone();
-		rootClone.parent = null;
-
-		double newFitness = getSubtreeContrib(state, theIndividual, root);
-
-		retval.add(new Pair<>(rootClone, newFitness));
-
+			double contrib = getSubtreeContrib(state, theIndividual, root);
+			retval.add(new Pair<>(rootClone, contrib));
+		}
 		for(int i = 0; i < root.children.length; i++)
 			retval.addAll(sliceAllWithContrib(state, theIndividual, root.children[i],
 					includeTerminals, minDepth, maxDepth));

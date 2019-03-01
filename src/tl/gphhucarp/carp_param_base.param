@@ -87,7 +87,9 @@ checkpoint-prefix = ec
 
 # GP population parameters
 pop.subpop.0.species = ec.gp.GPSpecies
-pop.subpop.0.species.ind = ec.gp.GPIndividual
+# pop.subpop.0.species.ind = ec.gp.GPIndividual
+pop.subpop.0.species.ind = tl.gp.TLGPIndividual
+
 pop.subpop.0.species.ind.numtrees = 1
 pop.subpop.0.species.ind.tree.0 = ec.gp.GPTree
 pop.subpop.0.species.ind.tree.0.tc = tc0

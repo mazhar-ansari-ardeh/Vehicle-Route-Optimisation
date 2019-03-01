@@ -41,7 +41,7 @@ public class EvaluateOnTest
 	 * This path is always treated as relative and is appended to the directory that contains the
 	 * the population file that is evaluated.
 	 */
-	static String trainPopulationFolder="TrainPopulation";
+	private static String trainPopulationFolder="TrainPopulation";
 
 
 	/**
@@ -52,7 +52,7 @@ public class EvaluateOnTest
 	 * @param paramFileNamePath the path to a param file including the name of the file.
 	 * @param ecjParams additional parameters for ECJ.
 	 */
-	static void loadECJ(String paramFileNamePath, String... ecjParams)
+	private static void loadECJ(String paramFileNamePath, String... ecjParams)
 	{
 		ArrayList<String> params = new ArrayList<>();
 		params.add("-file");
@@ -87,7 +87,7 @@ public class EvaluateOnTest
         	state.output.warning("Sample size in AnalyzeTerminals: " + samples);
 	}
 
-	public static void main(String[] args) throws FileNotFoundException, IOException, ClassNotFoundException
+	public static void main(String[] args) throws IOException, ClassNotFoundException
 	{
 		if(args.length < 2 )
 		{
