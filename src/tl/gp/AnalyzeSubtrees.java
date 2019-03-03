@@ -34,7 +34,7 @@ import java.util.HashMap;
  * program this way. A sample command line running of the program: <p>
  * AnalyzeSubtrees bin/tl/gphhucarp/source.param \
  *   /home/mazhar/MyPhD/SourceCodes/gpucarp/stats/source/population.gen.0.bin \
- *   book.bk eval.problem.eval-model.instances.0.samples=500 analyze-terminals.percent=0.5
+ *   subtree-book.bk eval.problem.eval-model.instances.0.samples=500 analyze-terminals.percent=0.5
  * @author mazhar
  *
  */
@@ -225,11 +225,11 @@ public class AnalyzeSubtrees
 			double maxFit = Double.MIN_VALUE;
 			if(f.isDirectory())
 			{
-				if(fromGeneration == -1 || toGeneration == -1)
+				if(fromGeneration <= -1 || toGeneration <= -1)
 				{
-					logger.log(state, logID, "Generation ragnge is invalid: " + fromGeneration
+					logger.log(state, logID, "Generation range is invalid: " + fromGeneration
 							+ " to " + toGeneration + "\n");
-					state.output.fatal("Generation ragnge is invalid: " + fromGeneration + " to "
+					state.output.fatal("Generation range is invalid: " + fromGeneration + " to "
 																		+  toGeneration);
 				}
 				for(int i = 0; i < numGenerations; i++)
