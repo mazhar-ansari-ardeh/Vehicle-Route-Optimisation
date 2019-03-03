@@ -44,7 +44,38 @@ public class GPIndividualUtils
 			GPNode node = ind.trees[i].child;
 			ind.trees[i].child = null;
 			node.parent = null;
+			retval.add(node);
 		}
 		return retval;
+	}
+
+	/**
+	 * Inserts a given GP node (subtree) in place of a subtree inside individual.
+	 * @param at The subtree of that will be cut from its place to be replaced with the subtree given by <code> with</code>.
+	 *           The function cuts the parent link of this parameter and replaces it with <code>null</code>. This parameter
+	 *           cannot be <code>null</code>.
+	 * @param with The subtree that will be inserted in place of <code>at</code>. This parameter cannot be <code>null</code>.
+	 */
+	public static void replace(GPNode at, GPNode with)
+	{
+		if(at == null || with == null)
+			throw new IllegalArgumentException("Null cannot be used here");
+
+		if(at.parent instanceof GPNode)
+		{
+			GPNode parent = (GPNode)at.parent;
+			with.parent = parent;
+			with.argposition = at.argposition;
+			parent.children[at.argposition] = with;
+			at.parent = null;
+		}
+		else if (at.parent instanceof GPTree)
+		{
+			GPTree parent = (GPTree)at.parent;
+			with.parent = parent;
+			with.argposition = at.argposition;
+			parent.child = with;
+			at.parent = null;
+		}
 	}
 }
