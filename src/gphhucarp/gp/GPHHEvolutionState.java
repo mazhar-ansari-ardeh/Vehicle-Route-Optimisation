@@ -237,25 +237,6 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState
 		finish(result);
     }
 
-	private BaseDriftDetector driftDetector = new SimpleDriftDetector(8);
-
-	void insertImmigrants()
-	{
-		driftDetector.add_element(((FCFStatistics)statistics).getGenerationsBestFitness()[generation]);
-		if(driftDetector.detected_change())
-		{
-			System.out.println("Change detected");
-			Individual[] inds = population.subpops[0].individuals;
-			PopulationUtils.sort(inds);
-
-			for(int i = 0; i < inds.length * 0.1; i++)
-			{
-				inds[inds.length - i - 1] = population.subpops[0].species.newIndividual(this, 0);
-			}
-		}
-		//GPIndividual ind = (GPIndividual) this.population.subpops[0].species.newIndividual(this, 0);
-	}
-
 	@Override
 	public int evolve() {
 
@@ -273,11 +254,6 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState
 		writeToStatFile();
 
 		start = util.Timer.getCpuTime();
-
-		insertImmigrants();
-
-//		System.out.println(((FCFStatistics)statistics).getBestOverallGeneration());
-//		System.out.println(((FCFStatistics)statistics).getBestOverallFitness());
 
 	    // SHOULD WE QUIT?
 	    if (evaluator.runComplete(this) && quitOnRunComplete) {
