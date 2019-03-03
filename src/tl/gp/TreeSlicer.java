@@ -151,22 +151,23 @@ public class TreeSlicer
 			{
 				DoubleERC constNode = new DoubleERC();
 				constNode.value = 1;
-				if(root.parent instanceof GPNode)
-				{
-					GPNode parent = (GPNode)root.parent;
-					constNode.parent = parent;
-					constNode.argposition = root.argposition;
-					parent.children[root.argposition] = constNode;
-					root.parent = null;
-				}
-				else if (root.parent instanceof GPTree)
-				{
-					GPTree parent = (GPTree)root.parent;
-					constNode.parent = parent;
-					constNode.argposition = root.argposition;
-					parent.child = constNode;
-					root.parent = null;
-				}
+				GPIndividualUtils.replace(root, constNode); // To be tested!
+//				if(root.parent instanceof GPNode)
+//				{
+//					GPNode parent = (GPNode)root.parent;
+//					constNode.parent = parent;
+//					constNode.argposition = root.argposition;
+//					parent.children[root.argposition] = constNode;
+//					root.parent = null;
+//				}
+//				else if (root.parent instanceof GPTree)
+//				{
+//					GPTree parent = (GPTree)root.parent;
+//					constNode.parent = parent;
+//					constNode.argposition = root.argposition;
+//					parent.child = constNode;
+//					root.parent = null;
+//				}
 			}
 			return;
 		}
@@ -229,9 +230,10 @@ public class TreeSlicer
 		// Insert the constant into the original tree
 		DoubleERC constNode = new DoubleERC();
 		constNode.value = 1;
-		constNode.parent = theNode.parent;
-		GPNode parent = (GPNode) theNode.parent;
-		parent.children[theNode.argposition] = constNode;
+		GPIndividualUtils.replace(theNode, constNode);
+//		constNode.parent = theNode.parent;
+//		GPNode parent = (GPNode) theNode.parent;
+//		parent.children[theNode.argposition] = constNode;
 
 		// Evaluate the tree with the inserted constant
 		theIndividual.evaluated = false;
@@ -239,9 +241,10 @@ public class TreeSlicer
 		double newFitness = theIndividual.fitness.fitness();
 
 		// Replace back the constant
-		theNode.parent = parent;
-		parent.children[theNode.argposition] = theNode;
-		constNode.parent = null;
+		GPIndividualUtils.replace(constNode, theNode);
+//		theNode.parent = parent;
+//		parent.children[theNode.argposition] = theNode;
+//		constNode.parent = null;
 
 		return oldFitness - newFitness;
 	}
