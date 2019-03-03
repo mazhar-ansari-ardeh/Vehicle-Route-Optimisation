@@ -16,7 +16,8 @@ import java.util.*;
 /**
  * @author mazhar
  */
-public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNode> {
+public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNode>
+{
     private static final long serialVersionUID = 1L;
 
     /**
@@ -52,7 +53,7 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
         Parameter p = base.push(P_TRANSFER_PERCENT);
         transferPercent = state.parameters.getDouble(p, null);
 
-        String knowFile = state.parameters.getString(p.push(P_KNOWLEDGE_FILE), null);
+        String knowFile = state.parameters.getString(base.push(P_KNOWLEDGE_FILE), null);
         if (knowFile == null)
             state.output.fatal("Knowledge file name cannot be null");
         loadSubtrees(knowFile);
@@ -107,13 +108,13 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
                 nfit = Math.max(0, (nfit - gmin) / (gmax - gmin));
                 // contrib is (oldfit - newfit) so a positive value means negative impact on fitness
                 // That is why -contrib is used.
-                if (contrib > 0.001)
+                if (-contrib > 0.001)
                 {
                     if (knowledgeBase.containsKey(i))
                     {
 //						int index = kItems.indexOf(i);
                         double weight = knowledgeBase.get(i);
-                        weight += nfit;
+                        weight += nfit * (-contrib);
                         knowledgeBase.put(i, weight);
                     }
                     else
@@ -124,21 +125,43 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
             }
         }
 
-        Map<TLGPIndividual, Double> skb = sortByValue(knowledgeBase); // sorted knowledge base
+        skb = sortByValue(knowledgeBase); // sorted knowledge base
         iter = skb.keySet().iterator();
     }
 
-    private static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map) {
-        List<Map.Entry<K, V>> list = new ArrayList<>(map.entrySet());
+    private Map<TLGPIndividual, Double> skb =null; // sorted knowledge base
 
-        Comparator<Map.Entry<K, V>> cmp = (Comparator<Map.Entry<K, V>> & Serializable) (c1, c2) -> c2.getValue().compareTo(c1.getValue());
+//    private static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map)
+//    {
+//        List<Map.Entry<K, V>> list = new ArrayList<>(map.entrySet());
+//
+//        Comparator<Map.Entry<K, V>> cmp = (Comparator<Map.Entry<K, V>> & Serializable) (c1, c2) -> c2.getValue().compareTo(c1.getValue());
+//
+//        list.sort(cmp);
+//
+//        Map<K, V> result = new LinkedHashMap<>();
+//        for (Map.Entry<K, V> entry : list) {
+//            result.put(entry.getKey(), entry.getValue());
+//        }
+//
+//        return result;
+//    }
+
+    private static HashMap<TLGPIndividual, Double> sortByValue(HashMap<TLGPIndividual, Double> map)
+    {
+        List<Map.Entry<TLGPIndividual, Double>> list = new ArrayList<>(map.entrySet());
+
+        Comparator<Map.Entry<TLGPIndividual, Double>> cmp =
+                (Comparator<Map.Entry<TLGPIndividual, Double>> & Serializable) (c1, c2) -> c2.getValue().compareTo(c1.getValue());
 
         list.sort(cmp);
 
-        Map<K, V> result = new LinkedHashMap<>();
-        for (Map.Entry<K, V> entry : list) {
+        HashMap<TLGPIndividual, Double> result = new LinkedHashMap<>();
+        for (Map.Entry<TLGPIndividual, Double> entry : list) {
             result.put(entry.getKey(), entry.getValue());
         }
+
+//        result.forEach((k, v) -> {System.out.println(k.trees[0].child);});
 
         return result;
     }
@@ -147,17 +170,21 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
     @Override
     public GPNode newRootedTree(final EvolutionState state, final GPType type, final int thread,
                                 final GPNodeParent parent, final GPFunctionSet set, final int argposition,
-                                final int requestedSize) {
+                                final int requestedSize)
+    {
         int popSize = state.parameters.getInt(new Parameter("pop.subpop.0.size"), null);
         int numToTransfer = (int) Math.round(popSize * transferPercent);
         if (numToTransfer >= 0 && cfCounter < numToTransfer && iter.hasNext()) {
 //			CodeFragmentKI cf = (CodeFragmentKI) extractor.getNext();
-            TLGPIndividual cf = iter.next();
+            // cloned because otherwise, the stripRoot method below will corrupt knowledge base
+            TLGPIndividual cf = (TLGPIndividual) iter.next().clone();
 
             if (cf != null) {
                 cfCounter++;
+                double contrib = skb.get(cf);
                 GPNode node = GPIndividualUtils.stripRoots(cf).get(0);
-                log(state, node, knowledgeSuccessLogID);
+                log(state, knowledgeSuccessLogID, node.makeCTree(true, true, true)+ " contrib: " + contrib + "\n\n");
+//                log(state, node, knowledgeSuccessLogID);
                 node.parent = parent;
                 node.argposition = (byte) argposition;
                 return node;
