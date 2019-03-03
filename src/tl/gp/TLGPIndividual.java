@@ -2,7 +2,7 @@ package tl.gp;
 
 import ec.gp.GPIndividual;
 
-class TLGPIndividual extends GPIndividual
+public class TLGPIndividual extends GPIndividual
 {
 	private static final long serialVersionUID = 1L;
 
