@@ -177,12 +177,12 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
         if (numToTransfer >= 0 && cfCounter < numToTransfer && iter.hasNext()) {
 //			CodeFragmentKI cf = (CodeFragmentKI) extractor.getNext();
             // cloned because otherwise, the stripRoot method below will corrupt knowledge base
-            TLGPIndividual cf = (TLGPIndividual) iter.next().clone();
+            TLGPIndividual cf = (TLGPIndividual) iter.next();
 
             if (cf != null) {
                 cfCounter++;
                 double contrib = skb.get(cf);
-                GPNode node = GPIndividualUtils.stripRoots(cf).get(0);
+                GPNode node = GPIndividualUtils.stripRoots((GPIndividual) cf.clone()).get(0);
                 log(state, knowledgeSuccessLogID, node.makeCTree(true, true, true)+ " contrib: " + contrib + "\n\n");
 //                log(state, node, knowledgeSuccessLogID);
                 node.parent = parent;
