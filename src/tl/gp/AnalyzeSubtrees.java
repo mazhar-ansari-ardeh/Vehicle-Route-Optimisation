@@ -265,11 +265,11 @@ public class AnalyzeSubtrees
 						{
                             System.err.println("WARNING: Found and object in the saved population "
 									+ " file that is not of type GPIndividual:"
-									+ sub.individuals[i].getClass()+ " The individule is ignored.");
+									+ sub.individuals[i].getClass()+ " The individual is ignored.");
                             logger.log(state, logID,
 									"WARNING: Found and object in the saved population file"
 									+ " that is not of type GPIndividual:"
-									+ sub.individuals[i].getClass() + " The individule is ignored."
+									+ sub.individuals[i].getClass() + " The individual is ignored."
 									+ "\n");
                             continue;
                         }
