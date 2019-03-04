@@ -56,7 +56,7 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
         String knowFile = state.parameters.getString(base.push(P_KNOWLEDGE_FILE), null);
         if (knowFile == null)
             state.output.fatal("Knowledge file name cannot be null");
-        loadSubtrees(knowFile);
+        loadSubtrees(state, knowFile);
 
 
 //		FrequentCodeFragmentKB knowledgeBase =
@@ -70,11 +70,15 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
 
 
     @SuppressWarnings("unchecked")
-    private void loadSubtrees(String knowFile) {
+    private void loadSubtrees(EvolutionState state, String knowFile) {
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(knowFile))) {
             double minFit = ois.readDouble(); // read minFit
             double maxFit = ois.readDouble(); // read maxFit
-            HashMap<GPIndividual, ArrayList<Pair<GPNode, Double>>> subtrees = (HashMap<GPIndividual, ArrayList<Pair<GPNode, Double>>>) ois.readObject();
+            HashMap<GPIndividual, ArrayList<Pair<GPNode, Double>>> subtrees
+                    = (HashMap<GPIndividual, ArrayList<Pair<GPNode, Double>>>) ois.readObject();
+
+            log(state, knowledgeSuccessLogID, "Loaded knowledge base. MinFit: " + minFit + ", maxFit: " + maxFit + ". "
+                                                + "Database size: " + subtrees.size());
 
             calculateWeights(subtrees, minFit, maxFit);
 
@@ -177,7 +181,7 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
         if (numToTransfer >= 0 && cfCounter < numToTransfer && iter.hasNext()) {
 //			CodeFragmentKI cf = (CodeFragmentKI) extractor.getNext();
             // cloned because otherwise, the stripRoot method below will corrupt knowledge base
-            TLGPIndividual cf = (TLGPIndividual) iter.next();
+            TLGPIndividual cf = iter.next();
 
             if (cf != null) {
                 cfCounter++;
