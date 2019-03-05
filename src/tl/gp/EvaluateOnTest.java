@@ -84,7 +84,7 @@ public class EvaluateOnTest
         if(samples < 100)
         	state.output.fatal("Sample size is too small: " + samples);
         else
-        	state.output.warning("Sample size in AnalyzeTerminals: " + samples);
+        	state.output.warning("Sample size in EvaluateOnTest: " + samples);
 	}
 
 	public static void main(String[] args) throws IOException, ClassNotFoundException
