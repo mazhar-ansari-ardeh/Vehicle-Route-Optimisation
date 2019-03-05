@@ -14,6 +14,7 @@ params
 
 # Experiment statistics are not needed in the repository
 *.csv
+*.tex
 
 # Don't use pydev anymore.
 *.pydevproject

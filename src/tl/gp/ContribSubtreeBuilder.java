@@ -78,7 +78,7 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
                     = (HashMap<GPIndividual, ArrayList<Pair<GPNode, Double>>>) ois.readObject();
 
             log(state, knowledgeSuccessLogID, "Loaded knowledge base. MinFit: " + minFit + ", maxFit: " + maxFit + ". "
-                                                + "Database size: " + subtrees.size());
+                                                + "Database size: " + subtrees.size() + "\n");
 
             calculateWeights(subtrees, minFit, maxFit);
 

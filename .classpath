@@ -56,5 +56,8 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="con" path="org.jetbrains.kotlin.core.KOTLIN_CONTAINER"/>
+	<classpathentry exported="true" kind="lib" path="/am/kings/home1/mazhar/.eclipse/org.eclipse.platform_4.7.2_1390736442_linux_gtk_x86_64/configuration/org.eclipse.osgi/2327/0/.cp/lib/kotlinx-coroutines-core.jar"/>
+	<classpathentry exported="true" kind="lib" path="/am/kings/home1/mazhar/.eclipse/org.eclipse.platform_4.7.2_1390736442_linux_gtk_x86_64/configuration/org.eclipse.osgi/2327/0/.cp/lib/kotlinx-coroutines-jdk8.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
