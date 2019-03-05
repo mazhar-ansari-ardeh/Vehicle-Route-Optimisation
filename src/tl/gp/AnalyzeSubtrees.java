@@ -102,6 +102,11 @@ public class AnalyzeSubtrees
 
     private static int toGeneration = -1;
 
+	/**
+	 * Number of individuals that were analyzed.
+	 */
+	static int numAnalyzed = 0;
+
     //	public static final String P_SIMPLIFY = "simplify";
     //	 */
     //	 * simplify the GP tree before analyzing features. NOT IMPLEMENTED.
@@ -283,6 +288,7 @@ public class AnalyzeSubtrees
 							logger.log(state, logID, "Individual ignored due to falling in niche: "
 										+ (ind).trees[0].child.makeCTree(true, true, true)
 										+ ", fitness: " + ind.fitness.fitness() + "\n\n");
+
 							continue;
 						}
 						else // a new niche detected.
@@ -302,6 +308,8 @@ public class AnalyzeSubtrees
 			os.writeDouble(maxFit);
 			os.writeObject(book);
 			os.close();
+
+			logger.log(state, logID, "Finished analyzing. Total number of individuals processed: " + numAnalyzed + ".\n");
 		}
 		catch (FileNotFoundException e)
 		{
@@ -329,18 +337,18 @@ public class AnalyzeSubtrees
 		}
 	}
 
-
 	private static void extractAndSave(EvolutionState state, GPIndividual gind)
 	{
 		if(gind instanceof TLGPIndividual)
 		{
 			if(!((TLGPIndividual) gind).isTested())
 			{
+				logger.log(state, logID, "GPIndividual is not evaluated on test scenario.\n");
 				state.output.fatal("GPIndividual is not evaluated on test scenario");
 			}
 		}
 		else
-			state.output.warning("GPIndividual is not of type TLGPIndividual");
+			logger.log(state, logID, "GPIndividual is not of type TLGPIndividual.\n");
 
 		ArrayList<Pair<GPNode, Double>> subtrees;
 		switch(extractionMethod)
@@ -359,5 +367,6 @@ public class AnalyzeSubtrees
 		}
 
 		book.put(gind, subtrees);
+		numAnalyzed++;
 	}
 }
