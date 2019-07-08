@@ -53,7 +53,7 @@ public class TreeSimplifier
 		DEM1Hash = nextRand();
 	}
 
-	static EvolutionState loadECJ(String paramFileNamePath, String... ecjParams)
+	private static EvolutionState loadECJ(String paramFileNamePath, String... ecjParams)
 	{
 		ArrayList<String> params = new ArrayList<>();
 		params.add("-file");
@@ -723,6 +723,56 @@ public class TreeSimplifier
 		node.children[1] = ch2;
 		ch2.argposition = 1;
 		ch2.parent = node;
+	}
+
+
+	private static void simplifyWithContrib(EvolutionState state, GPIndividual ind, GPNode root)
+	{
+		assert state != null;
+		assert ind != null;
+
+		if(root == null || root.children == null || root.children.length == 0)
+			return;
+
+		for(int i = 0; i < root.children.length; i++)
+		{
+			double subtreeContrib = TreeSlicer.getSubtreeContrib(state, ind, root.children[i]);
+			// Contribution is measured as 'fitnessWithSubtree - fitnessWithoutSubtree' for which a positive value indicates
+			// that the tree has a lower cost without the subtree.
+			if(subtreeContrib > 0)
+			{
+				DoubleERC constNode = new DoubleERC();
+				constNode.value = 1;
+				GPIndividualUtils.replace(root.children[i], constNode);
+			}
+		}
+
+		for(int i = 0; i < root.children.length; i++)
+		{
+			simplifyWithContrib(state, ind, root.children[i]);
+		}
+	}
+
+	public static void simplifyWithContrib(EvolutionState state, GPIndividual ind)
+	{
+		if(state == null)
+			throw new NullPointerException("State object cannot be null");
+		if(ind == null)
+			throw new NullPointerException("Input individual cannot be null");
+
+		if(ind instanceof TLGPIndividual)
+		{
+			if(!((TLGPIndividual) ind).isTested())
+			{
+				state.output.fatal("GPIndividual is not evaluated on test scenario");
+			}
+		}
+		else
+			state.output.warning("GPIndividual is not of type TLGPIndividual");
+
+		GPNode root = ind.trees[0].child;
+
+		simplifyWithContrib(state, ind, root);
 	}
 
 	static void main(String[] args) throws InvalidObjectException, FileNotFoundException, ClassNotFoundException, IOException

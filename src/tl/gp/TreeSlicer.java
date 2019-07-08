@@ -222,7 +222,7 @@ public class TreeSlicer
 	 * @return Contribution of subtree to individual's fitness. This is measured as
 	 * 		   (fitnessWithSubtree - fitnessWithoutSubtree).
 	 */
-	private static double getSubtreeContrib(EvolutionState state, GPIndividual theIndividual,
+	public static double getSubtreeContrib(EvolutionState state, GPIndividual theIndividual,
 			GPNode theNode)
 	{
 		double oldFitness = theIndividual.fitness.fitness();
