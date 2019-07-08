@@ -6,6 +6,9 @@
 stat
 stats
 params
+.idea
+.settings
+*.iml
 
 # Don't need plots and other images in the repository
 *.jpeg
@@ -24,6 +27,12 @@ params
 
 # Data files (in this proj, they may contain population)
 *.dat
+
+# BookKeeping files that are output of the algorithms
+*.bk
+
+# Code Fragment files
+*.cf
 
 # ECJ's status files
 *.stat
