@@ -3,9 +3,13 @@ package tl.gp;
 import ec.*;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
+import ec.gp.GPTree;
+import ec.simple.SimpleProblemForm;
 import ec.util.Parameter;
 import ec.util.ParameterDatabase;
 import tl.TLLogger;
+import tl.gp.simplification.ContributionTreeSimplifier;
+import tl.gp.simplification.TreeSimplifier;
 import tl.knowledge.KnowledgeExtractionMethod;
 
 import java.io.*;
@@ -166,8 +170,7 @@ public class SimplifyTrees
         	state.output.warning("Sample size in SimplifyTrees: " + samples);
 
         logger = new TLLogger<GPNode>()
-		{
-		};
+		{};
 
 		logID = logger.setupLogger(state, base);
 
@@ -175,7 +178,11 @@ public class SimplifyTrees
 		numGenerations = state.parameters.getInt(p, null);
 		state.output.warning("Number of generations on source domain: " + numGenerations);
 		state.output.warning("SimplifyTrees loaded.");
+
+		simplifier.setNext(new ContributionTreeSimplifier());
 	}
+
+	private static TreeSimplifier simplifier = new TreeSimplifier();
 
 //	/**
 //	 *
@@ -275,7 +282,7 @@ public class SimplifyTrees
 			}
 
 			// Now that the population is loaded, simplify it.
-			TreeSimplifier sim = new TreeSimplifier(state, 0);
+			AlgebraicTreeSimplifier sim = new AlgebraicTreeSimplifier(state, 0);
 			logger.log(state, logID, percent + " percent of each subpopulation is loaded\n");
             for(int gen = fromGeneration; gen <= toGeneration; gen++)
 			{
@@ -368,9 +375,25 @@ public class SimplifyTrees
 		else
 			logger.log(state, logID, "GPIndividual is not of type TLGPIndividual.\n");
 
-		TreeSimplifier.simplifyWithContrib(state, gind);
+
+		logger.log(state, logID, "Individual before simplification: \n");
+		logIndividual(gind);
+		simplifier.simplifyTree(state, gind);
+		logger.log(state, logID, "Individual after simplification: \n");
+		logIndividual(gind);
+		logger.log(state, logID, "\n\n");
 
 		book.add(gind);
 		numAnalyzed++;
+	}
+
+	private static void logIndividual(GPIndividual ind)
+	{
+		assert ind != null;
+
+		((SimpleProblemForm)state.evaluator.p_problem).evaluate(state, ind, 0, 0);
+		logger.log(state, logID,"Fitness: " + ind.fitness.fitness() + "\n");
+		for(GPTree tree : ind.trees)
+			logger.log(state, logID, tree.child.makeGraphvizTree() + "\n");
 	}
 }

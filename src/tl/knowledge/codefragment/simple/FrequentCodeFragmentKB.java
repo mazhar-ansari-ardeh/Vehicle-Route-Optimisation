@@ -63,7 +63,7 @@ public class FrequentCodeFragmentKB extends CodeFragmentKB
 //
 //	private boolean simplify = false;
 //
-//	private TreeSimplifier simplifier = null;
+//	private AlgebraicTreeSimplifier simplifier = null;
 
 	/**
 	 * Creates a new {@code DepthedFrequentSimpleCodeFragmentKB} object
@@ -120,7 +120,7 @@ public class FrequentCodeFragmentKB extends CodeFragmentKB
 //		this.maxDepth = maxDepth;
 //		this.simplify = simplify;
 //		if(simplify)
-//			simplifier = new TreeSimplifier(state, threadnum);
+//			simplifier = new AlgebraicTreeSimplifier(state, threadnum);
 //	}
 
 	@Override

@@ -75,14 +75,14 @@ public class AnalyzeTerminals
 	public static final String P_FITNESS_NICHE_RADIUS = "fitness-niche-radius";
 
 	/**
-	 * If {@code true}, the program will use the algorithm implemented in {@code TreeSimplifier} to
+	 * If {@code true}, the program will use the algorithm implemented in {@code AlgebraicTreeSimplifier} to
 	 * simplify the GP tree before analyzing features. NOT IMPLEMENTED.
 	 */
 //	public static final String P_SIMPLIFY = "simplify";
 
 	/**
 	 * If {@code true}, the program will use the hashing algorithm implemented in
-	 * {@code TreeSimplifier} to identify similar trees and ignore them. NOT IMPLEMENTED.
+	 * {@code AlgebraicTreeSimplifier} to identify similar trees and ignore them. NOT IMPLEMENTED.
 	 */
 //	public static final String P_USE_EQUIVALENCY_FILTER = "use-equival-filter";
 
@@ -171,7 +171,7 @@ public class AnalyzeTerminals
 
 		loadECJ(args[0], Arrays.copyOfRange(args, 3, args.length));
 
-		TreeSimplifier sim = new TreeSimplifier(state, 0);
+		AlgebraicTreeSimplifier sim = new AlgebraicTreeSimplifier(state, 0);
 
 		String outputFileNamePath = args[2];
 		ArrayList<Population> popList = new ArrayList<>();

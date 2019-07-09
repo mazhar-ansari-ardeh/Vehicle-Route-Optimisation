@@ -12,6 +12,7 @@ import ec.Population;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import ec.gp.GPTree;
+import ec.simple.SimpleProblemForm;
 import ec.util.Parameter;
 import ec.util.ParameterDatabase;
 import gphhucarp.gp.terminal.feature.RemainingCapacity;
@@ -21,16 +22,16 @@ import gputils.function.Sub;
 import gputils.terminal.DoubleERC;
 import gputils.terminal.TerminalERC;
 import gputils.terminal.TerminalERCUniform;
-import tl.gp.PopulationUtils;
+import tl.gp.simplification.TreeSimplifier;
 
-public class TreeSimplifier
+public class AlgebraicTreeSimplifier extends TreeSimplifier
 {
 
 	private EvolutionState state = null;
 
 	private int threadNum;
 
-	public TreeSimplifier(EvolutionState eState, int threadNumber)
+	public AlgebraicTreeSimplifier(EvolutionState eState, int threadNumber)
 	{
 		if(eState == null || eState.random == null)
 			throw new IllegalArgumentException("State or its random generator is null");
@@ -688,7 +689,7 @@ public class TreeSimplifier
 		return simplified;
 	}
 
-	public boolean simplify(GPNode tree)
+	protected boolean simplify(GPNode tree)
 	{
 		if(tree.children == null || tree.children.length == 0)
 			return false;
@@ -712,6 +713,7 @@ public class TreeSimplifier
 		return modified;
 	}
 
+	// TODO: This can be refactored into a helper class.
 	private static void addNode(GPNode node, GPNode ch1, GPNode ch2)
 	{
 		node.children = new GPNode[2];
@@ -723,56 +725,6 @@ public class TreeSimplifier
 		node.children[1] = ch2;
 		ch2.argposition = 1;
 		ch2.parent = node;
-	}
-
-
-	private static void simplifyWithContrib(EvolutionState state, GPIndividual ind, GPNode root)
-	{
-		assert state != null;
-		assert ind != null;
-
-		if(root == null || root.children == null || root.children.length == 0)
-			return;
-
-		for(int i = 0; i < root.children.length; i++)
-		{
-			double subtreeContrib = TreeSlicer.getSubtreeContrib(state, ind, root.children[i]);
-			// Contribution is measured as 'fitnessWithSubtree - fitnessWithoutSubtree' for which a positive value indicates
-			// that the tree has a lower cost without the subtree.
-			if(subtreeContrib > 0)
-			{
-				DoubleERC constNode = new DoubleERC();
-				constNode.value = 1;
-				GPIndividualUtils.replace(root.children[i], constNode);
-			}
-		}
-
-		for(int i = 0; i < root.children.length; i++)
-		{
-			simplifyWithContrib(state, ind, root.children[i]);
-		}
-	}
-
-	public static void simplifyWithContrib(EvolutionState state, GPIndividual ind)
-	{
-		if(state == null)
-			throw new NullPointerException("State object cannot be null");
-		if(ind == null)
-			throw new NullPointerException("Input individual cannot be null");
-
-		if(ind instanceof TLGPIndividual)
-		{
-			if(!((TLGPIndividual) ind).isTested())
-			{
-				state.output.fatal("GPIndividual is not evaluated on test scenario");
-			}
-		}
-		else
-			state.output.warning("GPIndividual is not of type TLGPIndividual");
-
-		GPNode root = ind.trees[0].child;
-
-		simplifyWithContrib(state, ind, root);
 	}
 
 	static void main(String[] args) throws InvalidObjectException, FileNotFoundException, ClassNotFoundException, IOException
@@ -813,7 +765,7 @@ public class TreeSimplifier
 		String paramFileNamePath = "";
 		EvolutionState eState = loadECJ(paramFileNamePath);
 
-		TreeSimplifier ts = new TreeSimplifier(eState, 0);
+		AlgebraicTreeSimplifier ts = new AlgebraicTreeSimplifier(eState, 0);
 
 		System.out.println(tree.child.makeGraphvizTree());
 		ts.simplify(min);
@@ -836,5 +788,18 @@ public class TreeSimplifier
 		}
 
 	};
+
+	@Override
+	protected boolean simplify(EvolutionState state, GPIndividual ind)
+	{
+		if(ind == null || ind.trees == null)
+			throw new NullPointerException("GP individual or its trees cannot be null");
+
+		boolean changed = false;
+		for(GPTree tree : ind.trees)
+			changed |= simplify(tree.child);
+
+		return changed;
+	}
 
 }

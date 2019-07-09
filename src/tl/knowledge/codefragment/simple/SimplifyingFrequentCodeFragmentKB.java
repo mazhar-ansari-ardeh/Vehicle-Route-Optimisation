@@ -19,7 +19,7 @@ import ec.Population;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import tl.gp.PopulationUtils;
-import tl.gp.TreeSimplifier;
+import tl.gp.AlgebraicTreeSimplifier;
 import tl.gp.TreeSlicer;
 import tl.knowledge.KnowledgeExtractionMethod;
 import tl.knowledge.KnowledgeExtractor;
@@ -27,7 +27,7 @@ import tl.knowledge.codefragment.*;
 
 /**
  * This class, with {@code SimplifyingFrequentCodeFragmentBuilder}, implements the idea of using
- * code frequents based on the frequency of their occurrence in source domain.
+ * code fragments based on the frequency of their occurrence in source domain.
  * <p>
  * In this class, code fragments are extracted based on either Root, RootSubtree or All
  * extraction methods. <p>
@@ -68,7 +68,7 @@ public class SimplifyingFrequentCodeFragmentKB extends CodeFragmentKB
 
 	private boolean simplify = false;
 
-	private TreeSimplifier simplifier = null;
+	private AlgebraicTreeSimplifier simplifier = null;
 
 	private int tournamentSize = 20;
 
@@ -132,7 +132,7 @@ public class SimplifyingFrequentCodeFragmentKB extends CodeFragmentKB
 		this.maxDepth = maxDepth;
 		this.simplify = simplify;
 		if(simplify)
-			simplifier = new TreeSimplifier(state, threadnum);
+			simplifier = new AlgebraicTreeSimplifier(state, threadnum);
 	}
 
 	@Override
@@ -256,7 +256,7 @@ public class SimplifyingFrequentCodeFragmentKB extends CodeFragmentKB
 
 		if(simplify)
 		{
-			simplifier.simplify(gpIndividual.trees[0].child);
+//			simplifier.simplifyTree(gpIndividual.trees[0].child); As it is deprecated now, it is not important if the simplification is implemented or not.
 		}
 
 		ArrayList<GPNode> allNodes = null;
