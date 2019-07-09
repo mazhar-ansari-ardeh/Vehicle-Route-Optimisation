@@ -1,0 +1,2 @@
+09/07/2019:
+Added the tree simplification algorithms implemented with the chain of responsibility pattern.
