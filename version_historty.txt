@@ -1,2 +1,5 @@
 09/07/2019:
 Added the tree simplification algorithms implemented with the chain of responsibility pattern.
+
+12/07/2019:
+Seaparated the hash calculation method into new classes.

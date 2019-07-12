@@ -181,7 +181,9 @@ public class SimplifyTrees
 		state.output.warning("Number of generations on source domain: " + numGenerations);
 		state.output.warning("SimplifyTrees loaded.");
 
+		HashCalculator hs = new AlgebraicHashCalculator(state, 0, 100003621);
 		simplifier.setNext(new ContributionTreeSimplifier());
+		simplifier.setNext(new AlgebraicTreeSimplifier(hs));
 	}
 
 	private static TreeSimplifier simplifier = new TreeSimplifier();
