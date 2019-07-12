@@ -15,8 +15,8 @@ import ec.util.*;
 
 /**
  * This program is designed to read a population file, evaluate its members on test domain, backup
- * the population file on an archive folder and save the loaded population file evaluated on test
- * domain on the same path it was loaded from.
+ * the population file on an archive folder and save the loaded population file, evaluated on test
+ * domain, on the same path it was loaded from.
  *
  * This program uses the following ECJ parameters: <p>
  * - train-pop-folder (optional)

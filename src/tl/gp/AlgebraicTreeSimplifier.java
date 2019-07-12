@@ -1,8 +1,6 @@
 package tl.gp;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InvalidObjectException;
 import java.util.ArrayList;
 
 import ec.Evaluator;
@@ -12,7 +10,6 @@ import ec.Population;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import ec.gp.GPTree;
-import ec.simple.SimpleProblemForm;
 import ec.util.Parameter;
 import ec.util.ParameterDatabase;
 import gphhucarp.gp.terminal.feature.RemainingCapacity;
@@ -22,36 +19,20 @@ import gputils.function.Sub;
 import gputils.terminal.DoubleERC;
 import gputils.terminal.TerminalERC;
 import gputils.terminal.TerminalERCUniform;
+import tl.gp.hash.AlgebraicHashCalculator;
+import tl.gp.hash.HashCalculator;
 import tl.gp.simplification.TreeSimplifier;
 
 public class AlgebraicTreeSimplifier extends TreeSimplifier
 {
+    private HashCalculator hashCalculator;
 
-	private EvolutionState state = null;
-
-	private int threadNum;
-
-	public AlgebraicTreeSimplifier(EvolutionState eState, int threadNumber)
+	public AlgebraicTreeSimplifier(HashCalculator hasher)
 	{
-		if(eState == null || eState.random == null)
-			throw new IllegalArgumentException("State or its random generator is null");
-		state = eState;
-		threadNum = threadNumber;
+		if(hasher == null)
+			throw new IllegalArgumentException("Hash calculator is null");
 
-		SCHash = nextRand();
-		CFDHash = nextRand();
-		CFHHash = nextRand();
-		CTDHash = nextRand();
-		CRHash = nextRand();
-		DCHash = nextRand();
-		DEMHash = nextRand();
-		RQHash = nextRand();
-		FULLHash = nextRand();
-		FRTHash = nextRand();
-		FUTHash = nextRand();
-		CFR1Hash = nextRand();
-		CTT1Hash = nextRand();
-		DEM1Hash = nextRand();
+		hashCalculator = hasher;
 	}
 
 	private static EvolutionState loadECJ(String paramFileNamePath, String... ecjParams)
@@ -88,167 +69,12 @@ public class AlgebraicTreeSimplifier extends TreeSimplifier
 		return retval;
 	}
 
-	private static int mod(int a, int b)
-	{
-		int ret = a % b;
-		while(ret < 0)
-			ret += b;
-
-		return ret;
-	}
-
-	private static int eea(int a, int b, int p)
-	{
-		if(b == 0)
-			return 1; // TODO: Are you sure?
-		int r = 1;
-
-		int q0 = a / b;
-		r = a - q0 * b;
-		int x0 = 0;
-		if(r == 0)
-			return x0;
-
-		a = b;
-		b = r;
-		int q1 = a / b;
-		r = a - q1 * b;
-		int x1 = 1;
-		if(r == 0)
-			return x1;
-
-		while(r != 0)
-		{
-			a = b;
-			b = r;
-
-			int q = a / b;
-			r = a - q * b;
-
-			int x2 = mod((x0 - x1*q0), p);
-			x0 = x1;
-			x1 = x2;
-			q0 = q1;
-			q1 = q;
-		}
-
-		int x2 = mod((x0 - x1*q0), p);
-		return x2;
-	}
-
-	private static ArrayList<Integer> seenNumbers = new ArrayList<>();
-	private int nextRand()
-	{
-		int rnd = state.random[threadNum].nextInt(prime);
-		while(seenNumbers.contains(rnd) == true)
-			rnd = state.random[threadNum].nextInt(prime);
-
-		seenNumbers.add(rnd);
-		return rnd;
-	}
-
-	private int SCHash;
-	private int CFDHash;
-	private int CFHHash;
-	private int CTDHash;
-	private int CRHash;
-	private int DCHash;
-	private int DEMHash;
-	private int RQHash;
-	private int FULLHash;
-	private int FRTHash;
-	private int FUTHash;
-	private int CFR1Hash;
-	private int CTT1Hash;
-	private int DEM1Hash;
-
-	private int hashOf(TerminalERCUniform t)
-	{
-		String name = t.getTerminal().name();
-		switch(name)
-		{
-		case "SC":
-			return SCHash;
-		case "CFD":
-			return CFDHash;
-		case "CFH":
-			return CFHHash;
-		case "CTD":
-			return CTDHash;
-		case "CR":
-			return CRHash;
-		case "DC":
-			return DCHash;
-		case "DEM":
-			return DEMHash;
-		case "RQ":
-			return RQHash;
-		case "FULL":
-			return FULLHash;
-		case "FRT":
-			return FRTHash;
-		case "FUT":
-			return FUTHash;
-		case "CFR1":
-			return CFR1Hash;
-		case "CTT1":
-			return CTT1Hash;
-		case "DEM1":
-			return DEM1Hash;
-		case "ERC":
-			double value = ((DoubleERC)t.getTerminal()).value;
-			return hashOf(value);
-		default:
-			throw new RuntimeException("Received an unknown terminal to hash: " + name);
-		}
-	}
-
-	private static final int prime = 3373;
-
-	private static int hashOf(double value)
-	{
-		value *= 10;
-		int cd = (int) value;
-		int retval = mod(cd * eea(prime, 10, prime), prime);
-		return retval;
-	}
-
-	public int hashOfTree(GPNode tree)
-	{
-		if(tree.children == null || tree.children.length == 0)
-			return hashOf((TerminalERCUniform) tree);
-		int lch = hashOfTree(tree.children[0]); // left child hash
-		int rch = hashOfTree(tree.children[1]);
-		if(tree.toString().equals("+"))
-			return mod(lch + rch, prime);
-		if(tree.toString().equals("-"))
-			return mod(lch - rch, prime);
-		if(tree.toString().equals("*"))
-			return mod(lch * rch, prime);
-		if(tree.toString().equals("/"))
-			return hashOf((double)lch / (double)rch);
-		if(tree.toString().equals("min"))
-		{
-			return hashOf(eea( mod(lch - rch, prime), lch, prime) + rch);
-			// return Math.min(lch, rch);
-		}
-		if(tree.toString().equals("max"))
-		{
-			return hashOf(eea(mod(lch - rch, prime), rch, prime) + lch);
-			//return Math.max(lch, rch);
-		}
-		throw new RuntimeException("Received an unknown ternimal type: " + tree.toString());
-	}
-
-
 	private static boolean isDoubleERC(GPNode node, double value)
 	{
-		if( (node instanceof TerminalERCUniform)
-				&& ((TerminalERCUniform)node).getTerminal().name().equals("ERC")
-				&& ((DoubleERC)((TerminalERCUniform)node).getTerminal()).value == value)
-			return true;
-		return false;
-	}
+        return (node instanceof TerminalERCUniform)
+                && ((TerminalERCUniform) node).getTerminal().name().equals("ERC")
+                && ((DoubleERC) ((TerminalERCUniform) node).getTerminal()).value == value;
+    }
 
 
 	private static boolean applyConstRule(GPNode tree)
@@ -272,32 +98,28 @@ public class AlgebraicTreeSimplifier extends TreeSimplifier
 		double value2 = dch2.value;
 
 		DoubleERC erc = new DoubleERC();
-		if(operation.equals("+"))
-		{
-			erc.value = value1 + value2;
-		}
-		else if(operation.equals("-"))
-		{
-			erc.value = value1 - value2;
-		}
-		else if(operation.equals("*"))
-		{
-			erc.value = value1 * value2;
-		}
-		else if(operation.equals("/"))
-		{
-			erc.value = value1 / (value2 == 0 ? 1 : value2);
-		}
-		else if(operation.equals("min"))
-		{
-			erc.value = Math.min(value1, value2);
-		}
-		else if(operation.equals("max"))
-		{
-			erc.value = Math.max(value1, value2);
-		}
-		else
-			throw new RuntimeException("Unknown operation to simplify.");
+        switch (operation) {
+            case "+":
+                erc.value = value1 + value2;
+                break;
+            case "-":
+                erc.value = value1 - value2;
+                break;
+            case "*":
+                erc.value = value1 * value2;
+                break;
+            case "/":
+                erc.value = value1 / (value2 == 0 ? 1 : value2);
+                break;
+            case "min":
+                erc.value = Math.min(value1, value2);
+                break;
+            case "max":
+                erc.value = Math.max(value1, value2);
+                break;
+            default:
+                throw new RuntimeException("Unknown operation to simplify.");
+        }
 
 		Object oparent = tree.parent;
 		tree.parent = null;
@@ -331,7 +153,7 @@ public class AlgebraicTreeSimplifier extends TreeSimplifier
 		if(tree.children == null || tree.children.length == 0)
 			throw new RuntimeException("Received a division operator without any operands");
 
-		if(hashOfTree(tree.children[0]) != hashOfTree(tree.children[1]))
+		if(hashCalculator.hashOfTree(tree.children[0]) != hashCalculator.hashOfTree(tree.children[1]))
 			return false;
 
 		GPNode res = tree.children[0];
@@ -352,7 +174,6 @@ public class AlgebraicTreeSimplifier extends TreeSimplifier
 			parent.child = res;
 			res.parent = parent;
 			res.argposition = tree.argposition;
-//			treeParent = parent;
 		}
 		else
 			throw new RuntimeException("Unknown parent type: " + oparent);
@@ -367,7 +188,7 @@ public class AlgebraicTreeSimplifier extends TreeSimplifier
 		if(tree.children == null || tree.children.length == 0)
 			throw new RuntimeException("Received a division operator without any operands");
 
-		if(hashOfTree(tree.children[0]) != hashOfTree(tree.children[1]))
+		if(hashCalculator.hashOfTree(tree.children[0]) != hashCalculator.hashOfTree(tree.children[1]))
 			return false;
 
 		TerminalERCUniform res = new TerminalERCUniform();
@@ -488,7 +309,7 @@ public class AlgebraicTreeSimplifier extends TreeSimplifier
 		if(!isDoubleERC(ch1, 1) && !isDoubleERC(ch2, 1))
 			return false;
 
-		GPNode res = null;
+		GPNode res;
 		if(isDoubleERC(ch1, 1))
 			res = ch2;
 		else
@@ -572,7 +393,7 @@ public class AlgebraicTreeSimplifier extends TreeSimplifier
 		if(!isDoubleERC(ch1, 0) && !isDoubleERC(ch2, 0))
 			return false;
 
-		GPNode res = null;
+		GPNode res;
 		if(isDoubleERC(ch1, 0))
 			res = ch2;
 		else
@@ -614,24 +435,22 @@ public class AlgebraicTreeSimplifier extends TreeSimplifier
 		if(!isDoubleERC(ch2, 0))
 			return false;
 
-		GPNode res = ch1;
-
-		Object oparent = tree.parent;
+        Object oparent = tree.parent;
 		tree.parent = null;
 
 		if(oparent instanceof GPNode)
 		{
 			GPNode parent = (GPNode) oparent;
-			parent.children[tree.argposition] = res;
-			res.parent = parent;
-			res.argposition = tree.argposition;
+			parent.children[tree.argposition] = ch1;
+			ch1.parent = parent;
+			ch1.argposition = tree.argposition;
 		}
 		else if(oparent instanceof GPTree)
 		{
 			GPTree parent = (GPTree) oparent;
-			parent.child = res;
-			res.parent = parent;
-			res.argposition = tree.argposition;
+			parent.child = ch1;
+			ch1.parent = parent;
+			ch1.argposition = tree.argposition;
 //			treeParent = parent;
 		}
 		else
@@ -642,14 +461,11 @@ public class AlgebraicTreeSimplifier extends TreeSimplifier
 
 	private boolean applyAllRules(GPNode tree)
 	{
-		boolean simplified = false;
 
-		if(tree.children == null || tree.children.length == 0)
-			return simplified;
+        if(tree.children == null || tree.children.length == 0)
+            return false;
 
-		simplified = false;
-
-		simplified |= applyConstRule(tree);
+        boolean simplified = applyConstRule(tree);
 		if(tree.parent == null)
 			// The rule has discarded this tree so, no point in applying other rules to it anymore.
 			return simplified;
@@ -698,8 +514,7 @@ public class AlgebraicTreeSimplifier extends TreeSimplifier
 		boolean simplified;
 		do
 		{
-			simplified = false;
-			simplified |= simplify(tree.children[0]);
+			simplified = simplify(tree.children[0]);
 
 			simplified |= simplify(tree.children[1]);
 
@@ -708,7 +523,7 @@ public class AlgebraicTreeSimplifier extends TreeSimplifier
 			if(tree.parent == null)
 				return modified;
 		}
-		while(simplified == true);
+		while(simplified);
 
 		return modified;
 	}
@@ -727,7 +542,7 @@ public class AlgebraicTreeSimplifier extends TreeSimplifier
 		ch2.parent = node;
 	}
 
-	static void main(String[] args) throws InvalidObjectException, FileNotFoundException, ClassNotFoundException, IOException
+	static void main(String[] args) throws ClassNotFoundException, IOException
 	{
 		TerminalERCUniform n1 = new TerminalERCUniform();
 		ServeCost sc = new ServeCost();
@@ -765,7 +580,8 @@ public class AlgebraicTreeSimplifier extends TreeSimplifier
 		String paramFileNamePath = "";
 		EvolutionState eState = loadECJ(paramFileNamePath);
 
-		AlgebraicTreeSimplifier ts = new AlgebraicTreeSimplifier(eState, 0);
+        AlgebraicHashCalculator hasher = new AlgebraicHashCalculator(eState, 0, 3373);
+		AlgebraicTreeSimplifier ts = new AlgebraicTreeSimplifier(hasher);
 
 		System.out.println(tree.child.makeGraphvizTree());
 		ts.simplify(min);
@@ -787,7 +603,7 @@ public class AlgebraicTreeSimplifier extends TreeSimplifier
 			}
 		}
 
-	};
+	}
 
 	@Override
 	protected boolean simplify(EvolutionState state, GPIndividual ind)

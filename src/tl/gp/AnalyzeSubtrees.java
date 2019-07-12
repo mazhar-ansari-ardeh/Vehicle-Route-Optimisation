@@ -7,6 +7,8 @@ import ec.util.Parameter;
 import ec.util.ParameterDatabase;
 import javafx.util.Pair;
 import tl.TLLogger;
+import tl.gp.hash.AlgebraicHashCalculator;
+import tl.gp.hash.HashCalculator;
 import tl.knowledge.KnowledgeExtractionMethod;
 
 import java.io.*;
@@ -217,7 +219,8 @@ public class AnalyzeSubtrees
 
 		loadECJ(args[0], Arrays.copyOfRange(args, 3, args.length));
 
-		AlgebraicTreeSimplifier sim = new AlgebraicTreeSimplifier(state, 0);
+		HashCalculator hs = new AlgebraicHashCalculator(state, 0, 100003621);
+//		AlgebraicTreeSimplifier sim = new AlgebraicTreeSimplifier(hs);
 
 		String outputFileNamePath = args[2];
 		ArrayList<Population> popList = new ArrayList<>();
@@ -280,7 +283,7 @@ public class AnalyzeSubtrees
                         }
                         GPIndividual ind = (GPIndividual)sub.individuals[i];
                         logger.log(state, logID, "Processing individual " + i + " with hash value: "
-								   + sim.hashOfTree(ind.trees[0].child) + " and fitness: "
+								   + hs.hashOfTree(ind.trees[0].child) + " and fitness: "
 								   + ind.fitness.fitness() + "\n");
 
 						if(Math.abs(fitness - ind.fitness.fitness()) <= fitnessNicheRadius)

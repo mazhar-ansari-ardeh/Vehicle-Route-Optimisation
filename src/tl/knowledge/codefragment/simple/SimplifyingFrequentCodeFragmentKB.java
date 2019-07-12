@@ -36,7 +36,7 @@ import tl.knowledge.codefragment.*;
  * any assumptions about the type of fitness value (whether it is from train or test scenario).
  * @author mazhar
  */
-@Deprecated // I cannot remember why I started working on this class but it is not important now.
+@Deprecated // I cannot remember why I started working on this class but it is not important now. This is heavily modified.
 public class SimplifyingFrequentCodeFragmentKB extends CodeFragmentKB
 {
 	// Using ConcurrentHashMap instead of HashMap will make this KB capable of
@@ -131,8 +131,9 @@ public class SimplifyingFrequentCodeFragmentKB extends CodeFragmentKB
 		this.minDepth = minDepth;
 		this.maxDepth = maxDepth;
 		this.simplify = simplify;
-		if(simplify)
-			simplifier = new AlgebraicTreeSimplifier(state, threadnum);
+//		if(simplify)
+//		{
+//			simplifier = new AlgebraicTreeSimplifier(state, threadnum);
 	}
 
 	@Override

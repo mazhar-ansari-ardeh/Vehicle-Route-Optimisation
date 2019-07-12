@@ -8,6 +8,8 @@ import ec.simple.SimpleProblemForm;
 import ec.util.Parameter;
 import ec.util.ParameterDatabase;
 import tl.TLLogger;
+import tl.gp.hash.AlgebraicHashCalculator;
+import tl.gp.hash.HashCalculator;
 import tl.gp.simplification.ContributionTreeSimplifier;
 import tl.gp.simplification.TreeSimplifier;
 import tl.knowledge.KnowledgeExtractionMethod;
@@ -282,7 +284,9 @@ public class SimplifyTrees
 			}
 
 			// Now that the population is loaded, simplify it.
-			AlgebraicTreeSimplifier sim = new AlgebraicTreeSimplifier(state, 0);
+            HashCalculator hs = new AlgebraicHashCalculator(state, 0, 100003621);
+//            AlgebraicTreeSimplifier sim = new AlgebraicTreeSimplifier(state, 0);
+
 			logger.log(state, logID, percent + " percent of each subpopulation is loaded\n");
             for(int gen = fromGeneration; gen <= toGeneration; gen++)
 			{
@@ -306,7 +310,7 @@ public class SimplifyTrees
                         }
                         GPIndividual ind = (GPIndividual)sub.individuals[i];
                         logger.log(state, logID, "Processing individual " + i + " with hash value: "
-								   + sim.hashOfTree(ind.trees[0].child) + " and fitness: "
+								   + hs.hashOfTree(ind.trees[0].child) + " and fitness: "
 								   + ind.fitness.fitness() + "\n");
 
 						if(Math.abs(fitness - ind.fitness.fitness()) <= fitnessNicheRadius)
