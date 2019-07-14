@@ -182,8 +182,8 @@ public class SimplifyTrees
 		state.output.warning("SimplifyTrees loaded.");
 
 		HashCalculator hs = new AlgebraicHashCalculator(state, 0, 100003621);
-		simplifier.setNext(new ContributionTreeSimplifier());
-		simplifier.setNext(new AlgebraicTreeSimplifier(hs));
+		simplifier.setNext(new ContributionTreeSimplifier(), SimplifyTrees::evaluateAndLog);
+		simplifier.setNext(new AlgebraicTreeSimplifier(hs), SimplifyTrees::evaluateAndLog);
 	}
 
 	private static TreeSimplifier simplifier = new TreeSimplifier();
@@ -383,17 +383,17 @@ public class SimplifyTrees
 
 
 		logger.log(state, logID, "Individual before simplification: \n");
-		logIndividual(gind);
+		evaluateAndLog(gind);
 		simplifier.simplifyTree(state, gind);
-		logger.log(state, logID, "Individual after simplification: \n");
-		logIndividual(gind);
+//		logger.log(state, logID, "Individual after simplification: \n");
+//		evaluateAndLog(gind);
 		logger.log(state, logID, "\n\n");
 
 		book.add(gind);
 		numAnalyzed++;
 	}
 
-	private static void logIndividual(GPIndividual ind)
+	private static void evaluateAndLog(GPIndividual ind)
 	{
 		assert ind != null;
 
