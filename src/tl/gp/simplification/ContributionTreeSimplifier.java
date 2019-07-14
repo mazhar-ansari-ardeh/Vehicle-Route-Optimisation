@@ -6,6 +6,7 @@ import ec.gp.GPNode;
 import ec.gp.GPTree;
 import ec.simple.SimpleProblemForm;
 import gputils.terminal.DoubleERC;
+import gputils.terminal.TerminalERCUniform;
 import tl.gp.GPIndividualUtils;
 import tl.gp.TLGPIndividual;
 import tl.gp.TreeSlicer;
@@ -35,9 +36,14 @@ public class ContributionTreeSimplifier extends TreeSimplifier
             {
                 DoubleERC constNode = new DoubleERC();
                 constNode.value = 1;
-                GPIndividualUtils.replace(root.children[i], constNode);
+                TerminalERCUniform terminal = new TerminalERCUniform();
+                terminal.children = new GPNode[0];
+                terminal.setTerminal(constNode);
+                GPIndividualUtils.replace(root.children[i], terminal);
                 changed = true;
             }
+            else // TreeSlicer.getSubtreeContrib doesn't evaluate at its end
+                ((SimpleProblemForm)state.evaluator.p_problem).evaluate(state, ind, 0, 0);
             ((SimpleProblemForm)state.evaluator.p_problem).evaluate(state, ind, 0, 0);
         }
 
