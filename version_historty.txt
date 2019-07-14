@@ -3,3 +3,7 @@ Added the tree simplification algorithms implemented with the chain of responsib
 
 12/07/2019:
 Seaparated the hash calculation method into new classes.
+
+14/07/2019:
+Bug fixes.
+SimplifyTrees implements an observer pattern to invoke a handler after the simplification process.
