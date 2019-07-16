@@ -10,3 +10,6 @@ SimplifyTrees implements an observer pattern to invoke a handler after the simpl
 
 16/07/2019:
 Removed the RunExperiments folder as it is not needed any more.
+
+16/07/2019:
+Cleaned the 'resource' directory and renamed it to 'resources'.

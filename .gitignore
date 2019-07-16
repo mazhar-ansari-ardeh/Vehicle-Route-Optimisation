@@ -115,6 +115,9 @@ fabric.properties
 # Editor-based Rest Client
 .idea/httpRequests
 
+# macOS folder attributes
+.DS_Store
+
 .csv
 /.metadata/
 /bin/
