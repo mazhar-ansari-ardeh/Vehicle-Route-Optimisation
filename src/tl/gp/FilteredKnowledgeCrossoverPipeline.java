@@ -117,6 +117,7 @@ gp.koza.xover
  * @version 1.0
  */
 
+@Deprecated
 public class FilteredKnowledgeCrossoverPipeline extends GPBreedingPipeline
 {
 	private int knowledgeSuccessLogID;

@@ -1,4 +1,4 @@
-package tl.gp;
+package tl.knowledge.extraction;
 
 import ec.*;
 import ec.gp.GPIndividual;
@@ -8,6 +8,9 @@ import ec.simple.SimpleProblemForm;
 import ec.util.Parameter;
 import ec.util.ParameterDatabase;
 import tl.TLLogger;
+import tl.gp.AlgebraicTreeSimplifier;
+import tl.gp.PopulationUtils;
+import tl.gp.TLGPIndividual;
 import tl.gp.hash.AlgebraicHashCalculator;
 import tl.gp.hash.HashCalculator;
 import tl.gp.simplification.ContributionTreeSimplifier;

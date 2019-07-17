@@ -307,7 +307,7 @@ do_non_knowledge_experiment
 # # ######################################################################################################################
 # echo "\nBegining to analyze knowledge"
 # KNOWLEDGE_FILE="$KNOWLEDGE_FILE_BASE.bk"
-# java -cp .:tl.jar tl.gp.AnalyzeTerminals carp_param_base.param  $WRITE_KNOW_STAT_DIR/population.gen.$(($GENERATIONS-1)).bin $KNOWLEDGE_FILE \
+# java -cp .:tl.jar tl.knowledge.extraction.AnalyzeTerminals carp_param_base.param  $WRITE_KNOW_STAT_DIR/population.gen.$(($GENERATIONS-1)).bin $KNOWLEDGE_FILE \
 #                                                         stat.file="\$$WRITE_KNOW_STAT_DIR/job.0.out.stat" \
 #                                                         eval.problem.eval-model.instances.0.file=$DATASET_FILE \
 #                                                         eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_SOURCE  \

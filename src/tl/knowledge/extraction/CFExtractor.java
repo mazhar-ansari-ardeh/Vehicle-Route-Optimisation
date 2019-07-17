@@ -1,4 +1,4 @@
-package tl.gp;
+package tl.knowledge.extraction;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -8,6 +8,8 @@ import ec.*;
 import ec.gp.*;
 import ec.simple.SimpleProblemForm;
 import ec.util.*;
+import tl.gp.PopulationUtils;
+import tl.gp.TreeSlicer;
 import tl.knowledge.KnowledgeExtractionMethod;
 import tl.knowledge.codefragment.fitted.DoubleFittedCodeFragment;
 
