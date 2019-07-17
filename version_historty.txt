@@ -16,3 +16,6 @@ Cleaned the 'resource' directory and renamed it to 'resources'.
 
 17/07/2019:
 Moved the extractor programs into the 'tl.knowledge.extraction' package.
+
+17/07/2019:
+Created the 'SimplifiedTreeBuilder' class to transfer the trees that have been simplified.
