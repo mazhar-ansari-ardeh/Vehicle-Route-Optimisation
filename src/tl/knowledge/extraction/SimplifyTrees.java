@@ -8,7 +8,7 @@ import ec.simple.SimpleProblemForm;
 import ec.util.Parameter;
 import ec.util.ParameterDatabase;
 import tl.TLLogger;
-import tl.gp.AlgebraicTreeSimplifier;
+import tl.gp.simplification.AlgebraicTreeSimplifier;
 import tl.gp.PopulationUtils;
 import tl.gp.TLGPIndividual;
 import tl.gp.hash.AlgebraicHashCalculator;

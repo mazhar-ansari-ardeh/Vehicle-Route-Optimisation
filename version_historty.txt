@@ -19,3 +19,6 @@ Moved the extractor programs into the 'tl.knowledge.extraction' package.
 
 17/07/2019:
 Created the 'SimplifiedTreeBuilder' class to transfer the trees that have been simplified.
+
+22/07/2019:
+Moved 'AlgebraicSimplifier' to its correct package.

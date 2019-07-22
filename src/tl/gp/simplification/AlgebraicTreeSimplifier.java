@@ -1,4 +1,4 @@
-package tl.gp;
+package tl.gp.simplification;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,9 +19,9 @@ import gputils.function.Sub;
 import gputils.terminal.DoubleERC;
 import gputils.terminal.TerminalERC;
 import gputils.terminal.TerminalERCUniform;
+import tl.gp.PopulationUtils;
 import tl.gp.hash.AlgebraicHashCalculator;
 import tl.gp.hash.HashCalculator;
-import tl.gp.simplification.TreeSimplifier;
 
 public class AlgebraicTreeSimplifier extends TreeSimplifier
 {

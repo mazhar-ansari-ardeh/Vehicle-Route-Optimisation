@@ -19,7 +19,7 @@ import ec.Population;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import tl.gp.PopulationUtils;
-import tl.gp.AlgebraicTreeSimplifier;
+import tl.gp.simplification.AlgebraicTreeSimplifier;
 import tl.gp.TreeSlicer;
 import tl.knowledge.KnowledgeExtractionMethod;
 import tl.knowledge.KnowledgeExtractor;
