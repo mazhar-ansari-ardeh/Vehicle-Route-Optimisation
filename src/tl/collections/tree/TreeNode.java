@@ -76,20 +76,20 @@ final class TreeNode<E> {
         return child;
     }
 
-//    /**
-//     * Returns the children of this tree node. The client programmer can
-//     * directly operate on this set, adding/removing tree nodes.
-//     *
-//     * @return the children of this tree node.
-//     */
-//    public TreeNodeChildrenView<E> getChildren() {
-//        if (children == null) {
-//            children = new ArrayList<>();
-//            childrenView = new TreeNodeChildrenView<>(this);
-//        }
-//
-//        return childrenView;
-//    }
+    /**
+     * Returns the children of this tree node. The client programmer can
+     * directly operate on this set, adding/removing tree nodes.
+     *
+     * @return the children of this tree node.
+     */
+    public TreeNodeChildrenView<E> getChildren() {
+        if (children == null) {
+            children = new LinkedHashSet<>();
+            childrenView = new TreeNodeChildrenView<>(this);
+        }
+
+        return childrenView;
+    }
 
     public E getElement() {
         return element;

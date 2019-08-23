@@ -7,8 +7,13 @@
 
 
 package ec.gp;
-import ec.*;
-import ec.util.*;
+
+import ec.EvolutionState;
+import ec.Prototype;
+import ec.util.DecodeReturn;
+import ec.util.Output;
+import ec.util.Parameter;
+
 import java.io.*;
 
 /* 
