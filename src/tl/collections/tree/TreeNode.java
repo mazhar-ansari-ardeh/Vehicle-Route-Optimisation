@@ -10,7 +10,7 @@ import java.util.Objects;
  * @version 1.6 (Mar 27, 2018)
  * @param <E> the stored element type.
  */
-final class TreeNode<E> {
+public final class TreeNode<E> {
 
     /**
      * The element stored in this tree node. May be {@code null}.
@@ -45,7 +45,7 @@ final class TreeNode<E> {
      *
      * @param element the element to set to this tree node. May be {@code null}.
      */
-    TreeNode(E element) {
+    public TreeNode(E element) {
         this.element = element;
         this.parent = null;
     }

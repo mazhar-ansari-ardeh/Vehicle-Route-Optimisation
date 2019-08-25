@@ -7,26 +7,33 @@ import java.util.Stack;
 public class Tree<E> {
 
     /**
-     * The root node. This node does not logically belong to this tree as it
-     * merely provides a way of having multiple "roots".
+     * The root node.
      */
-    private final TreeNode<E> pseudoroot ;//= new TreeNode<>(null);
+    protected TreeNode<E> root;//= new TreeNode<>(null);
 
     /**
      * Returns the root node. It is <b>not</b> considered to belong to the
      * actual tree. We merely want to have a way of attaching nodes to it.
      *
-     * @return the pseudoroot of this tree.
+     * @return the root of this tree.
      */
-    public TreeNode<E> getPseudoRoot()
+    public TreeNode<E> getRoot()
     {
-        return pseudoroot;
+        return root;
+    }
+
+    /**
+     * The default constructor. This constructor will set the root node to {@code null}.
+     */
+    public Tree()
+    {
+        this.root = null;
     }
 
     public Tree(E root)
     {
-        pseudoroot = new TreeNode<>(root);
-        pseudoroot.parent = null;
+        this.root = new TreeNode<>(root);
+        this.root.parent = null;
     }
 
     @Override
@@ -39,7 +46,7 @@ public class Tree<E> {
 
     public Iterator<E> iterator()
     {
-        return new PostFixTreeIterator(pseudoroot);
+        return new PostFixTreeIterator(root);
     }
 
     class PreFixTreeIterator implements Iterator<E>
@@ -135,7 +142,7 @@ public class Tree<E> {
             }
             retval = cursor.getElement();
             it = stack.pop();
-            if(it.hasNext() == false)
+            if(!it.hasNext())
             {
                 cursor = cursor.parent;
                 goDeep = false;

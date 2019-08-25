@@ -8,8 +8,8 @@ public final class Demo {
         Tree<Integer> tree = new Tree<>(0);
 
         // Roots:
-        TreeNode<Integer> root1 = tree.getPseudoRoot().addChild(1);
-//        TreeNode<Integer> root2 = tree.getPseudoRoot().addChild(2);
+        TreeNode<Integer> root1 = tree.getRoot().addChild(1);
+//        TreeNode<Integer> root2 = tree.getRoot().addChild(2);
 //
 //        // Children of 1st root:
         TreeNode<Integer> root1Child1 = root1.addChild(11);
