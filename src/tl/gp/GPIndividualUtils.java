@@ -1,11 +1,23 @@
 package tl.gp;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Stack;
 
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import ec.gp.GPTree;
 import ec.multiobjective.MultiObjectiveFitness;
+import gphhucarp.gp.terminal.feature.Fullness;
+import gphhucarp.gp.terminal.feature.RemainingCapacity;
+import gphhucarp.gp.terminal.feature.ServeCost;
+import gputils.function.Add;
+import gputils.function.Div;
+import gputils.function.Mul;
+import gputils.function.Sub;
+import gputils.terminal.TerminalERCUniform;
+import javafx.util.Pair;
+//import tl.collections.tree.TreeNode;
 
 public class GPIndividualUtils
 {
@@ -76,6 +88,168 @@ public class GPIndividualUtils
 			with.argposition = at.argposition;
 			parent.child = with;
 			at.parent = null;
+		}
+	}
+
+	/**
+	 * Receives a node object as parent and also a set of node children and adds the set of children to the children of
+	 * the given parent. The method throws an exception if the parent object already has at least one child.
+	 *
+	 * @param parent The parent node. This argument cannot be {@code null}.
+	 * @param children The set of children. This argument cannot be {@code null}.
+	 */
+	private static void addChildrenTo(GPNode parent, boolean createChildren, GPNode... children)
+	{
+		if(children == null)
+			throw new IllegalArgumentException("Children cannot be null");
+//		if(!createChildren && parent.children != null && parent.children.length > 0)
+//			throw new IllegalArgumentException("The given parent already has children");
+
+		if(createChildren)
+		{
+			if(parent.children != null && parent.children.length != 0)
+				throw new IllegalArgumentException("Parent already has children");
+
+			parent.children = new GPNode[children.length];
+		}
+		else
+		{
+			if(parent.children == null || parent.children.length != children.length)
+			{
+				throw new IllegalArgumentException("Parent is supposed to have" + children.length
+													+ " children but it does not.");
+			}
+		}
+		for(int i = 0; i < children.length; i++)
+		{
+			parent.children[i] = children[i];
+			children[i].argposition = (byte) i;
+			children[i].parent = parent;
+		}
+	}
+
+	static GPIndividual sampleInd()
+	{
+		TerminalERCUniform scn1 = new TerminalERCUniform();
+		ServeCost sc = new ServeCost();
+		scn1.children = new GPNode[0];
+		scn1.setTerminal(	sc);
+
+		TerminalERCUniform scn2 = new TerminalERCUniform();
+		ServeCost sc2 = new ServeCost();
+		scn2.children = new GPNode[0];
+		scn2.setTerminal(sc2);
+
+//		TerminalERCUniform rqn1 = new TerminalERCUniform();
+//		RemainingCapacity rc = new RemainingCapacity();
+//		rqn1.children = new GPNode[0];
+//		rqn1.setTerminal(rc);
+
+		TerminalERCUniform rqn2 = new TerminalERCUniform();
+		RemainingCapacity rc2 = new RemainingCapacity();
+		rqn2.children = new GPNode[0];
+		rqn2.setTerminal(rc2);
+
+		TerminalERCUniform fuln1 = new TerminalERCUniform();
+		Fullness ful1 = new Fullness();
+		fuln1.children = new GPNode[0];
+		fuln1.setTerminal(ful1);
+
+		TerminalERCUniform fuln2 = new TerminalERCUniform();
+		Fullness ful2 = new Fullness();
+		fuln2.children = new GPNode[0];
+		fuln2.setTerminal(ful2);
+
+		GPNode div1 = new Div();
+		addChildrenTo(div1, false, ful1, ful2);
+
+		GPNode plus1 = new Add();
+		addChildrenTo(plus1, false, scn1, scn2);
+		GPNode mul1 = new Mul();
+		addChildrenTo(mul1, false, div1, rqn2);
+
+		GPNode min = new Sub();
+		addChildrenTo(min, false, plus1, mul1);
+
+//		GPTree tree = new GPTree();
+//		tree.child = min;
+//		min.parent = tree;
+//		min.argposition = 0;
+
+		return asGPIndividual(min);
+	}
+
+
+	/**
+	 * Returns an iterator for the tree whose root node is given as the input parameter. The returned iterator traverses
+	 * the given tree in an infix order.
+	 * @param root The root node of the tree that should be iterated. This parameter can be empty in which case the
+	 *             returned iterator will not perform any iteration.
+	 * @return An instance of {@code Iterator<GPNode>} that can iterate the given tree in an infix order.
+	 */
+	public static Iterator<GPNode> itertor(GPNode root)
+	{
+		class PreFixTreeIterator implements Iterator<GPNode>
+		{
+			GPNode cursor;
+			Stack<Pair<GPNode, Integer>> stack = new Stack<>();
+
+			public PreFixTreeIterator(GPNode root)
+			{
+				this.cursor = root;
+			}
+
+			@Override
+			public boolean hasNext()
+			{
+				return cursor != null;
+			}
+
+			@Override
+			public GPNode next()
+			{
+				if(cursor == null)
+					return null;
+
+				GPNode retval = cursor;
+				Pair<GPNode, Integer> node = new Pair<>(cursor, 0);
+				if(node.getValue() < node.getKey().children.length)
+				{
+					cursor = node.getKey().children[node.getValue()];
+					node = new Pair<>(node.getKey(), node.getValue()+1);
+					stack.push(node);
+				}
+				else
+				{
+					node = stack.pop();
+					while(!(node.getValue() < node.getKey().children.length) // The children of this node have been iterated, so discard them.
+							&& !stack.isEmpty())
+					{
+						node = stack.pop();
+					}
+					if(stack.isEmpty() && !(node.getValue() < node.getKey().children.length)) // Finished iterating the tree
+					{
+						cursor = null;
+						return retval;
+					}
+					cursor = node.getKey().children[node.getValue()];
+					node = new Pair<>(node.getKey(), node.getValue() + 1);
+					stack.push(node);
+				}
+				return retval;
+			}
+		}
+
+		return new PreFixTreeIterator(root);
+	}
+
+	public static void main(String[] args) {
+		GPIndividual ind = sampleInd();
+		Iterator<GPNode> it = itertor(ind.trees[0].child);
+		while(it.hasNext())
+		{
+			GPNode next = it.next();
+			System.out.println(next);
 		}
 	}
 }

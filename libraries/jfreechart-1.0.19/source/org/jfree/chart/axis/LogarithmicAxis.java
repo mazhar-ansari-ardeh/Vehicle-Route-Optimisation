@@ -801,7 +801,7 @@ public class LogarithmicAxis extends NumberAxis {
                     }
                 }
                 else { //not small log values in use; allow for values <= 0
-                    if (zeroTickFlag) {   //if did zero tick last iter then
+                    if (zeroTickFlag) {   //if did zero tick last itertor then
                         --j;              //decrement to do 1.0 tick now
                     }     //calculate power-of-ten value for tick:
                     currentTickValue = (i >= 0)
@@ -965,7 +965,7 @@ public class LogarithmicAxis extends NumberAxis {
                     }
                 }
                 else { //not small log values in use; allow for values <= 0
-                    if (zeroTickFlag) {      //if did zero tick last iter then
+                    if (zeroTickFlag) {      //if did zero tick last itertor then
                         --j;
                     }               //decrement to do 1.0 tick now
                     tickVal = (i >= 0) ? Math.pow(10, i) + (Math.pow(10, i) * j)
