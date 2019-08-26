@@ -4,6 +4,7 @@ import ec.EvolutionState;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import tl.collections.tree.Tree;
+import tl.collections.tree.TreeNode;
 
 import java.util.*;
 
@@ -58,19 +59,66 @@ class PPTProbabilityVector
  * In this tree, each node holds a probability vector that specifies the probability of a terminal/function appearing at that
  * location in a GP tree.
  */
-public class PPTree extends Tree<PPTProbabilityVector>
+class PPTree extends Tree<PPTProbabilityVector>
 {
     private PPTLearner learner;
 
-    public PPTree(PPTProbabilityVector root)
+//    public PPTree(PPTProbabilityVector root)
+//    {
+//        super(root);
+//        if(root == null)
+//            throw new NullPointerException("Tree root cannot be null.");
+//    }
+
+    public PPTree(int depth, int numChildren, PPTLearner aLearner)
     {
-        super(root);
-        if(root == null)
-            throw new NullPointerException("Tree root cannot be null.");
+    	if(numChildren <= 0)
+    		throw new IllegalArgumentException("Number of children must be a positive value.");
+    	if(depth <= 0)
+    		throw new IllegalArgumentException("Tree depth must be a positive value");
+
+    	PPTProbabilityVector rootData = new PPTProbabilityVector();
+//		if(aLearner != null) // TODOx: 2019-08-25 Delete this. This is only for test purposes and should be deleted.
+		aLearner.initialize(rootData);
+    	root = new TreeNode<>(rootData);
+    	buildTree(root, depth - 1 , numChildren, aLearner);
+    }
+
+	/**
+	 * Creates a complete tree of given depth in which each non-leaf node has exactly {@code numChildren} children.
+	 * Each node will be initialized with the given {@code aLearner} learner object.
+	 * @param root The root node to build the tree under.
+	 * @param depth The depth of the tree.
+	 * @param numChildren
+	 * @param aLearner
+	 */
+    static void buildTree(TreeNode<PPTProbabilityVector> root, int depth, int numChildren, PPTLearner aLearner)
+    {
+        if(depth <= 0)
+            return;
+
+        for(;numChildren > 0; numChildren--)
+		{
+			PPTProbabilityVector child = new PPTProbabilityVector();
+//			if(aLearner != null) // TODOx: 2019-08-25 Delete this. This is only for test purposes and should be deleted.
+			aLearner.initialize(child);
+			TreeNode<PPTProbabilityVector> ch = root.addChild(child);
+			buildTree(ch, depth - 1, numChildren, aLearner);
+		}
     }
 
 
 }
+
+class Main
+{
+	public static void main(String[] args)
+	{
+		//PIPELearner aLearner = new PIPELearner()
+		PPTree tree = new PPTree(2, 2, null);
+	}
+}
+
 
 /**
  * An interface that defines the contract for learning strategies that PPT trees can use to learn from GP individuals.
