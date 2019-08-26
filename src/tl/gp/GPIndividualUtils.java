@@ -1,9 +1,6 @@
 package tl.gp;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.Stack;
+import java.util.*;
 
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
@@ -134,18 +131,18 @@ public class GPIndividualUtils
 	 * actually a string that can be interpreted as the address of the node inside the tree. The address is calculated
 	 * as follows:
 	 * <p> - The address of the root node is "-1",
-	 * <p> - The address of each node is the address of its parent that is appended with the position of the node amongst
-	 * its parent's children.
+	 * <p> - The address of each node is the address of its parent that is appended with the position of the node
+	 * amongst its parent's children.
 	 *
 	 * @param root the root node of the tree to be indexed.
-	 * @return A list of pairs of (address, node). This method does not clone or tear out the nodes from their trees and
-	 * as a result, the connections that each node may have with other nodes inside the tree will remain intact.
+	 * @return A dictionary that maps an address to a node. This method does not clone or tear out the nodes from their
+	 * trees and as a result, the connections that each node may have with other nodes inside the tree will remain
+	 * intact.
 	 */
-	public static ArrayList<Pair<String, GPNode>> index(GPNode root)
+	public static Map<String, GPNode> index(GPNode root)
 	{
-		Iterator<GPNode> it = iterator(root);
-		ArrayList<Pair<String, GPNode>> indice = new ArrayList<>();
-		indice.add(Pair.of("-1", root));
+		Map<String, GPNode> indice  = new HashMap<>();
+		indice.put("-1", root);
 		index(root, "-1", indice);
 
 //		indice.sort(Comparator.naturalOrder());
@@ -156,17 +153,17 @@ public class GPIndividualUtils
 	/*
 	 * Creates the index of the nodes recursively.<br/>
 	 *
-	 * @see #index(GPNode, String, ArrayList)
+	 * @see #index(GPNode, String, Map)
 	 * @param node current node to work with.
 	 * @param address address of {@code node}.
 	 * @param indice the index list that the method updates recursively.
 	 */
-	private static void index(GPNode node, String address, ArrayList<Pair<String, GPNode>> indice)
+	private static void index(GPNode node, String address, Map<String, GPNode> indice)
 	{
 		for(int i = 0; i < node.children.length; i++)
 		{
 			String chAddress = (address.equals("-1")? "" : address) + i;
-			indice.add(Pair.of(chAddress, node.children[i]));
+			indice.put(chAddress, node.children[i]);
 			index(node.children[i], chAddress, indice);
 		}
 	}
@@ -265,12 +262,14 @@ public class GPIndividualUtils
 				else
 				{
 					node = stack.pop();
-					while(!(node.getValue() < node.getKey().children.length) // The children of this node have been iterated, so discard them.
+					// Are the children of this node have been iterated? Then discard them.
+					while(!(node.getValue() < node.getKey().children.length)
 							&& !stack.isEmpty())
 					{
 						node = stack.pop();
 					}
-					if(stack.isEmpty() && !(node.getValue() < node.getKey().children.length)) // Finished iterating the tree
+					// Finished iterating the tree?
+					if(stack.isEmpty() && !(node.getValue() < node.getKey().children.length))
 					{
 						cursor = null;
 						return retval;
@@ -287,8 +286,7 @@ public class GPIndividualUtils
 	}
 
 	public static void main(String[] args) {
-		GPIndividual ind = sampleInd();
-		index(ind.trees[0].child).forEach(System.out::println);
+//		GPIndividual ind = sampleInd();
 //		int depth = ind.trees[0].child.depth();
 //		System.out.println(depth);
 //		Iterator<GPNode> it = iterator(ind.trees[0].child);
