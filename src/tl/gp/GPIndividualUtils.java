@@ -1,6 +1,7 @@
 package tl.gp;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Stack;
 
@@ -16,7 +17,7 @@ import gputils.function.Div;
 import gputils.function.Mul;
 import gputils.function.Sub;
 import gputils.terminal.TerminalERCUniform;
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 //import tl.collections.tree.TreeNode;
 
 public class GPIndividualUtils
@@ -98,7 +99,7 @@ public class GPIndividualUtils
 	 * @param parent The parent node. This argument cannot be {@code null}.
 	 * @param children The set of children. This argument cannot be {@code null}.
 	 */
-	private static void addChildrenTo(GPNode parent, boolean createChildren, GPNode... children)
+	public static void addChildrenTo(GPNode parent, boolean createChildren, GPNode... children)
 	{
 		if(children == null)
 			throw new IllegalArgumentException("Children cannot be null");
@@ -125,6 +126,48 @@ public class GPIndividualUtils
 			parent.children[i] = children[i];
 			children[i].argposition = (byte) i;
 			children[i].parent = parent;
+		}
+	}
+
+	/**
+	 * Index the nodes of a tree whose root is given as input. For the case of this method, the index of a node is
+	 * actually a string that can be interpreted as the address of the node inside the tree. The address is calculated
+	 * as follows:
+	 * <p> - The address of the root node is "-1",
+	 * <p> - The address of each node is the address of its parent that is appended with the position of the node amongst
+	 * its parent's children.
+	 *
+	 * @param root the root node of the tree to be indexed.
+	 * @return A list of pairs of (address, node). This method does not clone or tear out the nodes from their trees and
+	 * as a result, the connections that each node may have with other nodes inside the tree will remain intact.
+	 */
+	public static ArrayList<Pair<String, GPNode>> index(GPNode root)
+	{
+		Iterator<GPNode> it = iterator(root);
+		ArrayList<Pair<String, GPNode>> indice = new ArrayList<>();
+		indice.add(Pair.of("-1", root));
+		index(root, "-1", indice);
+
+//		indice.sort(Comparator.naturalOrder());
+
+		return indice;
+	}
+
+	/*
+	 * Creates the index of the nodes recursively.<br/>
+	 *
+	 * @see #index(GPNode, String, ArrayList)
+	 * @param node current node to work with.
+	 * @param address address of {@code node}.
+	 * @param indice the index list that the method updates recursively.
+	 */
+	private static void index(GPNode node, String address, ArrayList<Pair<String, GPNode>> indice)
+	{
+		for(int i = 0; i < node.children.length; i++)
+		{
+			String chAddress = (address.equals("-1")? "" : address) + i;
+			indice.add(Pair.of(chAddress, node.children[i]));
+			index(node.children[i], chAddress, indice);
 		}
 	}
 
@@ -187,7 +230,7 @@ public class GPIndividualUtils
 	 *             returned iterator will not perform any iteration.
 	 * @return An instance of {@code Iterator<GPNode>} that can iterate the given tree in an infix order.
 	 */
-	public static Iterator<GPNode> itertor(GPNode root)
+	public static Iterator<GPNode> iterator(GPNode root)
 	{
 		class PreFixTreeIterator implements Iterator<GPNode>
 		{
@@ -212,11 +255,11 @@ public class GPIndividualUtils
 					return null;
 
 				GPNode retval = cursor;
-				Pair<GPNode, Integer> node = new Pair<>(cursor, 0);
+				Pair<GPNode, Integer> node = Pair.of(cursor, 0);
 				if(node.getValue() < node.getKey().children.length)
 				{
 					cursor = node.getKey().children[node.getValue()];
-					node = new Pair<>(node.getKey(), node.getValue()+1);
+					node = Pair.of(node.getKey(), node.getValue()+1);
 					stack.push(node);
 				}
 				else
@@ -233,7 +276,7 @@ public class GPIndividualUtils
 						return retval;
 					}
 					cursor = node.getKey().children[node.getValue()];
-					node = new Pair<>(node.getKey(), node.getValue() + 1);
+					node = Pair.of(node.getKey(), node.getValue() + 1);
 					stack.push(node);
 				}
 				return retval;
@@ -245,11 +288,14 @@ public class GPIndividualUtils
 
 	public static void main(String[] args) {
 		GPIndividual ind = sampleInd();
-		Iterator<GPNode> it = itertor(ind.trees[0].child);
-		while(it.hasNext())
-		{
-			GPNode next = it.next();
-			System.out.println(next);
-		}
+		index(ind.trees[0].child).forEach(System.out::println);
+//		int depth = ind.trees[0].child.depth();
+//		System.out.println(depth);
+//		Iterator<GPNode> it = iterator(ind.trees[0].child);
+//		while(it.hasNext())
+//		{
+//			GPNode next = it.next();
+//			System.out.println(next);
+//		}
 	}
 }
