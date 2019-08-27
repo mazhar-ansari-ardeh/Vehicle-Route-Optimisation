@@ -134,7 +134,7 @@ public class GPIndividualUtils
 	 * <p> - The address of each node is the address of its parent that is appended with the position of the node
 	 * amongst its parent's children.
 	 *
-	 * @param root the root node of the tree to be indexed.
+	 * @param root the root node of the tree to be indexed. This parameter cannot be {@code null}.
 	 * @return A dictionary that maps an address to a node. This method does not clone or tear out the nodes from their
 	 * trees and as a result, the connections that each node may have with other nodes inside the tree will remain
 	 * intact.
