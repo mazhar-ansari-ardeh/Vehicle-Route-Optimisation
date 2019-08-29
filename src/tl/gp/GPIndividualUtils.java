@@ -94,6 +94,12 @@ public class GPIndividualUtils
 	 * the given parent. The method throws an exception if the parent object already has at least one child.
 	 *
 	 * @param parent The parent node. This argument cannot be {@code null}.
+	 * @param createChildren if {@code true}, the method will assume that the given parent does not already have
+	 *                       children and will create new array of children and then copies the given children inside.
+	 *                       If this parameter is {@code false}, then the method assumes that the given parent does not
+	 *                       have an array of children and will first create one for it.
+	 *                       <p>This argument is needed because some GP functions create their array of children
+	 *                       automatically during their construction which can be reused here. </p>
 	 * @param children The set of children. This argument cannot be {@code null}.
 	 */
 	public static void addChildrenTo(GPNode parent, boolean createChildren, GPNode... children)
