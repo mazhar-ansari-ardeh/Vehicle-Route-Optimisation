@@ -4,7 +4,6 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 
 import ec.*;
@@ -27,10 +26,11 @@ public class EvaluateOnTest
 {
 	static EvolutionState state = null;
 
+	// TODO: 1/09/19 Remove this and read it from the command line.
 	/**
 	 * This parameter does not have any base parameter.
 	 */
-	public static final String P_TRAIN_POP_FOLDER = "train-pop-folder";
+	public static final String P_TEST_POP_FOLDER = "test-pop-folder";
 
 	/**
 	 * When a population file is evaluated, it is stored on the same folder it was loaded from
@@ -41,7 +41,7 @@ public class EvaluateOnTest
 	 * This path is always treated as relative and is appended to the directory that contains the
 	 * the population file that is evaluated.
 	 */
-	private static String trainPopulationFolder="TrainPopulation";
+	private static String testedPopulationFolder ="TestPopulation";
 
 
 	/**
@@ -56,8 +56,8 @@ public class EvaluateOnTest
 	{
 		state = ECJUtils.loadECJ(paramFileNamePath, ecjParams);
 
-		trainPopulationFolder = state.parameters.getStringWithDefault(
-									new Parameter(P_TRAIN_POP_FOLDER), null, trainPopulationFolder);
+		testedPopulationFolder = state.parameters.getStringWithDefault(
+									new Parameter(P_TEST_POP_FOLDER), null, testedPopulationFolder);
 
         Parameter p = new Parameter("eval.problem.eval-model.instances.0.samples");
         int samples = state.parameters.getInt(p, null);
@@ -85,15 +85,14 @@ public class EvaluateOnTest
 		setup(args[0], Arrays.copyOfRange(args, 2, args.length));
 
 
-		Path path = Paths.get(args[1]);
+		Path inputPopFile = Paths.get(args[1]);
 
-		Path trainArchive = Paths.get(path.getParent().toString(), trainPopulationFolder);
-		if(!Files.exists(trainArchive) || !Files.isDirectory(trainArchive))
-			Files.createDirectories(trainArchive);
-		trainArchive = Paths.get(trainArchive.toString(), path.getFileName().toString());
+		Path testArchive = Paths.get(testedPopulationFolder);
+		if(!Files.exists(testArchive) || !Files.isDirectory(testArchive))
+			Files.createDirectories(testArchive);
+		// testArchive = Paths.get(testArchive.toString(), inputPopFile.getFileName().toString());
 
-
-		Population pop = PopulationUtils.loadPopulation(path.toFile());
+		Population pop = PopulationUtils.loadPopulation(inputPopFile.toFile());
 		for(Subpopulation sub : pop.subpops)
 		{
 			for(Individual ind : sub.individuals)
@@ -108,8 +107,9 @@ public class EvaluateOnTest
 				evaluate(state, (GPIndividual)ind);
 			}
 		}
-		Files.move(path, trainArchive, StandardCopyOption.REPLACE_EXISTING);
-		PopulationUtils.savePopulation(pop, path.toString());
+		// Files.move(inputPopFile, testArchive, StandardCopyOption.REPLACE_EXISTING);
+		Path outputFile = Paths.get(testArchive.toString(), inputPopFile.getFileName().toString());
+		PopulationUtils.savePopulation(pop, outputFile.toString());
 	}
 
 	static double evaluate(EvolutionState state, GPIndividual gind)
