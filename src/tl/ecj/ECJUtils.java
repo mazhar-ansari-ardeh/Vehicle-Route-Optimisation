@@ -43,8 +43,7 @@ public class ECJUtils
 
 		// setup the evaluator, essentially the test evaluation model
 		p = new Parameter(EvolutionState.P_EVALUATOR);
-		state.evaluator = (Evaluator)
-				(parameters.getInstanceForParameter(p, null, Evaluator.class));
+		state.evaluator = (Evaluator)(parameters.getInstanceForParameter(p, null, Evaluator.class));
 		state.evaluator.setup(state, p);
 
 		return state;

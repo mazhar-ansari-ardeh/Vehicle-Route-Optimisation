@@ -5,13 +5,13 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
 import java.util.Arrays;
 
 import ec.*;
 import ec.gp.*;
 import ec.simple.SimpleProblemForm;
 import ec.util.*;
+import tl.ecj.ECJUtils;
 
 /**
  * This program is designed to read a population file, evaluate its members on test domain, backup
@@ -52,34 +52,14 @@ public class EvaluateOnTest
 	 * @param paramFileNamePath the path to a param file including the name of the file.
 	 * @param ecjParams additional parameters for ECJ.
 	 */
-	private static void loadECJ(String paramFileNamePath, String... ecjParams)
+	private static void setup(String paramFileNamePath, String... ecjParams)
 	{
-		ArrayList<String> params = new ArrayList<>();
-		params.add("-file");
-		params.add(paramFileNamePath);
-		for(String param : ecjParams)
-		{
-			params.add("-p");
-			params.add(param);
-		}
-		String[] processedParams = new String[params.size()];
-		params.toArray(processedParams);
-		ParameterDatabase parameters = Evolve.loadParameterDatabase(processedParams);
-
-		state = Evolve.initialize(parameters, 0);
-
-		Parameter p;
-
-		// setup the evaluator, essentially the test evaluation model
-		p = new Parameter(EvolutionState.P_EVALUATOR);
-		state.evaluator = (Evaluator)
-				(parameters.getInstanceForParameter(p, null, Evaluator.class));
-		state.evaluator.setup(state, p);
+		state = ECJUtils.loadECJ(paramFileNamePath, ecjParams);
 
 		trainPopulationFolder = state.parameters.getStringWithDefault(
 									new Parameter(P_TRAIN_POP_FOLDER), null, trainPopulationFolder);
 
-        p = new Parameter("eval.problem.eval-model.instances.0.samples");
+        Parameter p = new Parameter("eval.problem.eval-model.instances.0.samples");
         int samples = state.parameters.getInt(p, null);
         if(samples < 100)
         	state.output.fatal("Sample size is too small: " + samples);
@@ -102,7 +82,7 @@ public class EvaluateOnTest
 			return;
 		}
 
-		loadECJ(args[0], Arrays.copyOfRange(args, 2, args.length));
+		setup(args[0], Arrays.copyOfRange(args, 2, args.length));
 
 
 		Path path = Paths.get(args[1]);
