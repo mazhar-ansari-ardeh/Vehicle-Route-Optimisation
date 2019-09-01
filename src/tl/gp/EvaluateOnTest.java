@@ -13,36 +13,16 @@ import ec.util.*;
 import tl.ecj.ECJUtils;
 
 /**
- * This program is designed to read a population file, evaluate its members on test domain, backup
- * the population file on an archive folder and save the loaded population file, evaluated on test
- * domain, on the same path it was loaded from.
+ * This program is designed to read a population file, evaluate its members on test domain and save the evaluated population
+ * file on a new path given through commandline.
  *
- * This program uses the following ECJ parameters: <p>
- * - train-pop-folder (optional)
+ * This program does not introduce any new following ECJ parameters. <p>
  * @author mazhar
  *
  */
 public class EvaluateOnTest
 {
 	static EvolutionState state = null;
-
-	// TODO: 1/09/19 Remove this and read it from the command line.
-	/**
-	 * This parameter does not have any base parameter.
-	 */
-	public static final String P_TEST_POP_FOLDER = "test-pop-folder";
-
-	/**
-	 * When a population file is evaluated, it is stored on the same folder it was loaded from
-	 * so that other algorithms can load and use it easier. The file that contains the data from
-	 * train domain is moved to the folder that is given by this folder.
-	 * The value of this field is given with the parameter 'train-pop-folder'. <p>
-	 *
-	 * This path is always treated as relative and is appended to the directory that contains the
-	 * the population file that is evaluated.
-	 */
-	private static String testedPopulationFolder ="TestPopulation";
-
 
 	/**
 	 * Initialize ECJ. For this purpose, the function loads ECJ with a param file and any additional
@@ -56,9 +36,6 @@ public class EvaluateOnTest
 	{
 		state = ECJUtils.loadECJ(paramFileNamePath, ecjParams);
 
-		testedPopulationFolder = state.parameters.getStringWithDefault(
-									new Parameter(P_TEST_POP_FOLDER), null, testedPopulationFolder);
-
         Parameter p = new Parameter("eval.problem.eval-model.instances.0.samples");
         int samples = state.parameters.getInt(p, null);
         if(samples < 100)
@@ -69,10 +46,10 @@ public class EvaluateOnTest
 
 	public static void main(String[] args) throws IOException, ClassNotFoundException
 	{
-		if(args.length < 2 )
+		if(args.length < 3 )
 		{
 			System.err.println("Invalid number of arguments. Usage: EvaluateOnTest "
-					+ " <test param file> <input population file> "
+					+ " <test param file> <input population file> <output folder>"
 					+ " [<EJC params>...]");
 			// The reason that I am not using a parameter file instead of command line arguments is
 			// that first, I don't like param files; second, I want to use the same param file that
@@ -87,10 +64,13 @@ public class EvaluateOnTest
 
 		Path inputPopFile = Paths.get(args[1]);
 
-		Path testArchive = Paths.get(testedPopulationFolder);
-		if(!Files.exists(testArchive) || !Files.isDirectory(testArchive))
-			Files.createDirectories(testArchive);
-		// testArchive = Paths.get(testArchive.toString(), inputPopFile.getFileName().toString());
+		/* When a population file is evaluated, it is stored on the this folder so that other algorithms can load and use it
+		 * easier.
+		 * The value of this variable is read from commandline. This path is can be relative or absolute.
+		 */
+		Path testedPopulationFolder = Paths.get(args[2]);
+		if(!Files.exists(testedPopulationFolder) || !Files.isDirectory(testedPopulationFolder))
+			Files.createDirectories(testedPopulationFolder);
 
 		Population pop = PopulationUtils.loadPopulation(inputPopFile.toFile());
 		for(Subpopulation sub : pop.subpops)
@@ -105,14 +85,14 @@ public class EvaluateOnTest
 					continue;
 				}
 				evaluate(state, (GPIndividual)ind);
+//				state.output.message("Finished evaluating the individual. Fitness on test: " + fitness);
 			}
 		}
-		// Files.move(inputPopFile, testArchive, StandardCopyOption.REPLACE_EXISTING);
-		Path outputFile = Paths.get(testArchive.toString(), inputPopFile.getFileName().toString());
+		Path outputFile = Paths.get(testedPopulationFolder.toString(), inputPopFile.getFileName().toString());
 		PopulationUtils.savePopulation(pop, outputFile.toString());
 	}
 
-	static double evaluate(EvolutionState state, GPIndividual gind)
+	static void evaluate(EvolutionState state, GPIndividual gind)
 	{
 		if(gind instanceof TLGPIndividual)
 		{
@@ -120,7 +100,7 @@ public class EvaluateOnTest
 			if(tlg.isTested())
 			{
 				state.output.warning("Individual is already tested. Ignoring the individual");
-				return tlg.fitness.fitness();
+				// return tlg.fitness.fitness();
 			}
 			tlg.setTested(true);
 			tlg.setFitnessOnTrain(((TLGPIndividual) gind).fitness.fitness());
@@ -130,7 +110,7 @@ public class EvaluateOnTest
 
 		((SimpleProblemForm)state.evaluator.p_problem).evaluate(state, gind, 0, 0);
 
-		return gind.fitness.fitness();
+//		return gind.fitness.fitness();
 	}
 
 }
