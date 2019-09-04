@@ -4,6 +4,7 @@ import java.util.*;
 
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
+import ec.gp.GPNodeParent;
 import ec.gp.GPTree;
 import ec.multiobjective.MultiObjectiveFitness;
 import gphhucarp.gp.terminal.feature.Fullness;
@@ -34,6 +35,35 @@ public class GPIndividualUtils
 		retval.evaluated = false;
 
 		return retval;
+	}
+
+	/**
+	 *
+	 * @param node
+	 * @return
+	 */
+	public static GPTree asGPTree(GPNode node)
+	{
+		GPNodeParent parent = node.parent;
+		if(parent != null)
+		{
+			if(parent instanceof GPNode)
+			{
+				GPNode p = (GPNode)parent;
+				p.children[node.argposition] = null;
+			}
+			else if(parent instanceof GPTree)
+			{
+				GPTree t = (GPTree) parent;
+				t.child = null;
+			}
+		}
+		GPTree tree = new GPTree();
+		tree.child = node;
+		node.parent = tree;
+		node.argposition = 0;
+
+		return tree;
 	}
 
 	/**
