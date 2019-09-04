@@ -135,11 +135,11 @@ rm tl.jar
 rm *.sh
 rm -r -f data
 
-mkdir -p /vol/grid-solar/sgeusers/mazhar/$RESULT_DIR
-cp -r .  /vol/grid-solar/sgeusers/mazhar/$RESULT_DIR/
-cp *.* /vol/grid-solar/sgeusers/mazhar/$RESULT_DIR/
+# mkdir -p /vol/grid-solar/sgeusers/mazhar/$RESULT_DIR
+# cp -r .  /vol/grid-solar/sgeusers/mazhar/$RESULT_DIR/
+# cp *.* /vol/grid-solar/sgeusers/mazhar/$RESULT_DIR/
 
-printf "$(date)\t $SGE_TASK_ID \n" >> /vol/grid-solar/sgeusers/mazhar/$RESULT_DIR/FinishedTasks.txt
+# printf "$(date)\t $SGE_TASK_ID \n" >> /vol/grid-solar/sgeusers/mazhar/$RESULT_DIR/FinishedTasks.txt
 
 #
 echo "Ran through OK"

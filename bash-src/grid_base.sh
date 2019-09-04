@@ -126,13 +126,7 @@ function copy_knowledge()
 {
     printf "Copying knowledge \n"
     mkdir -p $KNOWLEDGE_SOURCE_DIR
-    # RESULT_DIR must be exported by gridscript.sh
-#     if [ -z $RESULT_DIR ]
-#     then
-#         printf "The variable RESULT_DIR is not set"
-#         exit
-#     fi
-    cp -r /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_DIR/. ./$KNOWLEDGE_SOURCE_DIR
+    cp -r -v /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_DIR/TestedPopulation ./$KNOWLEDGE_SOURCE_DIR
     ls $KNOWLEDGE_SOURCE_DIR
     printf "Finished copying knowledge\n\n"
 }
@@ -143,12 +137,14 @@ function copy_knowledge()
 # Example usage: 
 #   evaluate_on_test 1 2 50 49
 # This call will evaluate the populations of generations 1, 2, 49 50
+# This function copies the files it requires itself, evaluates them and copies the results back again. 
 function evaluate_on_test()
 {
     GENS=$@
     echo "Evaluating source population on test settings using EvaluateOnTest for generations"
     for i in $GENS
     do
+        cp -r -v /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_DIR/population.gen.$i.bin ./$KNOWLEDGE_SOURCE_DIR
         java -cp .:tl.jar tl.gp.EvaluateOnTest carp_param_base.param  $KNOWLEDGE_SOURCE_DIR/population.gen.$i.bin $KNOWLEDGE_SOURCE_DIR/TestedPopulation \
                                             eval.problem.eval-model.instances.0.file=$DATASET_FILE_SOURCE \
                                             stat.file="\$$KNOWLEDGE_SOURCE_DIR/EvaluateOnTest.job.0.out.stat" \
@@ -160,8 +156,9 @@ function evaluate_on_test()
         printf "Finished evaluation of generation $i on test dataset\n"
     done
     
-    cp -r $KNOWLEDGE_SOURCE_DIR/TestedPopulation /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_DIR/.
+    cp -r -v $KNOWLEDGE_SOURCE_DIR/TestedPopulation /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_DIR/.
     printf "Finished evaluating source population on test settings using EvaluateOnTest\n\n\n"
+    printf "$(date)\t $SGE_TASK_ID \n" >> /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/FinishedTestEvaluations.txt
 }
 
 
@@ -258,7 +255,7 @@ function simplify_trees()
 # run_source_domain
   
   
-copy_knowledge
+# copy_knowledge
 
 evaluate_on_test 49
 
