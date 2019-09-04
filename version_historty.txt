@@ -22,3 +22,6 @@ Created the 'SimplifiedTreeBuilder' class to transfer the trees that have been s
 
 22/07/2019:
 Moved 'AlgebraicSimplifier' to its correct package.
+
+01/09/2019
+Corrected the 'EvaluateOnTest' program so that now it saves the evaluated files to a separate location.

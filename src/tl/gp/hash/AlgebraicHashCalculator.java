@@ -136,6 +136,15 @@ public class AlgebraicHashCalculator implements HashCalculator {
         return ret;
     }
 
+    /**
+     * An implementation of the Extended Euclidean algorithm.
+     * For any two integers {@code a} and {@code b}, there exists two integers {@code q}, {@code r} such that
+     * {@code a = b · q + r}. Commonly, {@code q} is called the quotient {@code r} the remainder.
+     * @param a
+     * @param b
+     * @param p
+     * @return
+     */
     private static int eea(int a, int b, int p)
     {
         if(b == 0)
