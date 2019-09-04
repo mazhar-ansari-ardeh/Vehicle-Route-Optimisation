@@ -40,7 +40,7 @@ public class VectorialAlgebraicHashCalculator implements HashCalculator
 
     public VectorialAlgebraicHashCalculator(EvolutionState eState, int threadNumber, int hashOrder)
     {
-        if(eState == null || eState.random == null)
+        if (eState == null || eState.random == null)
             throw new IllegalArgumentException("State or its random generator is null");
         state = eState;
         threadNum = threadNumber;
@@ -66,7 +66,7 @@ public class VectorialAlgebraicHashCalculator implements HashCalculator
     {
         double[] retval = new double[hashOrder];
 
-        for(int i = 0; i < hashOrder; i++)
+        for (int i = 0; i < hashOrder; i++)
         {
             int rnd = state.random[threadNum].nextInt(); // TODO: It is a good idea to bound the random variable.
 
@@ -82,7 +82,7 @@ public class VectorialAlgebraicHashCalculator implements HashCalculator
     private double[] hashOf(TerminalERCUniform t)
     {
         String name = t.getTerminal().name();
-        switch(name)
+        switch (name)
         {
             case "SC":
                 return SCHash;
@@ -113,11 +113,11 @@ public class VectorialAlgebraicHashCalculator implements HashCalculator
             case "DEM1":
                 return DEM1Hash;
             case "ERC":
-                double value = ((DoubleERC)t.getTerminal()).value;
+                double value = ((DoubleERC) t.getTerminal()).value;
                 double[] values = new double[hashOrder];
-                for(int i = 0; i < hashOrder; i++) values[i] = value;
+                for (int i = 0; i < hashOrder; i++) values[i] = value;
                 return values;
-                // return hashOf(value);
+            // return hashOf(value);
             default:
                 throw new RuntimeException("Received an unknown terminal to hash: " + name);
         }
@@ -131,34 +131,40 @@ public class VectorialAlgebraicHashCalculator implements HashCalculator
 
     private double[] hashsOfTree(GPNode tree)
     {
-        if(tree.children == null || tree.children.length == 0)
+        if (tree.children == null || tree.children.length == 0)
             return hashOf((TerminalERCUniform) tree);
         double[] lch = hashsOfTree(tree.children[0]); // left child hash
         double[] rch = hashsOfTree(tree.children[1]);
         double[] retval = new double[hashOrder];
-        for(int i = 0; i < hashOrder; i++)
+        for (int i = 0; i < hashOrder; i++)
         {
-            if (tree.toString().equals("+"))
-                retval[i] = lch[i] + rch[i];
-            if (tree.toString().equals("-"))
-                retval[i] = lch[i] - rch[i];
-            if (tree.toString().equals("*"))
-                retval[i] = lch[i] * rch[i];
-            if (tree.toString().equals("/"))
-                retval[i] = lch[i] / rch[i];
-            if (tree.toString().equals("min"))
+            switch (tree.toString())
             {
-                retval[i] = Math.min(lch[i], rch[i]);
-            }
-            if (tree.toString().equals("max"))
-            {
-                retval[i] = Math.max(lch[i], rch[i]);
-            }
-            throw new RuntimeException("Received an unknown terminal type: " + tree.toString());
-        }
-
+                case "+":
+                    retval[i] = lch[i] + rch[i];
+                    break;
+                case "-":
+                    retval[i] = lch[i] - rch[i];
+                    break;
+                case "*":
+                    retval[i] = lch[i] * rch[i];
+                    break;
+                case "/":
+                    retval[i] = lch[i] / rch[i];
+                    break;
+                case "min":
+                    retval[i] = Math.min(lch[i], rch[i]);
+                    break;
+                case "max":
+                    retval[i] = Math.max(lch[i], rch[i]);
+                    break;
+                default:
+                    throw new RuntimeException("Received an unknown terminal type: " + tree.toString());
+            } // switch
+        } // for
         return retval;
     }
+
 }
 
 
