@@ -38,12 +38,20 @@ public class GPIndividualUtils
 	}
 
 	/**
-	 *
-	 * @param node
-	 * @return
+	 * Gets a {@code GPNode} object and creates a {@code GPTree} object that contains that. The method severs any connection
+	 * that the given node may have to its parent.
+	 * @param node A node that should be contained in a tree. The value of this parameter can be {@code null} in which case
+	 *             the returned tree will have {@code null} as its child.
+	 * @return A {@code GPTree} object that contains the given node.
 	 */
 	public static GPTree asGPTree(GPNode node)
 	{
+		GPTree tree = new GPTree();
+		tree.child = node;
+
+		if(node == null)
+			return tree;
+
 		GPNodeParent parent = node.parent;
 		if(parent != null)
 		{
@@ -58,8 +66,7 @@ public class GPIndividualUtils
 				t.child = null;
 			}
 		}
-		GPTree tree = new GPTree();
-		tree.child = node;
+
 		node.parent = tree;
 		node.argposition = 0;
 
