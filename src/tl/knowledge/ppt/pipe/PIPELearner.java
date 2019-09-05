@@ -11,7 +11,7 @@ import java.util.Map;
  * This class implements the basic learning method of PPTree models that is presented in the paper: <br/>
  * "R.P. Salustowicz, J. Schmidhüber, Probabilistic incremental program evolution. Evol. Comput. 5(2), 123–141 (1997)".
  */
-class PIPELearner
+class PIPELearner implements IPIPELearner<GPIndividual>
 {
     /**
      * The probability of selecting an instruction from the terminal set.
@@ -58,19 +58,22 @@ class PIPELearner
      * 'clr is a constant influencing the number of iterations. We use clr = 0.1, which turned out to be a good
      * compromise between precision and speed'.
      */
-    private double clr = 0.1;
+    private double clr; // = 0.1;
 
 
     /**
      * Constructs a new instance.
+     * @param state the {@code EvolutionState} that is governing this evolutionary process.
+     * @param threadnum the index of the thread that is running this evolutionary process.
      * @param PT the probability of selecting an instruction from the terminal set.
      * @param functions the name of all the GP functions.
      * @param terminals the name of all the GP terminals
      * @param learningRate the learning rate
      * @param epsilon the user-defined parameter epsilon
+     * @param clr according to the paper: 'clr is a constant influencing the number of iterations
      */
     public PIPELearner(EvolutionState state, int threadnum, double PT , String[] functions, String[] terminals,
-                       double learningRate, double epsilon)
+                       double learningRate, double epsilon, double clr)
     {
         this.state = state;
         this.threadnum = threadnum;
@@ -79,6 +82,7 @@ class PIPELearner
         this.terminals = terminals;
         this.lr = learningRate;
         this.epsilon = epsilon;
+        this.clr = clr;
     }
 
     /**
@@ -101,6 +105,7 @@ class PIPELearner
      * @param treeIndex The GP tree to consider in the given GP individual
      * @param individual the individual to learn from.
      */
+    @Override
     public void adaptTowards(PPTree tree, GPIndividual individual, int treeIndex)
     {
         if(elite == null)
@@ -112,6 +117,7 @@ class PIPELearner
         GPNode root = individual.trees[treeIndex].child;
         while(targetProbability <= probabilityOfInd)
         {
+            // TODO: probability values are not updated.
             Map<String, GPNode> index = GPIndividualUtils.index(individual.trees[treeIndex].child);
             for(String address : index.keySet())
             {
@@ -137,8 +143,12 @@ class PIPELearner
             elite = individual;
     }
 
+    @Override
     public void initialize(ProbabilityVector vector)
     {
+        if(vector == null)
+            throw new NullPointerException("The probability vector cannot be null.");
+
         if(vector.isInitialized())
             return;
 
