@@ -9,7 +9,7 @@ import gputils.function.Add;
 import gputils.function.Mul;
 import gputils.terminal.TerminalERCUniform;
 import tl.gp.hash.AlgebraicHashCalculator;
-import tl.gp.hash.HashCalculator;
+import tl.gp.hash.VectorialAlgebraicHashCalculator;
 
 import static tl.ecj.ECJUtils.loadECJ;
 import static tl.gp.GPIndividualUtils.addChildrenTo;
@@ -54,7 +54,7 @@ public class Main {
 		GPNode mul1 = new Mul();
 		addChildrenTo(mul1, false, fuln1, plus1);
 
-		AlgebraicHashCalculator hs = new AlgebraicHashCalculator(eState, 0, 1000077157);
+		VectorialAlgebraicHashCalculator hs = new VectorialAlgebraicHashCalculator(eState, 0, 3);
 		System.out.println(mul1.makeCTree(true, true, true));
 		System.out.println(hs.hashOfTree(mul1));
 
