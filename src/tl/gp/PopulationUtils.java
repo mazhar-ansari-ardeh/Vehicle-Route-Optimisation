@@ -51,26 +51,6 @@ public class PopulationUtils
 		Arrays.sort(ind, comp);
 	}
 
-//	public void prepareForWriting(Population population, Subpopulation sub) throws IOException
-//	{
-//		if(!isSaving)
-//			throw new IOException("This object is not initialized for saving objects.");
-//		if(output == null)
-//		{
-//			output = new ObjectOutputStream(new FileOutputStream(file));
-//			output.writeInt(population.subpops.length);
-//		}
-//
-//		output.writeInt(sub.individuals.length);
-//	}
-
-//	public void write(Individual ind) throws IOException
-//	{
-//		if(!isSaving)
-//			throw new IOException("This object is not initialized for saving objects.");
-//
-//		output.writeObject(ind);
-//	}
 
 	public static void savePopulation(Population pop, String fileName)
 			throws FileNotFoundException, IOException
@@ -120,26 +100,35 @@ public class PopulationUtils
 
 		return retval;
 	}
-//
-//	public static ArrayList<Population> loadPopulation(String inputFileNamePath, int numGenerations)
-//	{
-//		ArrayList<Population> retval = new ArrayList<>();
-//
-//		for(int i = 0; i < numGenerations; i++)
-//		{
-//			Population p = PopulationUtils.loadPopulation(
-//					Paths.get(inputFileNamePath, "population.gen." + i + ".bin").toFile());
-//			p = PopulationUtils.sort(p);
-//			double fit = p.subpops[0].individuals[0].fitness.fitness();
-//			if(fit > maxFit)
-//				maxFit = fit;
-//			if(fit < minFit)
-//				minFit = fit;
-//			popList.add(p);
-//		}
-//
-//		return retval;
-//	}
+
+
+	/**
+	 * Performs a tournament selection on the given individuals.
+	 * @param inds the set of individuals to select from. This set cannot be {@code null}.
+	 * @param state the {@code EvolutionState} object that is governing the evolutionary process.
+	 * @param thread the number of the thread running the process.
+	 * @param size the tournament size. This parameter cannot be zero or negative.
+	 * @return the index of the selected individual.
+	 */
+	public static int tournamentSelect(Individual[] inds, final EvolutionState state, final int thread, int size)
+	{
+		if(inds == null || inds.length == 0)
+			throw new IllegalArgumentException("The individual set cannot be null or empty.");
+
+		if(size > 0)
+			throw new IllegalArgumentException("Tournament size needs to be a positive number: " + size);
+
+		int best = state.random[thread].nextInt(inds.length);
+
+		for (int x=1; x < size; x++)
+		{
+			int j = state.random[thread].nextInt(inds.length);
+			if (inds[j].fitness.betterThan(inds[best].fitness))  // j is better than best
+				best = j;
+		}
+
+		return best;
+	}
 
 	public static Population loadPopulation(String fileName)
 			throws FileNotFoundException, IOException, ClassNotFoundException, InvalidObjectException
