@@ -5,14 +5,17 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import ec.Individual;
+import ec.Population;
 import ec.gp.*;
+import tl.gp.PopulationUtils;
 import tl.knowledge.codefragment.fitted.DoubleFittedCodeFragment;
 
 public class BinPop2Text
 {
 	public static void main(String[] args) throws ClassNotFoundException, IOException
 	{
-		String path = "/am/kings/home1/mazhar/MyPhD/SourceCodes/gpucarp/stats/target-wk/";
+		String path = "/home/mazhar/grid/gdb1.vs5_gen_50/KnowledgeSource/1/TestedPopulation";
 		boolean printFitness = true;
 		if(args.length >= 1)
 			path = args[0];
@@ -98,35 +101,39 @@ public class BinPop2Text
 	{
 		try
 		{
-			ObjectInputStream dis = new ObjectInputStream((new FileInputStream(file.toFile())));
 			File outFile = new File(file.toString().replaceAll("\\.bin", ".ind"));
 			if(outFile.exists())
+			{
 				outFile.delete();
+			}
 			outFile.createNewFile();
 
 			System.out.println("Creating file: " + outFile.getAbsolutePath());
 			PrintWriter out = new PrintWriter(new FileOutputStream(outFile));
 
-			int nsub = dis.readInt();
+			Population pop = PopulationUtils.loadPopulation(file.toFile());
 
-			for(int i = 0; i < nsub; i++)
+			for(int i = 0; i < pop.subpops.length; i++)
 			{
-				int nind = dis.readInt();
-				for(int j = 0; j < nind; j++)
+				for(Individual ind : pop.subpops[i].individuals)
 				{
-					Object ind = dis.readObject();
-					if(!(ind instanceof GPIndividual))
-						continue;
 					GPIndividual gind = (GPIndividual) ind;
-					String tree = null;
-					if(graphType.equals("dot"))
-						tree = gind.trees[0].child.makeGraphvizTree().replaceAll("\\n", "");
-					else if(graphType.equals("c"))
-						tree = gind.trees[0].child.makeCTree(true, true, true);
-					else if(graphType.equals("lisp"))
-						tree = gind.trees[0].child.makeLispTree();
-					else
-						tree = gind.trees[0].child.makeLatexTree();
+					String tree;
+					switch (graphType)
+					{
+						case "dot":
+							tree = gind.trees[0].child.makeGraphvizTree().replaceAll("\\n", "");
+							break;
+						case "c":
+							tree = gind.trees[0].child.makeCTree(true, true, true);
+							break;
+						case "lisp":
+							tree = gind.trees[0].child.makeLispTree();
+							break;
+						default:
+							tree = gind.trees[0].child.makeLatexTree();
+							break;
+					}
 
 					out.print(tree);
 					if(printFitness)
@@ -135,9 +142,40 @@ public class BinPop2Text
 						out.println("\n");
 					out.flush();
 				}
-			} // for
+			}
+//
+//			ObjectInputStream dis = new ObjectInputStream((new FileInputStream(file.toFile())));
+//			int nsub = dis.readInt();
+
+//			for(int i = 0; i < nsub; i++)
+//			{
+//				int nind = dis.readInt();
+//				for(int j = 0; j < nind; j++)
+//				{
+//					Object ind = dis.readObject();
+//					if(!(ind instanceof GPIndividual))
+//						continue;
+//					GPIndividual gind = (GPIndividual) ind;
+//					String tree = null;
+//					if(graphType.equals("dot"))
+//						tree = gind.trees[0].child.makeGraphvizTree().replaceAll("\\n", "");
+//					else if(graphType.equals("c"))
+//						tree = gind.trees[0].child.makeCTree(true, true, true);
+//					else if(graphType.equals("lisp"))
+//						tree = gind.trees[0].child.makeLispTree();
+//					else
+//						tree = gind.trees[0].child.makeLatexTree();
+//
+//					out.print(tree);
+//					if(printFitness)
+//						out.println(", " + gind.fitness.fitness() + "\n");
+//					else
+//						out.println("\n");
+//					out.flush();
+//				}
+//			} // for
 			out.close();
-			dis.close();
+//			dis.close();
 		}// try
 		catch(IOException | ClassNotFoundException exp)
 		{
