@@ -115,7 +115,7 @@ public class PopulationUtils
 		if(inds == null || inds.length == 0)
 			throw new IllegalArgumentException("The individual set cannot be null or empty.");
 
-		if(size > 0)
+		if(size <= 0)
 			throw new IllegalArgumentException("Tournament size needs to be a positive number: " + size);
 
 		int best = state.random[thread].nextInt(inds.length);
