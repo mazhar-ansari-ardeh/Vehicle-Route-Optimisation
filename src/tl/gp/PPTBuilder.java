@@ -10,6 +10,7 @@ import tl.knowledge.ppt.pipe.PPTree;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.logging.Logger;
 
 /**
  * A builder class that builds a GP individual based on a {@code PPTree} object. The class loads this object with the
@@ -58,6 +59,7 @@ public class PPTBuilder extends HalfBuilder implements TLLogger<GPNode>
         try
         {
             loadPPT(knowFile);
+            log(state, knowledgeSuccessLogID, "Loaded the PPT: " + tree.toString());
         } catch (IOException | ClassNotFoundException e)
         {
             e.printStackTrace();
@@ -80,16 +82,15 @@ public class PPTBuilder extends HalfBuilder implements TLLogger<GPNode>
         int numToTransfer = (int) Math.round(popSize * transferPercent);
         if (numToTransfer >= 0 && cfCounter < numToTransfer)
         {
-            TLGPIndividual cf = tree.sampleIndividual(state.random[thread]);
+            GPNode cf = tree.sampleIndividual(state.random[thread]);
 
             if (cf != null)
             {
                 cfCounter++;
-                GPNode node = GPIndividualUtils.stripRoots((GPIndividual) cf.clone()).get(0);
-                log(state, knowledgeSuccessLogID, node.makeCTree(true, true, true) + "\n\n");
-                node.parent = parent;
-                node.argposition = (byte) argposition;
-                return node;
+                log(state, knowledgeSuccessLogID, cf.makeCTree(true, true, true) + "\n\n");
+                cf.parent = parent;
+                cf.argposition = (byte) argposition;
+                return cf;
             }
             else
                 log(state, null, cfCounter, knowledgeSuccessLogID);

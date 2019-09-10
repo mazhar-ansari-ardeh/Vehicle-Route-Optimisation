@@ -81,7 +81,7 @@ class Extractor
     /**
      * Number of individuals that were analyzed.
      */
-    int numAnalyzed = 0;
+//    int numAnalyzed = 0;
 
     private TLLogger<GPNode> logger;
 
@@ -312,7 +312,8 @@ class Extractor
             }
 
             saveResults(outputFileNamePath);
-            logger.log(state, logID, "Finished analyzing. Total number of individuals processed: " + numAnalyzed + ".\n");
+            String learnedTree = tree.toString();
+            logger.log(state, logID, "Finished analyzing. Learned tree: " + "\n" + learnedTree + "\n");
         }
         catch (FileNotFoundException e)
         {
@@ -348,6 +349,5 @@ public class ExtractPPT
     {
         Extractor extractor = new Extractor();
         extractor.main(args);
-
     }
 }

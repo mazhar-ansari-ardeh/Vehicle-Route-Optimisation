@@ -10,6 +10,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+
+/**
+ * Learns the PPT of a population based on the frequency with which each terminal/function appears in GP individuals. This
+ * class implements the learning method used in the paper:
+ *
+ * <p> "Yanai, Kohsuke, and Hitoshi Iba. "Program evolution by integrating EDP and GP." Genetic and Evolutionary Computation
+ * Conference. Springer, Berlin, Heidelberg, 2004."
+ */
 public class FrequencyLearner implements IPIPELearner<GPIndividual[]>
 {
 
@@ -33,7 +41,7 @@ public class FrequencyLearner implements IPIPELearner<GPIndividual[]>
     /**
      * The evolution state object of ECJ.
      */
-    private final EvolutionState state;
+    private final transient EvolutionState state;
 
     /**
      * The ECJ thread that is running this learner.
@@ -96,8 +104,8 @@ public class FrequencyLearner implements IPIPELearner<GPIndividual[]>
             Map<String, GPNode> indice = GPIndividualUtils.index(ind.trees[treeIndex].child);
             for(String address : indice.keySet())
             {
-                if(address.equals("-1"))
-                    System.out.println(address + ":" + indice.get(address));
+//                if(address.equals("-1"))
+//                    System.out.println(address + ":" + indice.get(address));
                 String nodeName = indice.get(address).toString();
                 if(isdigit(nodeName))
                     nodeName = "ERC";

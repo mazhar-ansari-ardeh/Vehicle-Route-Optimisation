@@ -61,6 +61,8 @@ public class UCARPUtils
 
         switch (primitiveName.toLowerCase())
         {
+            case "cfd":
+                return new CostFromDepot();
             case "cfh":
                 return new CostFromHere();
             case "cfr1":
@@ -71,6 +73,8 @@ public class UCARPUtils
                 return new CostToDepot();
             case "ctt1":
                 return new CostToTask1();
+            case "dc":
+                return new DeadheadingCost();
             case "dem":
                 return new Demand();
             case "dem1":
@@ -89,6 +93,7 @@ public class UCARPUtils
                 return new ServeCost();
             case "erc":
                 TerminalERCUniform retval = new TerminalERCUniform();
+                retval.children = new GPNode[0];
                 DoubleERC terminal = new DoubleERC();
                 terminal.value = ercValue;
                 retval.setTerminal(terminal);

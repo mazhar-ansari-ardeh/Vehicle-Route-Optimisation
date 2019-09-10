@@ -60,11 +60,20 @@ seed.0=2
 # ==============================
 # ContribSubTree Builder
 # ==============================
-gp.tc.0.init=tl.gp.ContribSubtreeBuilder
-gp.tc.0.init.knowledge-file=/run/media/mazhar/Elements/grid/Archive/val10D-v10-to9/1/val10D-v10-all.bk
+# gp.tc.0.init=tl.gp.ContribSubtreeBuilder
+# gp.tc.0.init.knowledge-file=/run/media/mazhar/Elements/grid/Archive/val10D-v10-to9/1/val10D-v10-all.bk
+# percentage of initial population that is created from extracted knowledge
+# gp.tc.0.init.transfer-percent=0.50
+# gp.tc.0.init.knowledge-log-file=./stats/target-wk/ContribTerminalLog
+
+# ==============================
+# PPT Builder
+# ==============================
+gp.tc.0.init=tl.gp.PPTBuilder
+gp.tc.0.init.knowledge-file=pipe_tree.ppt
 # percentage of initial population that is created from extracted knowledge
 gp.tc.0.init.transfer-percent=0.50
-gp.tc.0.init.knowledge-log-file=./stats/target-wk/ContribTerminalLog
+gp.tc.0.init.knowledge-log-file=./stats/target-wk/PPTBuildLog
 
 # gp.tc.0.init.knowledge-extraction=rootsubtree
 # gp.tc.0.init.extract-percent=0.50

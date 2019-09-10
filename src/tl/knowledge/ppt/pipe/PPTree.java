@@ -3,14 +3,11 @@ package tl.knowledge.ppt.pipe;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import ec.util.MersenneTwisterFast;
-import gputils.terminal.TerminalERCUniform;
 import tl.gp.GPIndividualUtils;
-import tl.gp.TLGPIndividual;
 import tl.gphhucarp.UCARPUtils;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * This class implements the Probabilistic Prototype Tree data structure introduced in the paper:
@@ -203,7 +200,13 @@ public class PPTree implements Serializable
 		nodes.get(address).setR(value);
 	}
 
-	public TLGPIndividual sampleIndividual(MersenneTwisterFast twister)
+	/**
+	 * Creates a new sample GP individual based on the probability tree that this object represents.
+	 * @param twister a random number generator to initialise ERC nodes. This parameter cannot be {@code null}.
+	 * @return the root node of a GP tree created based on this probability tree. The return value can be {@code null} if the
+	 * tree is not initialised or is empty.
+	 */
+	public GPNode sampleIndividual(MersenneTwisterFast twister)
 	{
 		if(twister == null)
 			throw new NullPointerException("Random generator cannot be null");
@@ -222,7 +225,7 @@ public class PPTree implements Serializable
 			addChildren(root, "-1", twister);
 		}
 
-		return GPIndividualUtils.asGPIndividual(root);
+		return root;
 	}
 
 	private void addChildren(GPNode parent, String parentAddress, MersenneTwisterFast twister)
@@ -240,7 +243,21 @@ public class PPTree implements Serializable
 				return;
 
 			parent.children[i] = UCARPUtils.createPrimitive(nodeName, twister.nextDouble());
-			addChildren(parent.children[i], parentAddress, twister);
+			parent.children[i].parent = parent;
+			parent.children[i].argposition = (byte) i;
+			addChildren(parent.children[i], childAdress, twister);
 		}
+	}
+
+	@Override
+	public String toString()
+	{
+		StringBuilder retval = new StringBuilder();
+		List<String> sortedAdd = new ArrayList<>(nodes.keySet());
+		Collections.sort(sortedAdd);
+		for(String address : sortedAdd)
+			retval.append("(").append(address).append(", ").append(nodes.get(address).toString()).append(")\n").append("\n");
+
+		return retval.toString();
 	}
 }
