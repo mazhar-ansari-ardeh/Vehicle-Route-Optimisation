@@ -1,8 +1,12 @@
 package tl.knowledge.ppt.pipe;
 
+import ec.util.MersenneTwisterFast;
+import ec.util.RandomChoice;
+
+import java.io.Serializable;
 import java.util.HashMap;
 
-class ProbabilityVector
+class ProbabilityVector implements Serializable
 {
 	/**
 	 * The structure that maps terminal/function name to its probability.
@@ -61,6 +65,37 @@ class ProbabilityVector
 	public void setInitialized()
 	{
 		this.initialized = true;
+	}
+
+	/**
+	 * Randomly selects a primitive type from the vector of the primitives that this object contains with a roulette wheel
+	 * selection mechanism.
+	 * @param twisterFast the random number generator to use for selecting a primitive item. This parameter cannot be
+	 * {@code null}.
+	 * @return the name of the selected item. The returned value will be {@code null} if this probability vector is empty.
+	 */
+	public String sample(MersenneTwisterFast twisterFast)
+	{
+		if(twisterFast == null)
+			throw new NullPointerException("The random number generator cannot be null.");
+
+		if(probabilities.size() == 0)
+			return null;
+
+		// This is an inefficient way of doing this but I am in a hurry at the moment.
+		double[] probs = new double[probabilities.size()];
+		String[] names = new String[probabilities.size()];
+		int i = 0;
+		for(String name : probabilities.keySet())
+		{
+			names[i] = name;
+			probs[i] = probabilities.get(name);
+			i++;
+		}
+
+		RandomChoice.organizeDistribution(probs);
+		int winner = RandomChoice.pickFromDistribution(probs, twisterFast.nextDouble());
+		return names[winner];
 	}
 
 	/**

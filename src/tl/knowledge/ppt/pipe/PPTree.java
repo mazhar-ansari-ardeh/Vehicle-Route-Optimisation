@@ -2,8 +2,13 @@ package tl.knowledge.ppt.pipe;
 
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
+import ec.util.MersenneTwisterFast;
+import gputils.terminal.TerminalERCUniform;
 import tl.gp.GPIndividualUtils;
+import tl.gp.TLGPIndividual;
+import tl.gphhucarp.UCARPUtils;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,13 +18,13 @@ import java.util.Map;
  * In this tree, each node holds a probability vector that specifies the probability of a terminal/function appearing at that
  * location in a GP tree.
  */
-class PPTree
+public class PPTree implements Serializable
 {
 
 	/**
 	 * The learning algorithm that can learn the probability vector of this PPT.
 	 */
-    private PIPELearner learner;
+    private IPIPELearner learner;
 
 	/**
 	 * The set of GP functions.
@@ -50,7 +55,7 @@ class PPTree
 	 * @param terminals the set of GP terminals. This parameter cannot be {@code null}. However, it is possible to have
 	 *                  a set of length zero.
 	 */
-	public PPTree(PIPELearner learner, String[] functions, String[] terminals)
+	public PPTree(IPIPELearner learner, String[] functions, String[] terminals)
 	{
 		if(learner == null)
 			throw new IllegalArgumentException("Learner cannot be null.");
@@ -90,6 +95,21 @@ class PPTree
 		return nodeProb;
 	}
 
+
+//	public String sampleFrom(String address, MersenneTwisterFast twister)
+//	{
+//		if(address == null)
+//			throw new NullPointerException("Node address cannot be null");
+//		if(twister == null)
+//			throw new NullPointerException("The random number generator cannot be null.");
+//
+//		ProbabilityVector node = this.nodes.get(address);
+//		if(node == null)
+//			return null;
+//
+//		return node.sample(twister);
+//	}
+
 	/**
 	 * Gets the probability of a GP item appearing at a given address. If the tree does not have a node at the given
 	 * address, a new node will be created, initialized and added to the tree for that address.
@@ -115,8 +135,7 @@ class PPTree
 		}
 
 		ProbabilityVector v = nodes.get(address);
-		double nodeProb = v.probabilityOf(gpItem);
-		return nodeProb;
+		return v.probabilityOf(gpItem);
 	}
 
 	/**
@@ -182,5 +201,46 @@ class PPTree
 			throw new IllegalArgumentException("Node address cannot be null or empty");
 
 		nodes.get(address).setR(value);
+	}
+
+	public TLGPIndividual sampleIndividual(MersenneTwisterFast twister)
+	{
+		if(twister == null)
+			throw new NullPointerException("Random generator cannot be null");
+
+		String address = "-1";
+		ProbabilityVector nodeProb = this.nodes.get(address);
+		if(nodeProb == null)
+			return null;
+		String nodeName = nodeProb.sample(twister);
+		if(nodeName == null)
+			return null;
+
+		GPNode root = UCARPUtils.createPrimitive(nodeName, twister.nextDouble());
+		if(root.children.length > 0)
+		{
+			addChildren(root, "-1", twister);
+		}
+
+		return GPIndividualUtils.asGPIndividual(root);
+	}
+
+	private void addChildren(GPNode parent, String parentAddress, MersenneTwisterFast twister)
+	{
+//		if(parent.children.length <= 0)
+//			return;
+		for(int i = 0; i < parent.children.length; i++)
+		{
+			String childAdress = (parentAddress.equals("-1") ? "" : parentAddress) + i;
+			ProbabilityVector nodeProb = this.nodes.get(childAdress);
+			if(nodeProb == null)
+				return;
+			String nodeName = nodeProb.sample(twister);
+			if(nodeName == null)
+				return;
+
+			parent.children[i] = UCARPUtils.createPrimitive(nodeName, twister.nextDouble());
+			addChildren(parent.children[i], parentAddress, twister);
+		}
 	}
 }

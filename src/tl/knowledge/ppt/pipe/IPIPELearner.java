@@ -1,6 +1,8 @@
 package tl.knowledge.ppt.pipe;
 
-public interface IPIPELearner <T>
+import java.io.Serializable;
+
+public interface IPIPELearner <T> extends Serializable
 {
     void adaptTowards(PPTree tree, T learnFrom, int treeIndex);
 

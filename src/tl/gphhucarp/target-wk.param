@@ -61,7 +61,7 @@ seed.0=2
 # ContribSubTree Builder
 # ==============================
 gp.tc.0.init=tl.gp.ContribSubtreeBuilder
-gp.tc.0.init.knowledge-file=/home/mazhar/grid/gdb1-v5-to4/1/gdb1-v5-rootsubtree.bk
+gp.tc.0.init.knowledge-file=/run/media/mazhar/Elements/grid/Archive/val10D-v10-to9/1/val10D-v10-all.bk
 # percentage of initial population that is created from extracted knowledge
 gp.tc.0.init.transfer-percent=0.50
 gp.tc.0.init.knowledge-log-file=./stats/target-wk/ContribTerminalLog

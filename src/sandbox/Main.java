@@ -54,7 +54,7 @@ public class Main {
 		GPNode mul1 = new Mul();
 		addChildrenTo(mul1, false, fuln1, plus1);
 
-		VectorialAlgebraicHashCalculator hs = new VectorialAlgebraicHashCalculator(eState, 0, 3);
+		VectorialAlgebraicHashCalculator hs = new VectorialAlgebraicHashCalculator(eState, 0, 3, 1000);
 		System.out.println(mul1.makeCTree(true, true, true));
 		System.out.println(hs.hashOfTree(mul1));
 
