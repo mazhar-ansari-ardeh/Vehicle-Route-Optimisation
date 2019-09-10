@@ -21,16 +21,6 @@ class ProbabilityVector implements Serializable
 	 */
 	double R;
 
-	/*
-	 * List of all the terminal names (including ERC) that can appear in GP system.
-	 */
-//	private String[] terminals;
-
-	/*
-	 * List of all the function names that can appear in GP system.
-	 */
-//	private String[] functions;
-
 	/**
 	 * If {@code true}, this object is initialized.
 	 */
@@ -41,8 +31,6 @@ class ProbabilityVector implements Serializable
 		if(terminals == null || functions == null)
 			throw new IllegalArgumentException("Terminal set or function set is null");
 
-//		this.terminals = terminals;
-//		this.functions = functions;
 		for(String terminal : terminals)
 			probabilities.put(terminal, 0d);
 		for(String function : functions)
