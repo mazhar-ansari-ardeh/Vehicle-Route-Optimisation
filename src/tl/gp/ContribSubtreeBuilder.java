@@ -6,6 +6,8 @@ import ec.gp.koza.HalfBuilder;
 import ec.util.Parameter;
 import javafx.util.Pair;
 import tl.TLLogger;
+import tl.gp.hash.AlgebraicHashCalculator;
+import tl.gp.hash.VectorialAlgebraicHashCalculator;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -80,18 +82,18 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
             log(state, knowledgeSuccessLogID, "Loaded knowledge base. MinFit: " + minFit + ", maxFit: " + maxFit + ". "
                                                 + "Database size: " + subtrees.size() + "\n");
 
-            calculateWeights(subtrees, minFit, maxFit);
+            calculateWeights(state, subtrees, minFit, maxFit);
 
         } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 
-//	private ArrayList<TLGPIndividual> kItems = new ArrayList<>();
-//	private double[] kWeights = null;
-
-    private void calculateWeights(HashMap<GPIndividual, ArrayList<Pair<GPNode, Double>>> subtree,
+    private void calculateWeights(EvolutionState state, HashMap<GPIndividual, ArrayList<Pair<GPNode, Double>>> subtrees,
                                   double minFit, double maxFit) {
+
+        VectorialAlgebraicHashCalculator hc = new VectorialAlgebraicHashCalculator(state, 0, 1000, 10000);
+        HashMap<Integer, TLGPIndividual> seenSubtrees = new HashMap<>();
         /*
          * This structure contains the knowledge transferred from source domain. The key is the
          * transferred subtree and the value is the weight of the subtree based on its contribution in
@@ -99,14 +101,30 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
          */
         HashMap<TLGPIndividual, Double> knowledgeBase = new HashMap<>();
 
-        double gmax = 1.0 / (1 + minFit);
-        double gmin = 1.0 / (1 + maxFit);
+        double gmax = 1.0 / (1 + minFit); double gmin = 1.0 / (1 + maxFit);
 
-        for (GPIndividual ind : subtree.keySet()) {
-            ArrayList<Pair<GPNode, Double>> subs = subtree.get(ind);
+        for (GPIndividual ind : subtrees.keySet())
+        {
+            ArrayList<Pair<GPNode, Double>> subs = subtrees.get(ind);
             for (Pair<GPNode, Double> pair : subs)
             {
-                TLGPIndividual i = GPIndividualUtils.asGPIndividual(pair.getKey());
+                GPNode subtree = pair.getKey();
+                int hash = hc.hashOfTree(subtree);
+                TLGPIndividual i;
+                if(seenSubtrees.containsKey(hash))
+                {
+//                    log(state, knowledgeSuccessLogID, "The subtree: " + subtree.makeCTree(true, true, true) + "\n");
+                    log(state, knowledgeSuccessLogID, "The subtree: " + subtree.makeGraphvizTree() + "\n");
+                    TLGPIndividual seenTree = seenSubtrees.get(hash);
+//                    log(state, knowledgeSuccessLogID, "Is seen before: " + seenTree.getKey().makeCTree(true, true, true) + "\n");
+                    log(state, knowledgeSuccessLogID, "Is seen before: " + seenTree.trees[0].child.makeGraphvizTree() + "\n");
+                    i = seenTree;
+                }
+                else
+                {
+                    i = GPIndividualUtils.asGPIndividual(subtree);
+                    seenSubtrees.put(hash, i);
+                }
                 double contrib = pair.getValue();
                 double nfit = 1f / (ind.fitness.fitness() + 1);
                 nfit = Math.max(0, (nfit - gmin) / (gmax - gmin));
@@ -120,8 +138,7 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
                         double weight = knowledgeBase.get(i);
                         weight += nfit * (-contrib);
                         knowledgeBase.put(i, weight);
-                    }
-                    else
+                    } else
                     {
                         knowledgeBase.put(i, nfit);
                     }

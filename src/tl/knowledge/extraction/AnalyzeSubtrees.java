@@ -7,6 +7,7 @@ import ec.util.Parameter;
 import ec.util.ParameterDatabase;
 import javafx.util.Pair;
 import tl.TLLogger;
+import tl.ecj.ECJUtils;
 import tl.gp.PopulationUtils;
 import tl.gp.TLGPIndividual;
 import tl.gp.TreeSlicer;
@@ -135,30 +136,10 @@ public class AnalyzeSubtrees
 
 	private static void loadECJ(String paramFileNamePath, String... ecjParams)
 	{
-		ArrayList<String> params = new ArrayList<>();
-		params.add("-file");
-		params.add(paramFileNamePath);
-		for(String param : ecjParams)
-		{
-			params.add("-p");
-			params.add(param);
-		}
-		String[] processedParams = new String[params.size()];
-		params.toArray(processedParams);
-        ParameterDatabase parameters = Evolve.loadParameterDatabase(processedParams);
-
-        state = Evolve.initialize(parameters, 0);
-
-        Parameter p;
-
-        // setup the evaluator, essentially the test evaluation model
-        p = new Parameter(EvolutionState.P_EVALUATOR);
-        state.evaluator = (Evaluator)
-                (parameters.getInstanceForParameter(p, null, Evaluator.class));
-        state.evaluator.setup(state, p);
+        state = ECJUtils.loadECJ(paramFileNamePath, ecjParams);
 
         Parameter base = new Parameter(P_BASE);
-        p = base.push(P_PERCENT);
+		Parameter p = base.push(P_PERCENT);
         percent = state.parameters.getDouble(p, null);
         if(percent < 0 || percent > 1)
         	state.output.fatal("K percent is not a valid value for AnalyzeSubtrees: " + percent);
