@@ -39,9 +39,9 @@ echo "Dataset target: $DATASET_CATEGORY_TARGET/$DATASET_TARGET"
 
 # STAT_ROOT="stats"
 
-GENERATIONS=200
+GENERATIONS=50
 
-EXPERIMENT_DESCRIPTION='Set the generation to 200 to see the behaviour of the vanilla GPHH on longer generations. No transfer learning applied.  
+EXPERIMENT_DESCRIPTION='Set the generation to 200 to see the behaviour of the vanilla GPHH on longer generations. No transfer learning applied.
 
 '
 
@@ -61,13 +61,13 @@ DATASET_FILE_SOURCE="$DATASET_CATEGORY_SOURCE/$DATASET_SOURCE.dat"
 # Path to dataset file of target domain
 DATASET_FILE_TARGET="$DATASET_CATEGORY_TARGET/$DATASET_TARGET.dat"
 
-GPHH_REPOSITORY_SOURCE="$DATASET_SOURCE.vs$NUM_VEHICLES_SOURCE:gen_200"
-GPHH_REPOSITORY_TARGET="$DATASET_TARGET.vs$NUM_VEHICLES_TARGET:gen_200"
+GPHH_REPOSITORY_SOURCE="$DATASET_SOURCE.vs$NUM_VEHICLES_SOURCE:gen_$GENERATIONS"
+GPHH_REPOSITORY_TARGET="$DATASET_TARGET.vs$NUM_VEHICLES_TARGET:gen_$GENERATIONS"
 
-# The directory that contains the population of GP for solving the source domain. 
+# The directory that contains the population of GP for solving the source domain.
 KNOWLEDGE_SOURCE_DIR="./KnowledgeSource/$SGE_TASK_ID"
 
-# Extracted knowledge. This is the name of the file that will contain the results of programms such as 'AnalyzeTerminals' that output their results in an external file. 
+# Extracted knowledge. This is the name of the file that will contain the results of programms such as 'AnalyzeTerminals' that output their results in an external file.
 KNOWLEDGE_FILE_BASE="$DATASET_SOURCE-v$NUM_VEHICLES_SOURCE"
 
 
@@ -95,7 +95,7 @@ echo "JOB_ID: $JOB_ID"
 
 
 
-# This is actually the part that runs the source domain. 
+# This is actually the part that runs the source domain.
 function run_source_domain()
 {
 printf "\nBegining to run source domain (write knowledge)"
@@ -126,7 +126,7 @@ function copy_knowledge()
 {
     printf "Copying knowledge \n"
     mkdir -p $KNOWLEDGE_SOURCE_DIR
-    cp -r -v /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_DIR/TestedPopulation ./$KNOWLEDGE_SOURCE_DIR
+    cp -r -v /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_DIR/TestedPopulation/*.bin ./$KNOWLEDGE_SOURCE_DIR/
     ls $KNOWLEDGE_SOURCE_DIR
     printf "Finished copying knowledge\n\n"
 }
@@ -134,17 +134,18 @@ function copy_knowledge()
 
 # This is different from the test evaluation. This method can evaluate the whole population of the whole generations on test settings
 # This function reads the generations to evaluate from its arguments.
-# Example usage: 
+# Example usage:
 #   evaluate_on_test 1 2 50 49
 # This call will evaluate the populations of generations 1, 2, 49 50
-# This function copies the files it requires itself, evaluates them and copies the results back again. 
+# This function copies the files it requires itself, evaluates them and copies the results back again.
 function evaluate_on_test()
 {
     GENS=$@
     echo "Evaluating source population on test settings using EvaluateOnTest for generations"
+    mkdir -p $KNOWLEDGE_SOURCE_DIR
     for i in $GENS
     do
-        cp -r -v /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_DIR/population.gen.$i.bin ./$KNOWLEDGE_SOURCE_DIR
+        cp -r -v /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_DIR/population.gen.$i.bin $KNOWLEDGE_SOURCE_DIR/
         java -cp .:tl.jar tl.gp.EvaluateOnTest carp_param_base.param  $KNOWLEDGE_SOURCE_DIR/population.gen.$i.bin $KNOWLEDGE_SOURCE_DIR/TestedPopulation \
                                             eval.problem.eval-model.instances.0.file=$DATASET_FILE_SOURCE \
                                             stat.file="\$$KNOWLEDGE_SOURCE_DIR/EvaluateOnTest.job.0.out.stat" \
@@ -155,14 +156,14 @@ function evaluate_on_test()
                                             seed.0=$TEST_SEED
         printf "Finished evaluation of generation $i on test dataset\n"
     done
-    
-    cp -r -v $KNOWLEDGE_SOURCE_DIR/TestedPopulation /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_DIR/.
+
+    cp -r -v $KNOWLEDGE_SOURCE_DIR/TestedPopulation /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_DIR/
     printf "Finished evaluating source population on test settings using EvaluateOnTest\n\n\n"
     printf "$(date)\t $SGE_TASK_ID \n" >> /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/FinishedTestEvaluations.txt
 }
 
 
-# This is done on the target domain. This experiment does not use transfer learning. 
+# This is done on the target domain. This experiment does not use transfer learning.
 function do_non_knowledge_experiment()
 {
     echo "Running experiment on target problem without knowledge"
@@ -188,16 +189,16 @@ function do_non_knowledge_experiment()
     printf "Finished running tests on target without knowledge\n\n\n"
 }
 
-# This is done on the target domain. This experiment uses transfer learning. 
+# This is done on the target domain. This experiment uses transfer learning.
 # This function requires one argument: the name of the experiment.
 function do_knowledge_experiment()
 {
-    # The L prefix indicates that the varaible is local 
+    # The L prefix indicates that the varaible is local
     L_EXPERIMENT_NAME=$1
     echo "Experiment arguments:" "${@}"
     printf "Running experiment on target problem with knowledge, experiment: $L_EXPERIMENT_NAME\n\n"
     L_EXPERIMENT_DIR="$1/$SGE_TASK_ID"
-    java -cp .:tl.jar ec.Evolve        -file carp_param_base.param \
+    java -cp .:tl.jar ec.Evolve     -file carp_param_base.param \
                                     -p stat.file="\$$L_EXPERIMENT_DIR/job.0.out.stat" \
                                     -p stat.gen-pop-file="$L_EXPERIMENT_DIR/population.gen" \
                                     -p gp.tc.0.init.knowledge-log-file="$L_EXPERIMENT_DIR/knowinit" \
@@ -219,8 +220,24 @@ function do_knowledge_experiment()
                                         -p generations=$GENERATIONS \
                                         -p seed.0=$TEST_SEED
     printf "Finished running tests on target with knowledge, experiment: $L_EXPERIMENT_NAME \n\n\n"
+
+    L_SAVE_TO=$DATASET_SOURCE.vs:$NUM_VEHICLES_SOURCE.$DATASET_TARGET.vt:$NUM_VEHICLES_TARGET.gen_$GENERATIONS/$L_EXPERIMENT_NAME
+    mkdir -p /vol/grid-solar/sgeusers/mazhar/$L_SAVE_TO
+    cp -r -v $L_EXPERIMENT_DIR/ /vol/grid-solar/sgeusers/mazhar/$L_SAVE_TO/
+    printf "$(date)\t $SGE_TASK_ID \n" >> /vol/grid-solar/sgeusers/mazhar/$L_SAVE_TO/Finished$L_EXPERIMENT_NAME.txt
 }
 
+
+# This function performs the transfer learning experiment 'FullTree'.
+# This function takes one input parameter: the transfer percent.
+function FullTreeExp()
+{
+do_knowledge_experiment FullTree_$1 \
+                        -p gp.tc.0.init=tl.gp.SimpleCodeFragmentBuilder \
+                        -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin \
+                        -p gp.tc.0.init.transfer-percent=$1 \
+                        -p gp.tc.0.init.knowledge-extraction=root
+}
 
 
 # Does not require any arguments
@@ -253,11 +270,13 @@ function simplify_trees()
 
 
 # run_source_domain
-  
-  
-# copy_knowledge
 
-evaluate_on_test 49
+
+copy_knowledge
+
+FullTreeExp 50
+
+# evaluate_on_test 49
 
 # simplify_trees
 

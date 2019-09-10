@@ -57,15 +57,15 @@ fi
 if test -z $4 
 then 
     echo 'Arg 4 is empty. Script terminated.'
-    exit
+#     exit
 else
     DATASET_CATEGORY_TARGET=$4; export DATASET_CATEGORY_TARGET
 fi
 
-if test -z $5 
-then 
+if test -z $5
+then
     echo 'Arg 5 is empty. Script terminated.'
-    exit
+#     exit
 else
     DATASET_TARGET=$5; export DATASET_TARGET
 fi
@@ -73,15 +73,15 @@ fi
 if test -z $6
 then
     echo 'Arg 6 is empty. Sctript terminated.'
-    exit
+#     exit
 else
     NUM_VEHICLES_TARGET=$6; export NUM_VEHICLES_TARGET
 fi
 
 if test -z $7
-then 
+then
     echo "Base grid script not provided. Using the default script 'egl_base.sh'"
-    GRIDSCRIPT_BASE="new_base.sh"
+    GRIDSCRIPT_BASE="grid_base.sh"
 else
     GRIDSCRIPT_BASE=$7
     echo "Running $GRIDSCRIPT_BASE"
@@ -91,8 +91,8 @@ exec 2>&1
 
 # The directory that will contain all the results from grid.
 # RESULT_DIR="$DATASET_SOURCE.vs$NUM_VEHICLES_SOURCE.$DATASET_TARGET.vt$NUM_VEHICLES_TARGET"
-RESULT_DIR="$DATASET_SOURCE.vs$NUM_VEHICLES_SOURCE:gen_200"
-export RESULT_DIR
+# RESULT_DIR="$DATASET_SOURCE.vs$NUM_VEHICLES_SOURCE:gen_200"
+# export RESULT_DIR
 
 
 cp -r /vol/grid-solar/sgeusers/mazhar/data/ .
