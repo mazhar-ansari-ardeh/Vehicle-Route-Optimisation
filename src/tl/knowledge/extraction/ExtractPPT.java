@@ -1,20 +1,14 @@
 package tl.knowledge.extraction;
 
 import ec.EvolutionState;
-import ec.Individual;
 import ec.Population;
-import ec.Subpopulation;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import ec.util.Parameter;
 import tl.TLLogger;
 import tl.ecj.ECJUtils;
 import tl.gp.PopulationUtils;
-import tl.gp.TLGPIndividual;
-import tl.gp.hash.AlgebraicHashCalculator;
-import tl.gp.hash.HashCalculator;
 import tl.gphhucarp.UCARPUtils;
-import tl.knowledge.KnowledgeExtractionMethod;
 import tl.knowledge.ppt.pipe.FrequencyLearner;
 import tl.knowledge.ppt.pipe.PPTree;
 
@@ -37,7 +31,7 @@ class Extractor
 
     public final String P_BASE = "extract-ppt";
 
-    public final String P_PERCENT = "percent";
+//    public final String P_PERCENT = "percent";
 
     /**
      * Total number of generations on the source domain. This parameter is counted from 1.
@@ -76,12 +70,12 @@ class Extractor
 //    public final String P_MAX_ST_DEPTH = "max-st-depth";
 //    private int maxDepth;
 
-    /**
-     * This program implements a simple niching algorithm and this parameter indicates its radius.
-     */
-    public final String P_FITNESS_NICHE_RADIUS = "fitness-niche-radius";
+//    /**
+//     * This program implements a simple niching algorithm and this parameter indicates its radius.
+//     */
+//    public final String P_FITNESS_NICHE_RADIUS = "fitness-niche-radius";
 
-    private double fitnessNicheRadius;
+//    private double fitnessNicheRadius;
 
 
     /**
@@ -120,7 +114,7 @@ class Extractor
         state = ECJUtils.loadECJ(paramFileNamePath, ecjParams);
 
         Parameter base = new Parameter(P_BASE);
-        Parameter p = base.push(P_PERCENT);
+//        Parameter p = base.push(P_PERCENT);
 //        percent = state.parameters.getDouble(p, null);
 //        if(percent < 0 || percent > 1)
 //            state.output.fatal("K percent is not a valid value for AnalyzeSubtrees: " + percent);
@@ -130,8 +124,8 @@ class Extractor
         state.output.warning("From generation: " + fromGeneration);
         toGeneration = state.parameters.getIntWithDefault(base.push(P_GENERATION_TO), null, -1);
         state.output.warning("To generation: " + toGeneration);
-        fitnessNicheRadius = state.parameters.getDouble(base.push(P_FITNESS_NICHE_RADIUS), null);
-        state.output.warning("Niche radius: " + fitnessNicheRadius);
+//        fitnessNicheRadius = state.parameters.getDouble(base.push(P_FITNESS_NICHE_RADIUS), null);
+//        state.output.warning("Niche radius: " + fitnessNicheRadius);
 
 //        p = base.push(P_PPT_LEARN);
 //        String extraction = state.parameters.getString(p, null);
@@ -147,7 +141,7 @@ class Extractor
 //        maxDepth = state.parameters.getInt(p, null);
 //        state.output.warning("Max depth: " + maxDepth);
 
-        p = new Parameter("eval.problem.eval-model.instances.0.samples");
+        Parameter p = new Parameter("eval.problem.eval-model.instances.0.samples");
         int samples = state.parameters.getInt(p, null);
         if(samples < 100)
             state.output.fatal("Sample size is too small: " + samples);
@@ -226,37 +220,37 @@ class Extractor
         return popList;
     }
 
-    /**
-     * Checks if the given individual is correct or acceptable or not.
-     * @param ind an individual to consider
-     * @return {@code true} if the given individual is OK.
-     */
-    private boolean checkIndividual(Individual ind)
-    {
-        if(!(ind instanceof TLGPIndividual))
-        {
-            System.err.println("WARNING: Found and object in the saved population "
-                    + " file that is not of type GPIndividual:" + ind.getClass()+ " The individual is ignored.");
-            logger.log(state, logID,
-                    "WARNING: Found and object in the saved population file"
-                            + " that is not of type GPIndividual:"
-                            + ind.getClass() + " The individual is ignored."
-                            + "\n");
-            return false;
-        }
+//    /**
+//     * Checks if the given individual is correct or acceptable or not.
+//     * @param ind an individual to consider
+//     * @return {@code true} if the given individual is OK.
+//     */
+//    private boolean checkIndividual(Individual ind)
+//    {
+//        if(!(ind instanceof TLGPIndividual))
+//        {
+//            System.err.println("WARNING: Found and object in the saved population "
+//                    + " file that is not of type GPIndividual:" + ind.getClass()+ " The individual is ignored.");
+//            logger.log(state, logID,
+//                    "WARNING: Found and object in the saved population file"
+//                            + " that is not of type GPIndividual:"
+//                            + ind.getClass() + " The individual is ignored."
+//                            + "\n");
+//            return false;
+//        }
+//
+//        if( !((TLGPIndividual)ind).isTested())
+//        {
+//            System.err.println("WARNING: The given individual is not evaluated on the test domain.");
+//            logger.log(state, logID, "WARNING: The given individual is not evaluated on the test domain. " +
+//                    "The individual is ignored." + "\n");
+//            return false;
+//        }
+//
+//        return true;
+//    }
 
-        if( !((TLGPIndividual)ind).isTested())
-        {
-            System.err.println("WARNING: The given individual is not evaluated on the test domain.");
-            logger.log(state, logID, "WARNING: The given individual is not evaluated on the test domain. " +
-                    "The individual is ignored." + "\n");
-            return false;
-        }
-
-        return true;
-    }
-
-    private void processPopulation(Population pop, HashCalculator hs)
+    private void processPopulation(Population pop)
     {
         learnFrom(pop);
     }
@@ -302,7 +296,7 @@ class Extractor
 
         loadECJ(args[0], Arrays.copyOfRange(args, 3, args.length));
 
-        HashCalculator hs = new AlgebraicHashCalculator(state, 0, 100003621);
+//        HashCalculator hs = new AlgebraicHashCalculator(state, 0, 100003621);
 
         String outputFileNamePath = args[2];
         try
@@ -314,11 +308,10 @@ class Extractor
             for(int gen = fromGeneration; gen <= toGeneration; gen++)
             {
                 Population pop = popList.get(gen);
-                processPopulation(pop, hs);
+                processPopulation(pop);
             }
 
-
-
+            saveResults(outputFileNamePath);
             logger.log(state, logID, "Finished analyzing. Total number of individuals processed: " + numAnalyzed + ".\n");
         }
         catch (FileNotFoundException e)
