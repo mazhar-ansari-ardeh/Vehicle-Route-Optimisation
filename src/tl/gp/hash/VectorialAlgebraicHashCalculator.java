@@ -19,6 +19,12 @@ public class VectorialAlgebraicHashCalculator implements HashCalculator
 
     private final int threadNum;
 
+    /**
+     * The upper bound for the random numbers that are generated and assigned to the terminals. A negative or a zero value
+     * indicates the random numbers are unbounded.
+     */
+    private final int randBound;
+
     private double[] SCHash;
     private double[] CFDHash;
     private double[] CFHHash;
@@ -38,13 +44,16 @@ public class VectorialAlgebraicHashCalculator implements HashCalculator
 
     private ArrayList<Integer> seenNumbers = new ArrayList<>();
 
-    public VectorialAlgebraicHashCalculator(EvolutionState eState, int threadNumber, int hashOrder)
+    public VectorialAlgebraicHashCalculator(EvolutionState eState, int threadNumber, int hashOrder, int randBound)
     {
         if (eState == null || eState.random == null)
             throw new IllegalArgumentException("State or its random generator is null");
-        state = eState;
-        threadNum = threadNumber;
+        if(randBound <= 0)
+            throw new IllegalArgumentException("Bound of the random number must be a positive number");
+        this.state = eState;
+        this.threadNum = threadNumber;
         this.hashOrder = hashOrder;
+        this.randBound = randBound;
 
         SCHash = nextRand();
         CFDHash = nextRand();
@@ -68,7 +77,7 @@ public class VectorialAlgebraicHashCalculator implements HashCalculator
 
         for (int i = 0; i < hashOrder; i++)
         {
-            int rnd = state.random[threadNum].nextInt(); // TODO: It is a good idea to bound the random variable.
+            int rnd = (int) (state.random[threadNum].nextDouble() * randBound);
 
             while (seenNumbers.contains(rnd))
                 rnd = state.random[threadNum].nextInt();
@@ -126,6 +135,9 @@ public class VectorialAlgebraicHashCalculator implements HashCalculator
     @Override
     public int hashOfTree(GPNode tree)
     {
+        double[] hashes = hashsOfTree(tree);
+        System.out.println(Arrays.toString(hashes));
+
         return Arrays.hashCode(hashsOfTree(tree));
     }
 
