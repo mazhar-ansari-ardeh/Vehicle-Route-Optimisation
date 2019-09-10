@@ -25,3 +25,6 @@ Moved 'AlgebraicSimplifier' to its correct package.
 
 01/09/2019
 Corrected the 'EvaluateOnTest' program so that now it saves the evaluated files to a separate location.
+
+10/09/2019
+Added the PIPE learning algorithm. At this stage, only the learning based on frequency is implemented.
