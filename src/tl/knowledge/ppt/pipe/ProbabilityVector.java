@@ -137,4 +137,17 @@ class ProbabilityVector implements Serializable
 	{
 		return this.R;
 	}
+
+	@Override
+	public String toString()
+	{
+		StringBuilder bl = new StringBuilder();
+		bl.append("[");
+		for(String s : this.probabilities.keySet())
+			bl.append("(").append(s).append(", ").append(probabilities.get(s)).append(")").append(", ");
+
+		bl.append(R).append("]");
+
+		return bl.toString();
+	}
 }
