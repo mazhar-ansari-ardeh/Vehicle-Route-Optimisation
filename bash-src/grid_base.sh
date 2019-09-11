@@ -191,6 +191,7 @@ function do_non_knowledge_experiment()
 
 # This is done on the target domain. This experiment uses transfer learning.
 # This function requires one argument: the name of the experiment.
+# The function defines a global variable: SAVE_TO which is the name of the directory that it saved the results to.
 function do_knowledge_experiment()
 {
     # The L prefix indicates that the varaible is local
@@ -221,10 +222,10 @@ function do_knowledge_experiment()
                                         -p seed.0=$TEST_SEED
     printf "Finished running tests on target with knowledge, experiment: $L_EXPERIMENT_NAME \n\n\n"
 
-    L_SAVE_TO=$DATASET_SOURCE.vs:$NUM_VEHICLES_SOURCE.$DATASET_TARGET.vt:$NUM_VEHICLES_TARGET.gen_$GENERATIONS/$L_EXPERIMENT_NAME
-    mkdir -p /vol/grid-solar/sgeusers/mazhar/$L_SAVE_TO
-    cp -r -v $L_EXPERIMENT_DIR/ /vol/grid-solar/sgeusers/mazhar/$L_SAVE_TO/
-    printf "$(date)\t $SGE_TASK_ID \n" >> /vol/grid-solar/sgeusers/mazhar/$L_SAVE_TO/Finished$L_EXPERIMENT_NAME.txt
+    SAVE_TO=/vol/grid-solar/sgeusers/mazhar/$DATASET_SOURCE.vs:$NUM_VEHICLES_SOURCE.$DATASET_TARGET.vt:$NUM_VEHICLES_TARGET.gen_$GENERATIONS/$L_EXPERIMENT_NAME
+    mkdir -p $SAVE_TO
+    cp -r -v $L_EXPERIMENT_DIR/ $SAVE_TO/
+    printf "$(date)\t $SGE_TASK_ID \n" >> $SAVE_TO/Finished$L_EXPERIMENT_NAME.txt
 }
 
 
@@ -237,6 +238,38 @@ do_knowledge_experiment FullTree_$1 \
                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin \
                         -p gp.tc.0.init.transfer-percent=$1 \
                         -p gp.tc.0.init.knowledge-extraction=root
+}
+
+# This function performs the transfer learning experiment 'PPTLearning'.
+# The function, at the moment, takes one parameter: percent of initial population on target domain to create with this TL method.
+function PPTExp()
+{
+
+printf "Begining to extract the PPT tree.\n"
+
+java -cp .:tl.jar tl.knowledge.extraction.ExtractPPT carp_param_base.param $KNOWLEDGE_SOURCE_DIR/ $KNOWLEDGE_SOURCE_DIR/pipe_tree.ppt \
+                        eval.problem.eval-model.instances.0.file=$DATASET_FILE_SOURCE \
+                        eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_SOURCE  \
+                        eval.problem.eval-model.instances.0.samples=500 \
+                        extract-ppt.percent=0.5 \
+                        extract-ppt.num-generations=$GENERATIONS \
+                        extract-ppt.from-generation=49 \
+                        extract-ppt.to-generation=49 \
+                        extract-ppt.fitness-niche-radius=-1 \
+                        extract-ppt.knowledge-log-file=$KNOWLEDGE_SOURCE_DIR/PPTExtractionLog \
+                        extract-ppt.lr=0.8 \
+                        extract-ppt.sample-size=100 \
+                        extract-ppt.tournament-size=20 \
+                        seed.0=$TEST_SEED \
+                        generation=$GENERATIONS
+
+
+do_knowledge_experiment PPTLearning:percent_$1 \
+                        -p gp.tc.0.init=tl.gp.PPTBuilder \
+                        -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/pipe_tree.ppt \
+                        -p gp.tc.0.init.transfer-percent=$1
+
+cp -p -v $KNOWLEDGE_SOURCE_DIR/pipe_tree.ppt $SAVE_TO/$SGE_TASK_ID
 }
 
 
@@ -275,6 +308,8 @@ function simplify_trees()
 copy_knowledge
 
 FullTreeExp 50
+
+PPTExp 50
 
 # evaluate_on_test 49
 
