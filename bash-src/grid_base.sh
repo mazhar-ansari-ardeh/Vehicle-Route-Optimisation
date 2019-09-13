@@ -186,6 +186,12 @@ function do_non_knowledge_experiment()
                                         -p eval.problem.eval-model.instances.0.samples=500 \
                                         -p generations=$GENERATIONS \
                                         -p seed.0=$TEST_SEED
+
+    SAVE_TO=/vol/grid-solar/sgeusers/mazhar/$DATASET_SOURCE.vs$NUM_VEHICLES_SOURCE.$DATASET_TARGET.vt$NUM_VEHICLES_TARGET:gen_$GENERATIONS/'WithoutKnowledge'
+    mkdir -p $SAVE_TO
+    cp -r -v $WITHOUT_KNOW_STAT_DIR/ $SAVE_TO/
+    printf "$(date)\t $SGE_TASK_ID \n" >> $SAVE_TO/Finished$'WithoutKnowledge'.txt
+
     printf "Finished running tests on target without knowledge\n\n\n"
 }
 
@@ -222,7 +228,7 @@ function do_knowledge_experiment()
                                         -p seed.0=$TEST_SEED
     printf "Finished running tests on target with knowledge, experiment: $L_EXPERIMENT_NAME \n\n\n"
 
-    SAVE_TO=/vol/grid-solar/sgeusers/mazhar/$DATASET_SOURCE.vs:$NUM_VEHICLES_SOURCE.$DATASET_TARGET.vt:$NUM_VEHICLES_TARGET.gen_$GENERATIONS/$L_EXPERIMENT_NAME
+    SAVE_TO=/vol/grid-solar/sgeusers/mazhar/$DATASET_SOURCE.vs$NUM_VEHICLES_SOURCE.$DATASET_TARGET.vt$NUM_VEHICLES_TARGET:gen_$GENERATIONS/$L_EXPERIMENT_NAME
     mkdir -p $SAVE_TO
     cp -r -v $L_EXPERIMENT_DIR/ $SAVE_TO/
     printf "$(date)\t $SGE_TASK_ID \n" >> $SAVE_TO/Finished$L_EXPERIMENT_NAME.txt
@@ -238,6 +244,37 @@ do_knowledge_experiment FullTree_$1 \
                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin \
                         -p gp.tc.0.init.transfer-percent=$1 \
                         -p gp.tc.0.init.knowledge-extraction=root
+}
+
+# This function performs the transfer learning experiment 'SubTree'.
+# This function takes one input parameter: the transfer percent.
+function SubTree()
+{
+ls
+do_knowledge_experiment Subtree_$1 \
+                        -p gp.tc.0.init=tl.gp.SimpleCodeFragmentBuilder \
+                        -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin \
+                        -p gp.tc.0.init.transfer-percent=$1 \
+                        -p gp.tc.0.init.knowledge-extraction=rootsubtree
+}
+
+# This function performs the transfer learning experiment 'BestGen'.
+# This function takes one input parameter: the number of individuals to take from the population of each generation.
+function BestGen()
+{
+do_knowledge_experiment BestGen:k_$1 \
+                        -p gp.tc.0.init=tl.gp.BestGenKnowledgeBuilder \
+                        -p gp.tc.0.init.k=$1 \
+                        -p gp.tc.0.init.knowledge-folder=$KNOWLEDGE_SOURCE_DIR/
+}
+
+# This function performs the transfer learning experiment 'GTLKnow'.
+# This function does not takes any input parameter.
+function GTLKnow()
+{
+do_knowledge_experiment GTLKnowlege  \
+                        -p gp.tc.0.init=tl.gp.GTLKnowlegeBuilder \
+                        -p gp.tc.0.init.knowledge-folder=$KNOWLEDGE_SOURCE_DIR/
 }
 
 # This function performs the transfer learning experiment 'PPTLearning'.
@@ -304,12 +341,23 @@ function simplify_trees()
 
 # run_source_domain
 
+# do_non_knowledge_experiment
 
 copy_knowledge
 
 FullTreeExp 50
 
-PPTExp 50
+SubTree 50
+
+GTLKnow
+
+BestGen 1
+
+BestGen 2
+
+
+#
+# PPTExp 50
 
 # evaluate_on_test 49
 
