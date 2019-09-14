@@ -304,7 +304,6 @@ public class AnalyzeSubtrees
 						logger.log(state, logID, "Finished work on individual: " + i + "\n");
 					}
 				}
-
 			}
 
 			File out = new File(outputFileNamePath);

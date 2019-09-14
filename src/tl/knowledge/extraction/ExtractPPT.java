@@ -1,6 +1,7 @@
 package tl.knowledge.extraction;
 
 import ec.EvolutionState;
+import ec.Individual;
 import ec.Population;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
@@ -16,6 +17,7 @@ import java.io.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 
 class Extractor
 {
@@ -54,10 +56,6 @@ class Extractor
     public final String P_GENERATION_TO = "to-generation";
     private int toGeneration = -1;
 
-//    KnowledgeExtractionMethod extractionMethod;
-
-//    public final String P_PPT_LEARN = "ppt-learn";
-
 //    /**
 //     * Minimum allowed size of code fragments to use, inclusive.
 //     */
@@ -70,12 +68,11 @@ class Extractor
 //    public final String P_MAX_ST_DEPTH = "max-st-depth";
 //    private int maxDepth;
 
-//    /**
-//     * This program implements a simple niching algorithm and this parameter indicates its radius.
-//     */
-//    public final String P_FITNESS_NICHE_RADIUS = "fitness-niche-radius";
-
-//    private double fitnessNicheRadius;
+    /**
+     * This program implements a simple niching algorithm and this parameter indicates its radius.
+     */
+    public final String P_FITNESS_NICHE_RADIUS = "fitness-niche-radius";
+    private double fitnessNicheRadius;
 
 
     /**
@@ -105,6 +102,11 @@ class Extractor
     private int tournamentSize;
     public final static String P_TOURNAMENT_SIZE = "tournament-size";
 
+    /**
+     * The learner that will be used to learn the PPT from the population.
+     */
+    private FrequencyLearner learner;
+
     private PPTree tree;
 
 //    private HashMap<GPIndividual, ArrayList<Pair<GPNode, Double>>> book = new HashMap<>();
@@ -124,8 +126,8 @@ class Extractor
         state.output.warning("From generation: " + fromGeneration);
         toGeneration = state.parameters.getIntWithDefault(base.push(P_GENERATION_TO), null, -1);
         state.output.warning("To generation: " + toGeneration);
-//        fitnessNicheRadius = state.parameters.getDouble(base.push(P_FITNESS_NICHE_RADIUS), null);
-//        state.output.warning("Niche radius: " + fitnessNicheRadius);
+        fitnessNicheRadius = state.parameters.getDouble(base.push(P_FITNESS_NICHE_RADIUS), null);
+        state.output.warning("Niche radius: " + fitnessNicheRadius);
 
 //        p = base.push(P_PPT_LEARN);
 //        String extraction = state.parameters.getString(p, null);
@@ -146,7 +148,7 @@ class Extractor
         if(samples < 100)
             state.output.fatal("Sample size is too small: " + samples);
         else
-            state.output.warning("Sample size in AnalyzeSubtrees: " + samples);
+            state.output.warning("Sample size in ExtractPPT: " + samples);
 
         logger = new TLLogger<GPNode>()
         {
@@ -178,7 +180,7 @@ class Extractor
         p = base.push(P_NUM_GENERATIONS);
         numGenerations = state.parameters.getInt(p, null);
         state.output.warning("Number of generations on source domain: " + numGenerations);
-        state.output.warning("AnalyzeSubtrees loaded.");
+        state.output.warning("ExtractPPT loaded.");
     }
 
     private ArrayList<Population> readPopulation(String inputFileNamePath) throws IOException, ClassNotFoundException
@@ -252,20 +254,59 @@ class Extractor
 
     private void processPopulation(Population pop)
     {
-        learnFrom(pop);
+        assert pop != null;
+        GPIndividual[] niches = applyNiche(pop.subpops[0].individuals);
+        learnFrom(niches);
     }
 
-    private void learnFrom(Population pop)
+    /**
+     * Applies a simple niching algorithm on the given population and returns a new array that contains the individuals that
+     * survived the niching.
+     *
+     * @param pop the population to apply niching on. The function will sort this array based on the fitness of individuals.
+     */
+    private GPIndividual[] applyNiche(Individual[] pop)
+    {
+        assert pop != null && pop.length > 0;
+        ArrayList<GPIndividual> retval = new ArrayList<>();
+        PopulationUtils.sort(pop);
+        ArrayList<GPIndividual> niche = new ArrayList<>();
+        double nicheCenter = pop[0].fitness.fitness();
+        niche.add((GPIndividual) pop[0]);
+        for (int i = 1; i < pop.length; i++)
+        {
+            Individual individual = pop[i];
+            if (Math.abs(nicheCenter - individual.fitness.fitness()) <= fitnessNicheRadius)
+            {
+                niche.add((GPIndividual) individual);
+            }
+            else
+            {
+                // Found a new niche
+                nicheCenter = individual.fitness.fitness();
+                niche.sort(Comparator.comparingInt(ind -> ind.trees[0].child.depth()));
+                retval.add(niche.get(0));
+                niche.clear();
+                niche.add((GPIndividual) individual);
+            }
+        }
+
+        return retval.toArray(new GPIndividual[0]);
+    }
+
+    private void learnFrom(Individual[] individuals)
     {
         String[] terminals = UCARPUtils.getTerminalNames();
         String[] functions = UCARPUtils.getFunctionSet();
-        FrequencyLearner learner = new FrequencyLearner(state, 0, functions, terminals, this.lr, this.sampleSize,
-                                                        this.tournamentSize);
+        if(learner == null)
+            learner = new FrequencyLearner(state, 0, functions, terminals, this.lr, this.sampleSize, this.tournamentSize);
 
         if(tree == null)
             tree = new PPTree(learner, functions, terminals);
-        GPIndividual[] inds = new GPIndividual[pop.subpops[0].individuals.length];
-        inds = Arrays.copyOf(pop.subpops[0].individuals, inds.length, GPIndividual[].class);
+        GPIndividual[] inds = new GPIndividual[individuals.length];
+
+
+        inds = Arrays.copyOf(individuals, inds.length, GPIndividual[].class);
         learner.adaptTowards(tree, inds, 0);
     }
 
@@ -283,7 +324,7 @@ class Extractor
     {
         if(args.length < 3 )
         {
-            System.err.println("Invalid number of arguments. Usage: AnalyzeSubtrees "
+            System.err.println("Invalid number of arguments. Usage: ExtractPPT "
                     + " <test param file> <input population file/folder>"
                     + " <output file> [<EJC params>...]");
             // The reason that I am not using a parameter file instead of command line arguments is
