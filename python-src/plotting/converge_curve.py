@@ -365,7 +365,7 @@ def get_experiment_stats(experiment_path):
     (_, runs, _) = next(os.walk(experiment_path))
 
     for run in runs:
-        if run.isnumeric() == False:
+        if not run.isnumeric():
             continue
         # Now inside 'experiment_path/run'
 

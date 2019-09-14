@@ -117,7 +117,7 @@ generations=50
 # ==============================
 # KnowledgeableState
 # ==============================
-state=gphhucarp.gp.KnowledgeableState
+# state=gphhucarp.gp.KnowledgeableState
 knowledge-state.change-detction=simple
 knowledge-state.niche-radius=0.5
 knowledge-state.num-instance=8
@@ -127,7 +127,7 @@ knowledge-state.knowledge-log-file=./stats/target-wk/KnowledgeState.Log
 # ==============================
 # The test set
 # ==============================
-# state = ec.simple.SimpleEvolutionState
+state = gphhucarp.gp.GPHHEvolutionState
 # eval = ec.simple.SimpleEvaluator
 # eval.problem = gphhucarp.gp.ReactiveGPHHProblem
 # eval.problem.pool-filter = gphhucarp.decisionprocess.poolfilter.ExpFeasiblePoolFilter
