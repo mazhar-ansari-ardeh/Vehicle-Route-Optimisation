@@ -56,6 +56,10 @@ public class GTLCodeFragmentKB extends CodeFragmentKB
 				.filter(Files::isRegularFile)
 				.filter(file -> file.getFileName().toString().endsWith(fileExtention) || file.getFileName().toString().endsWith(".cf"))
 				.collect(Collectors.toCollection(ArrayList::new));
+			if(regularFilePaths.isEmpty())
+			{
+				throw new IOException("Knowledge folder is empty.");
+			}
 			for(Path path : regularFilePaths)
 			{
 				Population p = PopulationUtils.loadPopulation(path.toString());
