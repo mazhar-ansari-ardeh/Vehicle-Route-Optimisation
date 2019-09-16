@@ -62,13 +62,14 @@ DATASET_FILE_SOURCE="$DATASET_CATEGORY_SOURCE/$DATASET_SOURCE.dat"
 DATASET_FILE_TARGET="$DATASET_CATEGORY_TARGET/$DATASET_TARGET.dat"
 
 GPHH_REPOSITORY_SOURCE="$DATASET_SOURCE.vs$NUM_VEHICLES_SOURCE:gen_$GENERATIONS"
-GPHH_REPOSITORY_TARGET="$DATASET_TARGET.vs$NUM_VEHICLES_TARGET:gen_$GENERATIONS"
+# GPHH_REPOSITORY_TARGET="$DATASET_TARGET.vs$NUM_VEHICLES_TARGET:gen_$GENERATIONS"
 
 # The directory that contains the population of GP for solving the source domain.
-KNOWLEDGE_SOURCE_DIR="./KnowledgeSource/$SGE_TASK_ID"
+KNOWLEDGE_SOURCE_NAME="KnowledgeSource"
+KNOWLEDGE_SOURCE_DIR="./$KNOWLEDGE_SOURCE_NAME/$SGE_TASK_ID"
 
 # Extracted knowledge. This is the name of the file that will contain the results of programms such as 'AnalyzeTerminals' that output their results in an external file.
-KNOWLEDGE_FILE_BASE="$DATASET_SOURCE-v$NUM_VEHICLES_SOURCE"
+# KNOWLEDGE_FILE_BASE="$DATASET_SOURCE-v$NUM_VEHICLES_SOURCE"
 
 
 echo "$DATASET_CATEGORY_SOURCE/$DATASET_SOURCE"
@@ -98,6 +99,8 @@ echo "JOB_ID: $JOB_ID"
 # This is actually the part that runs the source domain.
 function run_source_domain()
 {
+# L_EXPERIMENT_NAME="KnowledgeSource"
+# L_EXPERIMENT_DIR="$L_EXPERIMENT_NAME/$SGE_TASK_ID"
 printf "\nBegining to run source domain (write knowledge)"
 java -cp .:tl.jar ec.Evolve        -file carp_param_base.param \
                                    -p stat.file="\$$KNOWLEDGE_SOURCE_DIR/job.0.out.stat" \
@@ -118,6 +121,14 @@ java -cp .:tl.jar gphhucarp.gp.GPTest  -file carp_param_base.param \
                                        -p eval.problem.eval-model.instances.0.samples=500 \
                                        -p seed.0=$TEST_SEED
 echo "Finished performing test on source problem results"
+
+# SAVE_TO=/vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$L_EXPERIMENT_NAME
+# mkdir -p $SAVE_TO
+# cp -r -v $L_EXPERIMENT_DIR/ $SAVE_TO/
+
+mkdir -p /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_NAME
+cp -r -v $KNOWLEDGE_SOURCE_DIR/ /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_NAME
+printf "$(date)\t $SGE_TASK_ID \n" >> /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/FinishedTestEvaluations.txt
 }
 
 
@@ -277,8 +288,27 @@ do_knowledge_experiment GTLKnowlege  \
                         -p gp.tc.0.init.knowledge-folder=$KNOWLEDGE_SOURCE_DIR/
 }
 
+# This function performs the transfer learning experiment "FrequentSub'.
+# The function takes one input argument: the extraction method. Acceptable values are:
+# - rootsubtree
+# - all
+# - root
+function FrequentSub()
+{
+do_knowledge_experiment FrequentSub:Extract_$1 \
+                        -p gp.tc.0.init=tl.gp.FrequentCodeFragmentBuilder \
+                        -p gp.tc.0.init.knowledge-directory=$KNOWLEDGE_SOURCE_DIR/ \
+                        -p gp.tc.0.init.knowledge-extraction=$1 \
+                        -p gp.tc.0.init.transfer-percent=0.50 \
+                        -p gp.tc.0.init.extract-percent=0.50 \
+                        -p gp.tc.0.init.min-cf-depth=2 \
+                        -p gp.tc.0.init.max-cf-depth=5
+}
+
 # This function performs the transfer learning experiment 'PPTLearning'.
-# The function, at the moment, takes one parameter: percent of initial population on target domain to create with this TL method.
+# The function, at the moment, takes two parameters:
+#   1. percent of initial population on target domain to create with this TL method
+#   2. niche radius when learning the PPT.
 function PPTExp()
 {
 
@@ -292,7 +322,7 @@ java -cp .:tl.jar tl.knowledge.extraction.ExtractPPT carp_param_base.param $KNOW
                         extract-ppt.num-generations=$GENERATIONS \
                         extract-ppt.from-generation=49 \
                         extract-ppt.to-generation=49 \
-                        extract-ppt.fitness-niche-radius=-1 \
+                        extract-ppt.fitness-niche-radius=$2 \
                         extract-ppt.knowledge-log-file=$KNOWLEDGE_SOURCE_DIR/PPTExtractionLog \
                         extract-ppt.lr=0.8 \
                         extract-ppt.sample-size=100 \
@@ -311,37 +341,39 @@ cp -p -v $KNOWLEDGE_SOURCE_DIR/pipe_tree.ppt $SAVE_TO/$SGE_TASK_ID
 
 
 # Does not require any arguments
-function simplify_trees()
-{
-    echo "\nBegining to analyze subtrees knowledge"
-    SIMPLIFICATION_DIR="./Simplification/$SGE_TASK_ID"
-    mkdir -p $SIMPLIFICATION_DIR
-    KNOWLEDGE_FILE="$SIMPLIFICATION_DIR/$KNOWLEDGE_FILE_BASE.bk"
-    java -cp .:tl.jar tl.knowledge.extraction.SimplifyTrees carp_param_base.param  $KNOWLEDGE_SOURCE_DIR/ $KNOWLEDGE_FILE \
-                                                            stat.file="\$$SIMPLIFICATION_DIR/simplify_trees.0.out.stat" \
-                                                            eval.problem.eval-model.instances.0.file=$DATASET_FILE_SOURCE \
-                                                            eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_SOURCE  \
-                                                            eval.problem.eval-model.instances.0.samples=500 \
-                                                            simplify-trees.percent=0.50 \
-                                                            simplify-trees.num-generations=$GENERATIONS \
-                                                            simplify-trees.from-generation=$(($GENERATIONS-1)) \
-                                                            simplify-trees.to-generation=$(($GENERATIONS-1)) \
-                                                            simplify-trees.fitness-niche-radius=-1 \
-                                                            simplify-trees.min-st-depth=2 \
-                                                            simplify-trees.max-st-depth=20 \
-                                                            simplify-trees.knowledge-log-file="./$SIMPLIFICATION_DIR/SimplifyTreeLog" \
-                                                            generations=$GENERATIONS \
-                                                            seed.0=$TEST_SEED
-                                                            #stat.gen-pop-file=$KNOWLEDGE_SOURCE_DIR/population.gen \
-    printf "Finished simplifying trees\n\n"
-}
+# function simplify_trees()
+# {
+#     echo "\nBegining to analyze subtrees knowledge"
+#     SIMPLIFICATION_DIR="./Simplification/$SGE_TASK_ID"
+#     mkdir -p $SIMPLIFICATION_DIR
+#     KNOWLEDGE_FILE="$SIMPLIFICATION_DIR/$KNOWLEDGE_FILE_BASE.bk"
+#     java -cp .:tl.jar tl.knowledge.extraction.SimplifyTrees carp_param_base.param  $KNOWLEDGE_SOURCE_DIR/ $KNOWLEDGE_FILE \
+#                                                             stat.file="\$$SIMPLIFICATION_DIR/simplify_trees.0.out.stat" \
+#                                                             eval.problem.eval-model.instances.0.file=$DATASET_FILE_SOURCE \
+#                                                             eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_SOURCE  \
+#                                                             eval.problem.eval-model.instances.0.samples=500 \
+#                                                             simplify-trees.percent=0.50 \
+#                                                             simplify-trees.num-generations=$GENERATIONS \
+#                                                             simplify-trees.from-generation=$(($GENERATIONS-1)) \
+#                                                             simplify-trees.to-generation=$(($GENERATIONS-1)) \
+#                                                             simplify-trees.fitness-niche-radius=-1 \
+#                                                             simplify-trees.min-st-depth=2 \
+#                                                             simplify-trees.max-st-depth=20 \
+#                                                             simplify-trees.knowledge-log-file="./$SIMPLIFICATION_DIR/SimplifyTreeLog" \
+#                                                             generations=$GENERATIONS \
+#                                                             seed.0=$TEST_SEED
+#                                                             stat.gen-pop-file=$KNOWLEDGE_SOURCE_DIR/population.gen \
+#     printf "Finished simplifying trees\n\n"
+# }
 
 ######################################################################################################################
 
 
 # run_source_domain
 
-# do_non_knowledge_experiment
+# evaluate_on_test {0..1}
+
+do_non_knowledge_experiment
 
 copy_knowledge
 
@@ -349,15 +381,16 @@ FullTreeExp 50
 
 SubTree 50
 
-GTLKnow
+FrequentSub root
 
-BestGen 1
+PPTExp 50 -1
 
-BestGen 2
-
-
+# GTLKnow
 #
-# PPTExp 50
+# BestGen 1
+#
+# BestGen 2
+
 
 # evaluate_on_test 49
 
