@@ -28,3 +28,7 @@ Corrected the 'EvaluateOnTest' program so that now it saves the evaluated files 
 
 10/09/2019
 Added the PIPE learning algorithm. At this stage, only the learning based on frequency is implemented.
+
+14/09/2019
+Added the niching feature to the PPT extraction algorithm.
+Some algorithms will throw an exception if their knowledge directory is empty.

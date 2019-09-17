@@ -27,6 +27,11 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
      * be in range (0, 1].
      */
     public static final String P_TRANSFER_PERCENT = "transfer-percent";
+    /**
+     * The value for the {@code P_TRANSFER_PERCENT} parameter which is the percentage of initial
+     * population that is transfered from extracted knowledge. The value must be in range (0, 1].
+     */
+    private double transferPercent;
 
 
     /**
@@ -37,11 +42,6 @@ public class ContribSubtreeBuilder extends HalfBuilder implements TLLogger<GPNod
 
     private int knowledgeSuccessLogID;
 
-    /**
-     * The value for the {@code P_TRANSFER_PERCENT} parameter which is the percentage of initial
-     * population that is transfered from extracted knowledge. The value must be in range (0, 1].
-     */
-    private double transferPercent;
 
     private static int cfCounter = 0;
     private Iterator<TLGPIndividual> iter;
