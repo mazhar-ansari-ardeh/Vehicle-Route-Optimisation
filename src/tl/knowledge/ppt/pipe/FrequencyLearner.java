@@ -6,9 +6,7 @@ import ec.gp.GPNode;
 import tl.gp.GPIndividualUtils;
 import tl.gp.PopulationUtils;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -140,15 +138,18 @@ public class FrequencyLearner implements IPIPELearner<GPIndividual[]>
     @Override
     public void adaptTowards(PPTree tree, GPIndividual[] individual, int treeIndex)
     {
-        ArrayList<GPIndividual> Ss = new ArrayList<>(); // Sampled individual. The name is from the paper.
-        for(int i = 0; i < sampleSize; i++)
-        {
-            int selected = PopulationUtils.tournamentSelect(individual, state, threadnum, tournamentSize);
-            while(Ss.contains(individual[selected]))
-                selected = PopulationUtils.tournamentSelect(individual, state, threadnum, tournamentSize);
+        ArrayList<GPIndividual> Ss = new ArrayList<>(); // Sampled individuals. The name is from the paper.
+        if(individual.length <= sampleSize)
+            Ss.addAll(Arrays.asList(individual));
+        else
+            for(int i = 0; i < sampleSize; i++)
+            {
+                int selected = PopulationUtils.tournamentSelect(individual, state, threadnum, tournamentSize);
+                while(Ss.contains(individual[selected]))
+                    selected = PopulationUtils.tournamentSelect(individual, state, threadnum, tournamentSize);
 
-            Ss.add(individual[selected]);
-        }
+                Ss.add(individual[selected]);
+            }
 
         HashMap<String, HashMap<String, Double>> stats = calculateDistributionEstimate(Ss, treeIndex);
         for(String address : stats.keySet())
@@ -158,7 +159,7 @@ public class FrequencyLearner implements IPIPELearner<GPIndividual[]>
             {
                 double oldProbability = tree.getProbabilityOf(address, nodeName);
                 double newProbability = (lr * oldProbability)
-                                      + ((1 - lr) * nodeStat.get(nodeName));
+                        + ((1 - lr) * nodeStat.get(nodeName));
                 tree.setProbabilityOf(address, nodeName, newProbability);
             }
         }
