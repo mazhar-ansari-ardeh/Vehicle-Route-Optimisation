@@ -9,6 +9,7 @@ import ec.util.Parameter;
 import tl.TLLogger;
 import tl.ecj.ECJUtils;
 import tl.gp.PopulationUtils;
+import tl.gp.niching.SimpleNichingAlgorithm;
 import tl.gphhucarp.UCARPUtils;
 import tl.knowledge.ppt.pipe.FrequencyLearner;
 import tl.knowledge.ppt.pipe.PPTree;
@@ -72,7 +73,7 @@ class Extractor
      * This program implements a simple niching algorithm and this parameter indicates its radius.
      */
     public final String P_FITNESS_NICHE_RADIUS = "fitness-niche-radius";
-    private double fitnessNicheRadius;
+//    private double fitnessNicheRadius;
 
 
     /**
@@ -108,6 +109,7 @@ class Extractor
     private FrequencyLearner learner;
 
     private PPTree tree;
+    private SimpleNichingAlgorithm nichingAlgorithm;
 
 //    private HashMap<GPIndividual, ArrayList<Pair<GPNode, Double>>> book = new HashMap<>();
 
@@ -126,8 +128,9 @@ class Extractor
         state.output.warning("From generation: " + fromGeneration);
         toGeneration = state.parameters.getIntWithDefault(base.push(P_GENERATION_TO), null, -1);
         state.output.warning("To generation: " + toGeneration);
-        fitnessNicheRadius = state.parameters.getDouble(base.push(P_FITNESS_NICHE_RADIUS), null);
+        double fitnessNicheRadius = state.parameters.getDouble(base.push(P_FITNESS_NICHE_RADIUS), null);
         state.output.warning("Niche radius: " + fitnessNicheRadius);
+        nichingAlgorithm = new SimpleNichingAlgorithm(fitnessNicheRadius, 1);
 
 //        p = base.push(P_PPT_LEARN);
 //        String extraction = state.parameters.getString(p, null);
@@ -255,44 +258,47 @@ class Extractor
     private void processPopulation(Population pop)
     {
         assert pop != null;
-        GPIndividual[] niches = applyNiche(pop.subpops[0].individuals);
+        GPIndividual[] gpop = new GPIndividual[pop.subpops[0].individuals.length];
+        for(int i = 0; i < gpop.length; i++)
+            gpop[i] = (GPIndividual) pop.subpops[0].individuals[i];
+        GPIndividual[] niches = nichingAlgorithm.applyNiche(gpop);
         learnFrom(niches);
     }
 
-    /**
-     * Applies a simple niching algorithm on the given population and returns a new array that contains the individuals that
-     * survived the niching.
-     *
-     * @param pop the population to apply niching on. The function will sort this array based on the fitness of individuals.
-     */
-    private GPIndividual[] applyNiche(Individual[] pop)
-    {
-        assert pop != null && pop.length > 0;
-        ArrayList<GPIndividual> retval = new ArrayList<>();
-        PopulationUtils.sort(pop);
-        ArrayList<GPIndividual> niche = new ArrayList<>();
-        double nicheCenter = pop[0].fitness.fitness();
-        niche.add((GPIndividual) pop[0]);
-        for (int i = 1; i < pop.length; i++)
-        {
-            Individual individual = pop[i];
-            if (Math.abs(nicheCenter - individual.fitness.fitness()) <= fitnessNicheRadius)
-            {
-                niche.add((GPIndividual) individual);
-            }
-            else
-            {
-                // Found a new niche
-                nicheCenter = individual.fitness.fitness();
-                niche.sort(Comparator.comparingInt(ind -> ind.trees[0].child.depth()));
-                retval.add(niche.get(0));
-                niche.clear();
-                niche.add((GPIndividual) individual);
-            }
-        }
-
-        return retval.toArray(new GPIndividual[0]);
-    }
+//    /**
+//     * Applies a simple niching algorithm on the given population and returns a new array that contains the individuals that
+//     * survived the niching.
+//     *
+//     * @param pop the population to apply niching on. The function will sort this array based on the fitness of individuals.
+//     */
+//    private GPIndividual[] applyNiche(Individual[] pop)
+//    {
+//        assert pop != null && pop.length > 0;
+//        ArrayList<GPIndividual> retval = new ArrayList<>();
+//        PopulationUtils.sort(pop);
+//        ArrayList<GPIndividual> niche = new ArrayList<>();
+//        double nicheCenter = pop[0].fitness.fitness();
+//        niche.add((GPIndividual) pop[0]);
+//        for (int i = 1; i < pop.length; i++)
+//        {
+//            Individual individual = pop[i];
+//            if (Math.abs(nicheCenter - individual.fitness.fitness()) <= fitnessNicheRadius)
+//            {
+//                niche.add((GPIndividual) individual);
+//            }
+//            else
+//            {
+//                // Found a new niche
+//                nicheCenter = individual.fitness.fitness();
+//                niche.sort(Comparator.comparingInt(ind -> ind.trees[0].child.depth()));
+//                retval.add(niche.get(0));
+//                niche.clear();
+//                niche.add((GPIndividual) individual);
+//            }
+//        }
+//
+//        return retval.toArray(new GPIndividual[0]);
+//    }
 
     private void learnFrom(Individual[] individuals)
     {
