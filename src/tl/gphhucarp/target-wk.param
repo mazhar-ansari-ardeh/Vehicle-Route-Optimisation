@@ -69,11 +69,11 @@ seed.0=2
 # ==============================
 # PPT Builder
 # ==============================
-gp.tc.0.init=tl.gp.PPTBuilder
-gp.tc.0.init.knowledge-file=pipe_tree.ppt
+# gp.tc.0.init=tl.gp.PPTBuilder
+# gp.tc.0.init.knowledge-file=pipe_tree.ppt
 # percentage of initial population that is created from extracted knowledge
-gp.tc.0.init.transfer-percent=0.50
-gp.tc.0.init.knowledge-log-file=./stats/target-wk/PPTBuildLog
+# gp.tc.0.init.transfer-percent=0.50
+# gp.tc.0.init.knowledge-log-file=./stats/target-wk/PPTBuildLog
 
 # gp.tc.0.init.knowledge-extraction=rootsubtree
 # gp.tc.0.init.extract-percent=0.50
@@ -81,6 +81,15 @@ gp.tc.0.init.knowledge-log-file=./stats/target-wk/PPTBuildLog
 # gp.tc.0.init.max-cf-depth=5
 # ==============================
 
+# ==============================
+MutatingFulltreeBuilder
+# ==============================
+gp.tc.0.init=tl.gp.MutatingFulltreeBuilder
+gp.tc.0.init.knowledge-file=/home/mazhar/MyPhD/SourceCodes-bk/gpucarp/stats/target-wk/population.gen.49.bin
+gp.tc.0.init.knowledge-log-file=./stats/target-wk/MutatingFullTreeLog
+gp.tc.0.init.transfer-percent=50
+gp.tc.0.init.knowledge-extraction=root
+gp.tc.0.init.ns.0 = ec.gp.koza.KozaNodeSelector
 
 # ==============================
 # Frequent CodeFragment Builder
@@ -123,6 +132,17 @@ knowledge-state.niche-radius=0.5
 knowledge-state.num-instance=8
 knowledge-state.immigrant-percent=0.1
 knowledge-state.knowledge-log-file=./stats/target-wk/KnowledgeState.Log
+
+# ==============================
+# KnowledgeableState
+# ==============================
+# state=tl.gp.PPTEvolutionState
+ppt-state.lr=0.8
+ppt-state.sample-size=100
+ppt-state.tournament-size=20
+ppt-state.knowledge-log-file=PPTEvolutionStateLog
+
+
 
 # ==============================
 # The test set
