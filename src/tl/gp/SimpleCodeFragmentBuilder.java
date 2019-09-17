@@ -21,16 +21,16 @@ public class SimpleCodeFragmentBuilder extends HalfBuilder implements TLLogger<G
 
 	public static final String P_KNOWLEDGE_FILE = "knowledge-file";
 
-	public static final String P_KNOWLEDGE_LOG_FILE_NAME = "knowledge-log-file";
+//	public static final String P_KNOWLEDGE_LOG_FILE_NAME = "knowledge-log-file";
 
 	public static final String P_KNOWLEDGE_EXTRACTION_METHOD = "knowledge-extraction";
 
 	public static final String P_TRANSFER_PERCENT = "transfer-percent";
 
 
-	private static KnowledgeExtractor extractor = null;
+	protected static KnowledgeExtractor extractor = null;
 
-	private int knowledgeSuccessLogID;
+	protected int knowledgeSuccessLogID;
 
 
 	@Override
@@ -43,9 +43,10 @@ public class SimpleCodeFragmentBuilder extends HalfBuilder implements TLLogger<G
 		if(fileName == null)
 		{
 			state.output.fatal("Failed to load parameter", knowledgeFileName);
+			return;
 		}
 		File kbFile = new File(fileName);
-		if(kbFile.exists() == false)
+		if(!kbFile.exists())
 		{
 			state.output.fatal("Knowledge file does not exist: " + fileName, knowledgeFileName);
 		}
@@ -105,7 +106,7 @@ public class SimpleCodeFragmentBuilder extends HalfBuilder implements TLLogger<G
 //			}
 	}
 
-	private static int cfCounter = 0;
+	protected static int cfCounter = 0;
 
 
 	public GPNode newRootedTree(final EvolutionState state, final GPType type, final int thread,
@@ -116,16 +117,14 @@ public class SimpleCodeFragmentBuilder extends HalfBuilder implements TLLogger<G
 		if(cf != null)
 		{
 			cfCounter++;
-			log(state, cf.getItem(), knowledgeSuccessLogID);
+			log(state, knowledgeSuccessLogID, cfCounter + ": \t" + cf.toString());
 			GPNode node = cf.getItem();
 			node.parent = parent;
-//			System.out.println("Loaded a CF: " + node.makeCTree(false, false, false));
 			return node;
 		}
 		else
 			log(state, null, knowledgeSuccessLogID);
-//		else
-//			System.out.println("CF is null");
+
 		if (state.random[thread].nextDouble() < pickGrowProbability)
 			return growNode(state,0,state.random[thread].nextInt(maxDepth-minDepth+1) + minDepth,type,thread,parent,argposition,set);
 		else
