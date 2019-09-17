@@ -2,6 +2,7 @@ package tl.gp;
 
 import java.util.*;
 
+import ec.Fitness;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import ec.gp.GPNodeParent;
@@ -22,6 +23,9 @@ public class GPIndividualUtils
 {
 	public static TLGPIndividual asGPIndividual(GPNode root)
 	{
+		if(root == null)
+			throw new IllegalArgumentException("Root node cannot be null.");
+
 		TLGPIndividual retval = new TLGPIndividual();
 		retval.trees = new GPTree[1];
 		retval.trees[0] = new GPTree();
@@ -34,6 +38,21 @@ public class GPIndividualUtils
 		retval.fitness = fitness;
 		retval.evaluated = false;
 
+		return retval;
+	}
+
+	/**
+	 * Creates a new {@code TLGPIndividual} object based on the given tree whose root node is the input parameter
+	 * {@code root}. The method sets the returned object as unevaluated.
+	 * @param root the root node of a tree.
+	 * @param fitness the fitness object to use as the fitness of the created object.
+	 * @return a new {@code TLGPIndividual} that has one tree whose root node and fitness objects are given.
+	 */
+	public static TLGPIndividual asGPIndividual(GPNode root, Fitness fitness)
+	{
+		TLGPIndividual retval = asGPIndividual(root);
+		retval.fitness = fitness;
+		retval.evaluated = false;
 		return retval;
 	}
 
