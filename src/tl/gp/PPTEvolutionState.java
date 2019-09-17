@@ -8,6 +8,7 @@ import ec.util.Parameter;
 import gphhucarp.gp.GPHHEvolutionState;
 import gphhucarp.gp.ReactiveGPHHProblem;
 import tl.TLLogger;
+import tl.gp.niching.SimpleNichingAlgorithm;
 import tl.gphhucarp.UCARPUtils;
 import tl.knowledge.ppt.pipe.FrequencyLearner;
 import tl.knowledge.ppt.pipe.PPTree;
@@ -24,7 +25,13 @@ public class PPTEvolutionState extends GPHHEvolutionState implements TLLogger<GP
 
     public static final String P_SAMPLE_SIZE = "sample-size";
 
-    public final static String P_TOURNAMENT_SIZE = "tournament-size";
+    public static final String P_TOURNAMENT_SIZE = "tournament-size";
+
+    public static final String P_NICHE_RADIUS = "niche-radius";
+
+    public static final String P_NICHE_CAPACITY = "niche-capacity";
+
+    SimpleNichingAlgorithm nichingAlgorithm;
 
     private int knowledgeSuccessLogID;
 
@@ -56,7 +63,6 @@ public class PPTEvolutionState extends GPHHEvolutionState implements TLLogger<GP
             state.output.warning("Sample size: " + sampleSize);
 
         p = base.push(P_TOURNAMENT_SIZE);
-
          // The tournament size to sample individuals from the population to learn.
         int tournamentSize = state.parameters.getInt(p, null);
         if(tournamentSize <= 0 || tournamentSize > sampleSize)
@@ -64,6 +70,18 @@ public class PPTEvolutionState extends GPHHEvolutionState implements TLLogger<GP
         else
             state.output.warning("Tournament size: " + tournamentSize);
 
+        p = base.push(P_NICHE_RADIUS);
+        double nicheRadius = state.parameters.getDouble(p, null);
+        state.output.warning("Niche radius: " + nicheRadius);
+
+        p = base.push(P_NICHE_CAPACITY);
+        int nicheCapacity = state.parameters.getInt(p, null);
+        if(nicheCapacity <= 0)
+            state.output.fatal("Niche capacity must be a positive number: " + nicheCapacity);
+        else
+            state.output.warning("Niche capacity: " + nicheCapacity);
+
+        nichingAlgorithm = new SimpleNichingAlgorithm(nicheRadius, nicheCapacity);
 
         String[] terminals = UCARPUtils.getTerminalNames();
         String[] functions = UCARPUtils.getFunctionSet();
@@ -128,8 +146,10 @@ public class PPTEvolutionState extends GPHHEvolutionState implements TLLogger<GP
         // BREEDING
         statistics.preBreedingStatistics(this);
 
+        // PPT learning and sampling.
         {
             GPIndividual[] pop = Arrays.copyOf(population.subpops[0].individuals, population.subpops[0].individuals.length, GPIndividual[].class);
+            pop = nichingAlgorithm.applyNiche(pop);
             learner.adaptTowards(tree, pop, 0);
             log(this, knowledgeSuccessLogID, "PPT at generation " + generation + ": " + tree.toString());
             for(int i = 0; i < population.subpops[0].individuals.length; i++)
