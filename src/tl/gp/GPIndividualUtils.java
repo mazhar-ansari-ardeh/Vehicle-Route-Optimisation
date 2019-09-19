@@ -93,10 +93,11 @@ public class GPIndividualUtils
 	}
 
 	/**
-	 * The function strips the root of the given individual out of the individual. This function
+	 * The function strips the root node of the trees of the given individual out of the individual. This function
 	 * modifies the given individual so that it cuts the link between the individual and its root.
 	 * @param ind a {@code GPIndividual} object to get strip roots from.
-	 * @return A list of roots of the given individual.
+	 * @return A list of roots of the given individual. The returned value will be an empty list if the trees of the given
+	 * individual do not contain any roots.
 	 */
 	public static ArrayList<GPNode> stripRoots(GPIndividual ind)
 	{
