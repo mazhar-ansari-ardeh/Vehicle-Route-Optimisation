@@ -14,7 +14,7 @@ public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
      * The percentage of initial population that is created from extracted knowledge. The value must
      * be in range (0, 1].
      */
-    public static final String P_TARGET_PERCENT = "transfer-percent";
+    public static final String P_TARGET_PERCENT = "target-percent";
     private double targetPercent;
 
     /**
