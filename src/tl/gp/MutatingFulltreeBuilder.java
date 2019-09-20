@@ -10,11 +10,12 @@ public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
 {
 //    public final String P_SIMPLIFY = "simplify";
 
-//    /**
-//     * The percentage of initial population that is created from extracted knowledge. The value must
-//     * be in range (0, 1].
-//     */
-//    public static final String P_TRANSFER_PERCENT = "transfer-percent";
+    /**
+     * The percentage of initial population that is created from extracted knowledge. The value must
+     * be in range (0, 1].
+     */
+    public static final String P_TARGET_PERCENT = "transfer-percent";
+    private double targetPercent;
 
     /**
      * Number of individuals that are created by performing a mutation operator is on a transferred individual.
@@ -29,18 +30,18 @@ public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
     GPNode lastLoadedTransfer = null;
 
     /**
+     * The value for the {@code P_TRANSFER_PERCENT} parameter which is the percentage of initial
+     * population that is transferred from extracted knowledge. The value must be in range (0, 1].
+     */
+
+    public final String P_NODESELECTOR = "ns";
+    private GPNodeSelector nodeselect;
+
+    /**
      * Keeps track of the number of items that are to be created from mutating a transferred item. This value is reset to
      * {@code numMutate} when it hits zero.
      */
     int numToMutate;
-
-    /**
-     * The value for the {@code P_TRANSFER_PERCENT} parameter which is the percentage of initial
-     * population that is transferred from extracted knowledge. The value must be in range (0, 1].
-     */
-//    private double transferPercent; // TODO: Delete this. The extractor is doing this.
-
-    public final String P_NODESELECTOR = "ns";
 
     @Override
     public void setup(EvolutionState state, Parameter base)
@@ -59,12 +60,12 @@ public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
         numToMutate = numMutate;
         state.output.warning("Number of mutations: " + numMutate);
 
-//        p = base.push(P_TRANSFER_PERCENT);
-//        transferPercent = state.parameters.getDouble(p, null);
-//        if(transferPercent <= 0 || transferPercent > 1)
-//            state.output.fatal("Invalid transfer percent. Transfer percent must be in (0, 1]: " + transferPercent);
-//        else
-//            state.output.warning("Transfer percent: " + transferPercent);
+        p = base.push(P_TARGET_PERCENT);
+        targetPercent = state.parameters.getDouble(p, null);
+        if(targetPercent <= 0 || targetPercent > 1)
+            state.output.fatal("Invalid transfer percent. Transfer percent must be in (0, 1]: " + targetPercent);
+        else
+            state.output.warning("Transfer percent: " + targetPercent);
     }
 
     private GPNode mutate(GPNode node, int subpopulation, final EvolutionState state, final int thread, GPFunctionSet set)
@@ -72,10 +73,10 @@ public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
         assert node != null;
 
         GPIndividual ind = GPIndividualUtils.asGPIndividual(node);
-        return GPIndividualUtils.stripRoots(produce(subpopulation, ind, state, thread, set)).get(0);
+        return GPIndividualUtils.stripRoots(mutate(subpopulation, ind, state, thread, set)).get(0);
     }
 
-    public boolean verifyPoints(GPNode inner1, GPNode inner2)
+    private boolean verifyPoints(GPNode inner1, GPNode inner2)
     {
         // We know they're swap-compatible since we generated inner1
         // to be exactly that.  So don't bother.
@@ -104,10 +105,8 @@ public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
         return true;
     }
 
-    public GPNodeSelector nodeselect;
-
-    public GPIndividual produce(int subpopulation, Individual ind, final EvolutionState state, final int thread,
-                              GPFunctionSet set)
+    private GPIndividual mutate(int subpopulation, Individual ind, final EvolutionState state, final int thread,
+                                GPFunctionSet set)
     {
         // grab individuals from our source and stick 'em right into inds.
         // we'll modify them from there
@@ -185,7 +184,10 @@ public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
                                 final int requestedSize)
     {
         int popSize = state.parameters.getInt(new Parameter("pop.subpop.0.size"), null);
-//        int numToTransfer = (int) Math.round(popSize * transferPercent);
+        int numToTransfer = (int) Math.round(popSize * targetPercent);
+
+        if(cfCounter >= numToTransfer)
+            return newRootedTreeGF(state, type, thread, parent, set, argposition);
 
         if(lastLoadedTransfer == null)
         {
@@ -208,7 +210,8 @@ public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
             mutated.parent = parent;
             numToMutate--;
             cfCounter++;
-            log(state, knowledgeSuccessLogID, cfCounter + "(mutated): \t" + mutated.makeCTree(false, true, true));
+            log(state, knowledgeSuccessLogID, cfCounter + "(mutated): \t" + mutated.makeCTree(
+                    false, true, true));
             if(numToMutate <= 0)
             {
                 lastLoadedTransfer = null;
@@ -223,8 +226,10 @@ public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
                                    final GPNodeParent parent, final GPFunctionSet set, final int argposition)
     {
         if (state.random[thread].nextDouble() < pickGrowProbability)
-            return growNode(state,0,state.random[thread].nextInt(maxDepth-minDepth+1) + minDepth,type,thread,parent,argposition,set);
+            return growNode(state,0,state.random[thread].nextInt(maxDepth-minDepth+1)
+                    + minDepth,type,thread,parent,argposition,set);
         else
-            return fullNode(state,0,state.random[thread].nextInt(maxDepth-minDepth+1) + minDepth,type,thread,parent,argposition,set);
+            return fullNode(state,0,state.random[thread].nextInt(maxDepth-minDepth+1)
+                    + minDepth,type,thread,parent,argposition,set);
     }
 }
