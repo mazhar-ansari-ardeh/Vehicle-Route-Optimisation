@@ -8,17 +8,35 @@ import tl.knowledge.codefragment.CodeFragmentKI;
 
 public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
 {
-    public final String P_SIMPLIFY = "simplify";
+//    public final String P_SIMPLIFY = "simplify";
+
+//    /**
+//     * The percentage of initial population that is created from extracted knowledge. The value must
+//     * be in range (0, 1].
+//     */
+//    public static final String P_TRANSFER_PERCENT = "transfer-percent";
 
     /**
-     * The percentage of initial population that is created from extracted knowledge. The value must
-     * be in range (0, 1].
+     * Number of individuals that are created by performing a mutation operator is on a transferred individual.
+     * A zero or negative value for this parameter indicates that the mutation should be disabled.
      */
-    public static final String P_TRANSFER_PERCENT = "transfer-percent";
+    public static final String P_NUM_MUTATE = "num-mutated";
+    private int numMutate;
+
+    /**
+     * The last item that was loaded from source domain and transferred to the target domain.
+     */
+    GPNode lastLoadedTransfer = null;
+
+    /**
+     * Keeps track of the number of items that are to be created from mutating a transferred item. This value is reset to
+     * {@code numMutate} when it hits zero.
+     */
+    int numToMutate;
 
     /**
      * The value for the {@code P_TRANSFER_PERCENT} parameter which is the percentage of initial
-     * population that is transfered from extracted knowledge. The value must be in range (0, 1].
+     * population that is transferred from extracted knowledge. The value must be in range (0, 1].
      */
 //    private double transferPercent; // TODO: Delete this. The extractor is doing this.
 
@@ -36,6 +54,11 @@ public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
         nodeselect = (GPNodeSelector) (state.parameters.getInstanceForParameter(p,d, GPNodeSelector.class));
         nodeselect.setup(state,p);
 
+        p = base.push(P_NUM_MUTATE);
+        numMutate = state.parameters.getInt(p, null);
+        numToMutate = numMutate;
+        state.output.warning("Number of mutations: " + numMutate);
+
 //        p = base.push(P_TRANSFER_PERCENT);
 //        transferPercent = state.parameters.getDouble(p, null);
 //        if(transferPercent <= 0 || transferPercent > 1)
@@ -44,9 +67,12 @@ public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
 //            state.output.warning("Transfer percent: " + transferPercent);
     }
 
-    private void mutate(GPNode node)
+    private GPNode mutate(GPNode node, int subpopulation, final EvolutionState state, final int thread, GPFunctionSet set)
     {
+        assert node != null;
 
+        GPIndividual ind = GPIndividualUtils.asGPIndividual(node);
+        return GPIndividualUtils.stripRoots(produce(subpopulation, ind, state, thread, set)).get(0);
     }
 
     public boolean verifyPoints(GPNode inner1, GPNode inner2)
@@ -80,10 +106,7 @@ public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
 
     public GPNodeSelector nodeselect;
 
-    public Individual produce(int subpopulation,
-                              Individual ind,
-                              final EvolutionState state,
-                              final int thread,
+    public GPIndividual produce(int subpopulation, Individual ind, final EvolutionState state, final int thread,
                               GPFunctionSet set)
     {
         // grab individuals from our source and stick 'em right into inds.
@@ -107,7 +130,7 @@ public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
         GPNode p1=null;  // the node we pick
         GPNode p2=null;
 
-        int numTries = 1;
+        int numTries = 3;
         for(int x=0;x<numTries;x++)
         {
             // pick a node in individual 1
@@ -126,7 +149,7 @@ public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
 
         GPIndividual j;
 
-        j = (GPIndividual)(i.lightClone());
+        j = i.lightClone();
 
         // Fill in various tree information that didn't get filled in there
         j.trees = new GPTree[i.trees.length];
@@ -164,18 +187,35 @@ public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
         int popSize = state.parameters.getInt(new Parameter("pop.subpop.0.size"), null);
 //        int numToTransfer = (int) Math.round(popSize * transferPercent);
 
-        CodeFragmentKI cf = (CodeFragmentKI) extractor.getNext();
-        if(cf != null)
+        if(lastLoadedTransfer == null)
         {
-            cfCounter++;
-            log(state, knowledgeSuccessLogID, cfCounter + ": \t" + cf.toString());
-            GPNode node = cf.getItem();
-            node.parent = parent;
-            return node;
+            CodeFragmentKI cf = (CodeFragmentKI) extractor.getNext();
+            if (cf != null)
+            {
+                cfCounter++;
+                log(state, knowledgeSuccessLogID, cfCounter + ": \t" + cf.toString());
+                GPNode node = cf.getItem();
+                node.parent = parent;
+                lastLoadedTransfer = node;
+                return node;
+            }
+            else
+                log(state, null, knowledgeSuccessLogID);
         }
         else
-            log(state, null, knowledgeSuccessLogID);
-
+        {
+            GPNode mutated = mutate(lastLoadedTransfer, 0, state, thread, set);
+            mutated.parent = parent;
+            numToMutate--;
+            cfCounter++;
+            log(state, knowledgeSuccessLogID, cfCounter + "(mutated): \t" + mutated.makeCTree(false, true, true));
+            if(numToMutate <= 0)
+            {
+                lastLoadedTransfer = null;
+                numToMutate = numMutate;
+            }
+            return mutated;
+        }
         return newRootedTreeGF(state, type, thread, parent, set, argposition);
     }
 
