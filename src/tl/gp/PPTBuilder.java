@@ -52,6 +52,10 @@ public class PPTBuilder extends HalfBuilder implements TLLogger<GPNode>
 
         Parameter p = base.push(P_TRANSFER_PERCENT);
         transferPercent = state.parameters.getDouble(p, null);
+        if(transferPercent <= 0 || transferPercent > 1)
+            state.output.fatal("Transfer percent must be in the range (0, 1]: " + transferPercent);
+        else
+            state.output.warning("Transfer percent: " + transferPercent);
 
         String knowFile = state.parameters.getString(base.push(P_KNOWLEDGE_FILE), null);
         if (knowFile == null)
