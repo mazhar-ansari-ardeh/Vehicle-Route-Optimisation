@@ -52,8 +52,7 @@ public class SimpleCodeFragmentBuilder extends HalfBuilder implements TLLogger<G
 		}
 
 		Parameter problemParam = new Parameter("pop.subpop.0.species.fitness");
-		Fitness fitness = (Fitness) state.parameters.getInstanceForParameter(problemParam,
-				null, Fitness.class);
+		Fitness fitness = (Fitness) state.parameters.getInstanceForParameter(problemParam, null, Fitness.class);
 		fitness.setup(state, problemParam);
 
 		Parameter knowledgeExtraction = base.push(P_KNOWLEDGE_EXTRACTION_METHOD);
