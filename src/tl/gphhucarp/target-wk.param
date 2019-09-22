@@ -82,14 +82,19 @@ seed.0=2
 # ==============================
 
 # ==============================
-MutatingFulltreeBuilder
+# MutatingFulltreeBuilder
 # ==============================
 gp.tc.0.init=tl.gp.MutatingFulltreeBuilder
-gp.tc.0.init.knowledge-file=/home/mazhar/MyPhD/SourceCodes-bk/gpucarp/stats/target-wk/population.gen.49.bin
+gp.tc.0.init.knowledge-file=/home/mazhar/grid/gdb1.vs5:gen_50/KnowledgeSource/1/population.gen.49.bin
 gp.tc.0.init.knowledge-log-file=./stats/target-wk/MutatingFullTreeLog
 gp.tc.0.init.transfer-percent=50
 gp.tc.0.init.knowledge-extraction=root
 gp.tc.0.init.ns.0 = ec.gp.koza.KozaNodeSelector
+gp.tc.0.init.num-mutated=2
+gp.tc.0.init.simplify=true
+gp.tc.0.init.target-percent=0.5
+gp.tc.0.init.niche-capacity=2
+gp.tc.0.init.niche-radius=0.1
 
 # ==============================
 # Frequent CodeFragment Builder
@@ -141,6 +146,8 @@ ppt-state.lr=0.8
 ppt-state.sample-size=100
 ppt-state.tournament-size=20
 ppt-state.knowledge-log-file=PPTEvolutionStateLog
+ppt-state.niche-radius=0.1
+ppt-state.niche-capacity=2
 
 
 
