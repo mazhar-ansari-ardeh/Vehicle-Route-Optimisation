@@ -18,6 +18,21 @@ public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
 
 	private GPNode codeFragment;
 
+	public double getSourceFitness()
+	{
+		return sourceFitness;
+	}
+
+	public void setSourceFitness(double sourceFitness)
+	{
+		this.sourceFitness = sourceFitness;
+	}
+
+	/**
+	 * The fitness of the source individual that this item is extracted from.
+	 */
+	private double sourceFitness;
+
 	/**
 	 * Number of times that this item has been used. A value of zero means that the item was not
 	 * used at all.
@@ -62,6 +77,12 @@ public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
 	{
 		this(codeFragment);
 		this.origin = origin;
+	}
+
+	public CodeFragmentKI(GPNode codeFragment, double sourceFitness)
+	{
+		this.codeFragment = codeFragment;
+		this.sourceFitness = sourceFitness;
 	}
 
 	public void incrementDuplicateCount()

@@ -109,7 +109,7 @@ public class SimpleCodeFragmentKB extends CodeFragmentKB
 			throw new IllegalArgumentException();
 		}
 
-		addItem(node);
+		addItem(node, gpIndividual.fitness.fitness());
 
 		return true;
 	}
@@ -135,6 +135,23 @@ public class SimpleCodeFragmentKB extends CodeFragmentKB
 		}
 
 		CodeFragmentKI cfItem = new CodeFragmentKI(item);
+		if(repository.containsKey(item.hashCode()))
+			return false;
+
+		repository.put(item.hashCode(), cfItem);
+
+
+		return true;
+	}
+
+	public boolean addItem(GPNode item, double fitness)
+	{
+		if (item == null)
+		{
+			return false;
+		}
+
+		CodeFragmentKI cfItem = new CodeFragmentKI(item, fitness);
 		if(repository.containsKey(item.hashCode()))
 			return false;
 
