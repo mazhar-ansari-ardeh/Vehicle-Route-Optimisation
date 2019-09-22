@@ -12,7 +12,7 @@ import tl.knowledge.codefragment.CodeFragmentKI;
 
 import java.util.ArrayList;
 
-public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
+public class MutatingSubtreeBuilder extends SimpleCodeFragmentBuilder
 {
     /**
      * If {@code true}, the algorithm will simplify the extracted trees before transferring. Mutation will be performed on

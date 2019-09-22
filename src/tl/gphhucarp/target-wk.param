@@ -82,9 +82,9 @@ seed.0=2
 # ==============================
 
 # ==============================
-# MutatingFulltreeBuilder
+# MutatingSubtreeBuilder
 # ==============================
-gp.tc.0.init=tl.gp.MutatingFulltreeBuilder
+gp.tc.0.init=tl.gp.MutatingSubtreeBuilder
 gp.tc.0.init.knowledge-file=/home/mazhar/grid/gdb1.vs5:gen_50/KnowledgeSource/1/population.gen.49.bin
 gp.tc.0.init.knowledge-log-file=./stats/target-wk/MutatingFullTreeLog
 gp.tc.0.init.transfer-percent=50
