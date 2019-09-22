@@ -165,7 +165,7 @@ public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
         // should we bother?
         GPInitializer initializer = ((GPInitializer)state.initializer);
 
-        // TODO: Check if 'i' is modified or not.
+        // TODOx: Check if 'i' is modified or not.
         GPIndividual i = (GPIndividual)ind;
 
         // validity result...
@@ -209,7 +209,7 @@ public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
         {
             if (res)  // we've got a tree with a kicking cross position!
             {
-                j.trees[x] = (GPTree)(i.trees[x].lightClone());
+                j.trees[x] = (i.trees[x].lightClone());
                 j.trees[x].owner = j;
                 j.trees[x].child = i.trees[x].child.cloneReplacingNoSubclone(p2,p1);
                 j.trees[x].child.parent = j.trees[x];
@@ -218,7 +218,7 @@ public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
             } // it's changed
             else
             {
-                j.trees[x] = (GPTree)(i.trees[x].lightClone());
+                j.trees[x] = (i.trees[x].lightClone());
                 j.trees[x].owner = j;
                 j.trees[x].child = (GPNode)(i.trees[x].child.clone());
                 j.trees[x].child.parent = j.trees[x];
