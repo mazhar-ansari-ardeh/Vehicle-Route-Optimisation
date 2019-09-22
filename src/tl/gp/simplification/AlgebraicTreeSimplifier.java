@@ -61,10 +61,10 @@ public class AlgebraicTreeSimplifier extends TreeSimplifier
 
 		p = new Parameter("eval.problem.eval-model.instances.0.samples");
 		int samples = retval.parameters.getInt(p, null);
-		if(samples < 100)
-			retval.output.fatal("Sample size is too small: " + samples);
-		else
-			retval.output.warning("Sample size in AnalyzeTerminals: " + samples);
+//		if(samples < 100)
+//			retval.output.fatal("Sample size is too small: " + samples);
+//		else
+//			retval.output.warning("Sample size in AnalyzeTerminals: " + samples);
 
 		return retval;
 	}
@@ -542,7 +542,7 @@ public class AlgebraicTreeSimplifier extends TreeSimplifier
 		ch2.parent = node;
 	}
 
-	static void main(String[] args) throws ClassNotFoundException, IOException
+	public static void main(String[] args) throws ClassNotFoundException, IOException
 	{
 		TerminalERCUniform n1 = new TerminalERCUniform();
 		ServeCost sc = new ServeCost();
@@ -577,7 +577,7 @@ public class AlgebraicTreeSimplifier extends TreeSimplifier
 		min.parent = tree;
 		min.argposition = 0;
 
-		String paramFileNamePath = "";
+		String paramFileNamePath = "src/tl/gphhucarp/target-wk.param";
 		EvolutionState eState = loadECJ(paramFileNamePath);
 
         AlgebraicHashCalculator hasher = new AlgebraicHashCalculator(eState, 0, 3373);
@@ -588,7 +588,9 @@ public class AlgebraicTreeSimplifier extends TreeSimplifier
 		System.out.println(tree.child.makeGraphvizTree());
 
 
-		String fileName = "/home/mazhar/MyPhD/SourceCodes/gpucarp/stats/source/population.gen.0.bin";
+//		String fileName = "/home/mazhar/MyPhD/SourceCodes/gpucarp/stats/source/population.gen.0.bin";
+//		String fileName = "/vol/grid-solar/sgeusers/mazhar/val10D.vs10:gen_50/KnowledgeSource/38/TestedPopulation/population.gen.0.bin";
+		String fileName = "/home/mazhar/grid/gdb1.vs5:gen_50/KnowledgeSource/1/population.gen.49.bin";
 		Population p = PopulationUtils.loadPopulation(fileName);
 		for(int i = 0; i < 500; i++)
 		{

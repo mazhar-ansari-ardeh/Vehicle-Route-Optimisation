@@ -78,7 +78,7 @@ public class SimpleNichingAlgorithm implements NicheAlgorithm
             {
                 // Found a new niche
                 nicheCenter = individual.fitness.fitness();
-//                niche.sort(Comparator.comparingInt(ind -> ind.trees[0].child.depth()));
+//              niche.sort(Comparator.comparingInt(ind -> ind.trees[0].child.depth()));
                 niche.sort(SimpleNichingAlgorithm::compare);
                 retval.addAll(niche.subList(0, niche.size() >= capacity ? capacity : niche.size()));
                 niche.clear();
