@@ -4,11 +4,24 @@ import ec.EvolutionState;
 import ec.Individual;
 import ec.gp.*;
 import ec.util.Parameter;
+import tl.gp.hash.AlgebraicHashCalculator;
+import tl.gp.hash.HashCalculator;
+import tl.gp.simplification.AlgebraicTreeSimplifier;
+import tl.gp.simplification.TreeSimplifier;
 import tl.knowledge.codefragment.CodeFragmentKI;
+
+import java.util.ArrayList;
 
 public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
 {
-//    public final String P_SIMPLIFY = "simplify";
+    /**
+     * If {@code true}, the algorithm will simplify the extracted trees before transferring. Mutation will be performed on
+     * the simplified trees.
+     */
+    public final String P_SIMPLIFY = "simplify";
+    private boolean simplify;
+
+    TreeSimplifier simplifier = null;
 
     /**
      * The percentage of initial population that is created from extracted knowledge. The value must
@@ -27,7 +40,7 @@ public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
     /**
      * The last item that was loaded from source domain and transferred to the target domain.
      */
-    GPNode lastLoadedTransfer = null;
+    private GPNode lastLoadedTransfer = null;
 
     /**
      * The value for the {@code P_TRANSFER_PERCENT} parameter which is the percentage of initial
@@ -36,6 +49,20 @@ public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
 
     public final String P_NODESELECTOR = "ns";
     private GPNodeSelector nodeselect;
+
+    private ArrayList<CodeFragmentKI> niche = new ArrayList<>();
+
+    /**
+     * The niche capacity. If the niche radius is a negative value, the value of capacity will be redundant.
+     */
+    public static final String p_NICHE_CAPACITY = "niche-capacity";
+    private int nicheCapacity = 2;
+
+    /**
+     * The radius of the niching mechanism. A negative value for this parameter will disable niching.
+     */
+    public static final String P_NICHE_RADIUS = "niche-radius";
+    private double nicheRadius;
 
     /**
      * Keeps track of the number of items that are to be created from mutating a transferred item. This value is reset to
@@ -66,6 +93,29 @@ public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
             state.output.fatal("Invalid transfer percent. Transfer percent must be in (0, 1]: " + targetPercent);
         else
             state.output.warning("Transfer percent: " + targetPercent);
+
+        p = base.push(P_SIMPLIFY);
+        simplify = state.parameters.getBoolean(p, null, true);
+        state.output.warning("Simplify: " + simplify);
+        if(simplify)
+        {
+            HashCalculator hs = new AlgebraicHashCalculator(state, 0, 1000077157);
+            simplifier = new AlgebraicTreeSimplifier(hs);
+        }
+
+        p = base.push(P_NICHE_RADIUS);
+        nicheRadius = state.parameters.getDouble(p, null);
+        state.output.warning("Niche radius: " + nicheRadius);
+
+        if(nicheRadius >= 0)
+        {
+            p = base.push(p_NICHE_CAPACITY);
+            nicheCapacity = state.parameters.getInt(p, null);
+            if(nicheCapacity <= 0)
+                state.output.warning("Niche capacity must be a positive value: " + nicheCapacity);
+            else
+                state.output.warning("Niche capacity: " + nicheCapacity);
+        }
     }
 
     private GPNode mutate(GPNode node, int subpopulation, final EvolutionState state, final int thread, GPFunctionSet set)
@@ -179,6 +229,54 @@ public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
         return j;
     }
 
+    // Next Code Fragment
+    private GPNode nextCF(EvolutionState state, GPNodeParent parent)
+    {
+        CodeFragmentKI cf = null;
+        boolean ready = false;
+        while (!ready)
+        {
+            cf = (CodeFragmentKI) extractor.getNext();
+            if (cf == null)
+            {
+                log(state, null, knowledgeSuccessLogID);
+                return null;
+            }
+
+            if (niche.size() == 0)
+            {
+                niche.add(cf);
+                ready = true;
+            }
+            else
+            {
+                CodeFragmentKI center = niche.get(0);
+                if (Math.abs(center.getSourceFitness() - cf.getSourceFitness()) <= nicheRadius)
+                {
+                    if (niche.size() < nicheCapacity)
+                    {
+                        niche.add(cf);
+                        ready = true;
+                    }
+                    else
+                        log(state, knowledgeSuccessLogID, "CF ignored due to niching: " + cf.toString());
+                }
+                else // New niche
+                {
+                    niche.clear();
+                    niche.add(cf);
+                    ready = true;
+                }
+            }
+        }
+
+        GPNode node = cf.getItem();
+
+        node.parent = parent;
+        lastLoadedTransfer = node;
+        return node;
+    }
+
     public GPNode newRootedTree(final EvolutionState state, final GPType type, final int thread,
                                 final GPNodeParent parent, final GPFunctionSet set, final int argposition,
                                 final int requestedSize)
@@ -191,15 +289,23 @@ public class MutatingFulltreeBuilder extends SimpleCodeFragmentBuilder
 
         if(lastLoadedTransfer == null)
         {
-            CodeFragmentKI cf = (CodeFragmentKI) extractor.getNext();
-            if (cf != null)
+            GPNode n = nextCF(state, parent);
+
+            if (n != null)
             {
                 cfCounter++;
-                log(state, knowledgeSuccessLogID, cfCounter + ": \t" + cf.toString());
-                GPNode node = cf.getItem();
-                node.parent = parent;
-                lastLoadedTransfer = node;
-                return node;
+                log(state, knowledgeSuccessLogID, cfCounter + ": \t" + new CodeFragmentKI(n).toString());
+                if(simplify)
+                {
+                    GPIndividual ind = GPIndividualUtils.asGPIndividual(n);
+                    boolean simplified = simplifier.simplifyTree(state, ind);
+                    n = GPIndividualUtils.stripRoots(ind).get(0);
+                    if(simplified)
+                        log(state, knowledgeSuccessLogID, cfCounter + " (simplified): \t" + new CodeFragmentKI(n).toString());
+                }
+                n.parent = parent;
+                lastLoadedTransfer = n;
+                return n;
             }
             else
                 log(state, null, knowledgeSuccessLogID);
