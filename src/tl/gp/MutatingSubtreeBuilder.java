@@ -259,7 +259,7 @@ public class MutatingSubtreeBuilder extends SimpleCodeFragmentBuilder
                         ready = true;
                     }
                     else
-                        log(state, knowledgeSuccessLogID, "CF ignored due to niching: " + cf.toString());
+                        log(state, knowledgeSuccessLogID, "CF ignored due to niching: " + cf.toString() + "\n");
                 }
                 else // New niche
                 {
@@ -294,14 +294,14 @@ public class MutatingSubtreeBuilder extends SimpleCodeFragmentBuilder
             if (n != null)
             {
                 cfCounter++;
-                log(state, knowledgeSuccessLogID, cfCounter + ": \t" + new CodeFragmentKI(n).toString());
+                log(state, knowledgeSuccessLogID, cfCounter + ": \t" + new CodeFragmentKI(n).toString() + "\n");
                 if(simplify)
                 {
                     GPIndividual ind = GPIndividualUtils.asGPIndividual(n);
                     boolean simplified = simplifier.simplifyTree(state, ind);
                     n = GPIndividualUtils.stripRoots(ind).get(0);
                     if(simplified)
-                        log(state, knowledgeSuccessLogID, cfCounter + " (simplified): \t" + new CodeFragmentKI(n).toString());
+                        log(state, knowledgeSuccessLogID, cfCounter + " (simplified): \t" + new CodeFragmentKI(n).toString() + "\n");
                 }
                 n.parent = parent;
                 lastLoadedTransfer = n;
@@ -316,8 +316,7 @@ public class MutatingSubtreeBuilder extends SimpleCodeFragmentBuilder
             mutated.parent = parent;
             numToMutate--;
             cfCounter++;
-            log(state, knowledgeSuccessLogID, cfCounter + "(mutated): \t" + mutated.makeCTree(
-                    false, true, true));
+            log(state, knowledgeSuccessLogID, cfCounter + "(mutated): \t" + mutated.makeCTree(false, true, true) + "\n");
             if(numToMutate <= 0)
             {
                 lastLoadedTransfer = null;
