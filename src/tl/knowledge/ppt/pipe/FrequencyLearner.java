@@ -92,7 +92,7 @@ public class FrequencyLearner implements IPIPELearner<GPIndividual[]>
 
     private HashMap<String, HashMap<String, Double>> calculateDistributionEstimate(ArrayList<GPIndividual> sample, int treeIndex)
     {
-        PPTree retval = new PPTree(this, this.functions, this.terminals);
+//        PPTree retval = new PPTree(this, this.functions, this.terminals);
 
         // (nodeAddress, (nodeName, nodeCount))
         HashMap<String, HashMap<String, Double>> stats = new HashMap<>();

@@ -11,7 +11,7 @@ import java.util.Map;
  * This class implements the basic learning method of PPTree models that is presented in the paper: <br/>
  * "R.P. Salustowicz, J. Schmidhüber, Probabilistic incremental program evolution. Evol. Comput. 5(2), 123–141 (1997)".
  */
-class PIPELearner implements IPIPELearner<GPIndividual>
+public class PIPELearner implements IPIPELearner<GPIndividual>
 {
     /**
      * The probability of selecting an instruction from the terminal set.
@@ -99,6 +99,19 @@ class PIPELearner implements IPIPELearner<GPIndividual>
         return retval;
     }
 
+    private static boolean isdigit(String str)
+    {
+        try
+        {
+            Double.parseDouble(str);
+            return true;
+        }
+        catch (NumberFormatException e)
+        {
+            return false;
+        }
+    }
+
     /**
      * Adapt the probability model towards the given individual.
      * @param tree the probability model tree to update.
@@ -108,21 +121,25 @@ class PIPELearner implements IPIPELearner<GPIndividual>
     @Override
     public void adaptTowards(PPTree tree, GPIndividual individual, int treeIndex)
     {
-        if(elite == null)
+        // TODO: 28/08/19 Should this be done first?
+        if(elite == null || (individual.fitness.fitness() < elite.fitness.fitness()))
             elite = individual;
 
         double probabilityOfInd = tree.probabilityOf(individual, treeIndex);
         double targetProbability = targetProbability(probabilityOfInd, individual.fitness.fitness(),
                                                      elite.fitness.fitness());
         GPNode root = individual.trees[treeIndex].child;
-        while(targetProbability <= probabilityOfInd)
+        while(targetProbability >= probabilityOfInd)
         {
             // TODO: probability values are not updated.
             Map<String, GPNode> index = GPIndividualUtils.index(individual.trees[treeIndex].child);
             for(String address : index.keySet())
             {
                 GPNode node = index.get(address);
-                double oldItemProb = tree.getProbabilityOf(address, node.name());
+                String nodeName = node.toString();
+                if(isdigit(nodeName))
+                    nodeName = "ERC";
+                double oldItemProb = tree.getProbabilityOf(address, nodeName);
                 double newItemProb = oldItemProb + clr*lr*(1 - oldItemProb);
                 if(newItemProb < 0 || newItemProb > 1)
                 {
@@ -132,15 +149,16 @@ class PIPELearner implements IPIPELearner<GPIndividual>
                     System.err.println("The probability is ignored.");
                     continue;
                 }
-                tree.setProbabilityOf(address,node.name(), newItemProb);
-                if(node.name().equals("ERP")) // TODO: 28/08/19 This is incorrect.
+                tree.setProbabilityOf(address,nodeName, newItemProb);
+                if(nodeName.equals("ERC")) // TODO: 28/08/19 This is incorrect.
+                {
                     tree.setR(address, Double.valueOf(node.toString()));
+                }
             }
-        }
 
-        // TODO: 28/08/19 Should this be done first?
-        if(elite == null || (individual.fitness.fitness() < elite.fitness.fitness()))
-            elite = individual;
+            probabilityOfInd = tree.probabilityOf(individual, treeIndex);
+//            targetProbability = targetProbability(probabilityOfInd, individual.fitness.fitness(), elite.fitness.fitness());
+        }
     }
 
     @Override

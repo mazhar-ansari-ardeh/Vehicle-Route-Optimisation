@@ -30,6 +30,7 @@ params
 
 # BookKeeping files that are output of the algorithms
 *.bk
+*.ppt
 
 # Code Fragment files
 *.cf

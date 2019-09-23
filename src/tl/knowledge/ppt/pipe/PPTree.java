@@ -107,13 +107,26 @@ public class PPTree implements Serializable
 //		return node.sample(twister);
 //	}
 
+	private static boolean isdigit(String str)
+	{
+		try
+		{
+			Double.parseDouble(str);
+			return true;
+		}
+		catch (NumberFormatException e)
+		{
+			return false;
+		}
+	}
+
 	/**
 	 * Gets the probability of a GP item appearing at a given address. If the tree does not have a node at the given
 	 * address, a new node will be created, initialized and added to the tree for that address.
 	 * @param address the address of the node. This parameter cannot be {@code null} or empty.
 	 * @param gpItem the GP terminal/function whose probability is wanted. This parameter cannot be {@code null} or
 	 *               empty.
-	 * @return the probability vector at the given address.
+	 * @return the probability value of a node at the given address.
 	 */
 	public double getProbabilityOf(String address, String gpItem)
 	{
@@ -151,7 +164,6 @@ public class PPTree implements Serializable
 		if(newProbability < 0 || newProbability > 1)
 			throw new IllegalArgumentException("Probability value should be in the range [0, 1]:" + newProbability);
 
-		// TODO: 28/08/19 Is this a good idea?
 		if(!nodes.containsKey(address))
 		{
 			// According to the paper, nodes are created on demand whenever I(d,w)\in F is selected and the subtree for an
@@ -181,8 +193,13 @@ public class PPTree implements Serializable
 		Map<String, GPNode> index = GPIndividualUtils.index(ind.trees[tree].child);
 		for(String address : index.keySet())
 		{
-			ProbabilityVector probabilityVector = nodes.get(address);
-			retval *= probabilityVector.probabilityOf(index.get(address).name());
+			String nodeName = index.get(address).toString();
+			if(isdigit(nodeName))
+				nodeName = "ERC";
+			double probability = getProbabilityOf(address, nodeName);
+//			ProbabilityVector probabilityVector = nodes.get(address);
+//			retval *= probabilityVector.probabilityOf(index.get(address).name());
+			retval *= probability;
 		}
 		return retval;
 	}
