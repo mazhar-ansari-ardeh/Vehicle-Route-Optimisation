@@ -131,7 +131,7 @@ class Extractor
         double clr = state.parameters.getDouble(p, null);
         state.output.warning("clr: " + clr);
 
-        return new PIPELearner(state, 0, ((double)terminals.length) / (terminals.length + functions.length),
+        return new PIPELearner(state, 0, ((double)functions.length) / (terminals.length + functions.length),
                 functions, terminals, lr, epsilon, clr);
     }
 
@@ -211,6 +211,8 @@ class Extractor
 
         p = base.push(P_LEARNER);
         String learningMethod = state.parameters.getString(p, null);
+        if(learningMethod == null)
+            throw new RuntimeException("Learning method is not specified.");
         switch (learningMethod.toLowerCase())
         {
             case "pipe":
