@@ -47,10 +47,27 @@ class Extractor
     private int toGeneration = -1;
 
     /**
+     * This program implements a simple niching algorithm and this parameter indicates its radius.
+     */
+    public final String P_FITNESS_NICHE_RADIUS = "fitness-niche-radius";
+
+    /**
+     * The capacity of each niche. The value of this parameter must be greater than zero. If niching is disabled, this
+     * parameter is ignored.
+     */
+    public final String P_FITNESS_NICHE_CAPACITY = "fitness-niche-capacity";
+
+    /**
+     * The learning rate. The meaning of this parameter may be different for different learning algorithms.
+     */
+    public static final String P_LEARNING_RATE = "lr";
+
+    /**
      * The learner to use. The acceptable values are: frequency, frequencylearner, pipe, pipelearner.
      * The value of this parameter is not case sensitive.
      */
     public static final String P_LEARNER = "learner";
+
     /**
      * The learner that will be used to learn the PPT from the population.
      */
@@ -66,23 +83,17 @@ class Extractor
      */
     public static final String P_CLR = "clr";
 
-    /**
-     * This program implements a simple niching algorithm and this parameter indicates its radius.
-     */
-    public final String P_FITNESS_NICHE_RADIUS = "fitness-niche-radius";
 
     /**
-     * The size of the set that is sampled from the population set to learn from.
+     * The size of the set that is sampled from the population set to learn from for the frequency-based learning
+     * method.
      */
     public static final String P_SAMPLE_SIZE = "sample-size";
 
-    public final static String P_TOURNAMENT_SIZE = "tournament-size";
-
     /**
-     * The learning rate. The meaning of this parameter may be different for different learning algorithms.
+     * The tournament size that is used by the frequency-based learning method.
      */
-    public static final String P_LEARNING_RATE = "lr";
-
+    public final static String P_TOURNAMENT_SIZE = "tournament-size";
 
 //    /**
 //     * Minimum allowed size of code fragments to use, inclusive.
@@ -153,11 +164,22 @@ class Extractor
 
         fromGeneration = state.parameters.getIntWithDefault(base.push(P_GENERATION_FROM), null, -1);
         state.output.warning("From generation: " + fromGeneration);
+
         toGeneration = state.parameters.getIntWithDefault(base.push(P_GENERATION_TO), null, -1);
         state.output.warning("To generation: " + toGeneration);
+
         double fitnessNicheRadius = state.parameters.getDouble(base.push(P_FITNESS_NICHE_RADIUS), null);
         state.output.warning("Niche radius: " + fitnessNicheRadius);
-        nichingAlgorithm = new SimpleNichingAlgorithm(fitnessNicheRadius, 1);
+        int nicheCapacity = 1;
+        if(fitnessNicheRadius >= 0 )
+        {
+            nicheCapacity = state.parameters.getInt(base.push(P_FITNESS_NICHE_CAPACITY), null);
+            if(nicheCapacity <= 0)
+                state.output.fatal("Niche capacity must be greater than zero: " + nicheCapacity);
+            else
+                state.output.warning("Niche capacity: " + nicheCapacity);
+        }
+        nichingAlgorithm = new SimpleNichingAlgorithm(fitnessNicheRadius, nicheCapacity);
 
         Parameter p = new Parameter("eval.problem.eval-model.instances.0.samples");
         int samples = state.parameters.getInt(p, null);
