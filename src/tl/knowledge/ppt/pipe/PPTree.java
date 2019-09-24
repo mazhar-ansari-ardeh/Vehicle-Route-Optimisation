@@ -253,13 +253,17 @@ public class PPTree implements Serializable
 		{
 			String childAdress = (parentAddress.equals("-1") ? "" : parentAddress) + i;
 			ProbabilityVector nodeProb = this.nodes.get(childAdress);
+			String nodeName;
 			if(nodeProb == null)
-				return;
-			String nodeName = nodeProb.sample(twister);
+				nodeName = "ERC"; // TODO: This happens but I don't know why.
+			else
+				nodeName = nodeProb.sample(twister);
 			if(nodeName == null)
 				return;
 
 			parent.children[i] = UCARPUtils.createPrimitive(nodeName, twister.nextDouble());
+//			if(parent.children[i] == null || parent.children[i].children[i] == null)
+//				System.out.println(parent.name());
 			parent.children[i].parent = parent;
 			parent.children[i].argposition = (byte) i;
 			addChildren(parent.children[i], childAdress, twister);

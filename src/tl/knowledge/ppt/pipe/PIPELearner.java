@@ -31,7 +31,7 @@ public class PIPELearner implements IPIPELearner<GPIndividual>
     /**
      * The evolution state object of ECJ.
      */
-    private final EvolutionState state;
+    private transient final EvolutionState state;
 
     /**
      * The ECJ thread that is running this learner.
@@ -150,7 +150,7 @@ public class PIPELearner implements IPIPELearner<GPIndividual>
                     continue;
                 }
                 tree.setProbabilityOf(address,nodeName, newItemProb);
-                if(nodeName.equals("ERC")) // TODO: 28/08/19 This is incorrect.
+                if(nodeName.equals("ERC"))
                 {
                     tree.setR(address, Double.valueOf(node.toString()));
                 }
