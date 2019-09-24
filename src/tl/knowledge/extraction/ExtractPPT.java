@@ -23,19 +23,8 @@ import java.util.Arrays;
 
 class Extractor
 {
-    EvolutionState state = null;
-
-//    /**
-//     * The percent of the individuals in the source domain to consider to analyzing. The value of
-//     * this parameter must be in [0, 1].
-//     * If this value is less than 1, the individuals in the population will be sorted according to
-//     * their fitness and then will be selected.
-//     */
-//    private double percent;
 
     public final String P_BASE = "extract-ppt";
-
-//    public final String P_PERCENT = "percent";
 
     /**
      * Total number of generations on the source domain. This parameter is counted from 1.
@@ -50,14 +39,12 @@ class Extractor
     public final String P_GENERATION_FROM = "from-generation";
     private int fromGeneration = -1;
 
-
     /**
      * When the knowledge source is a directory, this parameter specifies the generation until which
      * the populations should be read. This parameter is inclusive.
      */
     public final String P_GENERATION_TO = "to-generation";
     private int toGeneration = -1;
-
 
     /**
      * The learner to use. The acceptable values are: frequency, frequencylearner, pipe, pipelearner.
@@ -79,36 +66,10 @@ class Extractor
      */
     public static final String P_CLR = "clr";
 
-
-//    /**
-//     * Minimum allowed size of code fragments to use, inclusive.
-//     */
-//    public final String P_MIN_ST_DEPTH = "min-st-depth";
-//    private int minDepth;
-
-//    /**
-//     * Maximum allowed size of code fragments to use, inclusive.
-//     */
-//    public final String P_MAX_ST_DEPTH = "max-st-depth";
-//    private int maxDepth;
-
     /**
      * This program implements a simple niching algorithm and this parameter indicates its radius.
      */
     public final String P_FITNESS_NICHE_RADIUS = "fitness-niche-radius";
-//    private double fitnessNicheRadius;
-
-
-    /**
-     * Number of individuals that were analyzed.
-     */
-//    int numAnalyzed = 0;
-
-    private TLLogger<GPNode> logger;
-
-    private int logID;
-
-    public static final String P_LEARNING_RATE = "lr";
 
     /**
      * The size of the set that is sampled from the population set to learn from.
@@ -117,7 +78,36 @@ class Extractor
 
     public final static String P_TOURNAMENT_SIZE = "tournament-size";
 
+    /**
+     * The learning rate. The meaning of this parameter may be different for different learning algorithms.
+     */
+    public static final String P_LEARNING_RATE = "lr";
+
+
+//    /**
+//     * Minimum allowed size of code fragments to use, inclusive.
+//     */
+//    public final String P_MIN_ST_DEPTH = "min-st-depth";
+//    private int minDepth;
+//    /**
+//     * Maximum allowed size of code fragments to use, inclusive.
+//     */
+//    public final String P_MAX_ST_DEPTH = "max-st-depth";
+//    private int maxDepth;
+//    private double fitnessNicheRadius;
+//    /**
+//     * Number of individuals that were analyzed.
+//     */
+//    int numAnalyzed = 0;
+
+    EvolutionState state = null;
+
+    private TLLogger<GPNode> logger;
+
+    private int logID;
+
     private PPTree tree;
+
     private SimpleNichingAlgorithm nichingAlgorithm;
 
     private PIPELearner setupPipeLearner(EvolutionState state, Parameter base, double lr, String[] functions, String[] terminals)
@@ -154,8 +144,6 @@ class Extractor
 
         return new FrequencyLearner(state, 0, functions, terminals, lr, sampleSize, tournamentSize);
     }
-
-//    private HashMap<GPIndividual, ArrayList<Pair<GPNode, Double>>> book = new HashMap<>();
 
     private void loadECJ(String paramFileNamePath, String... ecjParams)
     {
@@ -284,8 +272,6 @@ class Extractor
     {
         File out = new File(outputFileNamePath);
         ObjectOutputStream os = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(out)));
-//            os.writeDouble(minFit);
-//            os.writeDouble(maxFit);
         os.writeObject(tree);
         os.close();
     }
@@ -306,8 +292,6 @@ class Extractor
         }
 
         loadECJ(args[0], Arrays.copyOfRange(args, 3, args.length));
-
-//        HashCalculator hs = new AlgebraicHashCalculator(state, 0, 100003621);
 
         String outputFileNamePath = args[2];
         try
