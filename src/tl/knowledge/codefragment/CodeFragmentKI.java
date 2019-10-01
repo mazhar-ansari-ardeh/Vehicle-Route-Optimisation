@@ -159,8 +159,9 @@ public class CodeFragmentKI implements KnowledgeItem<GPNode>, Serializable
 	public String toString()
 	{
 		return "["
-					+ (codeFragment == null ? "null" : codeFragment.makeCTree(false, true, true))
-					+ ", use:" + Integer.toString(useCounter) + ", dup: "
-					+ Integer.toString(duplicateCount) + ", o:" + origin + "]";
+					+ (codeFragment == null ? "null"
+											: codeFragment.makeCTree(false, true, true)) + ", use:" + useCounter
+												+ ", dup: " + duplicateCount + ", o:" + origin + ", sf: " + sourceFitness +
+			   "]";
 	}
 }

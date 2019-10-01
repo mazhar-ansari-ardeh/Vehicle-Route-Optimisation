@@ -150,6 +150,15 @@ ppt-state.niche-radius=0.1
 ppt-state.niche-capacity=2
 
 
+# ==============================
+# FullTree
+# ==============================
+gp.tc.0.init=tl.gp.SimpleCodeFragmentBuilder
+gp.tc.0.init.knowledge-file=/home/mazhar/grid/gdb8.vs10:gen_50/KnowledgeSource/1/population.gen.49.bin
+gp.tc.0.init.transfer-percent=25
+gp.tc.0.init.knowledge-extraction=root
+
+
 
 # ==============================
 # The test set

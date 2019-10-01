@@ -135,7 +135,7 @@ public abstract class CodeFragmentKB implements KnowlegeBase<GPNode>
 	 * type <code>GPIndividual</code>, it will ignore the object.
 	 * In the context of this class, a code fragment is a child of the root node of the given
 	 * <code>gpIndividual</code> object.
-	 * @param population A <code>Population</code> object from which code fragments will be
+	 * @param file A file object that contains the population from which code fragments will be
 	 * extracted and added to this base. If <code>population</code> is <code>null</code>, it will
 	 * be ignored.
 	 * @return <code>true</code> if the function added items from <code>population</code> to this

@@ -42,3 +42,9 @@ Added niching to the PPTEvolutionState
 
 22/09/19
 Finished implementing MutatingSubtreeBuilder.
+
+24/09/19
+Finished and debugged implementation of PIPE extraction in ExtractPPT.
+
+01/10/19
+Fixed a bug that did not log the fitness of the source individuals in SimpleCodeFragmentBuilder.

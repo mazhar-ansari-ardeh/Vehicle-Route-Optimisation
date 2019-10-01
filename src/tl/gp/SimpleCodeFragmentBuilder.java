@@ -116,7 +116,7 @@ public class SimpleCodeFragmentBuilder extends HalfBuilder implements TLLogger<G
 		if(cf != null)
 		{
 			cfCounter++;
-			log(state, knowledgeSuccessLogID, cfCounter + ": \t" + cf.toString());
+			log(state, knowledgeSuccessLogID, cfCounter + ": \t" + cf.toString() + "\n\n");
 			GPNode node = cf.getItem();
 			node.parent = parent;
 			return node;
