@@ -48,3 +48,6 @@ Finished and debugged implementation of PIPE extraction in ExtractPPT.
 
 01/10/19
 Fixed a bug that did not log the fitness of the source individuals in SimpleCodeFragmentBuilder.
+
+02/10/19
+Added the ability to allow or reject duplicates.

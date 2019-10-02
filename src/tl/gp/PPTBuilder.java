@@ -91,7 +91,7 @@ public class PPTBuilder extends HalfBuilder implements TLLogger<GPNode>
             if (cf != null)
             {
                 cfCounter++;
-                log(state, knowledgeSuccessLogID, cf.makeCTree(true, true, true) + "\n\n");
+                log(state, knowledgeSuccessLogID, cfCounter + ": \t" + cf.makeCTree(true, true, true) + "\n\n");
                 cf.parent = parent;
                 cf.argposition = (byte) argposition;
                 return cf;
