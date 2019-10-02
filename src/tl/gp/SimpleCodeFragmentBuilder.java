@@ -27,6 +27,11 @@ public class SimpleCodeFragmentBuilder extends HalfBuilder implements TLLogger<G
 
 	public static final String P_TRANSFER_PERCENT = "transfer-percent";
 
+	/**
+	 * A boolean parameter that indicates if exact duplicates are allowed to be loaded and transferred or not. The default
+	 * value of this parameter is {@code true}.
+	 */
+	public static final String P_ALLOW_DUPLICATES = "allow-duplicates";
 
 	protected static KnowledgeExtractor extractor = null;
 
@@ -62,7 +67,10 @@ public class SimpleCodeFragmentBuilder extends HalfBuilder implements TLLogger<G
 		Parameter transferPercentParam = base.push(P_TRANSFER_PERCENT);
 		int transferPercent = state.parameters.getInt(transferPercentParam, null);
 
-		SimpleCodeFragmentKB knowledgeBase = new SimpleCodeFragmentKB(state, transferPercent);
+		boolean allowDup = state.parameters.getBoolean(base.push(P_ALLOW_DUPLICATES), null, true);
+
+		SimpleCodeFragmentKB knowledgeBase = new SimpleCodeFragmentKB(state, transferPercent, allowDup);
+		state.output.warning("Allow duplicates: " + allowDup);
 
 		knowledgeBase.extractFrom(kbFile, extractionMethod);
 		extractor = knowledgeBase.getKnowledgeExtractor();

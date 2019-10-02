@@ -60,7 +60,7 @@ seed.0=2
 # ==============================
 # ContribSubTree Builder
 # ==============================
-# gp.tc.0.init=tl.gp.ContribSubtreeBuilder
+ gp.tc.0.init=tl.gp.ContribSubtreeBuilder
 # gp.tc.0.init.knowledge-file=/run/media/mazhar/Elements/grid/Archive/val10D-v10-to9/1/val10D-v10-all.bk
 # percentage of initial population that is created from extracted knowledge
 # gp.tc.0.init.transfer-percent=0.50
@@ -70,7 +70,7 @@ seed.0=2
 # PPT Builder
 # ==============================
 # gp.tc.0.init=tl.gp.PPTBuilder
-# gp.tc.0.init.knowledge-file=pipe_tree.ppt
+# gp.tc.0.init.knowledge-file=/home/mazhar/grid/gdb8.vs10.gdb8.vt11:gen_50/PPTFreqLearning:percent_0.5:nrad_0.1:ncap_3:gens_49_49:lr_0.8:ss_80:ts_20/1/PPTFreqLearning:percent_0.5:nrad_0.1:ncap_3:gens_49_49:lr_0.8:ss_80:ts_20.ppt
 # percentage of initial population that is created from extracted knowledge
 # gp.tc.0.init.transfer-percent=0.50
 # gp.tc.0.init.knowledge-log-file=./stats/target-wk/PPTBuildLog
@@ -84,23 +84,24 @@ seed.0=2
 # ==============================
 # MutatingSubtreeBuilder
 # ==============================
-gp.tc.0.init=tl.gp.MutatingSubtreeBuilder
-gp.tc.0.init.knowledge-file=/home/mazhar/grid/gdb1.vs5:gen_50/KnowledgeSource/1/population.gen.49.bin
-gp.tc.0.init.knowledge-log-file=./stats/target-wk/MutatingFullTreeLog
-gp.tc.0.init.transfer-percent=50
-gp.tc.0.init.knowledge-extraction=root
-gp.tc.0.init.ns.0 = ec.gp.koza.KozaNodeSelector
-gp.tc.0.init.num-mutated=2
-gp.tc.0.init.simplify=true
-gp.tc.0.init.target-percent=0.5
-gp.tc.0.init.niche-capacity=2
-gp.tc.0.init.niche-radius=0.1
+# gp.tc.0.init=tl.gp.MutatingSubtreeBuilder
+# gp.tc.0.init.knowledge-file=/home/mazhar/grid/gdb1.vs5:gen_50/KnowledgeSource/1/population.gen.49.bin
+# gp.tc.0.init.knowledge-log-file=./stats/target-wk/MutatingFullTreeLog
+# gp.tc.0.init.transfer-percent=50
+# gp.tc.0.init.knowledge-extraction=root
+# gp.tc.0.init.ns.0 = ec.gp.koza.KozaNodeSelector
+# gp.tc.0.init.num-mutated=2
+# gp.tc.0.init.simplify=true
+# gp.tc.0.init.target-percent=0.5
+# gp.tc.0.init.niche-capacity=2
+# gp.tc.0.init.niche-radius=0.1
 
 # ==============================
 # Frequent CodeFragment Builder
 # ==============================
 # gp.tc.0.init=tl.gp.FrequentCodeFragmentBuilder
-# gp.tc.0.init.knowledge-directory=/home/mazhar/grid/gdb2-v6-to5/1/stats/gdb2-v6-writeknow/
+# gp.tc.0.init.knowledge-directory=/home/mazhar/grid/gdb1.vs5:gen_50/KnowledgeSource/1/
+# gp.tc.0.init.knowledge-log-file=./stats/target-wk/FullTreeLog
 # gp.tc.0.init.knowledge-extraction=rootsubtree
 # percentage of initial population that is created from extracted knowledge
 # gp.tc.0.init.transfer-percent=0.50
@@ -157,6 +158,7 @@ gp.tc.0.init=tl.gp.SimpleCodeFragmentBuilder
 gp.tc.0.init.knowledge-file=/home/mazhar/grid/gdb8.vs10:gen_50/KnowledgeSource/1/population.gen.49.bin
 gp.tc.0.init.transfer-percent=25
 gp.tc.0.init.knowledge-extraction=root
+gp.tc.0.init.knowledge-log-file=./stats/target-wk/FullTreeLog
 
 
 

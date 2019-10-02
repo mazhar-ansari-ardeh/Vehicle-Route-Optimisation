@@ -29,6 +29,7 @@ import tl.knowledge.codefragment.*;
  */
 public class SimpleCodeFragmentKB extends CodeFragmentKB
 {
+	private boolean allowDuplicates;
 	// Using ConcurrentHashMap instead of HashMap will make this KB capable of
 	// concurrency.
 	ConcurrentHashMap<Integer, CodeFragmentKI> repository = new ConcurrentHashMap<>();
@@ -38,18 +39,19 @@ public class SimpleCodeFragmentKB extends CodeFragmentKB
 	EvolutionState state;
 
 
-	public SimpleCodeFragmentKB()
-	{
-		super();
-	}
+//	public SimpleCodeFragmentKB()
+//	{
+//		super();
+//	}
 
-	public SimpleCodeFragmentKB(EvolutionState state, int k)
+	public SimpleCodeFragmentKB(EvolutionState state, int k, boolean allowDuplicates)
 	{
 		if(k > 100)
 			throw new IllegalArgumentException("K is a percentage value and cannot be greater "
 					+ "than 100");
 		this.k = k / 100f;
 		this.state = state;
+		this.allowDuplicates = allowDuplicates;
 	}
 
 	@Override
@@ -135,11 +137,12 @@ public class SimpleCodeFragmentKB extends CodeFragmentKB
 		}
 
 		CodeFragmentKI cfItem = new CodeFragmentKI(item);
-		if(repository.containsKey(item.hashCode()))
+		if(!allowDuplicates && repository.containsKey(item.rootedTreeHashCode()))
+		{
+			state.output.warning("(Sub-)tree is already in the repository: " + item.makeCTree(false, true, true));
 			return false;
-
-		repository.put(item.hashCode(), cfItem);
-
+		}
+		repository.put(item.rootedTreeHashCode(), cfItem);
 
 		return true;
 	}
@@ -152,11 +155,12 @@ public class SimpleCodeFragmentKB extends CodeFragmentKB
 		}
 
 		CodeFragmentKI cfItem = new CodeFragmentKI(item, fitness);
-		if(repository.containsKey(item.hashCode()))
+		if(!allowDuplicates && repository.containsKey(item.rootedTreeHashCode()))
+		{
+			state.output.warning("(Sub-)tree is already in the repository: " + item.makeCTree(false, true, true));
 			return false;
-
-		repository.put(item.hashCode(), cfItem);
-
+		}
+		repository.put(item.rootedTreeHashCode(), cfItem);
 
 		return true;
 	}
@@ -182,7 +186,7 @@ public class SimpleCodeFragmentKB extends CodeFragmentKB
 			return false;
 		}
 
-		return repository.remove(item.hashCode()) != null;
+		return repository.remove(item.rootedTreeHashCode()) != null;
 	}
 
 	/**
@@ -204,7 +208,7 @@ public class SimpleCodeFragmentKB extends CodeFragmentKB
 			return false;
 		}
 
-		return repository.containsKey(item.hashCode());
+		return repository.containsKey(item.rootedTreeHashCode());
 	}
 
 	/**
