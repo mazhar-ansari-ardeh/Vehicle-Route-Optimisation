@@ -9,7 +9,10 @@ import ec.util.Parameter;
 import tl.TLLogger;
 import tl.ecj.ECJUtils;
 import tl.gp.PopulationUtils;
+import tl.gp.hash.AlgebraicHashCalculator;
+import tl.gp.hash.HashCalculator;
 import tl.gp.niching.SimpleNichingAlgorithm;
+import tl.gp.simplification.AlgebraicTreeSimplifier;
 import tl.gphhucarp.UCARPUtils;
 import tl.knowledge.ppt.pipe.FrequencyLearner;
 import tl.knowledge.ppt.pipe.IPIPELearner;
@@ -83,12 +86,20 @@ class Extractor
      */
     public static final String P_CLR = "clr";
 
-
     /**
      * The size of the set that is sampled from the population set to learn from for the frequency-based learning
      * method.
      */
     public static final String P_SAMPLE_SIZE = "sample-size";
+
+    /**
+     * A boolean parameter that if set to {@code true}, the loaded individuals will be simplified before being used for
+     * learning the PPT. The default value of this parameter is {@code false}.
+     */
+    public static final String P_SIMPLIFY = "simplify";
+    private boolean simplify;
+
+
 
     /**
      * The tournament size that is used by the frequency-based learning method.
@@ -120,6 +131,12 @@ class Extractor
     private PPTree tree;
 
     private SimpleNichingAlgorithm nichingAlgorithm;
+
+    /**
+     * The simplifier that is used to simplify GP individuals before learning from the PPT from them. This field is used only
+     * if the @{code P_SIMPLIFY} parameter is set to {@code true}.
+     */
+    private AlgebraicTreeSimplifier simplifier;
 
     private PIPELearner setupPipeLearner(EvolutionState state, Parameter base, double lr, String[] functions, String[] terminals)
     {
@@ -227,6 +244,15 @@ class Extractor
                 state.output.fatal("Learner is not recognized: " + learningMethod);
         }
 
+        p = base.push(P_SIMPLIFY);
+        simplify = state.parameters.getBoolean(p, null, false);
+        state.output.warning("Simplify: " + simplify);
+        if(simplify)
+        {
+            HashCalculator hc = new AlgebraicHashCalculator(state, 0, 1000077157);
+            simplifier = new AlgebraicTreeSimplifier(hc);
+        }
+
         tree = new PPTree(learner, functions, terminals);
         state.output.warning("ExtractPPT loaded.");
     }
@@ -286,6 +312,16 @@ class Extractor
         GPIndividual[] inds = new GPIndividual[individuals.length];
 
         inds = Arrays.copyOf(individuals, inds.length, GPIndividual[].class);
+        if(simplify)
+        {
+            for (GPIndividual ind : inds)
+            {
+                boolean succs = simplifier.simplifyTree(state, ind);
+                if (succs)
+                    logger.log(state, logID, "Tree is simplified into: "
+                            + ind.trees[0].child.makeCTree(false, true, true) + "\n\n");
+            }
+        }
         if(learner instanceof PIPELearner)
             ((PIPELearner)learner).adaptTowards(tree, inds[0], 0);
         else if (learner instanceof FrequencyLearner)
