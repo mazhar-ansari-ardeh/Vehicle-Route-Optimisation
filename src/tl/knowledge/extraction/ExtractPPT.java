@@ -165,7 +165,7 @@ class Extractor
 
         // The tournament size to sample individuals from the population to learn.
         int tournamentSize = state.parameters.getInt(p, null);
-        if(tournamentSize <= 0 || tournamentSize > sampleSize)
+        if(tournamentSize > sampleSize)
             state.output.fatal("Tournament size must be positive and smaller than sample size: " + tournamentSize);
         else
             state.output.warning("Tournament size: " + tournamentSize);

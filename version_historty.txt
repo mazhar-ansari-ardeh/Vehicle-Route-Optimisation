@@ -51,3 +51,9 @@ Fixed a bug that did not log the fitness of the source individuals in SimpleCode
 
 02/10/19
 Added the ability to allow or reject duplicates.
+
+06/10/19
+Added the ability to simplify trees before extracting PPTs.
+
+11/10/19
+Improved the FrequencyLearner class so that now it can use ranked selection as well as tournament selection.

@@ -59,13 +59,14 @@ public class FrequencyLearner implements IPIPELearner<GPIndividual[]>
      * @param terminals the name of all the GP terminals
      * @param learningRate the learning rate
      * @param sampleSize the size of the sample from the population to learn from.
-     * @param tournamentSize the tournament size to use for selecting from the population to learn from.
+     * @param tournamentSize the tournament size to use for selecting from the population to learn from. A zero or
+     *                       selection of size negative value of this parameter will disable tournament selection and will
+     *                       use a ranked selection of size {@code sampleSize}.
      */
     public FrequencyLearner(EvolutionState state, int threadNum, String[] functions, String[] terminals, double learningRate,
                             int sampleSize, int tournamentSize)
     {
-        if(tournamentSize <= 0)
-            throw new IllegalArgumentException("Tournament size must be a positive number.");
+        this.useTournament = tournamentSize > 0;
         if(sampleSize <= 0)
             throw new IllegalArgumentException("Sample size must be a positive number.");
         this.state = state;
@@ -135,22 +136,31 @@ public class FrequencyLearner implements IPIPELearner<GPIndividual[]>
         return stats;
     }
 
+    boolean useTournament = false;
     @Override
     public void adaptTowards(PPTree tree, GPIndividual[] individual, int treeIndex)
     {
-        ArrayList<GPIndividual> Ss = new ArrayList<>(); // Sampled individuals. The name is from the paper.
-        if(individual.length <= sampleSize)
-            Ss.addAll(Arrays.asList(individual));
+        ArrayList<GPIndividual> Ss; // Sampled individuals. The name is from the paper.
+
+        if(useTournament)
+        {
+            Ss = new ArrayList<>();
+            if (individual.length <= sampleSize)
+                Ss.addAll(Arrays.asList(individual));
+            else
+                for (int i = 0; i < sampleSize; i++)
+                {
+                    int selected = PopulationUtils.tournamentSelect(individual, state, threadnum, tournamentSize);
+                    while (Ss.contains(individual[selected]))
+                        selected = PopulationUtils.tournamentSelect(individual, state, threadnum, tournamentSize);
+
+                    Ss.add(individual[selected]);
+                }
+        }
         else
-            for(int i = 0; i < sampleSize; i++)
-            {
-                int selected = PopulationUtils.tournamentSelect(individual, state, threadnum, tournamentSize);
-                while(Ss.contains(individual[selected]))
-                    selected = PopulationUtils.tournamentSelect(individual, state, threadnum, tournamentSize);
-
-                Ss.add(individual[selected]);
-            }
-
+        {
+            Ss = PopulationUtils.rankSelect(individual, sampleSize);
+        }
         HashMap<String, HashMap<String, Double>> stats = calculateDistributionEstimate(Ss, treeIndex);
         for(String address : stats.keySet())
         {

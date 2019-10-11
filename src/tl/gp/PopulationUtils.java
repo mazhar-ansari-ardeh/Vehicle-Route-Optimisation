@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import ec.*;
+import ec.gp.GPIndividual;
 
 public class PopulationUtils
 {
@@ -39,6 +40,21 @@ public class PopulationUtils
 	public static void sort(Individual[] ind)
 	{
 		Comparator<Individual> comp = (Individual o1, Individual o2) ->
+		{
+			if(o1.fitness.fitness() < o2.fitness.fitness())
+				return -1;
+			if(o1.fitness.fitness() == o2.fitness.fitness())
+				return 0;
+
+			return 1;
+		};
+
+		Arrays.sort(ind, comp);
+	}
+
+	public static void sort(GPIndividual[] ind)
+	{
+		Comparator<GPIndividual> comp = (GPIndividual o1, GPIndividual o2) ->
 		{
 			if(o1.fitness.fitness() < o2.fitness.fitness())
 				return -1;
@@ -128,6 +144,13 @@ public class PopulationUtils
 		}
 
 		return best;
+	}
+
+	public static ArrayList<GPIndividual> rankSelect(GPIndividual[] pop, int sampleSize)
+	{
+		sort(pop);
+
+		return new ArrayList<>(Arrays.asList(pop).subList(0, sampleSize));
 	}
 
 	public static Population loadPopulation(String fileName)

@@ -159,6 +159,7 @@ gp.tc.0.init.knowledge-file=/home/mazhar/grid/gdb8.vs10:gen_50/KnowledgeSource/1
 gp.tc.0.init.transfer-percent=25
 gp.tc.0.init.knowledge-extraction=root
 gp.tc.0.init.knowledge-log-file=./stats/target-wk/FullTreeLog
+gp.tc.0.init.allow-duplicates=false
 
 
 
