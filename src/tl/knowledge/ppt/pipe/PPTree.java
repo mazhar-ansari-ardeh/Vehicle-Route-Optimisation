@@ -17,6 +17,7 @@ import java.util.*;
  */
 public class PPTree implements Serializable
 {
+	private static final long serialVersionUID = -6588817432271836041L;
 
 	/**
 	 * The learning algorithm that can learn the probability vector of this PPT.
@@ -279,6 +280,33 @@ public class PPTree implements Serializable
 		for(String address : sortedAdd)
 			retval.append("(").append(address).append(", ").append(nodes.get(address).toString()).append(")\n").append("\n");
 
+		return retval.toString();
+	}
+
+	public String toGVString(int numChild)
+	{
+		StringBuilder retval = new StringBuilder();
+		retval.append("digraph D {\n");
+		List<String> sortedAdd = new ArrayList<>(nodes.keySet());
+		Collections.sort(sortedAdd);
+		for(String address : sortedAdd)
+//		for(String address : new String[]{"-1", "0", "1", "00", "01", "10", "11"})
+		{
+//			retval.append("(").append(address).append(", ").append(nodes.get(address).toString()).append(")\n").append("\n");
+//			if(address.equals("-1"))
+//				address = "";
+			String nodeBase = (address.equals("-1") ? "" : address);
+			retval.append("n").append(nodeBase);
+			retval.append(" [shape=record label=\"");
+			retval.append(nodes.get(address).toSimplifiedString()).append("\"];\n");
+			for(int i = 0; i < numChild; i++)
+			{
+				if(nodes.containsKey(nodeBase+i))
+					retval.append("n" + nodeBase + "->n" + nodeBase+i + ";\n");
+			}
+		}
+
+		retval.append("}");
 		return retval.toString();
 	}
 }
