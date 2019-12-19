@@ -92,6 +92,8 @@ class RouletteWheelSelector
 
 class ProbabilityVector implements Serializable
 {
+	private final static long serialVersionUID = -8435141646461582571L;
+
 	/**
 	 * The structure that maps terminal/function name to its probability.
 	 */
@@ -233,6 +235,30 @@ class ProbabilityVector implements Serializable
 			bl.append("(").append(s).append(", ").append(probabilities.get(s)).append(")").append(", ");
 
 		bl.append(R).append("]");
+
+		return bl.toString();
+	}
+
+	/**
+	 * Gets a simplified version of the string representation of this vector. The simplified version does not contain the
+	 * probabilities that are zero.
+	 * @return Simplified string representation of this probability vector.
+	 */
+	public String toSimplifiedString()
+	{
+		StringBuilder bl = new StringBuilder();
+		bl.append("{");
+		for(String s : this.probabilities.keySet())
+		{
+			if(probabilities.get(s) > 0)
+			{
+				bl.append(s).append(": ").append(Math.round(probabilities.get(s) * 100) / 100.0).append("|");
+			}
+		}
+		if(bl.toString().endsWith("|"))
+			bl.deleteCharAt(bl.length() -1);
+		bl.append("}");
+//		bl.append(R).append("}");
 
 		return bl.toString();
 	}
