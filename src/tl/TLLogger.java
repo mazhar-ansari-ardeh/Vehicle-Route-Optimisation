@@ -22,16 +22,26 @@ import tl.knowledge.KnowledgeItem;
  */
 public interface TLLogger<T>
 {
-	public static final String P_KNOWLEDGE_LOG_FILE_NAME = "knowledge-log-file";
+	String P_KNOWLEDGE_LOG_FILE_NAME = "knowledge-log-file";
 
 	default int setupLogger(EvolutionState state, Parameter base)
 	{
+		return setupLogger(state, base, P_KNOWLEDGE_LOG_FILE_NAME);
+	}
+
+	default int setupLogger(EvolutionState state, Parameter base, String fileParamName)
+	{
+		if(fileParamName == null || fileParamName.isEmpty())
+			throw new RuntimeException("Log file name cannot be empty.");
 
 		try {
-			Parameter knowledgeLogFileNameParam = base.push(P_KNOWLEDGE_LOG_FILE_NAME);
+			Parameter knowledgeLogFileNameParam = base.push(fileParamName);
 			String knowledgeLogFile = state.parameters.getString(knowledgeLogFileNameParam, null);
 			if(knowledgeLogFile == null)
 				throw new RuntimeException("log file not specified.");
+			else
+				state.output.warning("Log file name: " + knowledgeLogFile);
+
 			File successKnLog = new File(knowledgeLogFile + ".succ.log");
 			if(successKnLog.exists())
 				successKnLog.delete();
@@ -41,12 +51,13 @@ public interface TLLogger<T>
 			if(pathToSuccDir != null)
 			{
 				File statDirFile = pathToSuccDir.toFile();
-				if(statDirFile.exists() == false && statDirFile.mkdirs() == false)
+				if(!statDirFile.exists() && !statDirFile.mkdirs())
 					state.output.fatal("Failed to create stat directory: "
 							+ pathToSuccDir.toString());
 			}
 
 			successKnLog.createNewFile();
+			state.output.warning("Log file created: " + successKnLog.getAbsolutePath());
 
 			return state.output.addLog(successKnLog, false);
 		}
