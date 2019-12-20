@@ -57,3 +57,8 @@ Added the ability to simplify trees before extracting PPTs.
 
 11/10/19
 Improved the FrequencyLearner class so that now it can use ranked selection as well as tournament selection.
+
+20/12/19
+Added PPTBreeding and PPTEvolutionaryState.
+Added the min probability threshold.
+Removed a bug that did not update probability values correctly.
