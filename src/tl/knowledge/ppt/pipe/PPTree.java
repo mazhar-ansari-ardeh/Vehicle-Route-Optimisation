@@ -84,10 +84,10 @@ public class PPTree implements Serializable
 	}
 
 	/**
-	 * Gets the probability vector at a given address. If the tree does not have a node at the given address, a new node
-	 * will be created, initialized and added to the tree for that address.
+	 * Gets the probability vector at a given address. If the tree does not have a node at the given address, {@code null}
+	 * will be returned.
 	 * @param address the address of the node. This parameter cannot be {@code null} or empty.
-	 * @return the probability vector at the given address.
+	 * @return the probability vector at the given address or {@code null} if there is no node at the given
 	 */
 	ProbabilityVector getProbabilityOf(String address)
 	{
@@ -96,12 +96,12 @@ public class PPTree implements Serializable
 
 		// According to the paper, nodes are created on demand whenever I(d,w)\in F is selected and the subtree for an
 		// argument of I(d, w) is missing.
-		if(!nodes.containsKey(address))
-		{
-			ProbabilityVector nodeProb = new ProbabilityVector(this.terminals, this.functions, minThreshold);
-			learner.initialize(nodeProb);
-			nodes.put(address, nodeProb);
-		}
+//		if(!nodes.containsKey(address))
+//		{
+//			ProbabilityVector nodeProb = new ProbabilityVector(this.terminals, this.functions, minThreshold);
+//			learner.initialize(nodeProb);
+//			nodes.put(address, nodeProb);
+//		}
 
 
 		return nodes.get(address);
@@ -122,7 +122,7 @@ public class PPTree implements Serializable
 
 	/**
 	 * Gets the probability of a GP item appearing at a given address. If the tree does not have a node at the given
-	 * address, a new node will be created, initialized and added to the tree for that address. This function returns the
+	 * address, zero will be returned. This function returns the
 	 * actual probability of the GP item, even if it is below the threshold.
 	 * @param address the address of the node. This parameter cannot be {@code null} or empty.
 	 * @param gpItem the GP terminal/function whose probability is wanted. This parameter cannot be {@code null} or
@@ -137,11 +137,14 @@ public class PPTree implements Serializable
 			throw new IllegalArgumentException("GP terminal/function name cannot be null or empty");
 
 		ProbabilityVector v = getProbabilityOf(address);
+		if(v == null)
+			return 0;
 		return v.probabilityOf(gpItem);
 	}
 
 	/**
-	 * Sets the probability value of the given GP item at the given node address.
+	 * Sets the probability value of the given GP item at the given node address. If the tree does not have a node at the
+	 * given address, a new node will be created, initialized and added to the tree for that address.
 	 * @param address the address of the node to be updated. This parameter cannot be {@code null}.
 	 * @param gpItem the GP function/terminal whose probability value is going to be updated. This parameter cannot be
 	 * 				 {@code null}.
@@ -157,6 +160,12 @@ public class PPTree implements Serializable
 			throw new IllegalArgumentException("Probability value should be in the range [0, 1]:" + newProbability);
 
 		ProbabilityVector v = getProbabilityOf(address);
+		if(v == null)
+		{
+			v = new ProbabilityVector(this.terminals, this.functions, minThreshold);
+			learner.initialize(v);
+			nodes.put(address, v);
+		}
 		v.setProbabilityOf(gpItem, newProbability);
 	}
 
@@ -181,9 +190,15 @@ public class PPTree implements Serializable
 			if(isdigit(nodeName))
 				nodeName = "ERC";
 			ProbabilityVector v = getProbabilityOf(address);
-			double probability = v.probabilityOf(nodeName);
-			if (considerThreshold && probability < v.getMinThreshold())
-				probability = v.getMinThreshold();
+			double probability = (v == null ? 0 : v.probabilityOf(nodeName));
+			if (considerThreshold )
+			{
+				if(v == null)
+					probability = minThreshold; // minThreshold cannot be less than 0
+				else
+					if(probability < v.getMinThreshold())
+						probability = v.getMinThreshold();
+			}
 			retval *= probability;
 		}
 		return retval;
@@ -214,6 +229,11 @@ public class PPTree implements Serializable
 			throw new NullPointerException("Random generator cannot be null");
 
 		String address = "-1";
+		// It is important to note that at this point, new nodes should not be added to the tree if they do not exist
+		// already. The reason is that at this point, if a PPT node does not exist, then it means that the probability of
+		// that node position is zero and it should not produce any GP nodes.
+		// For some learners, such as FrequencyLearner, this is not important because they initialize the new nodes to zero
+		// but this is not always the case.
 		ProbabilityVector nodeProb = this.nodes.get(address);
 		if(nodeProb == null)
 			return null;
@@ -235,6 +255,11 @@ public class PPTree implements Serializable
 		for(int i = 0; i < parent.children.length; i++)
 		{
 			String childAdress = (parentAddress.equals("-1") ? "" : parentAddress) + i;
+			// It is important to note that at this point, new nodes should not be added to the tree if they do not exist
+			// already. The reason is that at this point, if a PPT node does not exist, then it means that the probability of
+			// that node position is zero and it should not produce any GP nodes.
+			// For some learners, such as FrequencyLearner, this is not important because they initialize the new nodes to zero
+			// but this is not always the case.
 			ProbabilityVector nodeProb = this.nodes.get(childAdress);
 			String nodeName;
 			if(nodeProb == null)
@@ -283,7 +308,7 @@ public class PPTree implements Serializable
 			}
 		}
 
-		retval.append("}");
+		retval.append("}\n").append("// Min threshold: ").append(minThreshold);
 		return retval.toString();
 	}
 }
