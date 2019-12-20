@@ -94,6 +94,8 @@ public class PPTree implements Serializable
 		if(address == null || address.isEmpty())
 			throw new IllegalArgumentException("Node address cannot be null or empty");
 
+		// According to the paper, nodes are created on demand whenever I(d,w)\in F is selected and the subtree for an
+		// argument of I(d, w) is missing.
 		if(!nodes.containsKey(address))
 		{
 			ProbabilityVector nodeProb = new ProbabilityVector(this.terminals, this.functions, minThreshold);
@@ -101,27 +103,9 @@ public class PPTree implements Serializable
 			nodes.put(address, nodeProb);
 		}
 
-		ProbabilityVector v = nodes.get(address);
 
-		// According to the paper, nodes are created on demand whenever I(d,w)\in F is selected and the subtree for an
-		// argument of I(d, w) is missing.
-
-		return v;
+		return nodes.get(address);
 	}
-
-//	public String sampleFrom(String address, MersenneTwisterFast twister)
-//	{
-//		if(address == null)
-//			throw new NullPointerException("Node address cannot be null");
-//		if(twister == null)
-//			throw new NullPointerException("The random number generator cannot be null.");
-//
-//		ProbabilityVector node = this.nodes.get(address);
-//		if(node == null)
-//			return null;
-//
-//		return node.sample(twister);
-//	}
 
 	private static boolean isdigit(String str)
 	{
@@ -152,15 +136,6 @@ public class PPTree implements Serializable
 		if(gpItem == null || gpItem.isEmpty())
 			throw new IllegalArgumentException("GP terminal/function name cannot be null or empty");
 
-//		if(!nodes.containsKey(address))
-//		{
-//			// According to the paper, nodes are created on demand whenever I(d,w)\in F is selected and the subtree for an
-//			// argument of I(d, w) is missing.
-//			ProbabilityVector nodeProb = new ProbabilityVector(this.terminals, this.functions, minThreshold);
-//			learner.initialize(nodeProb);
-//			nodes.put(address, nodeProb);
-//		}
-
 		ProbabilityVector v = getProbabilityOf(address);
 		return v.probabilityOf(gpItem);
 	}
@@ -181,14 +156,6 @@ public class PPTree implements Serializable
 		if(newProbability < 0 || newProbability > 1)
 			throw new IllegalArgumentException("Probability value should be in the range [0, 1]:" + newProbability);
 
-//		if(!nodes.containsKey(address))
-//		{
-//			// According to the paper, nodes are created on demand whenever I(d,w)\in F is selected and the subtree for an
-//			// argument of I(d, w) is missing.
-//			ProbabilityVector nodeProb = new ProbabilityVector(this.terminals, this.functions);
-//			learner.initialize(nodeProb);
-//			nodes.put(address, nodeProb);
-//		}
 		ProbabilityVector v = getProbabilityOf(address);
 		v.setProbabilityOf(gpItem, newProbability);
 	}
@@ -213,7 +180,6 @@ public class PPTree implements Serializable
 			String nodeName = index.get(address).toString();
 			if(isdigit(nodeName))
 				nodeName = "ERC";
-//			double probability = getProbabilityOf(address, nodeName);
 			ProbabilityVector v = getProbabilityOf(address);
 			double probability = v.probabilityOf(nodeName);
 			if (considerThreshold && probability < v.getMinThreshold())
@@ -266,8 +232,6 @@ public class PPTree implements Serializable
 
 	private void addChildren(GPNode parent, String parentAddress, MersenneTwisterFast twister)
 	{
-//		if(parent.children.length <= 0)
-//			return;
 		for(int i = 0; i < parent.children.length; i++)
 		{
 			String childAdress = (parentAddress.equals("-1") ? "" : parentAddress) + i;
@@ -281,8 +245,6 @@ public class PPTree implements Serializable
 				return;
 
 			parent.children[i] = UCARPUtils.createPrimitive(nodeName, twister.nextDouble());
-//			if(parent.children[i] == null || parent.children[i].children[i] == null)
-//				System.out.println(parent.name());
 			parent.children[i].parent = parent;
 			parent.children[i].argposition = (byte) i;
 			addChildren(parent.children[i], childAdress, twister);
@@ -310,9 +272,6 @@ public class PPTree implements Serializable
 		for(String address : sortedAdd)
 //		for(String address : new String[]{"-1", "0", "1", "00", "01", "10", "11"})
 		{
-//			retval.append("(").append(address).append(", ").append(nodes.get(address).toString()).append(")\n").append("\n");
-//			if(address.equals("-1"))
-//				address = "";
 			String nodeBase = (address.equals("-1") ? "" : address);
 			retval.append("n").append(nodeBase);
 			retval.append(" [shape=record label=\"");
@@ -320,7 +279,7 @@ public class PPTree implements Serializable
 			for(int i = 0; i < numChild; i++)
 			{
 				if(nodes.containsKey(nodeBase+i))
-					retval.append("n" + nodeBase + "->n" + nodeBase+i + ";\n");
+					retval.append("n").append(nodeBase).append("->n").append(nodeBase).append(i).append(";\n");
 			}
 		}
 
