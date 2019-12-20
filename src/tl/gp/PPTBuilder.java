@@ -64,6 +64,11 @@ public class PPTBuilder extends HalfBuilder implements TLLogger<GPNode>
         {
             loadPPT(knowFile);
             log(state, knowledgeSuccessLogID, "Loaded the PPT: " + tree.toString());
+            if(state instanceof PPTEvolutionState)
+            {
+                ((PPTEvolutionState)state).setPpt(tree);
+                log(state, knowledgeSuccessLogID, "EvolutionState is of type PPTEvolutionState.");
+            }
         } catch (IOException | ClassNotFoundException e)
         {
             e.printStackTrace();
