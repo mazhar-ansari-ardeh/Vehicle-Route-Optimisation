@@ -151,6 +151,7 @@ public class PPTEvolutionState extends GPHHEvolutionState implements TLLogger<GP
         learner = FrequencyLearner.newFrequencyLearner(state, pptBase, functions, terminals);
 
         pptStatLogID = setupLogger(state, pptBase, P_PPT_STAT_LOG);
+        log(this, pptStatLogID, "Generation, PPT Ind Count, average, std, min, max, Non-PPT Ind Count, average, std, min, max\n");
         pptLogID = setupLogger(state, pptBase, P_PPT_LOG);
     }
 
@@ -325,8 +326,7 @@ public class PPTEvolutionState extends GPHHEvolutionState implements TLLogger<GP
         SummaryStatistics pptSS = new SummaryStatistics();
         SummaryStatistics nonPPTSS = new SummaryStatistics();
 
-        log(this, pptStatLogID, "Gen:\t" + generation + ":\n");
-        log(this, pptStatLogID, "---------------------------------------------------------\n");
+//      log(this, pptStatLogID, "---------------------------------------------------------\n");
 
         for(int i = 0; i < population.subpops[0].individuals.length; i++)
         {
@@ -342,20 +342,21 @@ public class PPTEvolutionState extends GPHHEvolutionState implements TLLogger<GP
             }
         }
 
-        log(this, pptStatLogID, "PPT stats:\n");
-        log(this, pptStatLogID, "Ind Count: " + pptSS.getN() + "\n");
-        log(this, pptStatLogID, "Mean: " + pptSS.getMean() + "\n");
-        log(this, pptStatLogID, "STD: " + pptSS.getStandardDeviation() + "\n");
-        log(this, pptStatLogID, "Min: " + pptSS.getMin() + "\n");
-        log(this, pptStatLogID, "Max: " + pptSS.getMax() + "\n\n");
+//        log(this, pptStatLogID, "PPT stats:\n");
+        log(this, pptStatLogID, ""   + generation );
+        log(this, pptStatLogID, ", " +  pptSS.getN() );
+        log(this, pptStatLogID, ", " + pptSS.getMean());
+        log(this, pptStatLogID, ", " + pptSS.getStandardDeviation() );
+        log(this, pptStatLogID, ", " + pptSS.getMin());
+        log(this, pptStatLogID, ", " + pptSS.getMax());
 
-        log(this, pptStatLogID, "Non-PPT stats:\n");
-        log(this, pptStatLogID, "Ind Count: " + nonPPTSS.getN() + "\n");
-        log(this, pptStatLogID, "Mean: " + nonPPTSS.getMean() + "\n");
-        log(this, pptStatLogID, "STD: " + nonPPTSS.getStandardDeviation() + "\n");
-        log(this, pptStatLogID, "Min: " + nonPPTSS.getMin() + "\n");
-        log(this, pptStatLogID, "Max: " + nonPPTSS.getMax() + "\n\n");
-        log(this, pptStatLogID, "---------------------------------------------------------\n\n");
+//        log(this, pptStatLogID, "Non-PPT stats:\n");
+        log(this, pptStatLogID, ", " + nonPPTSS.getN());
+        log(this, pptStatLogID, ", " + nonPPTSS.getMean() );
+        log(this, pptStatLogID, ", " + nonPPTSS.getStandardDeviation() );
+        log(this, pptStatLogID, ", " + nonPPTSS.getMin() );
+        log(this, pptStatLogID, ", " + nonPPTSS.getMax() + "\n");
+//        log(this, pptStatLogID, "---------------------------------------------------------\n\n");
     }
 
     /**
