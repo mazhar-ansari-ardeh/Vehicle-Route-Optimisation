@@ -8,10 +8,10 @@ then
 fi
 echo "Number of source vehicles: $NUM_VEHICLES_SOURCE"
 
-if [ -z "$NUM_VEHICLES_TARGET" ]
-then
-    NUM_VEHICLES_TARGET=7
-fi
+# if [ -z "$NUM_VEHICLES_TARGET" ]
+# then
+#     NUM_VEHICLES_TARGET=7
+# fi
 echo "Number of target vehicles: $NUM_VEHICLES_TARGET"
 
 if [ -z "$DATASET_CATEGORY_SOURCE" ]
@@ -19,20 +19,20 @@ then
     DATASET_CATEGORY_SOURCE="gdb"
 fi
 
-if [ -z "$DATASET_CATEGORY_TARGET" ]
-then
-    DATASET_CATEGORY_TARGET=$DATASET_CATEGORY_SOURCE
-fi
+# if [ -z "$DATASET_CATEGORY_TARGET" ]
+# then
+#     DATASET_CATEGORY_TARGET=$DATASET_CATEGORY_SOURCE
+# fi
 
 if [ -z "$DATASET_SOURCE" ]
 then
     DATASET_SOURCE="gdb21"
 fi
 
-if [ -z "$DATASET_TARGET" ]
-then 
-    DATASET_TARGET=$DATASET_SOURCE
-fi
+# if [ -z "$DATASET_TARGET" ]
+# then
+#     DATASET_TARGET=$DATASET_SOURCE
+# fi
 
 echo "Dataset: $DATASET_CATEGORY_SOURCE/$DATASET_SOURCE"
 echo "Dataset target: $DATASET_CATEGORY_TARGET/$DATASET_TARGET"
@@ -40,6 +40,9 @@ echo "Dataset target: $DATASET_CATEGORY_TARGET/$DATASET_TARGET"
 # STAT_ROOT="stats"
 
 GENERATIONS=50
+
+# Number of generations of the experiment on target domain
+GENERATIONS_ON_TARGET=50
 
 EXPERIMENT_DESCRIPTION='Set the generation to 200 to see the behaviour of the vanilla GPHH on longer generations. No transfer learning applied.
 
@@ -99,6 +102,8 @@ echo "JOB_ID: $JOB_ID"
 # This is actually the part that runs the source domain.
 function run_source_domain()
 {
+# Note to self: Modified this slightly to test a different mutation rate. Revert the changes before using this file again normally.
+
 # L_EXPERIMENT_NAME="KnowledgeSource"
 # L_EXPERIMENT_DIR="$L_EXPERIMENT_NAME/$SGE_TASK_ID"
 printf "\nBegining to run source domain (write knowledge)"
@@ -109,6 +114,8 @@ java -cp .:tl.jar ec.Evolve        -file carp_param_base.param \
                                    -p eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_SOURCE  \
                                    -p generations=$GENERATIONS \
                                    -p stat.save-pop=true \
+                                   -p pop.subpop.0.species.pipe.source.0.prob=0.65 \
+                                   -p pop.subpop.0.species.pipe.source.1.prob=0.3 \
                                    -p seed.0=$SGE_TASK_ID
 echo "Finished writing knowledge"
 
@@ -126,8 +133,9 @@ echo "Finished performing test on source problem results"
 # mkdir -p $SAVE_TO
 # cp -r -v $L_EXPERIMENT_DIR/ $SAVE_TO/
 
-mkdir -p /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_NAME
-cp -r -v $KNOWLEDGE_SOURCE_DIR/ /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_NAME
+
+mkdir -p /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_NAME:mutra_0.3
+cp -r -v $KNOWLEDGE_SOURCE_DIR/ /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_NAME:mutra_0.3
 printf "$(date)\t $SGE_TASK_ID \n" >> /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/FinishedTestEvaluations.txt
 }
 
@@ -154,6 +162,7 @@ function evaluate_on_test()
     GENS=$@
     echo "Evaluating source population on test settings using EvaluateOnTest for generations"
     mkdir -p $KNOWLEDGE_SOURCE_DIR
+    mkdir -p /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_DIR/TestedPopulation/
     for i in $GENS
     do
         cp -r -v /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_DIR/population.gen.$i.bin $KNOWLEDGE_SOURCE_DIR/
@@ -165,14 +174,15 @@ function evaluate_on_test()
                                             stat.gen-pop-file=$KNOWLEDGE_SOURCE_DIR/eval.population.gen \
                                             generations=$GENERATIONS \
                                             seed.0=$TEST_SEED
+
+        cp -r -v $KNOWLEDGE_SOURCE_DIR/TestedPopulation/population.gen.$i.bin /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_DIR/TestedPopulation/
         printf "Finished evaluation of generation $i on test dataset\n"
     done
 
-    cp -r -v $KNOWLEDGE_SOURCE_DIR/TestedPopulation /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_DIR/
+#     cp -r -v $KNOWLEDGE_SOURCE_DIR/TestedPopulation /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_DIR/
     printf "Finished evaluating source population on test settings using EvaluateOnTest\n\n\n"
     printf "$(date)\t $SGE_TASK_ID \n" >> /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/FinishedTestEvaluations.txt
 }
-
 
 # This is done on the target domain. This experiment does not use transfer learning.
 function do_non_knowledge_experiment()
@@ -183,7 +193,7 @@ function do_non_knowledge_experiment()
                                     -p stat.file="\$$WITHOUT_KNOW_STAT_DIR/job.0.out.stat" \
                                     -p stat.gen-pop-file="$WITHOUT_KNOW_STAT_DIR/population.gen" \
                                     -p eval.problem.eval-model.instances.0.file=$DATASET_FILE_TARGET \
-                                    -p generations=$GENERATIONS \
+                                    -p generations=$GENERATIONS_ON_TARGET \
                                     -p eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_TARGET \
                                     -p seed.0=$SGE_TASK_ID
 
@@ -195,7 +205,7 @@ function do_non_knowledge_experiment()
                                         -p eval.problem.eval-model.instances.0.file=$DATASET_FILE_TARGET \
                                         -p eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_TARGET \
                                         -p eval.problem.eval-model.instances.0.samples=500 \
-                                        -p generations=$GENERATIONS \
+                                        -p generations=$GENERATIONS_ON_TARGET \
                                         -p seed.0=$TEST_SEED
 
     SAVE_TO=/vol/grid-solar/sgeusers/mazhar/$DATASET_SOURCE.vs$NUM_VEHICLES_SOURCE.$DATASET_TARGET.vt$NUM_VEHICLES_TARGET:gen_$GENERATIONS/'WithoutKnowledge'
@@ -221,7 +231,7 @@ function do_knowledge_experiment()
                                     -p stat.gen-pop-file="$L_EXPERIMENT_DIR/population.gen" \
                                     -p gp.tc.0.init.knowledge-log-file="$L_EXPERIMENT_DIR/knowinit" \
                                     -p pop.subpop.0.species.pipe.source.1.knowledge-log-file="$L_EXPERIMENT_DIR/knowmutation" \
-                                    -p generations=$GENERATIONS \
+                                    -p generations=$GENERATIONS_ON_TARGET \
                                     -p eval.problem.eval-model.instances.0.file=$DATASET_FILE_TARGET \
                                     -p eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_TARGET \
                                     "${@:2}" \
@@ -235,7 +245,7 @@ function do_knowledge_experiment()
                                         -p eval.problem.eval-model.instances.0.file=$DATASET_FILE_TARGET \
                                         -p eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_TARGET \
                                         -p eval.problem.eval-model.instances.0.samples=500 \
-                                        -p generations=$GENERATIONS \
+                                        -p generations=$GENERATIONS_ON_TARGET \
                                         -p seed.0=$TEST_SEED
     printf "Finished running tests on target with knowledge, experiment: $L_EXPERIMENT_NAME \n\n\n"
 
@@ -245,16 +255,68 @@ function do_knowledge_experiment()
     printf "$(date)\t $SGE_TASK_ID \n" >> $SAVE_TO/Finished$L_EXPERIMENT_NAME.txt
 }
 
+function PPTEvolutionState()
+{
+ecj_experiment "PPTEvolutionState:lr_$1:radius_$2:cap_$3" $DATASET_CATEGORY_SOURCE $DATASET_SOURCE $NUM_VEHICLES_SOURCE \
+                -p state=tl.gp.PPTEvolutionState \
+                -p ppt-state.lr=$1 \
+                -p ppt-state.sample-size=100 \
+                -p ppt-state.tournament-size=20 \
+                -p ppt-state.knowledge-log-file=PPTEvolutionStateLog \
+                -p ppt-state.niche-radius=$2 \
+                -p ppt-state.niche-capacity=$3
+}
+
 
 # This function performs the transfer learning experiment 'FullTree'.
-# This function takes one input parameter: the transfer percent.
+# This function takes two input parameters:
+#   1. the transfer percent (in the range [0, 100])
+#   2. allow duplicates.
 function FullTreeExp()
 {
-do_knowledge_experiment FullTree_$1 \
+do_knowledge_experiment FullTree:tp_$1:dup_$2 \
                         -p gp.tc.0.init=tl.gp.SimpleCodeFragmentBuilder \
                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin \
                         -p gp.tc.0.init.transfer-percent=$1 \
+                        -p gp.tc.0.init.allow-duplicates=$2 \
                         -p gp.tc.0.init.knowledge-extraction=root
+}
+
+function TournamentFullTreeExp()
+{
+do_knowledge_experiment TournamentFullTreeTree:tp_$1:tournament_$2 \
+                        -p gp.tc.0.init=tl.gp.TournamentFullTreeBuilder \
+                        -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin \
+                        -p gp.tc.0.init.transfer-percent=$1 \
+                        -p gp.tc.0.init.knowledge-extraction=root \
+                        -p gp.tc.0.init.tournament-size=$2
+}
+
+# This function performs the transfer learning experiment 'MutatingSubtree'.
+# This function takes 7 input parameters:
+#   1. the transfer percent (in (0, 100])
+#   2. extraction method: acceptable values are:
+#       + rootsubtree
+#       + all
+#       + root
+#   3. number of mutation (must be greater than zero)
+#   4. simplify: true or false
+#   5. target percent: in (0, 1]
+#   6. niche radius: negative values disable niching
+#   7. niche capacity
+function MutatingSubtree()
+{
+do_knowledge_experiment MutatingSubtree:tp_$1:ext_$2:mut_$3:sim_$4:tgtp_$5:rad_$6:cap_$7 \
+                        -p gp.tc.0.init=tl.gp.MutatingSubtreeBuilder \
+                        -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin \
+                        -p gp.tc.0.init.transfer-percent=$1 \
+                        -p gp.tc.0.init.knowledge-extraction=$2 \
+                        -p gp.tc.0.init.ns.0=ec.gp.koza.KozaNodeSelector \
+                        -p gp.tc.0.init.num-mutated=$3 \
+                        -p gp.tc.0.init.simplify=$4 \
+                        -p gp.tc.0.init.target-percent=$5 \
+                        -p gp.tc.0.init.niche-radius=$6 \
+                        -p gp.tc.0.init.niche-capacity=$7
 }
 
 # This function performs the transfer learning experiment 'SubTree'.
@@ -302,372 +364,159 @@ do_knowledge_experiment FrequentSub:Extract_$1 \
                         -p gp.tc.0.init.transfer-percent=0.50 \
                         -p gp.tc.0.init.extract-percent=0.50 \
                         -p gp.tc.0.init.min-cf-depth=2 \
-                        -p gp.tc.0.init.max-cf-depth=5
+                        -p gp.tc.0.init.max-cf-depth=8
 }
 
-# This function performs the transfer learning experiment 'PPTLearning'.
-# The function, at the moment, takes two parameters:
-#   1. percent of initial population on target domain to create with this TL method
-#   2. niche radius when learning the PPT.
-function PPTExp()
+# This function performs the experiment in which a new GP operator is introduced that creates a portion of
+# the population from a PPT that it also adapts during the GP run.
+# The function has the following input parameters:
+# 1. Probability of PPT breeding
+# 2. Probability of crossover breeding
+# 3. Probability of mutation breeding
+# 4. Probability of reproduction breeding
+# 5. Learning rate
+# 6. Sample size
+# 7. Tournament size
+# 8. Transfer percent
+# 9. From source generation to learn initial PPT
+# 10. To source generation to learn initial PPT
+# 11. Niching radius to learn initial PPT
+# 12. Niching capacity to learn initial PPT
+# 13. Minimum probability threshold of PPT items
+function PPTBreeding()
 {
+L_EXP_NAME="PPTBreeding:ppt_$1:xover_$2:mut_$3:repro_$4:lr_$5:ss_$6:ts:_$7:initperc_$8:igen_$9_${10}:inrad_${11}:incap_${12}:mnThr_${13}"
+printf "Begining the experiment: $L_EXP_NAME.\n"
 
-printf "Begining to extract the PPT tree.\n"
+L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
 
-java -cp .:tl.jar tl.knowledge.extraction.ExtractPPT carp_param_base.param $KNOWLEDGE_SOURCE_DIR/ $KNOWLEDGE_SOURCE_DIR/pipe_tree.ppt \
+java -cp .:tl.jar tl.knowledge.extraction.ExtractPPT carp_param_base.param $KNOWLEDGE_SOURCE_DIR/ $KNOWLEDGE_SOURCE_DIR/$L_EXP_NAME.ppt \
                         eval.problem.eval-model.instances.0.file=$DATASET_FILE_SOURCE \
                         eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_SOURCE  \
                         eval.problem.eval-model.instances.0.samples=500 \
-                        extract-ppt.percent=0.5 \
-                        extract-ppt.num-generations=$GENERATIONS \
-                        extract-ppt.from-generation=49 \
-                        extract-ppt.to-generation=49 \
-                        extract-ppt.fitness-niche-radius=$2 \
-                        extract-ppt.knowledge-log-file=$KNOWLEDGE_SOURCE_DIR/PPTExtractionLog \
-                        extract-ppt.lr=0.8 \
-                        extract-ppt.sample-size=100 \
-                        extract-ppt.tournament-size=20 \
                         seed.0=$TEST_SEED \
+                        extract-ppt.knowledge-log-file=$L_EXPERIMENT_DIR/PPTExtractionLog \
+                        extract-ppt.num-generations=$GENERATIONS \
+                        extract-ppt.from-generation=$9 \
+                        extract-ppt.to-generation=${10} \
+                        extract-ppt.fitness-niche-radius=${11} \
+                        extract-ppt.fitness-niche-capacity=${12} \
+                        extract-ppt.lr=$5 \
+                        extract-ppt.learner='frequency' \
+                        extract-ppt.sample-size=$6 \
+                        extract-ppt.tournament-size=$7 \
+                        extract-ppt.min-prob-thresh=${13} \
                         generation=$GENERATIONS
 
-
-do_knowledge_experiment PPTLearning:percent_$1 \
+do_knowledge_experiment $L_EXP_NAME \
+                        -p pop.subpop.0.species.pipe.num-sources=4 \
+                        -p pop.subpop.0.species.pipe.source.0=ec.gp.koza.CrossoverPipeline \
+                        -p pop.subpop.0.species.pipe.source.0.prob=$2 \
+                        -p pop.subpop.0.species.pipe.source.1=ec.gp.koza.MutationPipeline \
+                        -p pop.subpop.0.species.pipe.source.1.prob=$3 \
+                        -p pop.subpop.0.species.pipe.source.2=ec.breed.ReproductionPipeline \
+                        -p pop.subpop.0.species.pipe.source.2.prob=$4 \
+                        -p pop.subpop.0.species.pipe.source.3=tl.knowledge.ppt.gp.PPTBreedingPipeline \
+                        -p pop.subpop.0.species.pipe.source.3.prob=$1 \
+                        -p pop.subpop.0.species.pipe.source.3.knowledge-log-file=$L_EXPERIMENT_DIR/PPTBreedLog \
+                        -p state=tl.gp.PPTEvolutionState \
+                        -p ppt-state.lr=$5 \
+                        -p ppt-state.sample-size=$6 \
+                        -p ppt-state.tournament-size=$7 \
+                        -p ppt-state.ppt-stat-log=$L_EXPERIMENT_DIR/PPTStatLog \
+                        -p ppt-state.ppt-log=$L_EXPERIMENT_DIR/PPTLog \
                         -p gp.tc.0.init=tl.gp.PPTBuilder \
-                        -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/pipe_tree.ppt \
+                        -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/$L_EXP_NAME.ppt \
+                        -p gp.tc.0.init.transfer-percent=$8
+
+cp -p -v $KNOWLEDGE_SOURCE_DIR/$L_EXP_NAME.ppt $SAVE_TO/$SGE_TASK_ID
+}
+
+# This function performs the transfer learning experiment 'PPTLearning'.
+# The function, at the moment, takes 8 parameters:
+#   1. percent of initial population on target domain to create with this TL method
+#   2. niche radius when learning the PPT.
+#   3. niche capacity.
+#   4. from generation
+#   5. to generation
+#   6. learning rate
+#   7. sample size (originally used 100)
+#   8. tournament size (originally used 20)
+#   9. simplify: boolean value.
+function ExtractPPTFreq()
+{
+
+L_EXP_NAME=PPTFreqLearning:percent_$1:nrad_$2:ncap_$3:gens_$4_$5:lr_$6:ss_$7:ts_$8 #:sim_$9
+printf "Begining to extract the PPT: $L_EXP_NAME.\n"
+
+java -cp .:tl.jar tl.knowledge.extraction.ExtractPPT carp_param_base.param $KNOWLEDGE_SOURCE_DIR/ $KNOWLEDGE_SOURCE_DIR/$L_EXP_NAME.ppt \
+                        eval.problem.eval-model.instances.0.file=$DATASET_FILE_SOURCE \
+                        eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_SOURCE  \
+                        eval.problem.eval-model.instances.0.samples=500 \
+                        seed.0=$TEST_SEED \
+                        extract-ppt.knowledge-log-file=$KNOWLEDGE_SOURCE_DIR/PPTExtractionLog \
+                        extract-ppt.num-generations=$GENERATIONS \
+                        extract-ppt.from-generation=$4 \
+                        extract-ppt.to-generation=$5 \
+                        extract-ppt.fitness-niche-radius=$2 \
+                        extract-ppt.fitness-niche-capacity=$3 \
+                        extract-ppt.lr=$6 \
+                        extract-ppt.learner='frequency' \
+                        extract-ppt.sample-size=$7 \
+                        extract-ppt.tournament-size=$8 \
+                        generation=$GENERATIONS
+
+#                         extract-ppt.simplify=$9 \
+
+do_knowledge_experiment $L_EXP_NAME \
+                        -p gp.tc.0.init=tl.gp.PPTBuilder \
+                        -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/$L_EXP_NAME.ppt \
                         -p gp.tc.0.init.transfer-percent=$1
 
-cp -p -v $KNOWLEDGE_SOURCE_DIR/pipe_tree.ppt $SAVE_TO/$SGE_TASK_ID
+cp -p -v $KNOWLEDGE_SOURCE_DIR/$L_EXP_NAME.ppt $SAVE_TO/$SGE_TASK_ID
 }
 
 
-# Does not require any arguments
-# function simplify_trees()
-# {
-#     echo "\nBegining to analyze subtrees knowledge"
-#     SIMPLIFICATION_DIR="./Simplification/$SGE_TASK_ID"
-#     mkdir -p $SIMPLIFICATION_DIR
-#     KNOWLEDGE_FILE="$SIMPLIFICATION_DIR/$KNOWLEDGE_FILE_BASE.bk"
-#     java -cp .:tl.jar tl.knowledge.extraction.SimplifyTrees carp_param_base.param  $KNOWLEDGE_SOURCE_DIR/ $KNOWLEDGE_FILE \
-#                                                             stat.file="\$$SIMPLIFICATION_DIR/simplify_trees.0.out.stat" \
-#                                                             eval.problem.eval-model.instances.0.file=$DATASET_FILE_SOURCE \
-#                                                             eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_SOURCE  \
-#                                                             eval.problem.eval-model.instances.0.samples=500 \
-#                                                             simplify-trees.percent=0.50 \
-#                                                             simplify-trees.num-generations=$GENERATIONS \
-#                                                             simplify-trees.from-generation=$(($GENERATIONS-1)) \
-#                                                             simplify-trees.to-generation=$(($GENERATIONS-1)) \
-#                                                             simplify-trees.fitness-niche-radius=-1 \
-#                                                             simplify-trees.min-st-depth=2 \
-#                                                             simplify-trees.max-st-depth=20 \
-#                                                             simplify-trees.knowledge-log-file="./$SIMPLIFICATION_DIR/SimplifyTreeLog" \
-#                                                             generations=$GENERATIONS \
-#                                                             seed.0=$TEST_SEED
-#                                                             stat.gen-pop-file=$KNOWLEDGE_SOURCE_DIR/population.gen \
-#     printf "Finished simplifying trees\n\n"
-# }
+# This function performs the transfer learning experiment 'PPTLearning'.
+# The function, at the moment, takes 8 parameters:
+#   1. percent of initial population on target domain to create with this TL method
+#   2. niche radius when learning the PPT (not used yet).
+#   3. niche capacity (not used yet).
+#   4. from generation
+#   5. to generation
+#   6. learning rate
+#   7. epsilon (originally used 0.1)
+#   8. clr (originally used 0.2)
+#   9. simplify: boolean value.
+function ExtractPPTPipe()
+{
 
-######################################################################################################################
+L_EXP_NAME=PPTPipeLearning:percent_$1:nrad_$2:ncap_$3:gens_$4_$5:lr_$6:eps_$7:clr_$8 #:sim_$9
+printf "Begining to extract the PPT: $L_EXP_NAME.\n"
 
+java -cp .:tl.jar tl.knowledge.extraction.ExtractPPT carp_param_base.param $KNOWLEDGE_SOURCE_DIR/ $KNOWLEDGE_SOURCE_DIR/$L_EXP_NAME.ppt \
+                        eval.problem.eval-model.instances.0.file=$DATASET_FILE_SOURCE \
+                        eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_SOURCE  \
+                        eval.problem.eval-model.instances.0.samples=500 \
+                        seed.0=$TEST_SEED \
+                        extract-ppt.knowledge-log-file=$KNOWLEDGE_SOURCE_DIR/PPTExtractionLog \
+                        extract-ppt.num-generations=$GENERATIONS \
+                        extract-ppt.from-generation=$4 \
+                        extract-ppt.to-generation=$5 \
+                        extract-ppt.fitness-niche-radius=$2 \
+                        extract-ppt.fitness-niche-capacity=$3 \
+                        extract-ppt.lr=$6 \
+                        extract-ppt.learner='pipe' \
+                        extract-ppt.epsilon=$7 \
+                        extract-ppt.clr=$8 \
+                        generation=$GENERATIONS
 
-# run_source_domain
+#                         extract-ppt.simplify=$9 \
 
-# evaluate_on_test {0..1}
+do_knowledge_experiment $L_EXP_NAME \
+                        -p gp.tc.0.init=tl.gp.PPTBuilder \
+                        -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/$L_EXP_NAME.ppt \
+                        -p gp.tc.0.init.transfer-percent=$1
 
-do_non_knowledge_experiment
-
-copy_knowledge
-
-FullTreeExp 50
-
-SubTree 50
-
-FrequentSub root
-
-PPTExp 50 -1
-
-# GTLKnow
-#
-# BestGen 1
-#
-# BestGen 2
-
-
-# evaluate_on_test 49
-
-# simplify_trees
-
-# do_non_knowledge_experiment
-
-# LO_EXPERIMENT_NAME="SimpleTree:gen49_49"
-# do_knowledge_experiment $LO_EXPERIMENT_NAME \
-#                         -p gp.tc.0.init=tl.gp.SimplifiedTreeBuilder \
-#                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_FILE \
-#                         -p gp.tc.0.init.transfer-percent=0.50 
-#                         -p gp.tc.0.init.knowledge-log-file="./$STAT_ROOT/$DATASET-v$NUM_VEHICLES_SOURCE-to-$NUM_VEHICLES_TARGET-wk-$LO_EXPERIMENT_NAME/KnowledgeLog"
-
-# analyze_subtrees rootsubtree
- 
-# LO_EXPERIMENT_NAME="simpletree-gen49-49"
-# do_knowledge_experiment $LO_EXPERIMENT_NAME \
-#                         -p gp.tc.0.init=tl.gp.SimplifiedTreeBuilder \
-#                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_FILE \
-#                         -p gp.tc.0.init.transfer-percent=0.50 \
-#                         -p gp.tc.0.init.knowledge-log-file="./$STAT_ROOT/$DATASET_SOURCE-v$NUM_VEHICLES_SOURCE-to-$NUM_VEHICLES_TARGET-wk-$LO_EXPERIMENT_NAME/KnowledgeLog"
-# 
-# 
-# LO_EXPERIMENT_NAME="subcontrib-gen49-49-subtree-noniche"
-# do_knowledge_experiment $LO_EXPERIMENT_NAME \
-#                         -p gp.tc.0.init=tl.gp.ContribSubtreeBuilder \
-#                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_FILE \
-#                         -p gp.tc.0.init.transfer-percent=0.50 \
-#                         -p gp.tc.0.init.knowledge-log-file="./$STAT_ROOT/$DATASET_SOURCE-v$NUM_VEHICLES_SOURCE-to-$NUM_VEHICLES_TARGET-wk-$LO_EXPERIMENT_NAME/KnowledgeLog"
-# 
-#                         
-# analyze_subtrees all
-# 
-# 
-# LO_EXPERIMENT_NAME="subcontrib-gen49-49-all-noniche"
-# do_knowledge_experiment $LO_EXPERIMENT_NAME \
-#                         -p gp.tc.0.init=tl.gp.ContribSubtreeBuilder \
-#                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_FILE \
-#                         -p gp.tc.0.init.transfer-percent=0.50 \
-#                         -p gp.tc.0.init.knowledge-log-file="./$STAT_ROOT/$DATASET_SOURCE-v$NUM_VEHICLES_SOURCE-to-$NUM_VEHICLES_TARGET-wk-$LO_EXPERIMENT_NAME/KnowledgeLog"
-
-
-# analyze_subtrees rootsubtree
-# 
-# 
-# LO_EXPERIMENT_NAME="subcontrib-gen49-49-subtree-abscontrib"
-# do_knowledge_experiment $LO_EXPERIMENT_NAME \
-#                         -p gp.tc.0.init=tl.gp.ContribSubtreeBuilder \
-#                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_FILE \
-#                         -p gp.tc.0.init.transfer-percent=0.50 \
-#                         -p gp.tc.0.init.knowledge-log-file="./$STAT_ROOT/$DATASET_SOURCE-v$NUM_VEHICLES_SOURCE-to-$NUM_VEHICLES_TARGET-wk-$LO_EXPERIMENT_NAME/KnowledgeLog"
-# 
-#                         
-# analyze_subtrees all
-# 
-# 
-# LO_EXPERIMENT_NAME="subcontrib-gen49-49-all-abscontrib"
-# do_knowledge_experiment $LO_EXPERIMENT_NAME \
-#                         -p gp.tc.0.init=tl.gp.ContribSubtreeBuilder \
-#                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_FILE \
-#                         -p gp.tc.0.init.transfer-percent=0.50 \
-#                         -p gp.tc.0.init.knowledge-log-file="./$STAT_ROOT/$DATASET_SOURCE-v$NUM_VEHICLES_SOURCE-to-$NUM_VEHICLES_TARGET-wk-$LO_EXPERIMENT_NAME/KnowledgeLog"
-
-# analyze_terminals
-
-# LO_EXPERIMENT_NAME="cwt-fitall-gen1-49-p1-r1-all"
-# do_knowledge_experiment $LO_EXPERIMENT_NAME \
-#                         -p gp.fs.0.func.0=tl.gphhucarp.TerminalERCContribOnlyWeighted \
-#                         -p gp.fs.0.func.0.terminal-file=$KNOWLEDGE_FILE \
-#                         -p gp.fs.0.func.0.weight-use-degeneration-rate=1 \
-#                         -p gp.fs.0.func.0.weight-use-probability=1 \
-#                         -p gp.fs.0.func.0.weight-use-policy=all \
-#                         -p gp.fs.0.func.0.uniform-erc=true \
-#                         -p gp.fs.0.func.0.min-weight=0.01 \
-#                         -p gp.fs.0.func.0.knowledge-log-file="./$STAT_ROOT/$DATASET_SOURCE-v$NUM_VEHICLES_SOURCE-to-$NUM_VEHICLES_TARGET-wk-$LO_EXPERIMENT_NAME/TerminalERCContribOnlyWeightedLog" \
-#                         -p gp.fs.0.func.0.max-weight=0.9
-# 
-# LO_EXPERIMENT_NAME="cwt-fitall-gen1-49-p0.8-r0.8-all"
-# do_knowledge_experiment  $LO_EXPERIMENT_NAME \
-#                         -p gp.fs.0.func.0=tl.gphhucarp.TerminalERCContribOnlyWeighted \
-#                         -p gp.fs.0.func.0.terminal-file=$KNOWLEDGE_FILE \
-#                         -p gp.fs.0.func.0.weight-use-degeneration-rate=0.8 \
-#                         -p gp.fs.0.func.0.weight-use-probability=0.8 \
-#                         -p gp.fs.0.func.0.weight-use-policy=all \
-#                         -p gp.fs.0.func.0.uniform-erc=true \
-#                         -p gp.fs.0.func.0.min-weight=0.01 \
-#                         -p gp.fs.0.func.0.knowledge-log-file="./$STAT_ROOT/$DATASET_SOURCE-v$NUM_VEHICLES_SOURCE-to-$NUM_VEHICLES_TARGET-wk-$LO_EXPERIMENT_NAME/TerminalERCContribOnlyWeightedLog" \
-#                         -p gp.fs.0.func.0.max-weight=0.9
-# 
-# LO_EXPERIMENT_NAME="cwt-fitall-gen1-49-p0.8-r0.8-first"
-# do_knowledge_experiment $LO_EXPERIMENT_NAME  \
-#                         -p gp.fs.0.func.0=tl.gphhucarp.TerminalERCContribOnlyWeighted \
-#                         -p gp.fs.0.func.0.terminal-file=$KNOWLEDGE_FILE \
-#                         -p gp.fs.0.func.0.weight-use-degeneration-rate=0.8 \
-#                         -p gp.fs.0.func.0.weight-use-probability=0.8 \
-#                         -p gp.fs.0.func.0.weight-use-policy=first \
-#                         -p gp.fs.0.func.0.uniform-erc=true \
-#                         -p gp.fs.0.func.0.min-weight=0.01 \
-#                         -p gp.fs.0.func.0.knowledge-log-file="./$STAT_ROOT/$DATASET_SOURCE-v$NUM_VEHICLES_SOURCE-to-$NUM_VEHICLES_TARGET-wk-$LO_EXPERIMENT_NAME/TerminalERCContribOnlyWeightedLog" \
-#                         -p gp.fs.0.func.0.max-weight=0.9
-
-
-# do_knowledge_experiment FrequentSub-rootsubtree \
-#                         -p gp.tc.0.init=tl.gp.FrequentCodeFragmentBuilder \
-#                         -p gp.tc.0.init.knowledge-directory=$KNOWLEDGE_SOURCE_DIR/ \
-#                         -p gp.tc.0.init.knowledge-extraction=rootsubtree \
-#                         -p gp.tc.0.init.transfer-percent=0.50 \
-#                         -p gp.tc.0.init.extract-percent=0.50 \
-#                         -p gp.tc.0.init.min-cf-depth=2 \
-#                         -p gp.tc.0.init.max-cf-depth=5
-# 
-
-# do_knowledge_experiment FrequentSub-all \
-#                         -p gp.tc.0.init=tl.gp.FrequentCodeFragmentBuilder \
-#                         -p gp.tc.0.init.knowledge-directory=$KNOWLEDGE_SOURCE_DIR/ \
-#                         -p gp.tc.0.init.knowledge-extraction=all \
-#                         -p gp.tc.0.init.transfer-percent=0.50 \
-#                         -p gp.tc.0.init.extract-percent=0.50 \
-#                         -p gp.tc.0.init.min-cf-depth=2 \
-#                         -p gp.tc.0.init.max-cf-depth=5
-#                         
-# do_knowledge_experiment FrequentSub-root \
-#                         -p gp.tc.0.init=tl.gp.FrequentCodeFragmentBuilder \
-#                         -p gp.tc.0.init.knowledge-directory=$KNOWLEDGE_SOURCE_DIR/ \
-#                         -p gp.tc.0.init.knowledge-extraction=root \
-#                         -p gp.tc.0.init.transfer-percent=0.50 \
-#                         -p gp.tc.0.init.extract-percent=0.50 \
-#                         -p gp.tc.0.init.min-cf-depth=2 \
-#                         -p gp.tc.0.init.max-cf-depth=5
-
-
-# 
-# do_knowledge_experiment subtree25 \
-#                         -p gp.tc.0.init=tl.gp.SimpleCodeFragmentBuilder \
-#                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin \
-#                         -p gp.tc.0.init.transfer-percent=25 \
-#                         -p gp.tc.0.init.knowledge-extraction=rootsubtree
-#    
-
-# do_knowledge_experiment subtree50 \
-#                         -p gp.tc.0.init=tl.gp.SimpleCodeFragmentBuilder \
-#                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin \
-#                         -p gp.tc.0.init.transfer-percent=50 \
-#                         -p gp.tc.0.init.knowledge-extraction=rootsubtree
-#                         
-# do_knowledge_experiment subtree75 \
-#                         -p gp.tc.0.init=tl.gp.SimpleCodeFragmentBuilder \
-#                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin \
-#                         -p gp.tc.0.init.transfer-percent=75 \
-#                         -p gp.tc.0.init.knowledge-extraction=rootsubtree 
-# 
-# do_knowledge_experiment subtree100 \
-#                         -p gp.tc.0.init=tl.gp.SimpleCodeFragmentBuilder \
-#                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin \
-#                         -p gp.tc.0.init.transfer-percent=100 \
-#                         -p gp.tc.0.init.knowledge-extraction=rootsubtree 
-#                         
-# 
-# do_knowledge_experiment fulltree25 \
-#                         -p gp.tc.0.init=tl.gp.SimpleCodeFragmentBuilder \
-#                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin \
-#                         -p gp.tc.0.init.transfer-percent=25 \
-#                         -p gp.tc.0.init.knowledge-extraction=root
-#                         
-# do_knowledge_experiment fulltree50 \
-#                         -p gp.tc.0.init=tl.gp.SimpleCodeFragmentBuilder \
-#                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin \
-#                         -p gp.tc.0.init.transfer-percent=50 \
-#                         -p gp.tc.0.init.knowledge-extraction=root
-#                         
-# do_knowledge_experiment fulltree75 \
-#                         -p gp.tc.0.init=tl.gp.SimpleCodeFragmentBuilder \
-#                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin \
-#                         -p gp.tc.0.init.transfer-percent=75 \
-#                         -p gp.tc.0.init.knowledge-extraction=root 
-# 
-
-# do_knowledge_experiment fulltree100 \
-#                         -p gp.tc.0.init=tl.gp.SimpleCodeFragmentBuilder \
-#                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin \
-#                         -p gp.tc.0.init.transfer-percent=100 \
-#                         -p gp.tc.0.init.knowledge-extraction=root 
-#                         
-# do_knowledge_experiment BestGenKnowledge1 \
-#                         -p gp.tc.0.init=tl.gp.BestGenKnowledgeBuilder \
-#                         -p gp.tc.0.init.k=1 \
-#                         -p gp.tc.0.init.knowledge-folder=$KNOWLEDGE_SOURCE_DIR/ \
-#                         -p gp.tc.0.init.knowledge-extraction=rootsubtree 
-#                         
-# do_knowledge_experiment BestGenKnowledge2 \
-#                         -p gp.tc.0.init=tl.gp.BestGenKnowledgeBuilder \
-#                         -p gp.tc.0.init.k=2 \
-#                         -p gp.tc.0.init.knowledge-folder=$KNOWLEDGE_SOURCE_DIR/ \
-#                         -p gp.tc.0.init.knowledge-extraction=rootsubtree 
-#                         
-# do_knowledge_experiment GTLKnowlege  \
-#                         -p gp.tc.0.init=tl.gp.GTLKnowlegeBuilder \
-#                         -p gp.tc.0.init.k=2 \
-#                         -p gp.tc.0.init.knowledge-folder=$KNOWLEDGE_SOURCE_DIR/ \
-#                         -p gp.tc.0.init.knowledge-extraction=rootsubtree 
-#                         
-# do_knowledge_experiment TLGPCriptor \
-#                         -p gp.tc.0.init=tl.gp.TLGPCriptorBuilder \
-#                         -p gp.tc.0.init.knowledge-probability=0.5 \
-#                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin \
-#                         -p gp.tc.0.init.knowledge-extraction=rootsubtree \
-#                         -p pop.subpop.0.species.pipe.source.1 = tl.gp.TLGPCriptorMutation \
-#                         -p pop.subpop.0.species.pipe.source.1.knowledge-probability=0.5 \
-  
-
-# do_knowledge_experiment  FrequentSub-all \
-#                         -p gp.tc.0.init=tl.gp.DepthedFrequentSimpleCodeFragmentBuilder \
-#                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_FILE.pop.bin \
-#                         -p gp.tc.0.init.knowledge-extraction=all \
-#                         -p gp.tc.0.init.transfer-percent=0.50 \
-#                         -p gp.tc.0.init.extract-percent=0.50 \
-#                         -p gp.tc.0.init.min-cf-depth=2 \
-#                         -p gp.tc.0.init.max-cf-depth=5 \
-#                         -p seed.0=$SGE_TASK_ID
-#                         
-# do_knowledge_experiment   FrequentSub-root \
-#                         -p gp.tc.0.init=tl.gp.DepthedFrequentSimpleCodeFragmentBuilder \
-#                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_FILE.pop.bin \
-#                         -p gp.tc.0.init.knowledge-extraction=root \
-#                         -p gp.tc.0.init.transfer-percent=0.50 \
-#                         -p gp.tc.0.init.extract-percent=0.50 \
-#                         -p gp.tc.0.init.min-cf-depth=2 \
-#                         -p gp.tc.0.init.max-cf-depth=5 \
-#                         -p seed.0=$SGE_TASK_ID
-#                         
-# do_knowledge_experiment  FrequentSub-rootsubtree \
-#                         -p gp.tc.0.init=tl.gp.DepthedFrequentSimpleCodeFragmentBuilder \
-#                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_FILE.pop.bin \
-#                         -p gp.tc.0.init.knowledge-extraction=rootsubtree \
-#                         -p gp.tc.0.init.transfer-percent=0.50 \
-#                         -p gp.tc.0.init.extract-percent=0.50 \
-#                         -p gp.tc.0.init.min-cf-depth=2 \
-#                         -p gp.tc.0.init.max-cf-depth=5 \
-#                         -p seed.0=$SGE_TASK_ID
-
-
-# # ######################################################################################################################
-# echo "\nBegining to analyze knowledge"
-# KNOWLEDGE_FILE="$KNOWLEDGE_FILE_BASE.bk"
-# java -cp .:tl.jar tl.gp.AnalyzeTerminals carp_param_base.param  $KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin $KNOWLEDGE_FILE \
-#                                                         stat.file="\$$KNOWLEDGE_SOURCE_DIR/job.0.out.stat" \
-#                                                         eval.problem.eval-model.instances.0.file=$DATASET_FILE_SOURCE \
-#                                                         eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_SOURCE  \
-#                                                         eval.problem.eval-model.instances.0.samples=500 \
-#                                                         stat.gen-pop-file=$KNOWLEDGE_SOURCE_DIR/population.gen \
-#                                                         analyze-terminals.percent=0.5 \
-#                                                         generations=$GENERATIONS \
-#                                                         seed.0=$SGE_TASK_ID
-# echo "Finished extracting knowledge"
-# # ######################################################################################################################
-                        
-                        
-                        
-# do_knowledge_experiment freq-weigh-terminal-p1-r1-all \
-#                         -p gp.fs.0.func.0=tl.gphhucarp.TerminalERCContribWeighted \
-#                         -p gp.fs.0.func.0.terminal-file=$KNOWLEDGE_FILE \
-#                         -p gp.fs.0.func.0.weight-use-degeneration-rate=1 \
-#                         -p gp.fs.0.func.0.weight-use-probability=1 \
-#                         -p gp.fs.0.func.0.weight-use-policy=all \
-# 
-# 
-# do_knowledge_experiment freq-weigh-terminal-p0.8-r0.8-all \
-#                         -p gp.fs.0.func.0=tl.gphhucarp.TerminalERCContribWeighted \
-#                         -p gp.fs.0.func.0.terminal-file=$KNOWLEDGE_FILE \
-#                         -p gp.fs.0.func.0.weight-use-degeneration-rate=0.8 \
-#                         -p gp.fs.0.func.0.weight-use-probability=0.8 \
-#                         -p gp.fs.0.func.0.weight-use-policy=all \
-#                         
-# do_knowledge_experiment freq-weigh-terminal-p0.8-r0.8-first \
-#                         -p gp.fs.0.func.0=tl.gphhucarp.TerminalERCContribWeighted \
-#                         -p gp.fs.0.func.0.terminal-file=$KNOWLEDGE_FILE \
-#                         -p gp.fs.0.func.0.weight-use-degeneration-rate=0.8 \
-#                         -p gp.fs.0.func.0.weight-use-probability=0.8 \
-#                         -p gp.fs.0.func.0.weight-use-policy=first \
+cp -p -v $KNOWLEDGE_SOURCE_DIR/$L_EXP_NAME.ppt $SAVE_TO/$SGE_TASK_ID
+}
