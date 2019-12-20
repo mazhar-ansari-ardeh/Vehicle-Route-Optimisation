@@ -95,6 +95,23 @@ class ProbabilityVector implements Serializable
 	private final static long serialVersionUID = -8435141646461582571L;
 
 	/**
+	 * Get the minimum probability threshold.
+	 * @return the minimum probability threshold
+	 */
+	public double getMinThreshold()
+	{
+		return minThreshold;
+	}
+
+	/**
+     * The minimum weight that each terminal/function can have. If the weight of a terminal/function is less than this
+     * value, this value will be used instead. This threshold is a soft threshold, meaning that the actual weight of
+     * terminals/functions are not modified but instead, whenever the weight is used and its value is less than the threshold,
+     * threshold is used.
+     */
+	private double minThreshold;
+
+    /**
 	 * The structure that maps terminal/function name to its probability.
 	 */
 	HashMap<String, Double> probabilities = new HashMap<>();
@@ -112,16 +129,42 @@ class ProbabilityVector implements Serializable
 	 */
 	private boolean initialized = false;
 
-	public ProbabilityVector(String[] terminals, String[] functions)
+	/**
+	 * Creates a new instance of the {@code ProbabilityVector} with the given set of terminals, functions and minimum
+	 * probability threshold.
+	 * @param terminals The set of GP terminals that this object should hold probabilities for.
+	 * @param functions The set of GP functions that this object should hold probabilities for.
+	 * @param threshold The minimum probability threshold. If the probability of an item is less than this threshold, the
+	 *                  threshold value will be used.
+	 */
+	public ProbabilityVector(String[] terminals, String[] functions, double threshold)
 	{
 		if(terminals == null || functions == null)
 			throw new IllegalArgumentException("Terminal set or function set is null");
+
+		if(threshold < 0)
+		    throw new IllegalArgumentException("Threshold cannot be a negative value");
 
 		for(String terminal : terminals)
 			probabilities.put(terminal, 0d);
 		for(String function : functions)
 			probabilities.put(function, 0d);
+
+		this.minThreshold = threshold;
 	}
+
+//	/**
+//	 * Creates a new instance of the {@code ProbabilityVector} with the given set of terminals, functions and minimum
+//	 * probability threshold. The minimum probability threshold will be set to zero.
+//	 * @param terminals The set of GP terminals that this object should hold probabilities for.
+//	 * @param functions The set of GP functions that this object should hold probabilities for.
+//	 */
+//    public ProbabilityVector(String[] terminals, String[] functions)
+//    {
+//        this(terminals, functions, 0);
+//    }
+
+
 
 	/**
 	 * Checks if the PPTree is initialized for learning or not. Being initialized is the first step towards learning a
@@ -164,6 +207,8 @@ class ProbabilityVector implements Serializable
 		{
 			names[i] = name;
 			probs[i] = probabilities.get(name);
+			if(probs[i] < minThreshold)
+				probs[i] = minThreshold;
 			i++;
 		}
 
@@ -234,7 +279,7 @@ class ProbabilityVector implements Serializable
 		for(String s : this.probabilities.keySet())
 			bl.append("(").append(s).append(", ").append(probabilities.get(s)).append(")").append(", ");
 
-		bl.append(R).append("]");
+		bl.append("minThresh: ").append(minThreshold).append(", ").append("R: ").append(R).append("]");
 
 		return bl.toString();
 	}
@@ -257,6 +302,8 @@ class ProbabilityVector implements Serializable
 		}
 		if(bl.toString().endsWith("|"))
 			bl.deleteCharAt(bl.length() -1);
+		if(minThreshold > 0)
+			bl.append("|miTh:").append(minThreshold);
 		bl.append("}");
 //		bl.append(R).append("}");
 

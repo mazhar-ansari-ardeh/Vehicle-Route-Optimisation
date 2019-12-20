@@ -125,7 +125,7 @@ public class PIPELearner implements IPIPELearner<GPIndividual>
         if(elite == null || (individual.fitness.fitness() < elite.fitness.fitness()))
             elite = individual;
 
-        double probabilityOfInd = tree.probabilityOf(individual, treeIndex);
+        double probabilityOfInd = tree.probabilityOf(individual, treeIndex, false); // TODO: the third parameter needs to be read from somewhere.
         double targetProbability = targetProbability(probabilityOfInd, individual.fitness.fitness(),
                                                      elite.fitness.fitness());
         GPNode root = individual.trees[treeIndex].child;
@@ -156,7 +156,7 @@ public class PIPELearner implements IPIPELearner<GPIndividual>
                 }
             }
 
-            probabilityOfInd = tree.probabilityOf(individual, treeIndex);
+            probabilityOfInd = tree.probabilityOf(individual, treeIndex, false); // TODO: the third parameter needs to be read from somewhere.
 //            targetProbability = targetProbability(probabilityOfInd, individual.fitness.fitness(), elite.fitness.fitness());
         }
     }

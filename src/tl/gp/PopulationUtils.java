@@ -150,7 +150,7 @@ public class PopulationUtils
 	{
 		sort(pop);
 
-		return new ArrayList<>(Arrays.asList(pop).subList(0, sampleSize));
+		return new ArrayList<>(Arrays.asList(pop).subList(0, pop.length >= sampleSize ? sampleSize : pop.length));
 	}
 
 	public static Population loadPopulation(String fileName)

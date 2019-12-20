@@ -3,6 +3,8 @@ package tl.knowledge.ppt.pipe;
 import ec.EvolutionState;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
+import ec.util.Parameter;
+import org.apache.commons.lang3.ArrayUtils;
 import tl.gp.GPIndividualUtils;
 import tl.gp.PopulationUtils;
 
@@ -18,6 +20,53 @@ import java.util.*;
  */
 public class FrequencyLearner implements IPIPELearner<GPIndividual[]>
 {
+    /**
+     * The size of the set that is sampled from the population set to learn from for the frequency-based learning
+     * method.
+     */
+    public static final String P_SAMPLE_SIZE = "sample-size";
+
+    /**
+     * The tournament size that is used by the frequency-based learning method.
+     */
+    public final static String P_TOURNAMENT_SIZE = "tournament-size";
+
+    /**
+     * The learning rate. The meaning of this parameter may be different for different learning algorithms.
+     */
+    public static final String P_LEARNING_RATE = "lr";
+
+    public static FrequencyLearner newFrequencyLearner(EvolutionState state, Parameter base, String[] functions, String[] terminals)
+    {
+        Parameter p = base.push(P_SAMPLE_SIZE);
+        int sampleSize = state.parameters.getInt(p, null);
+        if(sampleSize <= 0)
+            state.output.fatal("Sample size must be a positive value: " + sampleSize);
+        else
+            state.output.warning("Sample size: " + sampleSize);
+
+        p = base.push(P_TOURNAMENT_SIZE);
+
+        // The tournament size to sample individuals from the population to learn.
+        int tournamentSize = state.parameters.getInt(p, null);
+        if(tournamentSize > sampleSize)
+            state.output.fatal("Tournament size must be positive and smaller than sample size: " + tournamentSize);
+        else
+            state.output.warning("Tournament size: " + tournamentSize);
+
+        p = base.push(P_LEARNING_RATE);
+
+        // The learning rate for learning.
+        double lr = state.parameters.getDouble(p, null);
+        if(lr <= 0 || lr > 1)
+            state.output.fatal("The value of the learning rate is invalid:" + lr);
+        else
+            state.output.warning("Learning rate: " + lr);
+
+        return new FrequencyLearner(state, 0, functions, terminals, lr, sampleSize, tournamentSize);
+    }
+
+    private final static long serialVersionUID = -7886760246174760589L;
 
     /**
      * The name of all the GP terminals
@@ -148,14 +197,16 @@ public class FrequencyLearner implements IPIPELearner<GPIndividual[]>
             if (individual.length <= sampleSize)
                 Ss.addAll(Arrays.asList(individual));
             else
+            {
                 for (int i = 0; i < sampleSize; i++)
                 {
                     int selected = PopulationUtils.tournamentSelect(individual, state, threadnum, tournamentSize);
-                    while (Ss.contains(individual[selected]))
-                        selected = PopulationUtils.tournamentSelect(individual, state, threadnum, tournamentSize);
-
+//                    while (Ss.contains(individual[selected]))
+//                        selected = PopulationUtils.tournamentSelect(individual, state, threadnum, tournamentSize);
                     Ss.add(individual[selected]);
+                    individual = ArrayUtils.remove(individual, selected);
                 }
+            }
         }
         else
         {
@@ -165,11 +216,25 @@ public class FrequencyLearner implements IPIPELearner<GPIndividual[]>
         for(String address : stats.keySet())
         {
             HashMap<String, Double> nodeStat = stats.get(address);
-            for(String nodeName : nodeStat.keySet())
+            for(String nodeName : this.functions)
             {
+                Double stat = nodeStat.get(nodeName);
+                if(stat == null)
+                    stat = 0d;
+
                 double oldProbability = tree.getProbabilityOf(address, nodeName);
-                double newProbability = (lr * oldProbability)
-                        + ((1 - lr) * nodeStat.get(nodeName));
+                double newProbability = (lr * oldProbability) + ((1 - lr) *  stat);
+                tree.setProbabilityOf(address, nodeName, newProbability);
+            }
+
+            for(String nodeName : this.terminals)
+            {
+                Double stat = nodeStat.get(nodeName);
+                if(stat == null)
+                    stat = 0d;
+
+                double oldProbability = tree.getProbabilityOf(address, nodeName);
+                double newProbability = (lr * oldProbability) + ((1 - lr) *  stat);
                 tree.setProbabilityOf(address, nodeName, newProbability);
             }
         }

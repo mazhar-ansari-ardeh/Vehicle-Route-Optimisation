@@ -604,7 +604,6 @@ public class AlgebraicTreeSimplifier extends TreeSimplifier
 				System.out.println("----------------------------------------------------\n");
 			}
 		}
-
 	}
 
 	@Override

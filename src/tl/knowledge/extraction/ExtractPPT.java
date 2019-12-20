@@ -23,6 +23,7 @@ import java.io.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 class Extractor
 {
@@ -98,6 +99,9 @@ class Extractor
      */
     public static final String P_SIMPLIFY = "simplify";
     private boolean simplify;
+
+    public static final String P_MIN_PROB_THRESH = "min-prob-thresh";
+    private double minProbabilityThreshod;
 
 
 
@@ -253,15 +257,22 @@ class Extractor
             simplifier = new AlgebraicTreeSimplifier(hc);
         }
 
-        tree = new PPTree(learner, functions, terminals);
+        p = base.push(P_MIN_PROB_THRESH);
+        minProbabilityThreshod = state.parameters.getDouble(p, null);
+        if(minProbabilityThreshod < 0 || minProbabilityThreshod > 1)
+            state.output.fatal("Probability threshold is invalid: " + minProbabilityThreshod);
+        else
+            state.output.warning("Probability threshold: " + minProbabilityThreshod);
+
+        tree = new PPTree(learner, functions, terminals, minProbabilityThreshod);
         state.output.warning("ExtractPPT loaded.");
     }
 
-    private ArrayList<Population> readPopulation(String inputFileNamePath) throws IOException, ClassNotFoundException
+    private HashMap<Integer, Population> readPopulation(String inputFileNamePath) throws IOException, ClassNotFoundException
     {
         //	String inputFileNamePath = "/vol/grid-solar/sgeusers/mazhar/gdb2-v7-to8/1/stats/gdb2-v7-writeknow/population.gen.49.bin";
 //        String inputFileNamePath = args[1];
-        ArrayList<Population> popList = new ArrayList<>();
+        HashMap<Integer, Population> popList = new HashMap<>();
         File f = new File(inputFileNamePath);
         double minFit = Double.MAX_VALUE;
         double maxFit = Double.MIN_VALUE;
@@ -276,21 +287,27 @@ class Extractor
             }
             for (int i = 0; i < numGenerations; i++)
             {
-                Population p = PopulationUtils.loadPopulation(
-                                Paths.get(inputFileNamePath, "population.gen." + i + ".bin").toFile());
+                File file = Paths.get(inputFileNamePath, "population.gen." + i + ".bin").toFile();
+                if(!file.exists())
+                {
+                    logger.log(state, logID, "The file " + file.toString() + " does not exist. Ignoring.\n");
+                    continue;
+                }
+                Population p = PopulationUtils.loadPopulation(file);
                 PopulationUtils.sort(p);
                 double fit = p.subpops[0].individuals[0].fitness.fitness();
                 if (fit > maxFit)
                     maxFit = fit;
                 if (fit < minFit)
                     minFit = fit;
-                popList.add(p);
+                popList.put(i, p);
             }
         } else
         {
             fromGeneration = 0;
             toGeneration = 0;
-            popList.add(PopulationUtils.loadPopulation(inputFileNamePath));
+            popList.put(0, PopulationUtils.loadPopulation(inputFileNamePath));
+//            throw new RuntimeException("Reading knowledge directly from a file is disabled for now");
         }
 
         return popList;
@@ -357,7 +374,7 @@ class Extractor
         try
         {
             String inputFileNamePath = args[1];
-            ArrayList<Population> popList = readPopulation(inputFileNamePath);
+            HashMap<Integer, Population> popList = readPopulation(inputFileNamePath);
 
             logger.log(state, logID, "population is loaded\n");
             for(int gen = fromGeneration; gen <= toGeneration; gen++)

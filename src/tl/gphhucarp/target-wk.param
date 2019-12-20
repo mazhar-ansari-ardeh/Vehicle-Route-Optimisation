@@ -1,23 +1,23 @@
 parent.0=carp_param_base.param
-print-params = true
+print-params = false
 
 stat.file=$./stats/target-wk/job.0.out.stat
 stat.gen-pop-file=./stats/target-wk/population.gen
-eval.problem.eval-model.instances.0.file=gdb/gdb2.dat
-eval.problem.eval-model.instances.0.vehicles=7
+eval.problem.eval-model.instances.0.file=gdb/gdb1.dat
+eval.problem.eval-model.instances.0.vehicles=6
 seed.0=2
 # gp.tc.0.init=tl.gp.IqKnowledgeBuilder
 # gp.tc.0.init = ec.gp.koza.HalfBuilder
 # gp.tc.0.init.knowledge-log-file=./stats/target-wk/IqKnowledgeBuilder
-# gp.tc.0.init.knowledge-folder=/home/mazhar/MyPhD/SourceCodes/gpucarp/stats/source/
-# gp.tc.0.init.knowledge-file=/home/mazhar/MyPhD/SourceCodes/gpucarp/stats/source/population.gen.49.bin
+# gp.tc.0.init.knowledge-folder=/home/mazhar/MyPhD/SourceCodes/gpucarp/stats/origin/
+# gp.tc.0.init.knowledge-file=/home/mazhar/MyPhD/SourceCodes/gpucarp/stats/origin/population.gen.49.bin
 # gp.tc.0.init.knowledge-probability=0.5
 # gp.tc.0.init.transfer-percent=75
 # gp.tc.0.init.k=2
 # gp.tc.0.init.knowledge-extraction=rootsubtree
-# pop.subpop.0.species.pipe.source.1 = tl.gp.TLGPCriptorMutation
-# pop.subpop.0.species.pipe.source.1.knowledge-log-file=./stats/target-wk/TLGPCriptorMutationLog
-# pop.subpop.0.species.pipe.source.1.knowledge-probability=0.5
+# pop.subpop.0.species.pipe.origin.1 = tl.gp.TLGPCriptorMutation
+# pop.subpop.0.species.pipe.origin.1.knowledge-log-file=./stats/target-wk/TLGPCriptorMutationLog
+# pop.subpop.0.species.pipe.origin.1.knowledge-probability=0.5
 
 # ==============================
 # Terminal Weight Transfer
@@ -60,7 +60,7 @@ seed.0=2
 # ==============================
 # ContribSubTree Builder
 # ==============================
- gp.tc.0.init=tl.gp.ContribSubtreeBuilder
+# gp.tc.0.init=tl.gp.ContribSubtreeBuilder
 # gp.tc.0.init.knowledge-file=/run/media/mazhar/Elements/grid/Archive/val10D-v10-to9/1/val10D-v10-all.bk
 # percentage of initial population that is created from extracted knowledge
 # gp.tc.0.init.transfer-percent=0.50
@@ -69,11 +69,11 @@ seed.0=2
 # ==============================
 # PPT Builder
 # ==============================
-# gp.tc.0.init=tl.gp.PPTBuilder
-# gp.tc.0.init.knowledge-file=/home/mazhar/grid/gdb8.vs10.gdb8.vt11:gen_50/PPTFreqLearning:percent_0.5:nrad_0.1:ncap_3:gens_49_49:lr_0.8:ss_80:ts_20/1/PPTFreqLearning:percent_0.5:nrad_0.1:ncap_3:gens_49_49:lr_0.8:ss_80:ts_20.ppt
-# percentage of initial population that is created from extracted knowledge
-# gp.tc.0.init.transfer-percent=0.50
-# gp.tc.0.init.knowledge-log-file=./stats/target-wk/PPTBuildLog
+gp.tc.0.init=tl.gp.PPTBuilder
+gp.tc.0.init.knowledge-file=/am/vuwstocoisnrin1.vuw.ac.nz/grid-solar/sgeusers/mazhar/gdb1.vs5.gdb1.vt6:gen_50/PPTFreqLearning:percent_0.5:nrad_-1:ncap_2:gens_49_49:lr_0.8:ss_100:ts_-1/3/PPTFreqLearning:percent_0.5:nrad_-1:ncap_2:gens_49_49:lr_0.8:ss_100:ts_-1.ppt
+percentage of initial population that is created from extracted knowledge
+gp.tc.0.init.transfer-percent=0.50
+gp.tc.0.init.knowledge-log-file=./stats/target-wk/PPTBuildLog
 
 # gp.tc.0.init.knowledge-extraction=rootsubtree
 # gp.tc.0.init.extract-percent=0.50
@@ -154,19 +154,38 @@ ppt-state.niche-capacity=2
 # ==============================
 # FullTree
 # ==============================
-gp.tc.0.init=tl.gp.SimpleCodeFragmentBuilder
-gp.tc.0.init.knowledge-file=/home/mazhar/grid/gdb8.vs10:gen_50/KnowledgeSource/1/population.gen.49.bin
-gp.tc.0.init.transfer-percent=25
-gp.tc.0.init.knowledge-extraction=root
-gp.tc.0.init.knowledge-log-file=./stats/target-wk/FullTreeLog
-gp.tc.0.init.allow-duplicates=false
+# gp.tc.0.init=tl.gp.SimpleCodeFragmentBuilder
+# gp.tc.0.init.knowledge-file=/home/mazhar/grid/gdb1.vs5:gen_50/KnowledgeSource/3/population.gen.49.bin
+# gp.tc.0.init.transfer-percent=50
+# gp.tc.0.init.knowledge-extraction=root
+# gp.tc.0.init.knowledge-log-file=./stats/target-wk/FullTreeLog
+# gp.tc.0.init.allow-duplicates=false
+
+# ==============================
+# TournamentFullTree
+# ==============================
+# gp.tc.0.init=tl.gp.TournamentFullTreeBuilder
+# gp.tc.0.init.knowledge-file=/home/mazhar/grid/gdb1.vs5:gen_50/KnowledgeSource/3/population.gen.49.bin
+# gp.tc.0.init.transfer-percent=0.1
+# gp.tc.0.init.knowledge-extraction=root
+# gp.tc.0.init.knowledge-log-file=./stats/target-wk/FullTreeLog
+# gp.tc.0.init.allow-duplicates=false
+# gp.tc.0.init.tournament-size=20
 
 
 
 # ==============================
 # The test set
 # ==============================
-state = gphhucarp.gp.GPHHEvolutionState
+# state = gphhucarp.gp.GPHHEvolutionState
+
+state = tl.gp.PPTEvolutionState
+ppt-state.lr=0.8
+ppt-state.sample-size=100
+ppt-state.tournament-size=20
+ppt-state.ppt-stat-log=PPTStatLog
+ppt-state.ppt-log=PPTLog
+
 # eval = ec.simple.SimpleEvaluator
 # eval.problem = gphhucarp.gp.ReactiveGPHHProblem
 # eval.problem.pool-filter = gphhucarp.decisionprocess.poolfilter.ExpFeasiblePoolFilter
@@ -176,7 +195,7 @@ state = gphhucarp.gp.GPHHEvolutionState
 # eval.problem.eval-model.objectives = 1
 # eval.problem.eval-model.objectives.0 = total-cost
 # eval.problem.eval-model.instances = 1
-# eval.problem.eval-model.instances.0.file = gdb/gdb2.dat
+# eval.problem.eval-model.instances.0.file = gdb/gdb1.dat
 # eval.problem.eval-model.instances.0.samples = 500
 # eval.problem.eval-model.instances.0.vehicles = from-file
 # eval.problem.eval-model.instances.0.demand-uncertainty-level = 0.2

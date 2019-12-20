@@ -106,11 +106,11 @@ init = ec.gp.GPInitializer
 # GP breeding pipeline
 pop.subpop.0.species.pipe = ec.breed.MultiBreedingPipeline
 pop.subpop.0.species.pipe.generate-max = false
-pop.subpop.0.species.pipe.num-sources = 3
+pop.subpop.0.species.pipe.num-sources = 4
 pop.subpop.0.species.pipe.source.0 = ec.gp.koza.CrossoverPipeline
-pop.subpop.0.species.pipe.source.0.prob = 0.3
+pop.subpop.0.species.pipe.source.0.prob = 0.4
 pop.subpop.0.species.pipe.source.1 = ec.gp.koza.MutationPipeline
-pop.subpop.0.species.pipe.source.1.prob = 0.7
+pop.subpop.0.species.pipe.source.1.prob = 0.15
 pop.subpop.0.species.pipe.source.2 = ec.breed.ReproductionPipeline
 pop.subpop.0.species.pipe.source.2.prob = 0.05
 # pop.subpop.0.species.pipe.source.0.prob = 0.80
@@ -118,6 +118,9 @@ pop.subpop.0.species.pipe.source.2.prob = 0.05
 # pop.subpop.0.species.pipe.source.1.prob = 0.15
 # pop.subpop.0.species.pipe.source.2 = ec.breed.ReproductionPipeline
 # pop.subpop.0.species.pipe.source.2.prob = 0.05
+pop.subpop.0.species.pipe.source.3 = tl.knowledge.ppt.gp.PPTBreedingPipeline
+pop.subpop.0.species.pipe.source.3.prob = 0.4
+pop.subpop.0.species.pipe.source.3.knowledge-log-file = PPTBreedLog
 
 # Selection for reproduction
 breed.reproduce.source.0 = ec.select.TournamentSelection

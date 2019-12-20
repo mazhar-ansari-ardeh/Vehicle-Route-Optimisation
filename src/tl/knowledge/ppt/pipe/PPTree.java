@@ -20,6 +20,14 @@ public class PPTree implements Serializable
 	private static final long serialVersionUID = -6588817432271836041L;
 
 	/**
+	 * The minimum probability threshold, that is the minimum probability that a GP item can have at any node. If the weight
+	 * of a terminal/function is less than this value, this value will be used instead. This threshold is a soft threshold,
+	 * meaning that the actual weight of terminals/functions are not modified but instead, whenever the weight is used to
+	 * sample new individuals and its value is less than the threshold, threshold is used.
+	 */
+	private final double minThreshold;
+
+	/**
 	 * The learning algorithm that can learn the probability vector of this PPT.
 	 */
     private IPIPELearner learner;
@@ -53,20 +61,24 @@ public class PPTree implements Serializable
 	 * @param terminals the set of GP terminals. This parameter cannot be {@code null}. However, it is possible to have
 	 *                  a set of length zero.
 	 */
-	public PPTree(IPIPELearner learner, String[] functions, String[] terminals)
+	public PPTree(IPIPELearner learner, String[] functions, String[] terminals, double minThreshold)
 	{
 		if(learner == null)
 			throw new IllegalArgumentException("Learner cannot be null.");
+		if(minThreshold < 0 || minThreshold > 1)
+			throw new IllegalArgumentException("Minimum probability threshold cannot be less than zero to greater than 1");
 		if(terminals == null || functions == null)
 			throw new IllegalArgumentException("Function set or terminal set cannot be null.");
 
 		this.functions = functions;
 		this.terminals = terminals;
 
+		this.minThreshold = minThreshold;
+
 		this.learner = learner;
 
 		// According to the paper: "Initially, the PPT contains the root node."
-		ProbabilityVector rootProb = new ProbabilityVector(terminals, functions);
+		ProbabilityVector rootProb = new ProbabilityVector(terminals, functions, minThreshold);
 		learner.initialize(rootProb);
 		nodes.put("-1", rootProb);
 	}
@@ -82,17 +94,20 @@ public class PPTree implements Serializable
 		if(address == null || address.isEmpty())
 			throw new IllegalArgumentException("Node address cannot be null or empty");
 
-		if(nodes.containsKey(address))
-			return nodes.get(address);
+		if(!nodes.containsKey(address))
+		{
+			ProbabilityVector nodeProb = new ProbabilityVector(this.terminals, this.functions, minThreshold);
+			learner.initialize(nodeProb);
+			nodes.put(address, nodeProb);
+		}
+
+		ProbabilityVector v = nodes.get(address);
 
 		// According to the paper, nodes are created on demand whenever I(d,w)\in F is selected and the subtree for an
 		// argument of I(d, w) is missing.
-		ProbabilityVector nodeProb = new ProbabilityVector(this.terminals, this.functions);
-		learner.initialize(nodeProb);
-		nodes.put(address, nodeProb);
-		return nodeProb;
-	}
 
+		return v;
+	}
 
 //	public String sampleFrom(String address, MersenneTwisterFast twister)
 //	{
@@ -123,7 +138,8 @@ public class PPTree implements Serializable
 
 	/**
 	 * Gets the probability of a GP item appearing at a given address. If the tree does not have a node at the given
-	 * address, a new node will be created, initialized and added to the tree for that address.
+	 * address, a new node will be created, initialized and added to the tree for that address. This function returns the
+	 * actual probability of the GP item, even if it is below the threshold.
 	 * @param address the address of the node. This parameter cannot be {@code null} or empty.
 	 * @param gpItem the GP terminal/function whose probability is wanted. This parameter cannot be {@code null} or
 	 *               empty.
@@ -136,16 +152,16 @@ public class PPTree implements Serializable
 		if(gpItem == null || gpItem.isEmpty())
 			throw new IllegalArgumentException("GP terminal/function name cannot be null or empty");
 
-		if(!nodes.containsKey(address))
-		{
-			// According to the paper, nodes are created on demand whenever I(d,w)\in F is selected and the subtree for an
-			// argument of I(d, w) is missing.
-			ProbabilityVector nodeProb = new ProbabilityVector(this.terminals, this.functions);
-			learner.initialize(nodeProb);
-			nodes.put(address, nodeProb);
-		}
+//		if(!nodes.containsKey(address))
+//		{
+//			// According to the paper, nodes are created on demand whenever I(d,w)\in F is selected and the subtree for an
+//			// argument of I(d, w) is missing.
+//			ProbabilityVector nodeProb = new ProbabilityVector(this.terminals, this.functions, minThreshold);
+//			learner.initialize(nodeProb);
+//			nodes.put(address, nodeProb);
+//		}
 
-		ProbabilityVector v = nodes.get(address);
+		ProbabilityVector v = getProbabilityOf(address);
 		return v.probabilityOf(gpItem);
 	}
 
@@ -165,15 +181,15 @@ public class PPTree implements Serializable
 		if(newProbability < 0 || newProbability > 1)
 			throw new IllegalArgumentException("Probability value should be in the range [0, 1]:" + newProbability);
 
-		if(!nodes.containsKey(address))
-		{
-			// According to the paper, nodes are created on demand whenever I(d,w)\in F is selected and the subtree for an
-			// argument of I(d, w) is missing.
-			ProbabilityVector nodeProb = new ProbabilityVector(this.terminals, this.functions);
-			learner.initialize(nodeProb);
-			nodes.put(address, nodeProb);
-		}
-		ProbabilityVector v = nodes.get(address);
+//		if(!nodes.containsKey(address))
+//		{
+//			// According to the paper, nodes are created on demand whenever I(d,w)\in F is selected and the subtree for an
+//			// argument of I(d, w) is missing.
+//			ProbabilityVector nodeProb = new ProbabilityVector(this.terminals, this.functions);
+//			learner.initialize(nodeProb);
+//			nodes.put(address, nodeProb);
+//		}
+		ProbabilityVector v = getProbabilityOf(address);
 		v.setProbabilityOf(gpItem, newProbability);
 	}
 
@@ -183,7 +199,7 @@ public class PPTree implements Serializable
 	 * @param tree the index of the tree in the given GP individual to consider.
 	 * @return the probability that the individual may be created with this PPT.
 	 */
-	public double probabilityOf(GPIndividual ind, int tree)
+	public double probabilityOf(GPIndividual ind, int tree, boolean considerThreshold)
 	{
 		if(ind == null || ind.trees == null || ind.trees.length == 0)
 			throw new IllegalArgumentException("The given GP individual is null or does not contain any GP trees.");
@@ -197,9 +213,11 @@ public class PPTree implements Serializable
 			String nodeName = index.get(address).toString();
 			if(isdigit(nodeName))
 				nodeName = "ERC";
-			double probability = getProbabilityOf(address, nodeName);
-//			ProbabilityVector probabilityVector = nodes.get(address);
-//			retval *= probabilityVector.probabilityOf(index.get(address).name());
+//			double probability = getProbabilityOf(address, nodeName);
+			ProbabilityVector v = getProbabilityOf(address);
+			double probability = v.probabilityOf(nodeName);
+			if (considerThreshold && probability < v.getMinThreshold())
+				probability = v.getMinThreshold();
 			retval *= probability;
 		}
 		return retval;

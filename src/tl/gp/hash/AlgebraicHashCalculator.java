@@ -45,35 +45,22 @@ public class AlgebraicHashCalculator implements HashCalculator {
         threadNum = threadNumber;
         prime = primeNumber;
 
-//        SCHash = nextRand();
-//        CFDHash = nextRand();
-//        CFHHash = nextRand();
-//        CTDHash = nextRand();
-//        CRHash = nextRand();
-//        DCHash = nextRand();
-//        DEMHash = nextRand();
-//        RQHash = nextRand();
-//        FULLHash = nextRand();
-//        FRTHash = nextRand();
-//        FUTHash = nextRand();
-//        CFR1Hash = nextRand();
-//        CTT1Hash = nextRand();
-//        DEM1Hash = nextRand();
+        SCHash = nextRand();
+        CFDHash = nextRand();
+        CFHHash = nextRand();
+        CTDHash = nextRand();
+        CRHash = nextRand();
+        DCHash = nextRand();
+        DEMHash = nextRand();
+        RQHash = nextRand();
+        FULLHash = nextRand();
+        FRTHash = nextRand();
+        FUTHash = nextRand();
+        CFR1Hash = nextRand();
+        CTT1Hash = nextRand();
+        DEM1Hash = nextRand();
 
-        SCHash = 3;
-        CFDHash = 5;
-        CFHHash = 7;
-        CTDHash = 11;
-        CRHash = 13;
-        DCHash = 15;
-        DEMHash = 17;
-        RQHash = 19;
-        FULLHash = 21;
-        FRTHash = 23;
-        FUTHash = 25;
-        CFR1Hash = 27;
-        CTT1Hash = 29;
-        DEM1Hash = 31;
+
     }
 
     private int nextRand()

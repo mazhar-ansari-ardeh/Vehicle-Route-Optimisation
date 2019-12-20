@@ -232,8 +232,6 @@ public class MutationPipeline extends GPBreedingPipeline
         }
 
 
-
-
     public int produce(final int min, 
         final int max, 
         final int start,
