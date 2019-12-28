@@ -42,6 +42,13 @@ public class PPTree implements Serializable
 	 */
     private String[] terminals;
 
+    public void normalize()
+	{
+		for (String address : this.nodes.keySet()) {
+			this.nodes.get(address).normalize();
+		}
+	}
+
     public PPTree complement()
 	{
 		PPTree retval = new PPTree(learner, functions, terminals, minThreshold);
