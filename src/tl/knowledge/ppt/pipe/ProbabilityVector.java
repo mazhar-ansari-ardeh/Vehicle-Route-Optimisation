@@ -1,93 +1,10 @@
 package tl.knowledge.ppt.pipe;
 
-import ec.EvolutionState;
 import ec.util.MersenneTwisterFast;
 import ec.util.RandomChoice;
 
 import java.io.Serializable;
 import java.util.HashMap;
-
-class RouletteWheelSelector
-{
-//	int[] length;
-	double[] probability;
-	int currentIndex = 0;
-//	int maxLength = 0;
-
-//	RouletteWheelSelector(int size)
-//	{
-//		probability =new double[size];
-//	}
-
-	public RouletteWheelSelector(double[] weights)
-	{
-		probability = new double[weights.length];
-
-		double sum = 0;
-		for(double d : weights)
-			sum += d;
-
-		for(int i = 0; i < weights.length; i++)
-		{
-			add(weights[i] / sum);
-		}
-	}
-
-	void add(double currentProbability)
-	{
-//		length[currentIndex] = currentLength;
-		probability[currentIndex] = currentProbability;
-		currentIndex = currentIndex +1;
-//		if(currentLength > maxLength) maxLength = currentLength;
-	}
-
-	public int roulette(MersenneTwisterFast twisterFast)
-	{
-		int winner = 0;
-//		int selectedLength = 0;
-		// accumulate
-		for (int i = 1; i < currentIndex; i++)
-		{
-			probability[i] += probability[i-1];
-		}
-
-		int bot = 0; // binary chop search
-		int top = currentIndex - 1;
-		double f = twisterFast.nextDouble() * probability[top];
-
-		for(int loop =0; loop< 20; loop++)
-		{
-			int index = (top + bot) / 2;
-			if (index > 0 && f < probability[index - 1])
-				top = index - 1;
-			else if (f > probability[index])
-				bot = index + 1;
-			else
-			{
-				if (f == probability[index] && index + 1 < currentIndex)
-					winner = index + 1;
-				else
-					winner = index;
-				break;
-			}
-		}
-		// check for bounds
-		if(winner < 0 || winner >= currentIndex)
-		{
-//			state.output.fatal("roulette() method  winner " + winner + " out of range 0..." + (currentIndex-1));
-			winner=0; //safe default
-		}
-//		if(length[winner] < 1 || length[winner] > maxLength)
-//		{
-//			state.output.fatal("roulette() method " + length[winner] + " is  out of range 1..." + maxLength);
-//			// range is specified on creation
-//			return maxLength; //safe default
-//		}
-//		selectedLength = length[winner];
-		return winner;
-	}
-
-}
 
 
 class ProbabilityVector implements Serializable
@@ -152,19 +69,6 @@ class ProbabilityVector implements Serializable
 
 		this.minThreshold = threshold;
 	}
-
-//	/**
-//	 * Creates a new instance of the {@code ProbabilityVector} with the given set of terminals, functions and minimum
-//	 * probability threshold. The minimum probability threshold will be set to zero.
-//	 * @param terminals The set of GP terminals that this object should hold probabilities for.
-//	 * @param functions The set of GP functions that this object should hold probabilities for.
-//	 */
-//    public ProbabilityVector(String[] terminals, String[] functions)
-//    {
-//        this(terminals, functions, 0);
-//    }
-
-
 
 	/**
 	 * Checks if the PPTree is initialized for learning or not. Being initialized is the first step towards learning a
