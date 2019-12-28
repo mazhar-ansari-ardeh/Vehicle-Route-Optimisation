@@ -240,6 +240,10 @@ public class FrequencyLearner implements IPIPELearner<GPIndividual[]>
         }
     }
 
+    /**
+     * Initializes a given probability vector. This class sets the probability of all items to zero.
+     * @param vector the vector to initialize.
+     */
     @Override
     public void initialize(ProbabilityVector vector)
     {
