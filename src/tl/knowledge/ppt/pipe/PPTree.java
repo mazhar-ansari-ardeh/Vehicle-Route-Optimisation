@@ -42,6 +42,42 @@ public class PPTree implements Serializable
 	 */
     private String[] terminals;
 
+    public PPTree complement()
+	{
+		PPTree retval = new PPTree(learner, functions, terminals, minThreshold);
+
+		for(String address : this.nodes.keySet())
+		{
+			ProbabilityVector v = this.nodes.get(address);
+			ProbabilityVector cmp = v.complement();
+			if(isLeaf(v))
+			{
+				for (String function : functions) {
+					cmp.setProbabilityOf(function, 0);
+				}
+			}
+			cmp.normalize();
+			retval.nodes.put(address, cmp);
+		}
+
+		return retval;
+	}
+
+	private boolean isLeaf(ProbabilityVector p)
+	{
+		// One way is to iterate over the functions and see if the node has any non-zero probability for them
+		if(p == null)
+			throw new RuntimeException("Probability node is null");
+
+		for (String function : functions)
+		{
+			if(p.probabilityOf(function) > 0)
+				return false;
+		}
+
+		return true;
+	}
+
 	/**
 	 * Stores the probability vector for each node of a PIPE PPT. This field maps a string that represents the
 	 * address of a node to a probability vector of that node. The used address scheme is: <br/>

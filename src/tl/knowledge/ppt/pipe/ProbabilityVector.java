@@ -7,18 +7,9 @@ import java.io.Serializable;
 import java.util.HashMap;
 
 
-class ProbabilityVector implements Serializable
+class ProbabilityVector implements Serializable, Cloneable
 {
 	private final static long serialVersionUID = -8435141646461582571L;
-
-	/**
-	 * Get the minimum probability threshold.
-	 * @return the minimum probability threshold
-	 */
-	public double getMinThreshold()
-	{
-		return minThreshold;
-	}
 
 	/**
      * The minimum weight that each terminal/function can have. If the weight of a terminal/function is less than this
@@ -78,6 +69,15 @@ class ProbabilityVector implements Serializable
 	public boolean isInitialized()
 	{
 		return this.initialized;
+	}
+
+	/**
+	 * Get the minimum probability threshold.
+	 * @return the minimum probability threshold
+	 */
+	public double getMinThreshold()
+	{
+		return minThreshold;
 	}
 
 	/**
@@ -212,5 +212,53 @@ class ProbabilityVector implements Serializable
 //		bl.append(R).append("}");
 
 		return bl.toString();
+	}
+
+	private ProbabilityVector() {
+	}
+
+	/**
+	 * Creates a new {@code ProbabilityVector} object that is complement of this object, that is, probability of each
+	 * in the new object is one minus its probability in this object. The new object will be marked initialized if this
+	 * object is initialized. The value of {@code R} will be the same as its value in this object. The new object is
+	 * independent of this object.
+	 * @return a new {@code ProbabilityVector} object that is complement of this object.
+	 */
+	public ProbabilityVector complement()
+	{
+		ProbabilityVector retval = new ProbabilityVector();
+
+		for(String item : this.probabilities.keySet())
+			retval.probabilities.put(item, 1 - this.probabilities.get(item));
+
+		retval.R = this.R;
+		retval.initialized = this.initialized;
+		retval.minThreshold = this.minThreshold;
+
+		return retval;
+	}
+
+	/**
+	 * Normalizes the probability vector.
+	 */
+	public void normalize()
+	{
+		double sum = 0;
+		for(String item : probabilities.keySet())
+		{
+			sum += probabilities.get(item);
+		}
+
+		if(sum == 0)
+			return;
+
+		if(sum < 0)
+			throw new RuntimeException("Sum of probability values is a negative value: " + sum);
+
+		for(String item : probabilities.keySet())
+		{
+			double newProb = probabilities.get(item) / sum;
+			probabilities.put(item, newProb);
+		}
 	}
 }
