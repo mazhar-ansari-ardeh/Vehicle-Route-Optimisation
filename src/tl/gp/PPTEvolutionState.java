@@ -151,7 +151,7 @@ public class PPTEvolutionState extends GPHHEvolutionState implements TLLogger<GP
         learner = FrequencyLearner.newFrequencyLearner(state, pptBase, functions, terminals);
 
         pptStatLogID = setupLogger(state, pptBase, P_PPT_STAT_LOG);
-        log(this, pptStatLogID, "Generation, PPT Ind Count, average, std, min, max, Non-PPT Ind Count, average, std, min, max\n");
+        log(this, pptStatLogID, "Generation, PPT Ind Count, average, std, min, max, CompPPT Ind Count, average, std, min, max, Non-PPT Ind Count, average, std, min, max\n");
         pptLogID = setupLogger(state, pptBase, P_PPT_LOG);
     }
 
@@ -324,6 +324,7 @@ public class PPTEvolutionState extends GPHHEvolutionState implements TLLogger<GP
     void logPPTStat()
     {
         SummaryStatistics pptSS = new SummaryStatistics();
+        SummaryStatistics cmpPPTSS = new SummaryStatistics();
         SummaryStatistics nonPPTSS = new SummaryStatistics();
 
 //      log(this, pptStatLogID, "---------------------------------------------------------\n");
@@ -336,21 +337,30 @@ public class PPTEvolutionState extends GPHHEvolutionState implements TLLogger<GP
             {
                 pptSS.addValue(ind.fitness.fitness());
             }
+            else if(origin != null && origin.toLowerCase().equals(PPTBreedingPipeline.CMP_ORIGIN))
+            {
+                cmpPPTSS.addValue(ind.fitness.fitness());
+            }
             else
             {
                 nonPPTSS.addValue(ind.fitness.fitness());
             }
         }
 
-//        log(this, pptStatLogID, "PPT stats:\n");
         log(this, pptStatLogID, ""   + generation );
-        log(this, pptStatLogID, ", " +  pptSS.getN() );
+        log(this, pptStatLogID, ", " + pptSS.getN() );
         log(this, pptStatLogID, ", " + pptSS.getMean());
         log(this, pptStatLogID, ", " + pptSS.getStandardDeviation() );
         log(this, pptStatLogID, ", " + pptSS.getMin());
         log(this, pptStatLogID, ", " + pptSS.getMax());
+        ppt.setFitness(pptSS.getMean());
 
-//        log(this, pptStatLogID, "Non-PPT stats:\n");
+        log(this, pptStatLogID, ", " + cmpPPTSS.getN() );
+        log(this, pptStatLogID, ", " + cmpPPTSS.getMean());
+        log(this, pptStatLogID, ", " + cmpPPTSS.getStandardDeviation() );
+        log(this, pptStatLogID, ", " + cmpPPTSS.getMin());
+        log(this, pptStatLogID, ", " + cmpPPTSS.getMax());
+
         log(this, pptStatLogID, ", " + nonPPTSS.getN());
         log(this, pptStatLogID, ", " + nonPPTSS.getMean() );
         log(this, pptStatLogID, ", " + nonPPTSS.getStandardDeviation() );
@@ -386,7 +396,6 @@ public class PPTEvolutionState extends GPHHEvolutionState implements TLLogger<GP
         statistics.preEvaluationStatistics(this);
         evaluator.evaluatePopulation(this);
         statistics.postEvaluationStatistics(this);
-
 
         logPPTStat();
 
