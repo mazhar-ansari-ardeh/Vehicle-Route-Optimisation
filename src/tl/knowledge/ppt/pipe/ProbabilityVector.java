@@ -37,6 +37,8 @@ class ProbabilityVector implements Serializable, Cloneable
 	 */
 	private boolean initialized = false;
 
+
+
 	/**
 	 * Creates a new instance of the {@code ProbabilityVector} with the given set of terminals, functions and minimum
 	 * probability threshold.
@@ -259,6 +261,29 @@ class ProbabilityVector implements Serializable, Cloneable
 		{
 			double newProb = probabilities.get(item) / sum;
 			probabilities.put(item, newProb);
+		}
+	}
+
+	@Override
+	public Object clone()
+	{
+		try
+		{
+			ProbabilityVector retval = (ProbabilityVector) super.clone();
+			retval.minThreshold = minThreshold;
+			retval.R = this.R;
+			retval.initialized = this.initialized;
+			retval.probabilities = new HashMap<>(this.probabilities.size());
+			for (String item : this.probabilities.keySet())
+			{
+				retval.probabilities.put(item, this.probabilities.get(item));
+			}
+
+			return retval;
+		} catch (CloneNotSupportedException e)
+		{
+			e.printStackTrace();
+			throw new RuntimeException("This should not happen.");
 		}
 	}
 }
