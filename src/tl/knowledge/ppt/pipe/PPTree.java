@@ -30,7 +30,7 @@ public class PPTree implements Serializable
 	/**
 	 * The learning algorithm that can learn the probability vector of this PPT.
 	 */
-    private IPIPELearner learner;
+	private IPIPELearner learner;
 
 	/**
 	 * The set of GP functions.
@@ -40,22 +40,53 @@ public class PPTree implements Serializable
 	/**
 	 * The set of GP terminals.
 	 */
-    private String[] terminals;
+	private String[] terminals;
 
-    public void normalize()
+	/**
+	 * The fitness of this PPT. The meaning of the fitness is problem dependent and can be set according to the needs of the
+	 * problem.
+	 */
+	private double fitness = -1;
+
+	/**
+	 * Gets the fitness of the tree.
+	 * @return the fitness of the tree.
+	 */
+	public double getFitness()
+	{
+		return fitness;
+	}
+
+	/**
+	 * Sets the fitness of the tree.
+	 * @param fitness the new fitness. The method does not perform any checks on the value of this parameter.
+	 */
+	public void setFitness(double fitness)
+	{
+		this.fitness = fitness;
+	}
+
+	public void normalize()
 	{
 		for (String address : this.nodes.keySet()) {
 			this.nodes.get(address).normalize();
 		}
 	}
 
-    public PPTree complement()
+	/**
+	 * Gives a new {@code PPTree} object whose probability values are the complement of this object's probabilities. This
+	 * method always considers the normalized version of this tree and returns its complement. However, this method does
+	 * not normalize or modify this object.
+	 * @return the complement tree of this tree.
+	 */
+	public PPTree complement()
 	{
 		PPTree retval = new PPTree(learner, functions, terminals, minThreshold);
 
 		for(String address : this.nodes.keySet())
 		{
-			ProbabilityVector v = this.nodes.get(address);
+			ProbabilityVector v = (ProbabilityVector) this.nodes.get(address).clone();
+			v.normalize();
 			ProbabilityVector cmp = v.complement();
 			if(isLeaf(v))
 			{
@@ -239,8 +270,8 @@ public class PPTree implements Serializable
 				if(v == null)
 					probability = minThreshold; // minThreshold cannot be less than 0
 				else
-					if(probability < v.getMinThreshold())
-						probability = v.getMinThreshold();
+				if(probability < v.getMinThreshold())
+					probability = v.getMinThreshold();
 			}
 			retval *= probability;
 		}
@@ -335,6 +366,7 @@ public class PPTree implements Serializable
 	{
 		StringBuilder retval = new StringBuilder();
 		retval.append("digraph D {\n");
+		retval.append("label=\"fitness= ").append(fitness).append("\";\n");
 		List<String> sortedAdd = new ArrayList<>(nodes.keySet());
 		Collections.sort(sortedAdd);
 		for(String address : sortedAdd)
