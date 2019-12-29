@@ -74,19 +74,24 @@ public class PPTree implements Serializable
 	}
 
 	/**
-	 * Gives a new {@code PPTree} object whose probability values are the complement of this object's probabilities. This
-	 * method always considers the normalized version of this tree and returns its complement. However, this method does
-	 * not normalize or modify this object.
+	 * Gives a new {@code PPTree} object whose probability values are the complement of this object's probabilities. If the
+     * input parameter {@code normalize} is true, the method considers the normalized version of this tree and returns its
+     * complement; however, this method does not normalize or modify this object in this case.
+     * @param normalize if {@code true}, the normalized version of this tree will be considered.
 	 * @return the complement tree of this tree.
 	 */
-	public PPTree complement()
+	public PPTree complement(boolean normalize)
 	{
 		PPTree retval = new PPTree(learner, functions, terminals, minThreshold);
 
 		for(String address : this.nodes.keySet())
 		{
-			ProbabilityVector v = (ProbabilityVector) this.nodes.get(address).clone();
-			v.normalize();
+			ProbabilityVector v = this.nodes.get(address);
+            if(normalize)
+            {
+                v = (ProbabilityVector) v.clone();
+                v.normalize();
+            }
 			ProbabilityVector cmp = v.complement();
 			if(isLeaf(v))
 			{
