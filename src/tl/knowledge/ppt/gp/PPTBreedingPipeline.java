@@ -18,6 +18,14 @@ public class PPTBreedingPipeline extends GPBreedingPipeline implements TLLogger<
 
     public static final String ORIGIN = "ppt-breeding";
 
+    public static final String CMP_ORIGIN = "cmp-ppt-breeding";
+
+    /**
+     * The probability that this pipeline samples from the complement of the PPT rather than the PPT itself.
+     */
+    public static final String P_COMPLEMENT_PROB = "complement-probability";
+    private double cmpProb;
+
     private int logID;
 
     @Override
@@ -31,6 +39,10 @@ public class PPTBreedingPipeline extends GPBreedingPipeline implements TLLogger<
     {
         super.setup(state, base);
         logID = setupLogger(state, base);
+
+        Parameter p = base.push(P_COMPLEMENT_PROB);
+        cmpProb = state.parameters.getDoubleWithDefault(p, null, 0);
+        log(state, logID, "Probability of using PPT complement: " + cmpProb);
     }
 
     @Override
@@ -44,6 +56,7 @@ public class PPTBreedingPipeline extends GPBreedingPipeline implements TLLogger<
         PPTree tree = ((PPTEvolutionState) state).getPpt();
         if(tree == null)
             throw new RuntimeException("PPT cannot be null.");
+        PPTree cmpTree = tree.complement(true);
 
         int n = typicalIndsProduced();
         if (n < min) n = min;
@@ -51,11 +64,25 @@ public class PPTBreedingPipeline extends GPBreedingPipeline implements TLLogger<
 
         for(int q=start; q < n+start; q++)
         {
-            GPNode root = tree.sampleIndividual(state.random[thread]);
+            GPNode root;
+            String origin;
+            if(state.random[thread].nextDouble() < cmpProb)
+            {
+                origin = CMP_ORIGIN;
+                do
+                {
+                    root = cmpTree.sampleIndividual(state.random[thread]);
+                }while (root.depth() < 4); // TODO: Don't use a magic number here.
+                log(state, logID, "Gen: " + state.generation + "\nSampled from the complement: " + root.makeGraphvizTree() + "\n");
+            } else
+            {
+                origin = ORIGIN;
+                root = tree.sampleIndividual(state.random[thread]);
+            }
             Fitness fitness = (Fitness)state.population.subpops[subpopulation].species.f_prototype.clone();
             TLGPIndividual ind = GPIndividualUtils.asGPIndividual(root);
             ind.fitness = fitness;
-            ind.setOrigin(ORIGIN);
+            ind.setOrigin(origin);
             inds[q] = ind;
 //            log(state, logID, "Gen:\t" + state.generation + ",\n + Ind: " + root.makeGraphvizTree() + "\n\n");
         }
