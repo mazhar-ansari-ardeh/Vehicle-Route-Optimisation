@@ -10,7 +10,7 @@ eval.problem.eval-model = gphhucarp.gp.evaluation.ReactiveEvaluationModel
 eval.problem.eval-model.objectives = 1
 eval.problem.eval-model.objectives.0 = total-cost
 eval.problem.eval-model.instances = 1
-eval.problem.eval-model.instances.0.samples = 500
+eval.problem.eval-model.instances.0.samples = 5
 eval.problem.eval-model.instances.0.demand-uncertainty-level = 0.2
 eval.problem.eval-model.instances.0.cost-uncertainty-level = 0.2
 
@@ -121,6 +121,7 @@ pop.subpop.0.species.pipe.source.2.prob = 0.05
 pop.subpop.0.species.pipe.source.3 = tl.knowledge.ppt.gp.PPTBreedingPipeline
 pop.subpop.0.species.pipe.source.3.prob = 0.4
 pop.subpop.0.species.pipe.source.3.knowledge-log-file = PPTBreedLog
+pop.subpop.0.species.pipe.source.3.complement-probability = 0.2
 
 # Selection for reproduction
 breed.reproduce.source.0 = ec.select.TournamentSelection

@@ -3,9 +3,9 @@ print-params = false
 
 stat.file=$./stats/target-wk/job.0.out.stat
 stat.gen-pop-file=./stats/target-wk/population.gen
-eval.problem.eval-model.instances.0.file=gdb/gdb8.dat
-eval.problem.eval-model.instances.0.vehicles=11
-seed.0=19
+eval.problem.eval-model.instances.0.file=gdb/gdb1.dat
+eval.problem.eval-model.instances.0.vehicles=6
+seed.0=2
 # gp.tc.0.init=tl.gp.IqKnowledgeBuilder
 # gp.tc.0.init = ec.gp.koza.HalfBuilder
 # gp.tc.0.init.knowledge-log-file=./stats/target-wk/IqKnowledgeBuilder
