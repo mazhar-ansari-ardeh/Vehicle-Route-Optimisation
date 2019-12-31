@@ -58,7 +58,7 @@ public class FrequencyLearner implements IPIPELearner<GPIndividual[]>
 
         // The learning rate for learning.
         double lr = state.parameters.getDouble(p, null);
-        if(lr <= 0 || lr > 1)
+        if(lr < 0 || lr > 1)
             state.output.fatal("The value of the learning rate is invalid:" + lr);
         else
             state.output.warning("Learning rate: " + lr);
