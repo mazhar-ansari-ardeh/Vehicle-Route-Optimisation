@@ -62,3 +62,6 @@ Improved the FrequencyLearner class so that now it can use ranked selection as w
 Added PPTBreeding and PPTEvolutionaryState.
 Added the min probability threshold.
 Removed a bug that did not update probability values correctly.
+
+31/12/19
+Implemented the idea of complement PPT and updated PPTBreeding with it.
