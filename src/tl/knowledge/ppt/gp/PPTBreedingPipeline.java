@@ -73,11 +73,12 @@ public class PPTBreedingPipeline extends GPBreedingPipeline implements TLLogger<
                 {
                     root = cmpTree.sampleIndividual(state.random[thread]);
                 }while (root.depth() < 4); // TODO: Don't use a magic number here.
-                log(state, logID, "Gen: " + state.generation + "\nSampled from the complement: " + root.makeGraphvizTree() + "\n");
+                log(state, logID, "Gen: " + state.generation + "\nSampled from the complement:\n" + root.makeGraphvizTree() + "\n");
             } else
             {
                 origin = ORIGIN;
                 root = tree.sampleIndividual(state.random[thread]);
+                log(state, logID, "Gen: " + state.generation + "\nSampled from the PPT:\n" + root.makeGraphvizTree() + "\n");
             }
             Fitness fitness = (Fitness)state.population.subpops[subpopulation].species.f_prototype.clone();
             TLGPIndividual ind = GPIndividualUtils.asGPIndividual(root);

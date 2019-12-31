@@ -25,96 +25,7 @@ import java.util.Arrays;
  */
 public class PPTEvolutionState extends GPHHEvolutionState implements TLLogger<GPNode>
 {
-//    /**
-//     * Statistics to store.
-//     */
-//    public static final String POP_PROG_SIZE = "pop-prog-size";
-//    public static final String POP_FITNESS = "pop-fitness";
-//
-//    /**
-//     * Read the file to specify the terminals.
-//     */
-//    public static final String P_TERMINALS_FROM = "terminals-from";
-//    public static final String P_INCLUDE_ERC = "include-erc";
-//
-//    /**
-//     * Whether to rotate the evaluation model or not.
-//     */
-//    public static final String P_ROTATE_EVAL_MODEL = "rotate-eval-model";
-//
-//    protected String terminalFrom;
-//    protected boolean includeErc;
-//    protected boolean rotateEvalModel;
-//
-//    protected long jobSeed;
-//
-//    protected Map<String, DescriptiveStatistics> statisticsMap;
-//    protected File statFile;
-//    protected String statDir;
-//
-//    public Map<String, DescriptiveStatistics> getStatisticsMap() {
-//        return statisticsMap;
-//    }
-//
-//    public DescriptiveStatistics getStatistics(String key) {
-//        return statisticsMap.get(key);
-//    }
-//
-//    public long getJobSeed() {
-//        return jobSeed;
-//    }
-//
-//    protected long start, finish;
-//    protected double duration;
-
     private PPTree ppt;
-
-//    /**
-//     * The size of the set that is sampled from the population set to learn from for the frequency-based learning
-//     * method.
-//     */
-//    public static final String P_SAMPLE_SIZE = "sample-size";
-//
-//    /**
-//     * The tournament size that is used by the frequency-based learning method.
-//     */
-//    public final static String P_TOURNAMENT_SIZE = "tournament-size";
-//
-//    /**
-//     * The learning rate. The meaning of this parameter may be different for different learning algorithms.
-//     */
-//    public static final String P_LEARNING_RATE = "lr";
-//
-//
-//    private FrequencyLearner setupFrequencyLearner(EvolutionState state, Parameter base, String[] functions, String[] terminals)
-//    {
-//        Parameter p = base.push(P_SAMPLE_SIZE);
-//        int sampleSize = state.parameters.getInt(p, null);
-//        if(sampleSize <= 0)
-//            state.output.fatal("Sample size must be a positive value: " + sampleSize);
-//        else
-//            state.output.warning("Sample size: " + sampleSize);
-//
-//        p = base.push(P_TOURNAMENT_SIZE);
-//
-//        // The tournament size to sample individuals from the population to learn.
-//        int tournamentSize = state.parameters.getInt(p, null);
-//        if(tournamentSize > sampleSize)
-//            state.output.fatal("Tournament size must be positive and smaller than sample size: " + tournamentSize);
-//        else
-//            state.output.warning("Tournament size: " + tournamentSize);
-//
-//        p = base.push(P_LEARNING_RATE);
-//
-//        // The learning rate for learning.
-//        double lr = state.parameters.getDouble(p, null);
-//        if(lr <= 0 || lr > 1)
-//            state.output.fatal("The value of the learning rate is invalid:" + lr);
-//        else
-//            state.output.warning("Learning rate: " + lr);
-//
-//        return new FrequencyLearner(state, 0, functions, terminals, lr, sampleSize, tournamentSize);
-//    }
 
     /**
      * The learner that will be used to learn the PPT from the population.
@@ -155,195 +66,50 @@ public class PPTEvolutionState extends GPHHEvolutionState implements TLLogger<GP
         pptLogID = setupLogger(state, pptBase, P_PPT_LOG);
     }
 
-//
-//    public void initStatFile() {
-////		statFile = new File(statDir == null ? "." : statDir, "job." + jobSeed + ".stat.csv");
-//        // Originally, the following line was the line above.
-//        statFile = new File(statDir == null ? "." : statDir, "job." + 0 + ".stat.csv");
-//        if (statFile.exists()) {
-//            statFile.delete();
-//        }
-//
-//        writeStatFileTitle();
-//    }
-//
-//    public void writeStatFileTitle() {
-//        try {
-//            BufferedWriter writer = new BufferedWriter(new FileWriter(statFile));
-//            writer.write("Gen,Time,ProgSizeMean,ProgSizeStd,FitMean,FitStd");
-//            writer.newLine();
-//            writer.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    public void writeToStatFile() {
-//        calcStatistics();
-//
-//        try {
-//            BufferedWriter writer = new BufferedWriter(new FileWriter(statFile, true));
-//            writer.write(generation + "," + duration +
-//                    "," + statisticsMap.get(POP_PROG_SIZE).getMean() +
-//                    "," + statisticsMap.get(POP_PROG_SIZE).getStandardDeviation() +
-//                    "," + statisticsMap.get(POP_FITNESS).getMean() +
-//                    "," + statisticsMap.get(POP_FITNESS).getStandardDeviation()
-//            );
-//            writer.newLine();
-//            writer.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    public void setupStatistics() {
-//        statisticsMap = new HashMap<>();
-//        statisticsMap.put(POP_PROG_SIZE, new DescriptiveStatistics());
-//        statisticsMap.put(POP_FITNESS, new DescriptiveStatistics());
-//    }
-//
-//    public void calcStatistics() {
-//        statisticsMap.get(POP_PROG_SIZE).clear();
-//        statisticsMap.get(POP_FITNESS).clear();
-//
-//        for (Individual indi : population.subpops[0].individuals) {
-//            int progSize = ((GPIndividual)indi).trees[0].child.numNodes(GPNode.NODESEARCH_ALL);
-//            statisticsMap.get(POP_PROG_SIZE).addValue(progSize);
-//            double fitness = indi.fitness.fitness();
-//            statisticsMap.get(POP_FITNESS).addValue(fitness);
-//        }
-//    }
-//
-//    /**
-//     * Initialize the terminal set.
-//     */
-//    public void initTerminalSets() {
-//        if (terminalFrom.equals("basic")) {
-//            terminalSets = new ArrayList<>();
-//
-//            for (int i = 0; i < subpops; i++)
-//                terminalSets.add(UCARPPrimitiveSet.basicTerminalSet());
-//        }
-//        else if (terminalFrom.equals("extended")) {
-//            terminalSets = new ArrayList<>();
-//
-//            for (int i = 0; i < subpops; i++)
-//                terminalSets.add(UCARPPrimitiveSet.extendedTerminalSet());
-//        }
-//        else if (terminalFrom.equals("seq")) {
-//            terminalSets = new ArrayList<>();
-//
-//            for (int i = 0; i < subpops; i++)
-//                terminalSets.add(UCARPPrimitiveSet.seqTerminalSet());
-//        }
-//        else {
-//            initTerminalSetsFromCsv(new File(terminalFrom), UCARPPrimitiveSet.basicTerminalSet());
-//        }
-//
-//        if (includeErc)
-//            for (int i = 0; i < subpops; i++)
-//                terminalSets.get(i).add(new DoubleERC());
-//    }
-//
-//    /**
-//     * Return the best individual of a particular subpopulation.
-//     * @param subpop the subpopulation id.
-//     * @return the best individual in that subpopulation.
-//     */
-//    public Individual bestIndi(int subpop) {
-//        int best = 0;
-//        for(int x = 1; x < population.subpops[subpop].individuals.length; x++)
-//            if (population.subpops[subpop].individuals[x].fitness.betterThan(population.subpops[subpop].individuals[best].fitness))
-//                best = x;
-//
-//        return population.subpops[subpop].individuals[best];
-//    }
-//
-//    @Override
-//    public void setup(EvolutionState state, Parameter base) {
-//        super.setup(this, base);
-//
-//        Parameter p;
-//
-//        // get the job seed
-//        p = new Parameter("seed").push(""+0);
-//        jobSeed = parameters.getLongWithDefault(p, null, 0);
-//
-//        // get the source of the terminal sets
-//        p = new Parameter(P_TERMINALS_FROM);
-//        terminalFrom = parameters.getStringWithDefault(p, null, "basic");
-//
-//        // get whether to include the double ERC in the terminal sets or not
-//        p = new Parameter(P_INCLUDE_ERC);
-//        includeErc = parameters.getBoolean(p, null, false);
-//
-//        // get whether to rotate the evaluation model per generation or not
-//        p = new Parameter(P_ROTATE_EVAL_MODEL);
-//        rotateEvalModel = parameters.getBoolean(p, null, false);
-//
-//        // get the number of subpopulations
-//        p = new Parameter(Initializer.P_POP).push(Population.P_SIZE);
-//        subpops = parameters.getInt(p,null,1);
-//
-//        p = new Parameter("stat.file");
-//        String statFile = parameters.getString(p, null);
-//        if(statFile != null)
-//        {
-//            statFile = statFile.replaceFirst("\\$", "");
-//            Path statDirPath = Paths.get(statFile.replaceFirst("$", "")).getParent();
-//            statDir = statDirPath == null ? "." : statDirPath.toString();
-//        }
-//
-//        initTerminalSets();
-//    }
-//
-//    @Override
-//    public void run(int condition) {
-//        if (condition == C_STARTED_FRESH) {
-//            startFresh();
-//        }
-//        else {
-//            startFromCheckpoint();
-//        }
-//
-//        initStatFile();
-//        setupStatistics();
-//
-//        start = util.Timer.getCpuTime();
-//
-//        int result = R_NOTDONE;
-//        while ( result == R_NOTDONE ) {
-//            result = evolve();
-//        }
-//
-//        finish(result);
-//    }
-//
-
-
     void logPPTStat()
     {
         SummaryStatistics pptSS = new SummaryStatistics();
         SummaryStatistics cmpPPTSS = new SummaryStatistics();
         SummaryStatistics nonPPTSS = new SummaryStatistics();
 
-//      log(this, pptStatLogID, "---------------------------------------------------------\n");
+        double bestPPTFit = Double.MAX_VALUE;
+        int bestPPTInd = 0;
+        double bestCompPPTFit = Double.MAX_VALUE;
+        int bestCompPPTInd = 0;
+        double bestNonPPTFit = Double.MAX_VALUE;
+        int bestNonPPTInd = 0;
 
         for(int i = 0; i < population.subpops[0].individuals.length; i++)
         {
             TLGPIndividual ind = (TLGPIndividual) population.subpops[0].individuals[i];
             String origin = ind.getOrigin();
+            double indFit = ind.fitness.fitness();
             if(origin != null && origin.toLowerCase().equals(PPTBreedingPipeline.ORIGIN))
             {
-                pptSS.addValue(ind.fitness.fitness());
+                pptSS.addValue(indFit);
+                if(indFit < bestPPTFit)
+                {
+                    bestPPTFit = indFit;
+                    bestPPTInd = i;
+                }
             }
             else if(origin != null && origin.toLowerCase().equals(PPTBreedingPipeline.CMP_ORIGIN))
             {
-                cmpPPTSS.addValue(ind.fitness.fitness());
+                cmpPPTSS.addValue(indFit);
+                if(indFit < bestCompPPTFit)
+                {
+                    bestCompPPTFit = indFit;
+                    bestCompPPTInd = i;
+                }
             }
             else
             {
-                nonPPTSS.addValue(ind.fitness.fitness());
+                nonPPTSS.addValue(indFit);
+                if(indFit < bestNonPPTFit)
+                {
+                    bestNonPPTFit = indFit;
+                    bestNonPPTInd = i;
+                }
             }
         }
 
@@ -366,7 +132,17 @@ public class PPTEvolutionState extends GPHHEvolutionState implements TLLogger<GP
         log(this, pptStatLogID, ", " + nonPPTSS.getStandardDeviation() );
         log(this, pptStatLogID, ", " + nonPPTSS.getMin() );
         log(this, pptStatLogID, ", " + nonPPTSS.getMax() + "\n");
-//        log(this, pptStatLogID, "---------------------------------------------------------\n\n");
+
+        log(this, pptLogID, "Gen:" + generation + ":\n");
+        log(this, pptLogID, "---------------------------------------------------------\n");
+        log(this, pptLogID, "PPT after adaptation: \n" + ppt.toGVString(2) + "\n\n");
+        TLGPIndividual ind = ((TLGPIndividual) population.subpops[0].individuals[bestPPTInd]);
+        log(this, pptLogID, "Best PPT individual, fitness=" + ind.fitness.fitness() + ": \n"  + ind.trees[0].child.makeGraphvizTree() + "\n\n");
+        ind = ((TLGPIndividual) population.subpops[0].individuals[bestCompPPTInd]);
+        log(this, pptLogID, "Best CompPPT individual, fitness=" + ind.fitness.fitness() + ": \n" + ind.trees[0].child.makeGraphvizTree() + "\n\n");
+        ind = ((TLGPIndividual) population.subpops[0].individuals[bestNonPPTInd]);
+        log(this, pptLogID, "Best NonPPT individual, fitness=" + ind.fitness.fitness() + ": \n" + ind.trees[0].child.makeGraphvizTree() + "\n\n");
+        log(this, pptLogID, "---------------------------------------------------------\n\n");
     }
 
     /**
@@ -397,16 +173,12 @@ public class PPTEvolutionState extends GPHHEvolutionState implements TLLogger<GP
         evaluator.evaluatePopulation(this);
         statistics.postEvaluationStatistics(this);
 
-        logPPTStat();
 
         GPIndividual[] inds = new GPIndividual[population.subpops[0].individuals.length];
         inds = Arrays.copyOf(population.subpops[0].individuals, inds.length, GPIndividual[].class);
         learner.adaptTowards(ppt, inds, 0);
 
-        log(this, pptLogID, "Gen:\t" + generation + ":\n");
-        log(this, pptLogID, "---------------------------------------------------------\n");
-        log(this, pptLogID, "PPT after adaptation: " + ppt.toGVString(2) + "\n");
-        log(this, pptLogID, "---------------------------------------------------------\n\n");
+        logPPTStat();
 
         finish = util.Timer.getCpuTime();
         duration = 1.0 * (finish - start) / 1000000000;
