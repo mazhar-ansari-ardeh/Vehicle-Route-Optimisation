@@ -222,8 +222,8 @@ class Extractor
 
         // The learning rate for learning.
         double lr = state.parameters.getDouble(p, null);
-        if(lr <= 0 || lr > 1)
-            state.output.fatal("The value of the learning rate is invalid:" + lr);
+        if(lr < 0 || lr > 1)
+            state.output.fatal("The value of the learning rate is invalid: " + lr);
         else
             state.output.warning("Learning rate: " + lr);
 
