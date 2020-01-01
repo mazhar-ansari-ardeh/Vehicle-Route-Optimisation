@@ -112,14 +112,14 @@ else
    fi
 fi
 
-if [ -z "$JAVA_HOME" ]; then
+if [[ -z "$JAVA_HOME" ]]; then
    echo "Can't define a JAVA_HOME"
 else
    export JAVA_HOME
    PATH="/usr/pkg/java/bin:${JAVA_HOME}/bin:${PATH}"; export PATH
 
-   chmod 777 ./$GRIDSCRIPT_BASE
-   ./$GRIDSCRIPT_BASE
+   chmod 777 ./${GRIDSCRIPT_BASE}
+   ./${GRIDSCRIPT_BASE}
 fi
 
 #

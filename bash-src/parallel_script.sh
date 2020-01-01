@@ -14,7 +14,7 @@ temp_dir=$(mktemp -d)
 cd $temp_dir
 
 
-GRIDSCRIPT_BASE="ExtractPPTFreq.sh"
+GRIDSCRIPT_BASE="exp.sh"
 
 cp -r /vol/grid-solar/sgeusers/mazhar/data/ .
 cp /vol/grid-solar/sgeusers/mazhar/*.jar .
