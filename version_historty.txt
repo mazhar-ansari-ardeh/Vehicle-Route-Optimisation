@@ -65,3 +65,6 @@ Removed a bug that did not update probability values correctly.
 
 31/12/19
 Implemented the idea of complement PPT and updated PPTBreeding with it.
+
+01/01/20
+Corrected a bug in FrequencyLearner.

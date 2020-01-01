@@ -178,6 +178,9 @@ public class PPTEvolutionState extends GPHHEvolutionState implements TLLogger<GP
         inds = Arrays.copyOf(population.subpops[0].individuals, inds.length, GPIndividual[].class);
         learner.adaptTowards(ppt, inds, 0);
 
+//        System.out.println(ppt.toGVString(2) + "\n");
+//        System.out.println(ppt.complement(true).toGVString(2) + "\n\n");
+
         logPPTStat();
 
         finish = util.Timer.getCpuTime();
