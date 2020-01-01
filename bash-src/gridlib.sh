@@ -30,7 +30,7 @@ then
 fi
 
 # if [ -z "$DATASET_TARGET" ]
-# then
+# then 
 #     DATASET_TARGET=$DATASET_SOURCE
 # fi
 
@@ -44,7 +44,7 @@ GENERATIONS=50
 # Number of generations of the experiment on target domain
 GENERATIONS_ON_TARGET=50
 
-EXPERIMENT_DESCRIPTION='Set the generation to 200 to see the behaviour of the vanilla GPHH on longer generations. No transfer learning applied.
+EXPERIMENT_DESCRIPTION='Set the generation to 200 to see the behaviour of the vanilla GPHH on longer generations. No transfer learning applied.  
 
 '
 
@@ -67,11 +67,11 @@ DATASET_FILE_TARGET="$DATASET_CATEGORY_TARGET/$DATASET_TARGET.dat"
 GPHH_REPOSITORY_SOURCE="$DATASET_SOURCE.vs$NUM_VEHICLES_SOURCE:gen_$GENERATIONS"
 # GPHH_REPOSITORY_TARGET="$DATASET_TARGET.vs$NUM_VEHICLES_TARGET:gen_$GENERATIONS"
 
-# The directory that contains the population of GP for solving the source domain.
+# The directory that contains the population of GP for solving the source domain. 
 KNOWLEDGE_SOURCE_NAME="KnowledgeSource"
 KNOWLEDGE_SOURCE_DIR="./$KNOWLEDGE_SOURCE_NAME/$SGE_TASK_ID"
 
-# Extracted knowledge. This is the name of the file that will contain the results of programms such as 'AnalyzeTerminals' that output their results in an external file.
+# Extracted knowledge. This is the name of the file that will contain the results of programms such as 'AnalyzeTerminals' that output their results in an external file. 
 # KNOWLEDGE_FILE_BASE="$DATASET_SOURCE-v$NUM_VEHICLES_SOURCE"
 
 
@@ -99,10 +99,10 @@ echo "JOB_ID: $JOB_ID"
 
 
 
-# This is actually the part that runs the source domain.
+# This is actually the part that runs the source domain. 
 function run_source_domain()
 {
-# Note to self: Modified this slightly to test a different mutation rate. Revert the changes before using this file again normally.
+# Note to self: Modified this slightly to test a different mutation rate. Revert the changes before using this file again normally. 
 
 # L_EXPERIMENT_NAME="KnowledgeSource"
 # L_EXPERIMENT_DIR="$L_EXPERIMENT_NAME/$SGE_TASK_ID"
@@ -114,8 +114,6 @@ java -cp .:tl.jar ec.Evolve        -file carp_param_base.param \
                                    -p eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_SOURCE  \
                                    -p generations=$GENERATIONS \
                                    -p stat.save-pop=true \
-                                   -p pop.subpop.0.species.pipe.source.0.prob=0.65 \
-                                   -p pop.subpop.0.species.pipe.source.1.prob=0.3 \
                                    -p seed.0=$SGE_TASK_ID
 echo "Finished writing knowledge"
 
@@ -134,8 +132,8 @@ echo "Finished performing test on source problem results"
 # cp -r -v $L_EXPERIMENT_DIR/ $SAVE_TO/
 
 
-mkdir -p /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_NAME:mutra_0.3
-cp -r -v $KNOWLEDGE_SOURCE_DIR/ /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_NAME:mutra_0.3
+mkdir -p /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_NAME
+cp -r -v $KNOWLEDGE_SOURCE_DIR/ /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_NAME
 printf "$(date)\t $SGE_TASK_ID \n" >> /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/FinishedTestEvaluations.txt
 }
 
@@ -153,10 +151,10 @@ function copy_knowledge()
 
 # This is different from the test evaluation. This method can evaluate the whole population of the whole generations on test settings
 # This function reads the generations to evaluate from its arguments.
-# Example usage:
+# Example usage: 
 #   evaluate_on_test 1 2 50 49
 # This call will evaluate the populations of generations 1, 2, 49 50
-# This function copies the files it requires itself, evaluates them and copies the results back again.
+# This function copies the files it requires itself, evaluates them and copies the results back again. 
 function evaluate_on_test()
 {
     GENS=$@
@@ -174,17 +172,17 @@ function evaluate_on_test()
                                             stat.gen-pop-file=$KNOWLEDGE_SOURCE_DIR/eval.population.gen \
                                             generations=$GENERATIONS \
                                             seed.0=$TEST_SEED
-
+                                            
         cp -r -v $KNOWLEDGE_SOURCE_DIR/TestedPopulation/population.gen.$i.bin /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_DIR/TestedPopulation/
         printf "Finished evaluation of generation $i on test dataset\n"
     done
-
+    
 #     cp -r -v $KNOWLEDGE_SOURCE_DIR/TestedPopulation /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_DIR/
     printf "Finished evaluating source population on test settings using EvaluateOnTest\n\n\n"
     printf "$(date)\t $SGE_TASK_ID \n" >> /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/FinishedTestEvaluations.txt
 }
 
-# This is done on the target domain. This experiment does not use transfer learning.
+# This is done on the target domain. This experiment does not use transfer learning. 
 function do_non_knowledge_experiment()
 {
     echo "Running experiment on target problem without knowledge"
@@ -207,21 +205,21 @@ function do_non_knowledge_experiment()
                                         -p eval.problem.eval-model.instances.0.samples=500 \
                                         -p generations=$GENERATIONS_ON_TARGET \
                                         -p seed.0=$TEST_SEED
-
+                                        
     SAVE_TO=/vol/grid-solar/sgeusers/mazhar/$DATASET_SOURCE.vs$NUM_VEHICLES_SOURCE.$DATASET_TARGET.vt$NUM_VEHICLES_TARGET:gen_$GENERATIONS/'WithoutKnowledge'
     mkdir -p $SAVE_TO
     cp -r -v $WITHOUT_KNOW_STAT_DIR/ $SAVE_TO/
     printf "$(date)\t $SGE_TASK_ID \n" >> $SAVE_TO/Finished$'WithoutKnowledge'.txt
-
+    
     printf "Finished running tests on target without knowledge\n\n\n"
 }
 
-# This is done on the target domain. This experiment uses transfer learning.
+# This is done on the target domain. This experiment uses transfer learning. 
 # This function requires one argument: the name of the experiment.
-# The function defines a global variable: SAVE_TO which is the name of the directory that it saved the results to.
+# The function defines a global variable: SAVE_TO which is the name of the directory that it saved the results to. 
 function do_knowledge_experiment()
 {
-    # The L prefix indicates that the varaible is local
+    # The L prefix indicates that the varaible is local 
     L_EXPERIMENT_NAME=$1
     echo "Experiment arguments:" "${@}"
     printf "Running experiment on target problem with knowledge, experiment: $L_EXPERIMENT_NAME\n\n"
@@ -248,7 +246,7 @@ function do_knowledge_experiment()
                                         -p generations=$GENERATIONS_ON_TARGET \
                                         -p seed.0=$TEST_SEED
     printf "Finished running tests on target with knowledge, experiment: $L_EXPERIMENT_NAME \n\n\n"
-
+    
     SAVE_TO=/vol/grid-solar/sgeusers/mazhar/$DATASET_SOURCE.vs$NUM_VEHICLES_SOURCE.$DATASET_TARGET.vt$NUM_VEHICLES_TARGET:gen_$GENERATIONS/$L_EXPERIMENT_NAME
     mkdir -p $SAVE_TO
     cp -r -v $L_EXPERIMENT_DIR/ $SAVE_TO/
@@ -269,7 +267,7 @@ ecj_experiment "PPTEvolutionState:lr_$1:radius_$2:cap_$3" $DATASET_CATEGORY_SOUR
 
 
 # This function performs the transfer learning experiment 'FullTree'.
-# This function takes two input parameters:
+# This function takes two input parameters: 
 #   1. the transfer percent (in the range [0, 100])
 #   2. allow duplicates.
 function FullTreeExp()
@@ -293,9 +291,9 @@ do_knowledge_experiment TournamentFullTreeTree:tp_$1:tournament_$2 \
 }
 
 # This function performs the transfer learning experiment 'MutatingSubtree'.
-# This function takes 7 input parameters:
+# This function takes 7 input parameters: 
 #   1. the transfer percent (in (0, 100])
-#   2. extraction method: acceptable values are:
+#   2. extraction method: acceptable values are: 
 #       + rootsubtree
 #       + all
 #       + root
@@ -316,7 +314,7 @@ do_knowledge_experiment MutatingSubtree:tp_$1:ext_$2:mut_$3:sim_$4:tgtp_$5:rad_$
                         -p gp.tc.0.init.simplify=$4 \
                         -p gp.tc.0.init.target-percent=$5 \
                         -p gp.tc.0.init.niche-radius=$6 \
-                        -p gp.tc.0.init.niche-capacity=$7
+                        -p gp.tc.0.init.niche-capacity=$7 
 }
 
 # This function performs the transfer learning experiment 'SubTree'.
@@ -338,7 +336,7 @@ function BestGen()
 do_knowledge_experiment BestGen:k_$1 \
                         -p gp.tc.0.init=tl.gp.BestGenKnowledgeBuilder \
                         -p gp.tc.0.init.k=$1 \
-                        -p gp.tc.0.init.knowledge-folder=$KNOWLEDGE_SOURCE_DIR/
+                        -p gp.tc.0.init.knowledge-folder=$KNOWLEDGE_SOURCE_DIR/ 
 }
 
 # This function performs the transfer learning experiment 'GTLKnow'.
@@ -347,11 +345,11 @@ function GTLKnow()
 {
 do_knowledge_experiment GTLKnowlege  \
                         -p gp.tc.0.init=tl.gp.GTLKnowlegeBuilder \
-                        -p gp.tc.0.init.knowledge-folder=$KNOWLEDGE_SOURCE_DIR/
+                        -p gp.tc.0.init.knowledge-folder=$KNOWLEDGE_SOURCE_DIR/ 
 }
 
 # This function performs the transfer learning experiment "FrequentSub'.
-# The function takes one input argument: the extraction method. Acceptable values are:
+# The function takes one input argument: the extraction method. Acceptable values are: 
 # - rootsubtree
 # - all
 # - root
@@ -367,9 +365,9 @@ do_knowledge_experiment FrequentSub:Extract_$1 \
                         -p gp.tc.0.init.max-cf-depth=8
 }
 
-# This function performs the experiment in which a new GP operator is introduced that creates a portion of
-# the population from a PPT that it also adapts during the GP run.
-# The function has the following input parameters:
+# This function performs the experiment in which a new GP operator is introduced that creates a portion of 
+# the population from a PPT that it also adapts during the GP run. 
+# The function has the following input parameters: 
 # 1. Probability of PPT breeding
 # 2. Probability of crossover breeding
 # 3. Probability of mutation breeding
@@ -383,10 +381,11 @@ do_knowledge_experiment FrequentSub:Extract_$1 \
 # 11. Niching radius to learn initial PPT
 # 12. Niching capacity to learn initial PPT
 # 13. Minimum probability threshold of PPT items
+# 14. The probability of using the PPT complement in the PPT breeding pipeline
 function PPTBreeding()
 {
-L_EXP_NAME="PPTBreeding:ppt_$1:xover_$2:mut_$3:repro_$4:lr_$5:ss_$6:ts:_$7:initperc_$8:igen_$9_${10}:inrad_${11}:incap_${12}:mnThr_${13}"
-printf "Begining the experiment: $L_EXP_NAME.\n"
+L_EXP_NAME="PPTBreeding:ppt_$1:cmpppt_${14}:xover_$2:mut_$3:repro_$4:lr_$5:ss_$6:ts:_$7:initperc_$8:igen_$9_${10}:inrad_${11}:incap_${12}:mnThr_${13}"
+printf "Begining the experiment: $L_EXP_NAME.\n" 
 
 L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
 
@@ -401,7 +400,7 @@ java -cp .:tl.jar tl.knowledge.extraction.ExtractPPT carp_param_base.param $KNOW
                         extract-ppt.to-generation=${10} \
                         extract-ppt.fitness-niche-radius=${11} \
                         extract-ppt.fitness-niche-capacity=${12} \
-                        extract-ppt.lr=$5 \
+                        extract-ppt.lr=0 \
                         extract-ppt.learner='frequency' \
                         extract-ppt.sample-size=$6 \
                         extract-ppt.tournament-size=$7 \
@@ -418,6 +417,7 @@ do_knowledge_experiment $L_EXP_NAME \
                         -p pop.subpop.0.species.pipe.source.2.prob=$4 \
                         -p pop.subpop.0.species.pipe.source.3=tl.knowledge.ppt.gp.PPTBreedingPipeline \
                         -p pop.subpop.0.species.pipe.source.3.prob=$1 \
+                        -p pop.subpop.0.species.pipe.source.3.complement-probability=${14} \
                         -p pop.subpop.0.species.pipe.source.3.knowledge-log-file=$L_EXPERIMENT_DIR/PPTBreedLog \
                         -p state=tl.gp.PPTEvolutionState \
                         -p ppt-state.lr=$5 \
@@ -427,27 +427,27 @@ do_knowledge_experiment $L_EXP_NAME \
                         -p ppt-state.ppt-log=$L_EXPERIMENT_DIR/PPTLog \
                         -p gp.tc.0.init=tl.gp.PPTBuilder \
                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/$L_EXP_NAME.ppt \
-                        -p gp.tc.0.init.transfer-percent=$8
-
+                        -p gp.tc.0.init.transfer-percent=$8 
+                        
 cp -p -v $KNOWLEDGE_SOURCE_DIR/$L_EXP_NAME.ppt $SAVE_TO/$SGE_TASK_ID
 }
 
 # This function performs the transfer learning experiment 'PPTLearning'.
-# The function, at the moment, takes 8 parameters:
+# The function, at the moment, takes 8 parameters: 
 #   1. percent of initial population on target domain to create with this TL method
 #   2. niche radius when learning the PPT.
 #   3. niche capacity.
-#   4. from generation
+#   4. from generation 
 #   5. to generation
 #   6. learning rate
 #   7. sample size (originally used 100)
 #   8. tournament size (originally used 20)
-#   9. simplify: boolean value.
+#   9. simplify: boolean value. 
 function ExtractPPTFreq()
 {
 
 L_EXP_NAME=PPTFreqLearning:percent_$1:nrad_$2:ncap_$3:gens_$4_$5:lr_$6:ss_$7:ts_$8 #:sim_$9
-printf "Begining to extract the PPT: $L_EXP_NAME.\n"
+printf "Begining to extract the PPT: $L_EXP_NAME.\n" 
 
 java -cp .:tl.jar tl.knowledge.extraction.ExtractPPT carp_param_base.param $KNOWLEDGE_SOURCE_DIR/ $KNOWLEDGE_SOURCE_DIR/$L_EXP_NAME.ppt \
                         eval.problem.eval-model.instances.0.file=$DATASET_FILE_SOURCE \
@@ -471,28 +471,28 @@ java -cp .:tl.jar tl.knowledge.extraction.ExtractPPT carp_param_base.param $KNOW
 do_knowledge_experiment $L_EXP_NAME \
                         -p gp.tc.0.init=tl.gp.PPTBuilder \
                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/$L_EXP_NAME.ppt \
-                        -p gp.tc.0.init.transfer-percent=$1
-
+                        -p gp.tc.0.init.transfer-percent=$1 
+                        
 cp -p -v $KNOWLEDGE_SOURCE_DIR/$L_EXP_NAME.ppt $SAVE_TO/$SGE_TASK_ID
 }
 
 
 # This function performs the transfer learning experiment 'PPTLearning'.
-# The function, at the moment, takes 8 parameters:
+# The function, at the moment, takes 8 parameters: 
 #   1. percent of initial population on target domain to create with this TL method
 #   2. niche radius when learning the PPT (not used yet).
 #   3. niche capacity (not used yet).
-#   4. from generation
+#   4. from generation 
 #   5. to generation
-#   6. learning rate
+#   6. learning rate 
 #   7. epsilon (originally used 0.1)
 #   8. clr (originally used 0.2)
-#   9. simplify: boolean value.
+#   9. simplify: boolean value. 
 function ExtractPPTPipe()
 {
 
 L_EXP_NAME=PPTPipeLearning:percent_$1:nrad_$2:ncap_$3:gens_$4_$5:lr_$6:eps_$7:clr_$8 #:sim_$9
-printf "Begining to extract the PPT: $L_EXP_NAME.\n"
+printf "Begining to extract the PPT: $L_EXP_NAME.\n" 
 
 java -cp .:tl.jar tl.knowledge.extraction.ExtractPPT carp_param_base.param $KNOWLEDGE_SOURCE_DIR/ $KNOWLEDGE_SOURCE_DIR/$L_EXP_NAME.ppt \
                         eval.problem.eval-model.instances.0.file=$DATASET_FILE_SOURCE \
@@ -512,11 +512,11 @@ java -cp .:tl.jar tl.knowledge.extraction.ExtractPPT carp_param_base.param $KNOW
                         generation=$GENERATIONS
 
 #                         extract-ppt.simplify=$9 \
-
+                        
 do_knowledge_experiment $L_EXP_NAME \
                         -p gp.tc.0.init=tl.gp.PPTBuilder \
                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/$L_EXP_NAME.ppt \
-                        -p gp.tc.0.init.transfer-percent=$1
-
+                        -p gp.tc.0.init.transfer-percent=$1 
+                        
 cp -p -v $KNOWLEDGE_SOURCE_DIR/$L_EXP_NAME.ppt $SAVE_TO/$SGE_TASK_ID
 }
