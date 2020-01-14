@@ -12,13 +12,13 @@ experiments = [
                             # 'egl-e1-A.vs5:gen_200',
                             # 'egl-e1-B.vs7:gen_200'
                             'gdb1.vs5.gdb1.vt4:gen_50',
-                            # 'gdb1.vs5.gdb1.vt6:gen_50',
-                            # 'gdb2.vs6.gdb2.vt5:gen_50',
-                            # 'gdb2.vs6.gdb2.vt7:gen_50',
-                            # 'gdb8.vs10.gdb8.vt9:gen_50',
-                            # 'gdb8.vs10.gdb8.vt11:gen_50',
-                            # 'gdb9.vs10.gdb9.vt9:gen_50',
-                            # 'gdb9.vs10.gdb9.vt11:gen_50',
+                            'gdb1.vs5.gdb1.vt6:gen_50',
+                            'gdb2.vs6.gdb2.vt5:gen_50',
+                            'gdb2.vs6.gdb2.vt7:gen_50',
+                            'gdb8.vs10.gdb8.vt9:gen_50',
+                            'gdb8.vs10.gdb8.vt11:gen_50',
+                            'gdb9.vs10.gdb9.vt9:gen_50',
+                            'gdb9.vs10.gdb9.vt11:gen_50',
                             # 'gdb21.vs6.gdb21.vt5:gen_50',
                             # 'gdb21.vs6.gdb21.vt7:gen_50',
                             # 'gdb23.vs10.gdb23.vt11:gen_50',
@@ -70,6 +70,9 @@ experiments = [
 
 # Algorithms in this list will be ignored and not processed
 filter = [
+          ':incap_1$',
+          ':mnThr_0.03$',
+          ':mnThr_0.01$',
           'BestGen:k_1', 
           'BestGen:k_2', 
           'GTLKnow',
@@ -126,7 +129,7 @@ def should_process(alg, filter=filter):
             return False
     return True
 
-def get_test_fitness(experiment_path, *test_fitness):
+def get_test_fitness(experiment_path, num_generations = GENERATIONS, *test_fitness):
     # A multi-dimensional dictionary that contains all the test fitness values of all the algorithms 
     # for all the runs:
     # test_fitness['FrequentSub'][1][2] will return the test fitness on run=2 of gen=1 of the algorithm='FreqSub'
@@ -138,7 +141,7 @@ def get_test_fitness(experiment_path, *test_fitness):
             csv = pd.read_csv(file)
             if not algorithm in test_fitness:
                 test_fitness[algorithm] = {}
-            for gen in range(GENERATIONS):
+            for gen in range(num_generations):
                 if not gen in test_fitness[algorithm]:
                     test_fitness[algorithm][gen] = {}
                 test_fitness[algorithm][gen][int(run)] = float(csv.iloc[gen]['TestFitness'])
@@ -435,10 +438,13 @@ def compare_test():
     '''
     Compare the test performance of two generations 50 and 200.
     '''
+
+    out = open('stats.csv', 'w')
+    out.write('dataset, average, median, min, max\n')
     for exp in experiments:
         print('\n')
         alg = 'KnowledgeSource'
-        test_fitness = get_test_fitness(dirbase / exp)
+        test_fitness = get_test_fitness(dirbase / exp, 200)
         fit1 = list(test_fitness[alg][49].values())
         fit2 = list(test_fitness[alg][199].values())
 
@@ -465,6 +471,14 @@ def compare_test():
         print("max:\t", max1, max2)
         print("pval:\t", round(pval_wo, 2), "\n")
 
+        out.write(f'{exp}\n')
+        out.write(f'50, {mean1}, {median1}, {min1}, {max1}\n')
+        out.write(f'200, {mean2}, {median2}, {min2}, {max2}\n')
+        out.write(f'PVal, {round(pval_wo, 3)}\n')
+        out.write('\n')
+        out.flush()
+    out.close()
+
 def delete_exp_files(experiment_path, alg, file_name):
     """
     Deletes specified files in given experiments to save space. 
@@ -486,14 +500,21 @@ def delete_exp_files(experiment_path, alg, file_name):
                 if re.search(file_name, file.lower()):
                     print(run_path / file)
                     os.remove(run_path / file)
+                    
+def compress_grid():
+    for exp in experiments:
+        (_, algorithms, _) = next(os.walk(dirbase / exp))
+        for algorithm in algorithms:
+            shutil.make_archive(Path('/local/scratch/') / exp / algorithm, 'bztar', Path(dirbase) / exp / algorithm)
+            print(Path('/local/scratch/') / exp / algorithm, 'finished.')
 
 if __name__ == '__main__':
-    # compare_test()
+    compare_test()
+    # compress_grid()
     # test_plot()
-    for exp in experiments:
-        print('\n', exp)
-        delete_exp_files(dirbase / exp, r'PPTBreed', r'PPTLog\.succ\.log')
-        # test_fitness = get_test_fitness(dirbase / exp)
-       
+    # for exp in experiments:
+    #     print('\n', exp)
+    #     # delete_exp_files(dirbase / exp, r'PPTBreed', r'PPTExtractionLog\.succ\.log')
+    #     test_fitness = get_test_fitness(dirbase / exp)
     #     # plot_grid_output(test_fitness, dirbase / exp, False)
-        # save_stats(test_fitness, dirbase /exp, True)
+    #     save_stats(test_fitness, dirbase /exp, True)
