@@ -114,6 +114,7 @@ java -cp .:tl.jar ec.Evolve        -file carp_param_base.param \
                                    -p eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_SOURCE  \
                                    -p generations=$GENERATIONS \
                                    -p stat.save-pop=true \
+                                   -p clear=false \
                                    -p seed.0=$SGE_TASK_ID
 echo "Finished writing knowledge"
 
@@ -266,6 +267,76 @@ ecj_experiment "PPTEvolutionState:lr_$1:radius_$2:cap_$3" $DATASET_CATEGORY_SOUR
 }
 
 
+# This function performs the experiment in which a new GP operator is introduced that creates a portion of
+# the population from a PPT that it also adapts during the GP run.
+# The function has the following input parameters:
+# 1. Probability of PPT breeding
+# 2. Probability of crossover breeding
+# 3. Probability of mutation breeding
+# 4. Probability of reproduction breeding
+# 5. Learning rate
+# 6. Sample size
+# 7. Tournament size
+# 8. Transfer percent
+# 9. From source generation to learn initial PPT
+# 10. To source generation to learn initial PPT
+# 11. Niching radius to learn initial PPT
+# 12. Niching capacity to learn initial PPT
+# 13. Minimum probability threshold of PPT items
+# 14. The probability of using the PPT complement in the PPT breeding pipeline
+# 15. Clear: Using clearing on target domain
+function PPTBreeding()
+{
+L_EXP_NAME="PPTBreeding:ppt_$1:cmpppt_${14}:xover_$2:mut_$3:repro_$4:lr_$5:ss_$6:ts:_$7:initperc_$8:igen_$9_${10}:inrad_${11}:incap_${12}:mnThr_${13}:clear_${15}"
+printf "Begining the experiment: $L_EXP_NAME.\n"
+
+L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
+
+java -cp .:tl.jar tl.knowledge.extraction.ExtractPPT carp_param_base.param $KNOWLEDGE_SOURCE_DIR/ $KNOWLEDGE_SOURCE_DIR/$L_EXP_NAME.ppt \
+                        eval.problem.eval-model.instances.0.file=$DATASET_FILE_SOURCE \
+                        eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_SOURCE  \
+                        eval.problem.eval-model.instances.0.samples=500 \
+                        seed.0=$TEST_SEED \
+                        extract-ppt.knowledge-log-file=$L_EXPERIMENT_DIR/PPTExtractionLog \
+                        extract-ppt.num-generations=$GENERATIONS \
+                        extract-ppt.from-generation=$9 \
+                        extract-ppt.to-generation=${10} \
+                        extract-ppt.fitness-niche-radius=${11} \
+                        extract-ppt.fitness-niche-capacity=${12} \
+                        extract-ppt.lr=0 \
+                        extract-ppt.learner='frequency' \
+                        extract-ppt.sample-size=$6 \
+                        extract-ppt.tournament-size=$7 \
+                        extract-ppt.min-prob-thresh=${13} \
+                        generation=$GENERATIONS
+
+do_knowledge_experiment $L_EXP_NAME \
+                        -p pop.subpop.0.species.pipe.num-sources=4 \
+                        -p pop.subpop.0.species.pipe.source.0=ec.gp.koza.CrossoverPipeline \
+                        -p pop.subpop.0.species.pipe.source.0.prob=$2 \
+                        -p pop.subpop.0.species.pipe.source.1=ec.gp.koza.MutationPipeline \
+                        -p pop.subpop.0.species.pipe.source.1.prob=$3 \
+                        -p pop.subpop.0.species.pipe.source.2=ec.breed.ReproductionPipeline \
+                        -p pop.subpop.0.species.pipe.source.2.prob=$4 \
+                        -p pop.subpop.0.species.pipe.source.3=tl.knowledge.ppt.gp.PPTBreedingPipeline \
+                        -p pop.subpop.0.species.pipe.source.3.prob=$1 \
+                        -p pop.subpop.0.species.pipe.source.3.complement-probability=${14} \
+                        -p pop.subpop.0.species.pipe.source.3.knowledge-log-file=$L_EXPERIMENT_DIR/PPTBreedLog \
+                        -p state=tl.gp.PPTEvolutionState \
+                        -p ppt-state.lr=$5 \
+                        -p ppt-state.sample-size=$6 \
+                        -p ppt-state.tournament-size=$7 \
+                        -p ppt-state.ppt-stat-log=$L_EXPERIMENT_DIR/PPTStatLog \
+                        -p ppt-state.ppt-log=$L_EXPERIMENT_DIR/PPTLog \
+                        -p gp.tc.0.init=tl.gp.PPTBuilder \
+                        -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/$L_EXP_NAME.ppt \
+                        -p clear=${15} \
+                        -p gp.tc.0.init.transfer-percent=$8
+
+cp -p -v $KNOWLEDGE_SOURCE_DIR/$L_EXP_NAME.ppt $SAVE_TO/$SGE_TASK_ID
+}
+
+
 # This function performs the transfer learning experiment 'FullTree'.
 # This function takes two input parameters: 
 #   1. the transfer percent (in the range [0, 100])
@@ -365,9 +436,11 @@ do_knowledge_experiment FrequentSub:Extract_$1 \
                         -p gp.tc.0.init.max-cf-depth=8
 }
 
-# This function performs the experiment in which a new GP operator is introduced that creates a portion of 
-# the population from a PPT that it also adapts during the GP run. 
-# The function has the following input parameters: 
+# This function performs the experiment in which a new GP operator is introduced that creates a portion of
+# the population from a PPT that it also adapts during the GP run. This operator also performs a mutation on
+# the created individual and if the probability of the mutated one is less than that of the original one and
+# its fitness better, then the mutated one will be used and otherwise, the original one.
+# The function has the following input parameters:
 # 1. Probability of PPT breeding
 # 2. Probability of crossover breeding
 # 3. Probability of mutation breeding
@@ -381,11 +454,10 @@ do_knowledge_experiment FrequentSub:Extract_$1 \
 # 11. Niching radius to learn initial PPT
 # 12. Niching capacity to learn initial PPT
 # 13. Minimum probability threshold of PPT items
-# 14. The probability of using the PPT complement in the PPT breeding pipeline
-function PPTBreeding()
+function PPTMutIndBreeding()
 {
-L_EXP_NAME="PPTBreeding:ppt_$1:cmpppt_${14}:xover_$2:mut_$3:repro_$4:lr_$5:ss_$6:ts:_$7:initperc_$8:igen_$9_${10}:inrad_${11}:incap_${12}:mnThr_${13}"
-printf "Begining the experiment: $L_EXP_NAME.\n" 
+L_EXP_NAME="PPTMutIndBreeding:ppt_$1:xover_$2:mut_$3:repro_$4:lr_$5:ss_$6:ts:_$7:initperc_$8:igen_$9_${10}:inrad_${11}:incap_${12}:mnThr_${13}"
+printf "Begining the experiment: $L_EXP_NAME.\n"
 
 L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
 
@@ -415,9 +487,10 @@ do_knowledge_experiment $L_EXP_NAME \
                         -p pop.subpop.0.species.pipe.source.1.prob=$3 \
                         -p pop.subpop.0.species.pipe.source.2=ec.breed.ReproductionPipeline \
                         -p pop.subpop.0.species.pipe.source.2.prob=$4 \
-                        -p pop.subpop.0.species.pipe.source.3=tl.knowledge.ppt.gp.PPTBreedingPipeline \
+                        -p pop.subpop.0.species.pipe.source.3=tl.knowledge.ppt.gp.PPTMutIndBreedingPipeline \
                         -p pop.subpop.0.species.pipe.source.3.prob=$1 \
-                        -p pop.subpop.0.species.pipe.source.3.complement-probability=${14} \
+                        -p pop.subpop.0.species.pipe.source.3.mut-builder=ec.gp.koza.GrowBuilder \
+                        -p pop.subpop.0.species.pipe.source.3.mut-selector=ec.gp.koza.KozaNodeSelector \
                         -p pop.subpop.0.species.pipe.source.3.knowledge-log-file=$L_EXPERIMENT_DIR/PPTBreedLog \
                         -p state=tl.gp.PPTEvolutionState \
                         -p ppt-state.lr=$5 \
@@ -427,8 +500,8 @@ do_knowledge_experiment $L_EXP_NAME \
                         -p ppt-state.ppt-log=$L_EXPERIMENT_DIR/PPTLog \
                         -p gp.tc.0.init=tl.gp.PPTBuilder \
                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/$L_EXP_NAME.ppt \
-                        -p gp.tc.0.init.transfer-percent=$8 
-                        
+                        -p gp.tc.0.init.transfer-percent=$8
+
 cp -p -v $KNOWLEDGE_SOURCE_DIR/$L_EXP_NAME.ppt $SAVE_TO/$SGE_TASK_ID
 }
 
