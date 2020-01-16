@@ -15,7 +15,7 @@ import tl.knowledge.ppt.gp.PPTBreedingPipeline;
 import tl.knowledge.ppt.pipe.FrequencyLearner;
 import tl.knowledge.ppt.pipe.PPTree;
 
-import java.util.Arrays;
+import java.util.*;
 
 /**
  * The evolution state of evolving routing policy with GPHH.
@@ -39,6 +39,7 @@ public class PPTEvolutionState extends GPHHEvolutionState implements TLLogger<GP
 
     private int pptStatLogID;
     private int pptLogID;
+    private int populationLogId;
 
     public PPTree getPpt()
     {
@@ -65,6 +66,48 @@ public class PPTEvolutionState extends GPHHEvolutionState implements TLLogger<GP
         log(this, pptStatLogID, "Generation, PPT Ind Count, average, std, min, max, CompPPT Ind Count, average, std, min, max, Non-PPT Ind Count, average, std, min, max\n");
         pptLogID = setupLogger(state, pptBase, P_PPT_LOG);
     }
+
+//    void logPPTStat2()
+//    {
+//        if(generation == 0)
+//            return;
+//        HashMap<String, SummaryStatistics> stats = new HashMap<>();
+//        for(int i = 0; i < population.subpops[0].individuals.length; i++)
+//        {
+//            TLGPIndividual ind = (TLGPIndividual) population.subpops[0].individuals[i];
+//            String origin = ind.getOrigin();
+//            double indFit = ind.fitness.fitness();
+//            if(!stats.containsKey(origin))
+//                stats.put(origin, new SummaryStatistics());
+//            SummaryStatistics st = stats.get(origin);
+//            st.addValue(indFit);
+//        }
+//
+//        if(!statHeaderWritten)
+//        {
+//            log(this, pptStatLogID, "Generation");
+//            for(String org : stats.keySet())
+//            {
+//                log(this, pptStatLogID, ", " + org + ", " + "Ind Count, average, std, min, max");
+//            }
+//            log(this, pptStatLogID, "\n");
+//            statHeaderWritten = true;
+//        }
+//
+//
+//        log(this, pptStatLogID, ""   + generation );
+//        for (String org : stats.keySet())
+//        {
+//            SummaryStatistics st = stats.get(org);
+//            log(this, pptStatLogID, ", " + st.getN() );
+//            log(this, pptStatLogID, ", " + st.getMean());
+//            log(this, pptStatLogID, ", " + st.getStandardDeviation() );
+//            log(this, pptStatLogID, ", " + st.getMin());
+//            log(this, pptStatLogID, ", " + st.getMax());
+////            ppt.setFitness(pptSS.getMean()); // TODO: Do something about this.
+//        }
+//        log(this, pptStatLogID, "\n");
+//    }
 
     void logPPTStat()
     {
@@ -162,6 +205,18 @@ public class PPTEvolutionState extends GPHHEvolutionState implements TLLogger<GP
         }
     }
 
+    void logPopulation(GPIndividual[] inds)
+    {
+        if(populationLogId < 0)
+            populationLogId = setupLogger(this, "population.txt");
+        log(this, populationLogId, "Gen: " + generation + "\n");
+        for(GPIndividual ind : inds)
+        {
+            log(this, populationLogId, "Fit: " + ind.fitness.fitness() + "\n");
+            log(this, populationLogId, ind.trees[0].child.makeLispTree() + "\n\n");
+        }
+    }
+
     @Override
     public int evolve() {
 
@@ -173,13 +228,11 @@ public class PPTEvolutionState extends GPHHEvolutionState implements TLLogger<GP
         evaluator.evaluatePopulation(this);
         statistics.postEvaluationStatistics(this);
 
+        clear();
 
         GPIndividual[] inds = new GPIndividual[population.subpops[0].individuals.length];
         inds = Arrays.copyOf(population.subpops[0].individuals, inds.length, GPIndividual[].class);
         learner.adaptTowards(ppt, inds, 0);
-
-//        System.out.println(ppt.toGVString(2) + "\n");
-//        System.out.println(ppt.complement(true).toGVString(2) + "\n\n");
 
         logPPTStat();
 
