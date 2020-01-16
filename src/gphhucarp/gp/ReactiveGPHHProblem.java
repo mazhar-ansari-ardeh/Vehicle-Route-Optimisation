@@ -7,11 +7,15 @@ import ec.gp.GPProblem;
 import ec.simple.SimpleProblemForm;
 import ec.util.Parameter;
 import gphhucarp.core.Objective;
+import gphhucarp.decisionprocess.DecisionSituation;
 import gphhucarp.decisionprocess.TieBreaker;
+import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 import gphhucarp.decisionprocess.PoolFilter;
 import gphhucarp.gp.evaluation.EvaluationModel;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -100,6 +104,21 @@ public class ReactiveGPHHProblem extends GPProblem implements SimpleProblemForm 
 
         // the evaluation model is reactive, so no plan is specified.
         evaluationModel.evaluate(policy, null, indi.fitness, state);
+        ArrayList<DecisionSituation> seenDecicionSituations = evaluationModel.getSeenDecicionSituations();
+
+        GPHHEvolutionState gstate = (GPHHEvolutionState) state;
+//        for(int i = 0; i < seenDecicionSituations.size(); i++)
+//        {
+//            ReactiveDecisionSituation rds = (ReactiveDecisionSituation)seenDecicionSituations.get(i);
+//            if(rds.getState().getRemainingTasks().size() > 0)
+//                continue;
+//
+//            if(i != seenDecicionSituations.size() - 1 && ((ReactiveDecisionSituation)seenDecicionSituations.get(i+1)).getState().getRemainingTasks().size() != 0)
+//            System.out.println(rds.getState().getSolution().toString());
+//        }
+        gstate.updateSeenSituations(indi, seenDecicionSituations);
+
+        evaluationModel.resetSeenSituations();
 
         indi.evaluated = true;
         evalCount++;
