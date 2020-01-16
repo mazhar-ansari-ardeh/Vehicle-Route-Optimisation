@@ -1,7 +1,9 @@
 package gphhucarp.decisionprocess.routingpolicy;
 
+import ec.gp.GPNode;
 import ec.gp.GPTree;
 import gphhucarp.core.Arc;
+import gphhucarp.gp.UCARPPrimitiveSet;
 import gphhucarp.representation.route.NodeSeqRoute;
 import gphhucarp.decisionprocess.DecisionProcessState;
 import gphhucarp.decisionprocess.PoolFilter;
@@ -9,6 +11,8 @@ import gphhucarp.decisionprocess.RoutingPolicy;
 import gphhucarp.decisionprocess.poolfilter.IdentityPoolFilter;
 import gphhucarp.gp.CalcPriorityProblem;
 import gputils.DoubleData;
+
+import java.util.List;
 
 /**
  * A GP-evolved routing policy.
@@ -43,8 +47,23 @@ public class GPRoutingPolicy extends RoutingPolicy {
                 new CalcPriorityProblem(candidate, route, state);
 
         DoubleData tmp = new DoubleData();
+//        terminals(candidate, route, state);
         gpTree.child.eval(null, 0, tmp, null, null, calcPrioProb);
 
         return tmp.value;
     }
+
+//    void terminals(Arc candidate, NodeSeqRoute route, DecisionProcessState state)
+//    {
+//        List<GPNode> terminals = UCARPPrimitiveSet.wholeTerminalSet().getList();
+//        CalcPriorityProblem calcPrioProb = new CalcPriorityProblem(candidate, route, state);
+//        DoubleData data = new DoubleData();
+//        for(GPNode terminal : terminals)
+//        {
+//            terminal.eval(null, 0, data, null, null, calcPrioProb);
+//            System.out.println(terminal.toString() + ": " + data.value);
+//        }
+//        System.out.println();
+////        state.
+//    }
 }
