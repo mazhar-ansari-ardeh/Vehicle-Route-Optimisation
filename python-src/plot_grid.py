@@ -7,18 +7,20 @@ from scipy import stats
 import matplotlib.pyplot as plt
 import pandas as pd
 from scipy import stats
+import shutil
 
 experiments = [
                             # 'egl-e1-A.vs5:gen_200',
                             # 'egl-e1-B.vs7:gen_200'
-                            'gdb1.vs5.gdb1.vt4:gen_50',
-                            'gdb1.vs5.gdb1.vt6:gen_50',
-                            'gdb2.vs6.gdb2.vt5:gen_50',
-                            'gdb2.vs6.gdb2.vt7:gen_50',
-                            'gdb8.vs10.gdb8.vt9:gen_50',
-                            'gdb8.vs10.gdb8.vt11:gen_50',
-                            'gdb9.vs10.gdb9.vt9:gen_50',
-                            'gdb9.vs10.gdb9.vt11:gen_50',
+                            # 'gdb1.vs5.gdb1.vt4:gen_50',
+                            # 'gdb1.vs5.gdb1.vt6:gen_50',
+                            # 'gdb2.vs6.gdb2.vt5:gen_50',
+                            # 'gdb2.vs6.gdb2.vt7:gen_50',
+                            # 'gdb3.vs5.gdb3.vt6:gen_50',
+                            # 'gdb8.vs10.gdb8.vt9:gen_50',
+                            # 'gdb8.vs10.gdb8.vt11:gen_50',
+                            # 'gdb9.vs10.gdb9.vt9:gen_50',
+                            # 'gdb9.vs10.gdb9.vt11:gen_50',
                             # 'gdb21.vs6.gdb21.vt5:gen_50',
                             # 'gdb21.vs6.gdb21.vt7:gen_50',
                             # 'gdb23.vs10.gdb23.vt11:gen_50',
@@ -31,9 +33,10 @@ experiments = [
                             # 'val10C.vs5.val10C.vt6:gen_50',
                             # 'val10D.vs10.val10D.vt11:gen_50',
                             # 'val10D.vs10.val10D.vt9:gen_50',
-                            # 'gdb1.vs5:gen_50',
+
                             # 'gdb1.vs5:gen_50',
                             # 'gdb2.vs6:gen_50',
+                            # 'gdb3.vs6:gen_50',
                             # 'gdb8.vs10:gen_50',
                             # 'gdb9.vs10:gen_50',
                             # 'gdb21.vs6:gen_50',
@@ -43,8 +46,12 @@ experiments = [
                             # 'val10C.vs5:gen_50',
                             # 'val10D.vs10:gen_50',
 
+                            # 'gdb1.vs4:gen_200',
                             # 'gdb1.vs5:gen_200',
+                            # 'gdb1.vs6:gen_200',
+                            'gdb2.vs5:gen_200',
                             # 'gdb2.vs6:gen_200',
+                            'gdb2.vs7:gen_200',
                             # 'gdb8.vs10:gen_200',
                             # 'gdb9.vs10:gen_200',
                             # 'gdb21.vs6:gen_200',
@@ -113,6 +120,10 @@ filter = [
           r'PPTLearn*',
           r'mnThr_0\.03$',
           r'mnThr_0\.01$',
+          r'Thr_0$',
+          r'incap_1$',
+          r'WithoutKnowledge:clear_true',
+          r'ppt_0.4', 
         #   r'mnThr_0\.03$',
 ]
 
@@ -344,12 +355,12 @@ def plot_grid_output(test_fitness, experiment_path, boxplots=False, lcols=1, lfo
     fig_all.savefig(output_folder / experiment_path.name / f'{experiment_path.name}-all.jpg', bbox_inches='tight', pad_inches=0)
     # fig_all.savefig(Path("/home/mazhar/Desktop/EuroGP 2020") / f'{experiment_path.name}-all.jpg', bbox_inches='tight', pad_inches=0)
     plt.close(fig_all)
-    print(Path("/home/mazhar/Desktop/EuroGP 2020") / f'{experiment_path.name}-all.jpg')
+    # print(Path("/home/mazhar/Desktop/EuroGP 2020") / f'{experiment_path.name}-all.jpg')
 
     # fig_all.savefig(output_folder / f'{experiment_path.name}-all.eps', bbox_inches='tight', pad_inches=0)
     # print(output_folder / f'{experiment_path.name}-all.eps')
 
-def save_stats(test_fitness, experiment_path, round_results = False):
+def save_stats(test_fitness, experiment_path, round_results = False, baseline_alg = 'WithoutKnowledge'):
     if not Path(output_folder / experiment_path.name).exists(): 
         Path(output_folder / experiment_path.name).mkdir()
 
@@ -359,12 +370,12 @@ def save_stats(test_fitness, experiment_path, round_results = False):
     experiment = experiment_path.name
     experiment = r'\textbf{' + experiment.replace('gen_50', '').replace('.', ' ') + '}'
     experiment = r'\multicolumn{3}{c}{' + experiment + r'}'
-    csv_file.write('Algorithm, Mean, Stdev, Min, Max, median, p_wo\n')
+    csv_file.write('Algorithm, Mean, Stdev, Min, Max, median, p_wi, p_tt\n')
     latex_file.write(r'\begin{table}[]' + '\n'
                        + r'\resizebox{\columnwidth}{!}{%'  + '\n'
                        + r'\begin{tabular}{llll} \hline'  + '\n'
                        + f'Scenario: & {experiment}' + r'\\ \hline' + '\n'
-                       + r'Algorithm & Mean(Stdev) & Min & Max & $p_{WT}$           \\ \hline' + '\n')
+                       + r'Algorithm & Mean(Stdev) & Min & Max & $p_{WT}$ & $p_{TT}$          \\ \hline' + '\n')
 
     for alg in sort_algorithms(test_fitness):
         if alg == 'FullTree_25' or alg == 'FullTree_50':
@@ -383,15 +394,18 @@ def save_stats(test_fitness, experiment_path, round_results = False):
         # else:
         #     pval_full = stats.wilcoxon(list(test_fitness['FullTree:tp_50:dup_false'][0].values()), list(test_fitness[alg][0].values()))[1]
         
-        if alg == 'WithoutKnowledge':
-            pval_wo = '--'
+        if alg == baseline_alg:
+            pval_wo_wil = '--'
+            pval_wo_t = '--'
         else: 
-            # pval_wo = stats.mannwhitneyu(list(test_fitness['WithoutKnowledge'][49].values()), list(test_fitness[alg][49].values()))[1]
-            if len(list(test_fitness['WithoutKnowledge'][49].values())) != len(list(test_fitness[alg][49].values())):
+            # pval_wo = stats.mannwhitneyu(list(test_fitness[baseline_alg][49].values()), list(test_fitness[alg][49].values()))[1]
+            if len(list(test_fitness[baseline_alg][49].values())) != len(list(test_fitness[alg][49].values())):
                 print("Len of ", alg, "(", len(list(test_fitness[alg][49].values())), ") is not 30.")
-                pval_wo = -1
+                pval_wo_wil = -1
+                pval_wo_t = -1
             else:
-                pval_wo = stats.wilcoxon(list(test_fitness['WithoutKnowledge'][49].values()), list(test_fitness[alg][49].values()))[1]
+                pval_wo_wil = stats.wilcoxon(list(test_fitness[baseline_alg][49].values()), list(test_fitness[alg][49].values()))[1]
+                pval_wo_t = stats.ttest_rel(list(test_fitness[baseline_alg][49].values()), list(test_fitness[alg][49].values()))[1]
 
         if round_results:
             mini = round(mini, 2)
@@ -399,16 +413,15 @@ def save_stats(test_fitness, experiment_path, round_results = False):
             mean = round(mean, 2)
             std = round(std, 2)
             median = round(median, 2)
-            # if isinstance(pval_full, float):
-            #     pval_full = round(pval_full, 2)
-            if isinstance(pval_wo, float):
-                pval_wo = round(pval_wo, 2)
+            if isinstance(pval_wo_wil, float):
+                pval_wo_wil = round(pval_wo_wil, 2)
+            if isinstance(pval_wo_t, float):
+                pval_wo_wil = round(pval_wo_t, 2)
 
         # alg = rename_alg(alg)
-        latex_file.write(f'{alg} & {mean}({std}) & {mini} & {maxi} & {pval_wo} \\\\\n')
-        csv_file.write(f'{alg}, {mean}, {std}, {mini}, {maxi}, {median}, {pval_wo} \n')
+        latex_file.write(f'{alg} & {mean}({std}) & {mini} & {maxi} & {pval_wo_wil} & {pval_wo_t} \\\\\n')
+        csv_file.write(f'{alg}, {mean}, {std}, {mini}, {maxi}, {median}, {pval_wo_wil}, {pval_wo_t} \n')
         # print(alg, mean, std, pval_full, pval_wo)
-
     
     csv_file.close()
     latex_file.write(r'\hline \end{tabular}' + '\n'
@@ -492,7 +505,7 @@ def delete_exp_files(experiment_path, alg, file_name):
             continue
         (_, runs, _) = next(os.walk(experiment_path / algorithm))
         for run in runs:
-            if int(run) in range(1, 11):
+            if int(run) in range(1, 5):
                 continue
             run_path = Path((experiment_path / algorithm) / run)
             (_, _, files) = next(os.walk(run_path))
@@ -505,16 +518,37 @@ def compress_grid():
     for exp in experiments:
         (_, algorithms, _) = next(os.walk(dirbase / exp))
         for algorithm in algorithms:
+            if (Path('/local/scratch/') / exp / (algorithm + ".tar.bz2")).is_file():
+                continue
             shutil.make_archive(Path('/local/scratch/') / exp / algorithm, 'bztar', Path(dirbase) / exp / algorithm)
             print(Path('/local/scratch/') / exp / algorithm, 'finished.')
 
+def delete_exp():
+    for exp in experiments:
+        (_, algorithms, _) = next(os.walk(dirbase / exp))
+        for algorithm in algorithms:
+            if (not re.search(r'KnowledgeSource', algorithm)): # and (not re.search(r'PPTPipe', algorithm)):
+                continue
+            # if not re.search(r'PPTPipe', algorithm):
+            #     continue
+            (_, runs, _) = next(os.walk(dirbase / exp / algorithm))
+            for run in runs: 
+                if (not (Path('/local/scratch/') / exp / algorithm / (run + ".tar.bz2")).is_file()):
+                    print(Path(dirbase) / exp / algorithm / run, ' is not backed up. Backing it up now.')
+                    shutil.make_archive(Path('/local/scratch/') / exp / algorithm / run, 'bztar', Path(dirbase) / exp / algorithm / run)
+                    print(Path(dirbase) / exp / algorithm / run, ' backed up.')
+                    
+                    shutil.rmtree(Path(dirbase) / exp / algorithm / run)
+                    print(Path(dirbase) / exp / algorithm / run, ' deleted.')
+
 if __name__ == '__main__':
-    compare_test()
+    # compare_test()
+    delete_exp()
     # compress_grid()
     # test_plot()
     # for exp in experiments:
     #     print('\n', exp)
-    #     # delete_exp_files(dirbase / exp, r'PPTBreed', r'PPTExtractionLog\.succ\.log')
+    # #     delete_exp_files(dirbase / exp, r'PPTBreed', r'Finished')
     #     test_fitness = get_test_fitness(dirbase / exp)
-    #     # plot_grid_output(test_fitness, dirbase / exp, False)
-    #     save_stats(test_fitness, dirbase /exp, True)
+    #     plot_grid_output(test_fitness, dirbase / exp, False)
+    #     save_stats(test_fitness, dirbase /exp, round_results=True, baseline_alg='WithoutKnowledge')
