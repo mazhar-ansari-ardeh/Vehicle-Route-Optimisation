@@ -1,28 +1,26 @@
 package gphhucarp.gp;
 
-import ec.EvolutionState;
-import ec.Individual;
-import ec.Initializer;
-import ec.Population;
+import ec.*;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import ec.util.Checkpoint;
 import ec.util.Parameter;
+import gphhucarp.decisionprocess.DecisionSituation;
+import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import gputils.TerminalERCEvolutionState;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import gputils.terminal.DoubleERC;
+import tl.TLLogger;
 import tl.gp.FCFStatistics;
 import tl.gp.PopulationUtils;
+import tl.gp.niching.SimpleNichingAlgorithm;
 import tl.knowledge.driftdetection.BaseDriftDetector;
 import tl.knowledge.driftdetection.SimpleDriftDetector;
 
 import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * The evolution state of evolving routing policy with GPHH.
@@ -30,7 +28,7 @@ import java.util.Map;
  * @author gphhucarp
  *
  */
-public class GPHHEvolutionState extends TerminalERCEvolutionState
+public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLLogger<GPNode>
 {
 	/**
 	 * Statistics to store.
@@ -49,6 +47,9 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState
 	 */
 	public static final String P_ROTATE_EVAL_MODEL = "rotate-eval-model";
 
+	public static final String P_CLEAR = "clear";
+	private boolean clear;
+
 	protected String terminalFrom;
 	protected boolean includeErc;
 	protected boolean rotateEvalModel;
@@ -58,6 +59,13 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState
     protected Map<String, DescriptiveStatistics> statisticsMap;
 	protected File statFile;
 	protected String statDir;
+
+	private HashMap<Individual, ArrayList<DecisionSituation>> seenSituations = new HashMap<>();
+
+	public void resetSeenSituations()
+	{
+		seenSituations.clear();
+	}
 
 	public Map<String, DescriptiveStatistics> getStatisticsMap() {
 		return statisticsMap;
@@ -128,7 +136,8 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState
 			int progSize = ((GPIndividual)indi).trees[0].child.numNodes(GPNode.NODESEARCH_ALL);
 			statisticsMap.get(POP_PROG_SIZE).addValue(progSize);
 			double fitness = indi.fitness.fitness();
-			statisticsMap.get(POP_FITNESS).addValue(fitness);
+			if(fitness != Double.POSITIVE_INFINITY && fitness != Double.NEGATIVE_INFINITY)
+				statisticsMap.get(POP_FITNESS).addValue(fitness);
 		}
 	}
 
@@ -213,6 +222,57 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState
 		}
 
 		initTerminalSets();
+
+		p = new Parameter(P_CLEAR);
+//		if(!parameters.contains(p))
+//			output.fatal("Parameter not found: " + P_CLEAR);
+		clear = parameters.getBoolean(p, null, false);
+		output.warning("Clear: " + clear);
+	}
+
+	protected void clear()
+	{
+		if(!clear)
+		{
+			seenSituations.clear();
+			return;
+		}
+
+		int numDecisionSituations = 30;
+		long shuffleSeed = 8295342;
+
+		List<ReactiveDecisionSituation> allSeenSituations = getAllSeenSituations();
+		Collections.shuffle(allSeenSituations, new Random(shuffleSeed));
+		allSeenSituations = allSeenSituations.subList(0, numDecisionSituations);
+
+		SimpleNichingAlgorithm.clearPopulation(this, allSeenSituations, 0, 1);
+		allSeenSituations.clear();
+
+		// Clear the list so that new situations do not pile on the old ones. Don't know if this is a good idea.
+		seenSituations.clear();
+	}
+
+	public void updateSeenSituations(Individual ind, ArrayList<DecisionSituation> seenSituations)
+	{
+		this.seenSituations.put(ind, seenSituations);
+	}
+
+	private List<ReactiveDecisionSituation> getAllSeenSituations()
+	{
+		ArrayList<ReactiveDecisionSituation> retval = new ArrayList<>();
+
+		for(Individual ind : seenSituations.keySet())
+		{
+			ArrayList<DecisionSituation> situations = seenSituations.get(ind);
+			for(DecisionSituation situation : situations)
+			{
+				ReactiveDecisionSituation rds = (ReactiveDecisionSituation)situation;
+				if(rds.getPool().size() > 0)
+					retval.add(rds);
+			}
+		}
+
+		return retval;
 	}
 
 	@Override
@@ -246,7 +306,8 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState
 	    // EVALUATION
 	    statistics.preEvaluationStatistics(this);
 	    evaluator.evaluatePopulation(this);
-	    statistics.postEvaluationStatistics(this);
+		clear();
+		statistics.postEvaluationStatistics(this);
 
 		finish = util.Timer.getCpuTime();
 		duration = 1.0 * (finish - start) / 1000000000;
