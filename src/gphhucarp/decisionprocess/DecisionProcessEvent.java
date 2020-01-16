@@ -1,5 +1,8 @@
 package gphhucarp.decisionprocess;
 
+import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -11,6 +14,13 @@ import java.util.List;
  */
 public abstract class DecisionProcessEvent implements Comparable<DecisionProcessEvent> {
     protected double time;
+
+    public ArrayList<DecisionSituation> getRecordedSituations()
+    {
+        return recordedSituations;
+    }
+
+    protected ArrayList<DecisionSituation> recordedSituations = new ArrayList<>();
 
     public DecisionProcessEvent(double time) {
         this.time = time;
@@ -25,10 +35,13 @@ public abstract class DecisionProcessEvent implements Comparable<DecisionProcess
     /**
      * Record the decision situation if a decision is to be made in this event.
      * Add this decision situation to the list.
-     * @param decisionSituations the decision situations to store the records.
+     * @param decisionSituation the decision situations to store the records.
      */
-    public void recordDecisionSituation(List<DecisionSituation> decisionSituations) {
+    public void recordDecisionSituation(DecisionSituation decisionSituation) {
         // default do nothing
+        if(decisionSituation != null)
+            recordedSituations.add(((ReactiveDecisionSituation)decisionSituation).clone());
+//            recordedSituations.add(((ReactiveDecisionSituation)decisionSituation));
     }
 
     @Override
