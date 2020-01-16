@@ -59,6 +59,7 @@ public class ReactiveRefillEvent extends DecisionProcessEvent {
 
             ReactiveDecisionSituation rds = new ReactiveDecisionSituation(
                     pool, route, state);
+            recordDecisionSituation(rds);
 
             Arc nextTask = policy.next(rds);
 

@@ -88,6 +88,7 @@ public class ReactiveServingEvent extends DecisionProcessEvent {
 
             ReactiveDecisionSituation rds = new ReactiveDecisionSituation(
                     pool, route, state);
+            recordDecisionSituation(rds);
 
             nextTask = policy.next(rds);
 
