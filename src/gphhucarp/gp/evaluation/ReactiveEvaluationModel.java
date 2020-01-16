@@ -3,15 +3,17 @@ package gphhucarp.gp.evaluation;
 import ec.EvolutionState;
 import ec.Fitness;
 import ec.multiobjective.MultiObjectiveFitness;
-import gphhucarp.core.Instance;
 import gphhucarp.core.InstanceSamples;
 import gphhucarp.core.Objective;
 import gphhucarp.decisionprocess.DecisionProcess;
+import gphhucarp.decisionprocess.DecisionSituation;
 import gphhucarp.decisionprocess.RoutingPolicy;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionProcess;
 import gphhucarp.representation.Solution;
 import gphhucarp.representation.route.NodeSeqRoute;
 import gphhucarp.representation.route.TaskSeqRoute;
+
+import java.util.ArrayList;
 
 /**
  * A reactive evaluation model is a set of reactive decision process.
@@ -41,6 +43,10 @@ public class ReactiveEvaluationModel extends EvaluationModel {
                                 seed, policy);
 
                 dp.run();
+                ArrayList<DecisionSituation> seenSituations = dp.getSeenSituations();
+                updateSeenDecicionSituations(seenSituations);
+                seenSituations.clear();
+
                 Solution<NodeSeqRoute> solution = dp.getState().getSolution();
                 for (int j = 0; j < fitnesses.length; j++) {
                     Objective objective = objectives.get(j);
