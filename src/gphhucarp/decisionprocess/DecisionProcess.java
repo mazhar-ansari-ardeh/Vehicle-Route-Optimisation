@@ -11,6 +11,7 @@ import gphhucarp.representation.Solution;
 import gphhucarp.representation.route.NodeSeqRoute;
 import gphhucarp.representation.route.TaskSeqRoute;
 
+import java.util.ArrayList;
 import java.util.PriorityQueue;
 
 /**
@@ -133,8 +134,21 @@ public abstract class DecisionProcess {
         while (!eventQueue.isEmpty()) {
             DecisionProcessEvent event = eventQueue.poll();
             event.trigger(this);
+            ArrayList<DecisionSituation> recordedSituations = event.getRecordedSituations();
+            if(!recordedSituations.isEmpty())
+            {
+                seenSituations.addAll(recordedSituations);
+                recordedSituations.clear();
+            }
         }
     }
+
+    public ArrayList<DecisionSituation> getSeenSituations()
+    {
+        return seenSituations;
+    }
+
+    ArrayList<DecisionSituation> seenSituations = new ArrayList<>();
 
     /**
      * Reset the decision process.
