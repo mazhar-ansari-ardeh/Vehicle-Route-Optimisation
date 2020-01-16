@@ -10,6 +10,7 @@ import ec.*;
 import ec.gp.*;
 import ec.simple.SimpleProblemForm;
 import ec.util.*;
+import gphhucarp.gp.GPHHEvolutionState;
 import tl.ecj.ECJUtils;
 
 /**
@@ -94,6 +95,7 @@ public class EvaluateOnTest
 
 	static void evaluate(EvolutionState state, GPIndividual gind)
 	{
+		double fitness = gind.fitness.fitness();
 		if(gind instanceof TLGPIndividual)
 		{
 			TLGPIndividual tlg = (TLGPIndividual) gind;
@@ -103,12 +105,17 @@ public class EvaluateOnTest
 				// return tlg.fitness.fitness();
 			}
 			tlg.setTested(true);
-			tlg.setFitnessOnTrain(((TLGPIndividual) gind).fitness.fitness());
+			tlg.setFitnessOnTrain(fitness);
 		}
 		else
 			state.output.warning("GP individual is not of type TLGPIndividual");
 
+		// If the fitness is infinity, then it usually means that the individual has been cleared.
+		if(fitness == Double.POSITIVE_INFINITY || fitness == Double.NEGATIVE_INFINITY)
+			return;
+
 		((SimpleProblemForm)state.evaluator.p_problem).evaluate(state, gind, 0, 0);
+		((GPHHEvolutionState)state).resetSeenSituations();
 
 //		return gind.fitness.fitness();
 	}
