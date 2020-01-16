@@ -106,22 +106,40 @@ init = ec.gp.GPInitializer
 # GP breeding pipeline
 pop.subpop.0.species.pipe = ec.breed.MultiBreedingPipeline
 pop.subpop.0.species.pipe.generate-max = false
-pop.subpop.0.species.pipe.num-sources = 4
+pop.subpop.0.species.pipe.num-sources = 3
 pop.subpop.0.species.pipe.source.0 = ec.gp.koza.CrossoverPipeline
-pop.subpop.0.species.pipe.source.0.prob = 0.4
+pop.subpop.0.species.pipe.source.0.prob = 0.8
 pop.subpop.0.species.pipe.source.1 = ec.gp.koza.MutationPipeline
 pop.subpop.0.species.pipe.source.1.prob = 0.15
 pop.subpop.0.species.pipe.source.2 = ec.breed.ReproductionPipeline
 pop.subpop.0.species.pipe.source.2.prob = 0.05
+
 # pop.subpop.0.species.pipe.source.0.prob = 0.80
 # pop.subpop.0.species.pipe.source.1 = ec.gp.koza.MutationPipeline
 # pop.subpop.0.species.pipe.source.1.prob = 0.15
 # pop.subpop.0.species.pipe.source.2 = ec.breed.ReproductionPipeline
 # pop.subpop.0.species.pipe.source.2.prob = 0.05
-pop.subpop.0.species.pipe.source.3 = tl.knowledge.ppt.gp.PPTBreedingPipeline
-pop.subpop.0.species.pipe.source.3.prob = 0.4
-pop.subpop.0.species.pipe.source.3.knowledge-log-file = PPTBreedLog
-pop.subpop.0.species.pipe.source.3.complement-probability = 0.2
+
+#### PPTMutIndBreedingPipeline ########################
+# pop.subpop.0.species.pipe.source.3 = tl.knowledge.ppt.gp.PPTMutIndBreedingPipeline
+# pop.subpop.0.species.pipe.source.3.prob = 0.4
+# pop.subpop.0.species.pipe.source.3.mut-builder=ec.gp.koza.GrowBuilder
+# pop.subpop.0.species.pipe.source.3.mut-selector=ec.gp.koza.KozaNodeSelector
+# pop.subpop.0.species.pipe.source.3.knowledge-log-file = PPTBreedLog
+# pop.subpop.0.species.pipe.source.3.mutation-probability=0.1
+# pop.subpop.0.species.pipe.source.3.complement-probability = 0.2
+# pop.subpop.0.species.pipe.source.3.mut-builder=ec.gp.koza.GrowBuilder
+#################################################
+
+
+#### PPTBreedingPipeline ########################
+# pop.subpop.0.species.pipe.source.3 = tl.knowledge.ppt.gp.PPTBreedingPipeline
+# pop.subpop.0.species.pipe.source.3.prob = 0.4
+# pop.subpop.0.species.pipe.source.3.knowledge-log-file = PPTBreedLog
+# pop.subpop.0.species.pipe.source.3.complement-probability = 0.2
+# pop.subpop.0.species.pipe.source.3.mut-builder=ec.gp.koza.GrowBuilder
+#################################################
+
 
 # Selection for reproduction
 breed.reproduce.source.0 = ec.select.TournamentSelection

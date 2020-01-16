@@ -114,18 +114,11 @@ gp.tc.0.init.knowledge-log-file=./stats/target-wk/PPTBuildLog
 # ==============================
 # The training results
 # ==============================
-policy-type = gp-evolved
-#policy-type = manual
-
 # for manual policies
 manual-policies = 1
 manual-policies.0 = gphhucarp.decisionprocess.routingpolicy.PathScanning5Policy
-
 # for gp-evolved policies
 train-path = /home/mazhar/MyPhD/SourceCodes/gpucarp/stats/target-wk/
-solution-type = simple-solution
-fitness-type = simple-fitness
-num-trains = 1
 generations=50
 
 
@@ -204,3 +197,4 @@ ppt-state.ppt-log=PPTLog
 
 
 
+clear = true

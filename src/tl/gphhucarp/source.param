@@ -3,5 +3,7 @@ parent.0=carp_param_base.param
 # stat.file=$./stats/source/job.0.out.stat
 stat.gen-pop-file=./stats/source/population.gen
 eval.problem.eval-model.instances.0.file=gdb/gdb21.dat
-eval.problem.eval-model.instances.0.vehicles=6
-seed.0=2
+eval.problem.eval-model.instances.0.vehicles=7
+seed.0=1
+
+generations=50
