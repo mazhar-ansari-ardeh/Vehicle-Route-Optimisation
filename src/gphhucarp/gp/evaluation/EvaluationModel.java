@@ -7,6 +7,7 @@ import ec.util.Parameter;
 import gphhucarp.core.Instance;
 import gphhucarp.core.InstanceSamples;
 import gphhucarp.core.Objective;
+import gphhucarp.decisionprocess.DecisionSituation;
 import gphhucarp.representation.Solution;
 import gphhucarp.representation.route.NodeSeqRoute;
 import gphhucarp.representation.route.TaskSeqRoute;
@@ -49,6 +50,26 @@ public abstract class EvaluationModel {
 
     public List<InstanceSamples> getInstanceSamples() {
         return instanceSamples;
+    }
+
+    /**
+     * The list of the decision situations that this evaluation model encountered during the evaluation of a routing policy.
+     */
+    private ArrayList<DecisionSituation> seenDecicionSituations = new ArrayList<>();
+
+    public ArrayList<DecisionSituation> getSeenDecicionSituations()
+    {
+        return seenDecicionSituations;
+    }
+
+    public void updateSeenDecicionSituations(ArrayList<DecisionSituation> seenDecicionSituations)
+    {
+        this.seenDecicionSituations.addAll(seenDecicionSituations);
+    }
+
+    public void resetSeenSituations()
+    {
+        this.seenDecicionSituations.clear();
     }
 
     /**
