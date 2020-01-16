@@ -41,10 +41,12 @@ echo "Dataset target: $DATASET_CATEGORY_TARGET/$DATASET_TARGET"
 
 GENERATIONS=50
 
+# CLEAR="true"
+
 # Number of generations of the experiment on target domain
 GENERATIONS_ON_TARGET=50
 
-EXPERIMENT_DESCRIPTION='Set the generation to 200 to see the behaviour of the vanilla GPHH on longer generations. No transfer learning applied.  
+EXPERIMENT_DESCRIPTION='Set the generation to 200 to see the behaviour of the vanilla GPHH on longer generations. No transfer learning applied.
 
 '
 
@@ -67,11 +69,17 @@ DATASET_FILE_TARGET="$DATASET_CATEGORY_TARGET/$DATASET_TARGET.dat"
 GPHH_REPOSITORY_SOURCE="$DATASET_SOURCE.vs$NUM_VEHICLES_SOURCE:gen_$GENERATIONS"
 # GPHH_REPOSITORY_TARGET="$DATASET_TARGET.vs$NUM_VEHICLES_TARGET:gen_$GENERATIONS"
 
-# The directory that contains the population of GP for solving the source domain. 
-KNOWLEDGE_SOURCE_NAME="KnowledgeSource"
+# The directory that contains the population of GP for solving the source domain.
+if [ "$CLEAR" == "true" ]; then
+    KNOWLEDGE_SOURCE_NAME="KnowledgeSource:clear_$CLEAR"
+    echo "Clearing on source is set up"
+else
+    KNOWLEDGE_SOURCE_NAME="KnowledgeSource"
+    CLEAR="false"
+fi
 KNOWLEDGE_SOURCE_DIR="./$KNOWLEDGE_SOURCE_NAME/$SGE_TASK_ID"
 
-# Extracted knowledge. This is the name of the file that will contain the results of programms such as 'AnalyzeTerminals' that output their results in an external file. 
+# Extracted knowledge. This is the name of the file that will contain the results of programms such as 'AnalyzeTerminals' that output their results in an external file.
 # KNOWLEDGE_FILE_BASE="$DATASET_SOURCE-v$NUM_VEHICLES_SOURCE"
 
 
@@ -99,10 +107,10 @@ echo "JOB_ID: $JOB_ID"
 
 
 
-# This is actually the part that runs the source domain. 
+# This is actually the part that runs the source domain.
 function run_source_domain()
 {
-# Note to self: Modified this slightly to test a different mutation rate. Revert the changes before using this file again normally. 
+# Note to self: Modified this slightly to test a different mutation rate. Revert the changes before using this file again normally.
 
 # L_EXPERIMENT_NAME="KnowledgeSource"
 # L_EXPERIMENT_DIR="$L_EXPERIMENT_NAME/$SGE_TASK_ID"
@@ -114,7 +122,7 @@ java -cp .:tl.jar ec.Evolve        -file carp_param_base.param \
                                    -p eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_SOURCE  \
                                    -p generations=$GENERATIONS \
                                    -p stat.save-pop=true \
-                                   -p clear=false \
+                                   -p clear=$CLEAR \
                                    -p seed.0=$SGE_TASK_ID
 echo "Finished writing knowledge"
 
@@ -152,10 +160,10 @@ function copy_knowledge()
 
 # This is different from the test evaluation. This method can evaluate the whole population of the whole generations on test settings
 # This function reads the generations to evaluate from its arguments.
-# Example usage: 
+# Example usage:
 #   evaluate_on_test 1 2 50 49
 # This call will evaluate the populations of generations 1, 2, 49 50
-# This function copies the files it requires itself, evaluates them and copies the results back again. 
+# This function copies the files it requires itself, evaluates them and copies the results back again.
 function evaluate_on_test()
 {
     GENS=$@
@@ -173,32 +181,38 @@ function evaluate_on_test()
                                             stat.gen-pop-file=$KNOWLEDGE_SOURCE_DIR/eval.population.gen \
                                             generations=$GENERATIONS \
                                             seed.0=$TEST_SEED
-                                            
+
         cp -r -v $KNOWLEDGE_SOURCE_DIR/TestedPopulation/population.gen.$i.bin /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_DIR/TestedPopulation/
         printf "Finished evaluation of generation $i on test dataset\n"
     done
-    
+
 #     cp -r -v $KNOWLEDGE_SOURCE_DIR/TestedPopulation /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_DIR/
     printf "Finished evaluating source population on test settings using EvaluateOnTest\n\n\n"
     printf "$(date)\t $SGE_TASK_ID \n" >> /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/FinishedTestEvaluations.txt
 }
 
-# This is done on the target domain. This experiment does not use transfer learning. 
+# This is done on the target domain. This experiment does not use transfer learning.
 function do_non_knowledge_experiment()
 {
-    echo "Running experiment on target problem without knowledge"
-    WITHOUT_KNOW_STAT_DIR="./WithoutKnowledge/$SGE_TASK_ID"
+    echo "Running experiment on target problem without knowledge $CLEAR"
+    if [ "$CLEAR" == "true" ]; then
+        L_EXP_NAME="WithoutKnowledge:clear_$CLEAR"
+    else
+        L_EXP_NAME="WithoutKnowledge"
+    fi
+    WITHOUT_KNOW_STAT_DIR="./$L_EXP_NAME/$SGE_TASK_ID"
     java -cp .:tl.jar ec.Evolve        -file carp_param_base.param \
                                     -p stat.file="\$$WITHOUT_KNOW_STAT_DIR/job.0.out.stat" \
                                     -p stat.gen-pop-file="$WITHOUT_KNOW_STAT_DIR/population.gen" \
                                     -p eval.problem.eval-model.instances.0.file=$DATASET_FILE_TARGET \
                                     -p generations=$GENERATIONS_ON_TARGET \
                                     -p eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_TARGET \
+                                    -p clear=$CLEAR \
                                     -p seed.0=$SGE_TASK_ID
 
-    echo "Finished running experiment on target without knowledge"
+    echo "Finished running experiment on target $L_EXP_NAME"
 
-    echo "Running tests on target problem without knowledge"
+    echo "Running tests on target problem $L_EXP_NAME"
     java -cp .:tl.jar gphhucarp.gp.GPTest -file carp_param_base.param \
                                         -p train-path=$WITHOUT_KNOW_STAT_DIR/ \
                                         -p eval.problem.eval-model.instances.0.file=$DATASET_FILE_TARGET \
@@ -206,11 +220,11 @@ function do_non_knowledge_experiment()
                                         -p eval.problem.eval-model.instances.0.samples=500 \
                                         -p generations=$GENERATIONS_ON_TARGET \
                                         -p seed.0=$TEST_SEED
-                                        
-    SAVE_TO=/vol/grid-solar/sgeusers/mazhar/$DATASET_SOURCE.vs$NUM_VEHICLES_SOURCE.$DATASET_TARGET.vt$NUM_VEHICLES_TARGET:gen_$GENERATIONS/'WithoutKnowledge'
+
+    SAVE_TO=/vol/grid-solar/sgeusers/mazhar/$DATASET_SOURCE.vs$NUM_VEHICLES_SOURCE.$DATASET_TARGET.vt$NUM_VEHICLES_TARGET:gen_$GENERATIONS/"$L_EXP_NAME"
     mkdir -p $SAVE_TO
     cp -r -v $WITHOUT_KNOW_STAT_DIR/ $SAVE_TO/
-    printf "$(date)\t $SGE_TASK_ID \n" >> $SAVE_TO/Finished$'WithoutKnowledge'.txt
+    printf "$(date)\t $SGE_TASK_ID \n" >> $SAVE_TO/Finished"$L_EXP_NAME".txt
     
     printf "Finished running tests on target without knowledge\n\n\n"
 }
