@@ -29,6 +29,38 @@ public interface TLLogger<T>
 		return setupLogger(state, base, P_KNOWLEDGE_LOG_FILE_NAME);
 	}
 
+	default int setupLogger(EvolutionState state, String fileName)
+	{
+		if(fileName == null || fileName.isEmpty())
+			throw new RuntimeException("Log file name cannot be empty.");
+		try
+		{
+			File file = new File(fileName);
+			if (file.exists())
+				file.delete();
+
+			Path pathToSuccFile = file.toPath();
+			Path pathToSuccDir = pathToSuccFile.getParent();
+			if (pathToSuccDir != null)
+			{
+				File statDirFile = pathToSuccDir.toFile();
+				if (!statDirFile.exists() && !statDirFile.mkdirs())
+					state.output.fatal("Failed to create stat directory: "
+							+ pathToSuccDir.toString());
+			}
+
+			file.createNewFile();
+			state.output.warning("Log file created: " + file.getAbsolutePath());
+
+			return state.output.addLog(file, false);
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+			state.output.fatal("Failed to create knowledge log file");
+			return -1;
+		}
+	}
+
 	default int setupLogger(EvolutionState state, Parameter base, String fileParamName)
 	{
 		if(fileParamName == null || fileParamName.isEmpty())
