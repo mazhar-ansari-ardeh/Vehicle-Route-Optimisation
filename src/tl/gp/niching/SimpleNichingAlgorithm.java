@@ -1,10 +1,19 @@
 package tl.gp.niching;
 
+import ec.EvolutionState;
+import ec.Fitness;
 import ec.Individual;
+import ec.Subpopulation;
 import ec.gp.GPIndividual;
+import ec.multiobjective.MultiObjectiveFitness;
+import gphhucarp.decisionprocess.RoutingPolicy;
+import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
+import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 import tl.gp.PopulationUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class SimpleNichingAlgorithm implements NicheAlgorithm
 {
@@ -70,14 +79,18 @@ public class SimpleNichingAlgorithm implements NicheAlgorithm
         for (int i = 1; i < pop.length; i++)
         {
             GPIndividual individual = pop[i];
-            if (Math.abs(nicheCenter - individual.fitness.fitness()) <= radius)
+            // If the individual has been cleared in the source domain, then ignore it.
+            double indFitness = individual.fitness.fitness();
+            if(indFitness== Double.POSITIVE_INFINITY || indFitness == Double.NEGATIVE_INFINITY )
+                continue;
+            if (Math.abs(nicheCenter - indFitness) <= radius)
             {
                 niche.add(individual);
             }
             else
             {
                 // Found a new niche
-                nicheCenter = individual.fitness.fitness();
+                nicheCenter = indFitness;
 //              niche.sort(Comparator.comparingInt(ind -> ind.trees[0].child.depth()));
                 niche.sort(SimpleNichingAlgorithm::compare);
                 retval.addAll(niche.subList(0, niche.size() >= capacity ? capacity : niche.size()));
@@ -89,5 +102,70 @@ public class SimpleNichingAlgorithm implements NicheAlgorithm
         niche.sort(SimpleNichingAlgorithm::compare);
         retval.addAll(niche.subList(0, niche.size() >= capacity ? capacity : niche.size()));
         return retval.toArray(new GPIndividual[0]);
+    }
+
+    private static boolean isCleared(MultiObjectiveFitness fitness)
+    {
+        for (int i = 0; i < fitness.objectives.length; ++i) {
+            if (fitness.maximize[i]) {
+                if(fitness.objectives[i] != Double.NEGATIVE_INFINITY)
+                    return false;
+            }
+            else {
+                if(fitness.objectives[i] != Double.POSITIVE_INFINITY)
+                    return false;
+            }
+        }
+
+        return true;
+    }
+
+    private static void clear(MultiObjectiveFitness fitness) {
+        for (int i = 0; i < fitness.objectives.length; ++i) {
+            if (fitness.maximize[i]) {
+                fitness.objectives[i] = Double.NEGATIVE_INFINITY;
+            }
+            else {
+                fitness.objectives[i] = Double.POSITIVE_INFINITY;
+            }
+        }
+        // this.cleared = true;
+    }
+
+    public static void clearPopulation(final EvolutionState state, List<ReactiveDecisionSituation> dps, final double radius, final int capacity) {
+        for (final Subpopulation subpop : state.population.subpops) {
+            final Individual[] sortedPop = subpop.individuals;
+            Arrays.sort(sortedPop);
+            final PhenoCharacterisation pc = new PhenoCharacterisation(dps, new GPRoutingPolicy(((GPIndividual)sortedPop[0]).trees[0]));
+            final List<int[]> sortedPopCharLists = new ArrayList<>();
+            for (final Individual indi : sortedPop)
+            {
+                final int[] charList = pc.characterise(new GPRoutingPolicy(((GPIndividual)indi).trees[0]));
+                sortedPopCharLists.add(charList);
+            }
+            for (int i = 0; i < sortedPop.length; ++i)
+            {
+                if (isCleared((MultiObjectiveFitness) sortedPop[i].fitness))
+                    continue;
+                int numWinners = 1;
+                for (int j = i + 1; j < sortedPop.length; ++j)
+                {
+                    if (isCleared((MultiObjectiveFitness) sortedPop[j].fitness))
+                        continue;
+
+                    final double distance = PhenoCharacterisation.distance(sortedPopCharLists.get(i), sortedPopCharLists.get(j));
+                    if (distance <= radius)
+                    {
+                        if (numWinners < capacity)
+                        {
+                            ++numWinners;
+                        }
+                        else {
+                            clear((MultiObjectiveFitness) sortedPop[j].fitness);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
