@@ -21,7 +21,6 @@ import tl.knowledge.ppt.pipe.PPTree;
 
 import java.io.*;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -320,6 +319,7 @@ class Extractor
         GPIndividual[] gpop = new GPIndividual[pop.subpops[0].individuals.length];
         for(int i = 0; i < gpop.length; i++)
             gpop[i] = (GPIndividual) pop.subpops[0].individuals[i];
+//        gpop = PopulationUtils.filterIndividuals(gpop, ind -> ((TLGPIndividual)ind).getFitnessOnTrain() != Double.POSITIVE_INFINITY);
         GPIndividual[] niches = nichingAlgorithm.applyNiche(gpop);
         learnFrom(niches);
     }
