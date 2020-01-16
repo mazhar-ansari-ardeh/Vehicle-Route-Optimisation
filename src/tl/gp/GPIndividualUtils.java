@@ -231,7 +231,7 @@ public class GPIndividualUtils
 		}
 	}
 
-	static GPIndividual sampleInd()
+	static public GPIndividual sampleInd()
 	{
 		TerminalERCUniform scn1 = new TerminalERCUniform();
 		ServeCost sc = new ServeCost();
