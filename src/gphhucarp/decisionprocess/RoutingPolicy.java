@@ -1,11 +1,16 @@
 package gphhucarp.decisionprocess;
 
+import ec.gp.GPNode;
 import gphhucarp.core.Arc;
 import gphhucarp.decisionprocess.poolfilter.IdentityPoolFilter;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import gphhucarp.decisionprocess.tiebreaker.SimpleTieBreaker;
+import gphhucarp.gp.CalcPriorityProblem;
+import gphhucarp.gp.UCARPPrimitiveSet;
 import gphhucarp.representation.route.NodeSeqRoute;
+import gputils.DoubleData;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -79,6 +84,23 @@ public abstract class RoutingPolicy {
 
         return next;
     }
+
+//    HashMap<String, Double> terminalValues(Arc candidate, NodeSeqRoute route, DecisionProcessState state, ReactiveDecisionSituation rds)
+//    {
+//        HashMap<String, Double> retval = new HashMap<>();
+//        List<GPNode> terminals = UCARPPrimitiveSet.wholeTerminalSet().getList();
+//        CalcPriorityProblem calcPrioProb = new CalcPriorityProblem(candidate, route, state);
+//        DoubleData data = new DoubleData();
+//        for(GPNode terminal : terminals)
+//        {
+//            terminal.eval(null, 0, data, null, null, calcPrioProb);
+//            retval.put(terminal.toString(), data.value);
+////            System.out.println(terminal.toString() + ": " + data.value);
+//        }
+////        System.out.println();
+////        state.
+//        return retval;
+//    }
 
     /**
      * Given the current decision process state,
