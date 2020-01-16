@@ -149,6 +149,8 @@ public class FrequencyLearner implements IPIPELearner<GPIndividual[]>
 
         for(GPIndividual ind : sample)
         {
+            if(ind.trees[treeIndex].child.depth() <= 2 || ind.fitness.fitness() == Double.POSITIVE_INFINITY)
+                continue;
             Map<String, GPNode> indice = GPIndividualUtils.index(ind.trees[treeIndex].child);
             for(String address : indice.keySet())
             {
