@@ -1,10 +1,10 @@
 package tl.gp;
 
 import java.io.*;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.function.Predicate;
 
 import ec.*;
 import ec.gp.GPIndividual;
@@ -67,6 +67,10 @@ public class PopulationUtils
 		Arrays.sort(ind, comp);
 	}
 
+	public static GPIndividual[] filterIndividuals(GPIndividual[] pop, Predicate<GPIndividual> filter)
+	{
+		return Arrays.stream(pop).filter(filter).toArray(GPIndividual[]::new);
+	}
 
 	public static void savePopulation(Population pop, String fileName)
 			throws FileNotFoundException, IOException
