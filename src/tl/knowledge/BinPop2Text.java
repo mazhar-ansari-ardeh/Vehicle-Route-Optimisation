@@ -15,7 +15,7 @@ public class BinPop2Text
 {
 	public static void main(String[] args) throws ClassNotFoundException, IOException
 	{
-		String path = "/home/mazhar/grid/gdb1.vs5_gen_50/KnowledgeSource/1/TestedPopulation";
+		String path = "/home/mazhar/grid/gdb21.vs6:gen_50/KnowledgeSource:clear_true/30/TestedPopulation/";
 		boolean printFitness = true;
 		if(args.length >= 1)
 			path = args[0];
@@ -112,6 +112,7 @@ public class BinPop2Text
 			PrintWriter out = new PrintWriter(new FileOutputStream(outFile));
 
 			Population pop = PopulationUtils.loadPopulation(file.toFile());
+			PopulationUtils.sort(pop);
 
 			for(int i = 0; i < pop.subpops.length; i++)
 			{
@@ -122,7 +123,7 @@ public class BinPop2Text
 					switch (graphType)
 					{
 						case "dot":
-							tree = gind.trees[0].child.makeGraphvizTree().replaceAll("\\n", "");
+							tree = gind.trees[0].child.makeGraphvizTree();//.replaceAll("\\n", "");
 							break;
 						case "c":
 							tree = gind.trees[0].child.makeCTree(true, true, true);
