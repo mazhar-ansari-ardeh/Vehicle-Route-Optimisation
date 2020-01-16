@@ -7,7 +7,7 @@ public class LispToGraphviz
 {
     public static void main(String[] args)
     {
-        String lispString = "(* (* (+ (min FULL SC) (/ (min FULL (/ (min CTD RQ) FULL)) FULL)) (max (max (min CR CFD) (min CTD RQ)) (+ (min FULL (min CR CFD)) (/ (/ DC SC) (max (- CFR1 DC) (min DC CTT1)))))) (- (max (min (min CTD (min CTD DEM)) (min (+ CFH DC) (min FRT RQ))) (* (* (max CFH (+ DEM CR)) (- (+ CFH SC) (+ FUT DC))) RQ)) (* (+ (max CR (min SC RQ)) (/ DC DEM1)) (min (min CTD DEM) (/ DC DEM1)))))";
+        String lispString = "(- (* (min (* (* (* (/ SC 0.5742833472668298) (+ CTD FRT)) (/ 0.012840418778625184 DEM)) (+ (* (* RQ CFH) CFH) RQ)) SC) (/ (* (+ (* (/ 0.012840418778625184 DEM) CFH) (+ 0.9262409369708411 (* RQ CFH))) CFH) FULL)) (/ (- (max (- (min RQ (- RQ CR)) (- (+ CTT1 RQ) (max CTT1 FULL))) (+ CTD FRT)) (/ (+ SC (+ CFH (* RQ CFH))) (* (max FRT CR) CFH))) (max (* (* (min SC (* SC CFH)) CFH) (+ (/ 0.012840418778625184 DEM) (+ CTD FRT))) (+ CTD FRT))))";
 
         String gvString = LispUtils.parseExpression(lispString, UCARPPrimitiveSet.wholePrimitiveSet()).child.makeGraphvizTree();
 
