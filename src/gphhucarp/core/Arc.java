@@ -48,6 +48,34 @@ public class Arc implements Comparable<Arc> {
         this.costSampler = new NormalSampler(deadheadingCost, costUncertaintyLevel * deadheadingCost);
     }
 
+    private Arc()
+    {
+
+    }
+
+    public Arc(Arc arc)
+    {
+        this.from = arc.from;
+        this.to = arc.to;
+        this.serveCost = arc.serveCost;
+        this.demandSampler = arc.demandSampler;
+        this.costSampler = arc.costSampler;
+        this.priority = arc.priority;
+
+        if(arc.inverse != null)
+        {
+            this.inverse = new Arc();
+            this.inverse.from = arc.inverse.from;
+            this.inverse.to = arc.inverse.to;
+            this.inverse.serveCost = arc.inverse.serveCost;
+            this.inverse.demandSampler = arc.inverse.demandSampler;
+            this.inverse.costSampler = arc.inverse.costSampler;
+            this.inverse.priority = arc.inverse.priority;
+
+            this.inverse.inverse = this;
+        }
+    }
+
     public int getFrom() {
         return from;
     }
