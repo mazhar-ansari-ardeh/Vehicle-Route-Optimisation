@@ -2,6 +2,7 @@ package tl.gp.hash;
 
 import ec.EvolutionState;
 import ec.gp.GPNode;
+import gphhucarp.gp.terminal.FeatureGPNode;
 import gputils.terminal.DoubleERC;
 import gputils.terminal.TerminalERCUniform;
 
@@ -88,6 +89,47 @@ public class VectorialAlgebraicHashCalculator implements HashCalculator
         return retval;
     }
 
+    private double[] hashOf(FeatureGPNode node)
+    {
+        String name = node.name();
+        switch (name)
+        {
+            case "SC":
+                return SCHash;
+            case "CFD":
+                return CFDHash;
+            case "CFH":
+                return CFHHash;
+            case "CTD":
+                return CTDHash;
+            case "CR":
+                return CRHash;
+            case "DC":
+                return DCHash;
+            case "DEM":
+                return DEMHash;
+            case "RQ":
+                return RQHash;
+            case "FULL":
+                return FULLHash;
+            case "FRT":
+                return FRTHash;
+            case "FUT":
+                return FUTHash;
+            case "CFR1":
+                return CFR1Hash;
+            case "CTT1":
+                return CTT1Hash;
+            case "DEM1":
+                return DEM1Hash;
+            case "ERC":
+               // return hashOf((TerminalERCUniform) node);
+
+            default:
+                throw new RuntimeException("Received an unknown or weird terminal to hash: " + name);
+        }
+    }
+
     private double[] hashOf(TerminalERCUniform t)
     {
         String name = t.getTerminal().name();
@@ -136,7 +178,7 @@ public class VectorialAlgebraicHashCalculator implements HashCalculator
     public int hashOfTree(GPNode tree)
     {
         double[] hashes = hashsOfTree(tree);
-        System.out.println(Arrays.toString(hashes));
+//        System.out.println(Arrays.toString(hashes));
 
         return Arrays.hashCode(hashsOfTree(tree));
     }
@@ -144,7 +186,14 @@ public class VectorialAlgebraicHashCalculator implements HashCalculator
     private double[] hashsOfTree(GPNode tree)
     {
         if (tree.children == null || tree.children.length == 0)
-            return hashOf((TerminalERCUniform) tree);
+        {
+            if(tree instanceof FeatureGPNode)
+                return hashOf((FeatureGPNode) tree);
+            else if(tree instanceof TerminalERCUniform)
+                return hashOf((TerminalERCUniform) tree);
+            else
+                throw new RuntimeException("Unkwon terminal type" + tree.name());
+        }
         double[] lch = hashsOfTree(tree.children[0]); // left child hash
         double[] rch = hashsOfTree(tree.children[1]);
         double[] retval = new double[hashOrder];

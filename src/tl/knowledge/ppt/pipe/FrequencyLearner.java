@@ -7,6 +7,11 @@ import ec.util.Parameter;
 import org.apache.commons.lang3.ArrayUtils;
 import tl.gp.GPIndividualUtils;
 import tl.gp.PopulationUtils;
+import tl.gp.hash.AlgebraicHashCalculator;
+import tl.gp.hash.HashCalculator;
+import tl.gp.hash.VectorialAlgebraicHashCalculator;
+import tl.gp.simplification.AlgebraicTreeSimplifier;
+import tl.gp.simplification.TreeSimplifier;
 
 import java.util.*;
 
@@ -35,6 +40,7 @@ public class FrequencyLearner implements IPIPELearner<GPIndividual[]>
      * The learning rate. The meaning of this parameter may be different for different learning algorithms.
      */
     public static final String P_LEARNING_RATE = "lr";
+    transient private final TreeSimplifier simplifier;
 
     public static FrequencyLearner newFrequencyLearner(EvolutionState state, Parameter base, String[] functions, String[] terminals)
     {
@@ -125,6 +131,9 @@ public class FrequencyLearner implements IPIPELearner<GPIndividual[]>
         this.lr = learningRate;
         this.tournamentSize = tournamentSize;
         this.sampleSize = sampleSize;
+
+        HashCalculator hc = new VectorialAlgebraicHashCalculator(state, threadNum, 100, 1000077157);
+        simplifier = new AlgebraicTreeSimplifier(hc);
     }
 
     private static boolean isdigit(String str)
@@ -214,6 +223,17 @@ public class FrequencyLearner implements IPIPELearner<GPIndividual[]>
         {
             Ss = PopulationUtils.rankSelect(individual, sampleSize);
         }
+
+        // Simplify the trees and remove redundancies.
+        ArrayList<GPIndividual> simplifiedSS = new ArrayList<>();
+        for(GPIndividual ind : Ss)
+        {
+            GPIndividual cind = (GPIndividual) ind.clone();
+            simplifier.simplifyTree(state, cind);
+            simplifiedSS.add(cind);
+        }
+        Ss = simplifiedSS;
+
         HashMap<String, HashMap<String, Double>> stats = calculateDistributionEstimate(Ss, treeIndex);
         for(String address : stats.keySet())
         {

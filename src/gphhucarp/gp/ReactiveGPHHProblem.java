@@ -116,9 +116,13 @@ public class ReactiveGPHHProblem extends GPProblem implements SimpleProblemForm 
 //            if(i != seenDecicionSituations.size() - 1 && ((ReactiveDecisionSituation)seenDecicionSituations.get(i+1)).getState().getRemainingTasks().size() != 0)
 //            System.out.println(rds.getState().getSolution().toString());
 //        }
-        gstate.updateSeenSituations(indi, seenDecicionSituations);
-
-        evaluationModel.resetSeenSituations();
+        final int numSeenSituations = seenDecicionSituations.size();
+        Collections.shuffle(seenDecicionSituations);
+        List<DecisionSituation> subList = seenDecicionSituations.subList(0, (numSeenSituations > 5) ? 5 : numSeenSituations);
+        List<DecisionSituation> sublist = new ArrayList<>(subList.size());
+        subList.forEach(item -> sublist.add(new ReactiveDecisionSituation((ReactiveDecisionSituation) item)));
+        gstate.updateSeenSituations(indi, sublist);
+        this.evaluationModel.resetSeenSituations();
 
         indi.evaluated = true;
         evalCount++;

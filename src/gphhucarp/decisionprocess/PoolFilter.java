@@ -11,9 +11,22 @@ import java.util.List;
  * decision making of routing policy during the decision making process.
  */
 
-public abstract class PoolFilter {
+public abstract class PoolFilter implements Cloneable{
 
     public abstract List<Arc> filter(List<Arc> pool,
                                      NodeSeqRoute route,
                                      DecisionProcessState state);
+
+    @Override
+    public Object clone()
+    {
+        try
+        {
+            return super.clone();
+        } catch (CloneNotSupportedException e)
+        {
+            e.printStackTrace();
+            throw new RuntimeException(e); // This should not happen.
+        }
+    }
 }

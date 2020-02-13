@@ -162,6 +162,7 @@ public class SimpleNichingAlgorithm implements NicheAlgorithm
                         }
                         else {
                             clear((MultiObjectiveFitness) sortedPop[j].fitness);
+//                            state.output.warning("Cleared: " + ((GPIndividual)sortedPop[i]).trees[0].child.makeLispTree());
                         }
                     }
                 }

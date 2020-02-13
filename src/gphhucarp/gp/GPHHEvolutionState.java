@@ -252,9 +252,9 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 		seenSituations.clear();
 	}
 
-	public void updateSeenSituations(Individual ind, ArrayList<DecisionSituation> seenSituations)
+	public void updateSeenSituations(Individual ind, List<DecisionSituation> seenSituations)
 	{
-		this.seenSituations.put(ind, seenSituations);
+		this.seenSituations.put(ind, new ArrayList<DecisionSituation>(seenSituations));
 	}
 
 	private List<ReactiveDecisionSituation> getAllSeenSituations()

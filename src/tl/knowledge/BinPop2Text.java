@@ -15,7 +15,7 @@ public class BinPop2Text
 {
 	public static void main(String[] args) throws ClassNotFoundException, IOException
 	{
-		String path = "/home/mazhar/grid/gdb21.vs6:gen_50/KnowledgeSource:clear_true/30/TestedPopulation/";
+		String path = "/home/mazhar/scratch/1/";
 		boolean printFitness = true;
 		if(args.length >= 1)
 			path = args[0];

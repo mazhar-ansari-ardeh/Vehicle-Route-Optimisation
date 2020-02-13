@@ -70,7 +70,7 @@ seed.0=2
 # PPT Builder
 # ==============================
 gp.tc.0.init=tl.gp.PPTBuilder
-gp.tc.0.init.knowledge-file=/am/vuwstocoisnrin1.vuw.ac.nz/grid-solar/sgeusers/mazhar/gdb1.vs5.gdb1.vt6:gen_50/PPTFreqLearning:percent_0.5:nrad_-1:ncap_2:gens_49_49:lr_0.8:ss_100:ts_-1/3/PPTFreqLearning:percent_0.5:nrad_-1:ncap_2:gens_49_49:lr_0.8:ss_100:ts_-1.ppt
+gp.tc.0.init.knowledge-file=/home/mazhar/grid/gdb1.vs5.gdb1.vt6:gen_50/PPTBreeding:ppt_0.4:cmpppt_0:xover_0.4:mut_0.15:repro_0.05:lr_0.8:ss_100:ts:_7:initperc_0.1:igen_49_49:inrad_-1:incap_1:mnThr_0:clear_true/1/PPTBreeding:ppt_0.4:cmpppt_0:xover_0.4:mut_0.15:repro_0.05:lr_0.8:ss_100:ts:_7:initperc_0.1:igen_49_49:inrad_-1:incap_1:mnThr_0:clear_true.ppt
 percentage of initial population that is created from extracted knowledge
 gp.tc.0.init.transfer-percent=0.50
 gp.tc.0.init.knowledge-log-file=./stats/target-wk/PPTBuildLog

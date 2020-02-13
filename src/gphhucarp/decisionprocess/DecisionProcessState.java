@@ -41,6 +41,88 @@ public class DecisionProcessState {
     // the value for each task is a list of tasks where the key task is on their flood
     private Map<Arc, List<Arc>> onFloodMap;
 
+    public DecisionProcessState(DecisionProcessState other)
+    {
+        if(other == null)
+            throw new NullPointerException("Cannot copy construct a null object");
+
+        this.instance = new Instance(other.instance);
+        this.seed = other.seed;
+        if(other.remainingTasks != null)
+        {
+            this.remainingTasks = new ArrayList<>(other.remainingTasks.size());
+            for(Arc arc : other.remainingTasks)
+                this.remainingTasks.add(new Arc(arc));
+        }
+
+        if(other.unassignedTasks != null)
+        {
+            this.unassignedTasks = new ArrayList<>(other.unassignedTasks.size());
+            for(Arc arc : other.unassignedTasks)
+                this.unassignedTasks.add(new Arc(arc));
+        }
+
+        if(other.solution != null)
+            this.solution = new Solution<>(other.solution);
+
+        if(other.taskRemainingDemandFrac != null)
+        {
+            this.taskRemainingDemandFrac = new HashMap<>(other.taskRemainingDemandFrac.size());
+            for(Arc arc : other.taskRemainingDemandFrac.keySet())
+            {
+                double frac = other.taskRemainingDemandFrac.get(arc);
+                this.taskRemainingDemandFrac.put(new Arc(arc), frac);
+            }
+        }
+
+        if(other.taskToTaskMap != null)
+        {
+            this.taskToTaskMap = new HashMap<>(other.taskToTaskMap.size());
+            for(Arc arc : other.taskToTaskMap.keySet())
+            {
+                List<Arc> list = other.taskToTaskMap.get(arc);
+                ArrayList<Arc> clonedList = new ArrayList<>(list.size());
+                list.forEach(item -> clonedList.add(new Arc(item)));
+                this.taskToTaskMap.put(new Arc(arc), clonedList);
+            }
+        }
+
+        if(other.routeToTaskMap != null)
+        {
+            this.routeToTaskMap = new HashMap<>(other.routeToTaskMap.size());
+            for(Arc arc : other.routeToTaskMap.keySet())
+            {
+                List<NodeSeqRoute> list = other.routeToTaskMap.get(arc);
+                ArrayList<NodeSeqRoute> clonedList = new ArrayList<>(list.size());
+                list.forEach(item -> clonedList.add((NodeSeqRoute) item.clone()));
+                this.routeToTaskMap.put(new Arc(arc), clonedList);
+            }
+        }
+
+        if(other.floodMap != null)
+        {
+            this.floodMap = new HashMap<>(other.floodMap.size());
+            for(Arc arc : other.floodMap.keySet())
+            {
+                List<Arc> list = other.floodMap.get(arc);
+                ArrayList<Arc> clonedList = new ArrayList<>(list.size());
+                list.forEach(item -> clonedList.add(new Arc(item)));
+                this.floodMap.put(new Arc(arc), clonedList);
+            }
+        }
+
+        if(other.onFloodMap != null)
+        {
+            this.onFloodMap = new HashMap<>(other.onFloodMap.size());
+            for(Arc arc : other.onFloodMap.keySet())
+            {
+                List<Arc> list = other.onFloodMap.get(arc);
+                ArrayList<Arc> clonedList = new ArrayList<>(list.size());
+                list.forEach(item -> clonedList.add(new Arc(item)));
+                this.onFloodMap.put(new Arc(arc), clonedList);
+            }
+        }
+    }
 
     public DecisionProcessState(Instance instance,
                                 long seed,
@@ -355,13 +437,13 @@ public class DecisionProcessState {
 
     }
 
-    public DecisionProcessState clone() {
-        List<Arc> clonedRemTasks = new LinkedList<>(remainingTasks);
-        List<Arc> clonedUasTasks = new LinkedList<>(unassignedTasks);
-        Solution<NodeSeqRoute> clonedSol = solution.clone();
-        Map<Arc, Double> clonedTRDF = new HashMap<>(taskRemainingDemandFrac);
-
-        return new DecisionProcessState(instance, seed,
-                clonedRemTasks, clonedUasTasks, clonedSol, clonedTRDF);
-    }
+//    public DecisionProcessState clone() {
+//        List<Arc> clonedRemTasks = new LinkedList<>(remainingTasks);
+//        List<Arc> clonedUasTasks = new LinkedList<>(unassignedTasks);
+//        Solution<NodeSeqRoute> clonedSol = new Solution<>(solution);//.clone();
+//        Map<Arc, Double> clonedTRDF = new HashMap<>(taskRemainingDemandFrac);
+//
+//        return new DecisionProcessState(instance, seed,
+//                clonedRemTasks, clonedUasTasks, clonedSol, clonedTRDF);
+//    }
 }

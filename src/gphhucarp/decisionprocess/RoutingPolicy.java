@@ -17,7 +17,7 @@ import java.util.List;
  * A routing policy makes a decision
  */
 
-public abstract class RoutingPolicy {
+public abstract class RoutingPolicy implements Cloneable {
 
     protected String name;
     protected PoolFilter poolFilter;
@@ -34,6 +34,33 @@ public abstract class RoutingPolicy {
 
     public RoutingPolicy(TieBreaker tieBreaker) {
         this(new IdentityPoolFilter(), tieBreaker);
+    }
+
+    public RoutingPolicy(RoutingPolicy other)
+    {
+        if(other == null)
+            throw new NullPointerException("Cannot clone a null object.");
+
+        this.name = other.name;
+        this.poolFilter = (PoolFilter) other.poolFilter.clone();
+        this.tieBreaker = (TieBreaker) other.tieBreaker.clone();
+    }
+
+    @Override
+    public Object clone()
+    {
+        try
+        {
+            RoutingPolicy retval = (RoutingPolicy) super.clone();
+            retval.tieBreaker = (TieBreaker) tieBreaker.clone();
+            retval.poolFilter = (PoolFilter) poolFilter.clone();
+            retval.name = name;
+            return retval;
+        } catch (CloneNotSupportedException e)
+        {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 
     public String getName() {
@@ -101,6 +128,8 @@ public abstract class RoutingPolicy {
 ////        state.
 //        return retval;
 //    }
+
+
 
     /**
      * Given the current decision process state,

@@ -3,6 +3,7 @@ package gphhucarp.representation.route;
 import gphhucarp.core.Arc;
 import gphhucarp.core.Instance;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -92,7 +93,10 @@ public class TaskSeqRoute extends Route {
 
     @Override
     public Route clone() {
-        return new TaskSeqRoute(capacity, demand, cost,
-                new LinkedList<>(taskSequence), currNode);
+        ArrayList<Arc> tSeq = new ArrayList<>(taskSequence.size());
+        for(Arc arc : taskSequence)
+            tSeq.add(new Arc(arc));
+
+        return new TaskSeqRoute(capacity, demand, cost, tSeq, currNode);
     }
 }

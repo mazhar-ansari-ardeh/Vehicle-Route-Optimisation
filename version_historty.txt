@@ -68,3 +68,12 @@ Implemented the idea of complement PPT and updated PPTBreeding with it.
 
 01/01/20
 Corrected a bug in FrequencyLearner.
+
+14/01/20
+Implemented the clearing method.
+
+17/01/20
+Completed the phenotypic characterisation.
+This is a temporary version. There are a few issues at this stage:
+- There is a memory bug in the Instance.clone and as a result, it is not possible to have a correct record of the seen decision situations.
+- FrequencyLearner uses a hardcoded simplifier.

@@ -35,12 +35,13 @@ public class ProreativeDecisionProcess extends DecisionProcess {
                     state.getSolution().getRoute(i), plan.getRoute(i), 0));
     }
 
-    @Override
-    protected ProreativeDecisionProcess clone() {
-        DecisionProcessState clonedState = state.clone();
-        PriorityQueue<DecisionProcessEvent> clonedEQ = new PriorityQueue<>(eventQueue);
-        Solution<TaskSeqRoute> clonedPlan = plan.clone();
-
-        return new ProreativeDecisionProcess(clonedState, clonedEQ, routingPolicy, clonedPlan);
-    }
+//    @Override
+//    protected ProreativeDecisionProcess clone() {
+//        // TODO: Replace with copy constructor
+//        DecisionProcessState clonedState = new DecisionProcessState(state);//.clone();
+//        PriorityQueue<DecisionProcessEvent> clonedEQ = new PriorityQueue<>(eventQueue);
+//        Solution<TaskSeqRoute> clonedPlan = new Solution<>(plan);//.clone();
+//
+//        return new ProreativeDecisionProcess(clonedState, clonedEQ, routingPolicy, clonedPlan);
+//    }
 }

@@ -127,6 +127,8 @@ public class PPTEvolutionState extends GPHHEvolutionState implements TLLogger<GP
             TLGPIndividual ind = (TLGPIndividual) population.subpops[0].individuals[i];
             String origin = ind.getOrigin();
             double indFit = ind.fitness.fitness();
+            if(indFit == Double.POSITIVE_INFINITY)
+                continue;
             if(origin != null && origin.toLowerCase().equals(PPTBreedingPipeline.ORIGIN))
             {
                 pptSS.addValue(indFit);
@@ -226,9 +228,9 @@ public class PPTEvolutionState extends GPHHEvolutionState implements TLLogger<GP
         // EVALUATION
         statistics.preEvaluationStatistics(this);
         evaluator.evaluatePopulation(this);
+        clear();
         statistics.postEvaluationStatistics(this);
 
-        clear();
 
         GPIndividual[] inds = new GPIndividual[population.subpops[0].individuals.length];
         inds = Arrays.copyOf(population.subpops[0].individuals, inds.length, GPIndividual[].class);

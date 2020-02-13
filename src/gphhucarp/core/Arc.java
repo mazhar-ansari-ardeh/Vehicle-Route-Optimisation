@@ -4,6 +4,8 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 import util.random.AbstractRealSampler;
 import util.random.NormalSampler;
 
+import java.util.Objects;
+
 /**
  * An arc, which is a directed edge of the graph.
  * It has
@@ -58,8 +60,8 @@ public class Arc implements Comparable<Arc> {
         this.from = arc.from;
         this.to = arc.to;
         this.serveCost = arc.serveCost;
-        this.demandSampler = arc.demandSampler;
-        this.costSampler = arc.costSampler;
+        this.demandSampler = (AbstractRealSampler) arc.demandSampler.clone();
+        this.costSampler = (AbstractRealSampler) arc.costSampler.clone();
         this.priority = arc.priority;
 
         if(arc.inverse != null)
@@ -68,13 +70,31 @@ public class Arc implements Comparable<Arc> {
             this.inverse.from = arc.inverse.from;
             this.inverse.to = arc.inverse.to;
             this.inverse.serveCost = arc.inverse.serveCost;
-            this.inverse.demandSampler = arc.inverse.demandSampler;
-            this.inverse.costSampler = arc.inverse.costSampler;
+            this.inverse.demandSampler = (AbstractRealSampler) arc.inverse.demandSampler.clone();
+            this.inverse.costSampler = (AbstractRealSampler) arc.inverse.costSampler.clone();
             this.inverse.priority = arc.inverse.priority;
 
             this.inverse.inverse = this;
         }
     }
+
+//    public boolean equals(Object other)
+//    {
+//        if(!(other instanceof Arc))
+//            return false;
+//        if(this == other)
+//            return true;
+//
+//        Arc arc = (Arc) other;
+//
+//        return this.from == arc.from && this.to == arc.to && this.serveCost == arc.serveCost;
+//    }
+//
+//    @Override
+//    public int hashCode()
+//    {
+//        return Objects.hash(from, to, serveCost, priority);
+//    }
 
     public int getFrom() {
         return from;

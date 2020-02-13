@@ -21,7 +21,7 @@ import java.util.PriorityQueue;
 public class SeqPilotSearcher extends PilotSearcher {
     @Override
     public Arc next(ReactiveDecisionSituation rds, RoutingPolicy routingPolicy) {
-        DecisionProcessState state = rds.getState().clone();
+        DecisionProcessState state = new DecisionProcessState(rds.getState()); //.clone();
 
         int decisionRouteId = rds.getState().getSolution().getRoutes().indexOf(rds.getRoute());
 

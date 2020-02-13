@@ -106,7 +106,7 @@ init = ec.gp.GPInitializer
 # GP breeding pipeline
 pop.subpop.0.species.pipe = ec.breed.MultiBreedingPipeline
 pop.subpop.0.species.pipe.generate-max = false
-pop.subpop.0.species.pipe.num-sources = 3
+pop.subpop.0.species.pipe.num-sources = 4
 pop.subpop.0.species.pipe.source.0 = ec.gp.koza.CrossoverPipeline
 pop.subpop.0.species.pipe.source.0.prob = 0.8
 pop.subpop.0.species.pipe.source.1 = ec.gp.koza.MutationPipeline
@@ -133,11 +133,11 @@ pop.subpop.0.species.pipe.source.2.prob = 0.05
 
 
 #### PPTBreedingPipeline ########################
-# pop.subpop.0.species.pipe.source.3 = tl.knowledge.ppt.gp.PPTBreedingPipeline
-# pop.subpop.0.species.pipe.source.3.prob = 0.4
-# pop.subpop.0.species.pipe.source.3.knowledge-log-file = PPTBreedLog
-# pop.subpop.0.species.pipe.source.3.complement-probability = 0.2
-# pop.subpop.0.species.pipe.source.3.mut-builder=ec.gp.koza.GrowBuilder
+pop.subpop.0.species.pipe.source.3 = tl.knowledge.ppt.gp.PPTBreedingPipeline
+pop.subpop.0.species.pipe.source.3.prob = 0.4
+pop.subpop.0.species.pipe.source.3.knowledge-log-file = PPTBreedLog
+pop.subpop.0.species.pipe.source.3.complement-probability = 0.2
+pop.subpop.0.species.pipe.source.3.mut-builder=ec.gp.koza.GrowBuilder
 #################################################
 
 

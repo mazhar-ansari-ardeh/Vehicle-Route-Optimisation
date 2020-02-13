@@ -1,13 +1,11 @@
 package gphhucarp.core;
 
+import org.apache.commons.lang3.SerializationUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
  /**
@@ -60,6 +58,83 @@ public class Instance {
         this.actDeadheadingCostMap.put(depotLoop, 0d);
 
         calcTaskToTaskMap();
+    }
+
+    public Instance(Instance inst)
+    {
+        this.graph = new Graph(inst.graph);
+
+        this.tasks = new ArrayList<>(inst.tasks.size());
+        for(Arc arc : inst.tasks)
+        {
+            Arc clArc = new Arc(arc);
+            this.tasks.add(clArc);
+        }
+
+        this.actDemandMap = new HashMap<>(inst.actDemandMap.size());
+        for(Arc arc : inst.actDemandMap.keySet())
+        {
+            Arc clArc = new Arc(arc);
+            double cost = inst.actDemandMap.get(arc); // Just to be sure that a reference is not copied instead of the value
+            this.actDemandMap.put(clArc, cost);
+        }
+
+        this.actDeadheadingCostMap = new HashMap<>(inst.actDeadheadingCostMap.size());
+        for(Arc arc : inst.actDeadheadingCostMap.keySet())
+        {
+            Arc clArc = new Arc(arc);
+            double cost = inst.actDeadheadingCostMap.get(arc);
+            this.actDeadheadingCostMap.put(clArc, cost);
+        }
+
+        this.depot = inst.depot;
+
+        this.depotLoop = new Arc(inst.depotLoop);
+
+        this.capacity = inst.capacity;
+        this.numVehicles = inst.numVehicles;
+
+        this.actCostMatrix = new double[inst.actCostMatrix.length][];
+        for(int i = 0; i < actCostMatrix.length; i++)
+            this.actCostMatrix[i] = inst.actCostMatrix[i].clone();
+
+        this.actDistMatrix = new double[inst.actDistMatrix.length][];
+        for(int i = 0; i < actDistMatrix.length; i++)
+            this.actDistMatrix[i] = inst.actDistMatrix[i].clone();
+
+        this.demandUncertaintyLevel = inst.demandUncertaintyLevel;
+        this.costUncertaintyLevel = inst.costUncertaintyLevel;
+
+        // This is a clone constructor and it does not add any modifications to the cloned data.
+        // If the original object contains this one, the the cloned object will have it too and if it doesn't, then
+        // the cloned object will not have it either.
+//        this.actDemandMap.put(depotLoop, 0d);
+//        this.actDeadheadingCostMap.put(depotLoop, 0d);
+
+        this.seed = inst.seed; // seed is redundant.
+        this.rdg = SerializationUtils.deserialize(SerializationUtils.serialize(inst.rdg));
+
+        if(inst.name != null)
+            // I am not sure how effective it is to clone a string object through assignments.
+            this.name = new StringBuilder().append(inst.name).toString();
+
+        if(inst.taskToTaskMap != null)
+        {
+            this.taskToTaskMap = new HashMap<>();
+            for(Arc arc : inst.taskToTaskMap.keySet())
+            {
+                List<Arc> arcList = inst.taskToTaskMap.get(arc);
+                LinkedList<Arc> clArcList = new LinkedList<>();
+                for(Arc arc2 : arcList)
+                {
+                    clArcList.add(new Arc(arc2));
+                }
+                Arc clArc = new Arc(arc);
+                this.taskToTaskMap.put(clArc, clArcList);
+            }
+        }
+
+//        calcTaskToTaskMap();
     }
 
     public Instance(Graph graph, List<Arc> tasks, int depot, double capacity, int numVehicles,
@@ -190,7 +265,7 @@ public class Instance {
     }
 
     public void setSeed(long seed) {
-        this.seed = seed;
+//        this.seed = seed;
         this.rdg.reSeed(seed);
         sample(rdg);
     }
@@ -623,8 +698,8 @@ public class Instance {
         return str;
     }
 
-    public Instance clone() {
-        return new Instance(graph, tasks, depot, depotLoop, capacity, numVehicles,
-                demandUncertaintyLevel, costUncertaintyLevel);
-    }
+//    public Instance clone() {
+//        return new Instance(graph, tasks, depot, depotLoop, capacity, numVehicles,
+//                demandUncertaintyLevel, costUncertaintyLevel);
+//    }
 }

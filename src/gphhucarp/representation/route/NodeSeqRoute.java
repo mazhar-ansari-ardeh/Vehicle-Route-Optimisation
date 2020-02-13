@@ -3,6 +3,7 @@ package gphhucarp.representation.route;
 import gphhucarp.core.Arc;
 import gphhucarp.core.Instance;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -142,11 +143,12 @@ public class NodeSeqRoute extends Route {
      */
     @Override
     public Route clone() {
-        List<Integer> clonedNodeSeq = new LinkedList<>(nodeSequence);
-        List<Double> clonedFracSeq = new LinkedList<>(fracSequence);
+        List<Integer> clonedNodeSeq = new ArrayList<>(nodeSequence);
+        List<Double> clonedFracSeq = new ArrayList<>(fracSequence);
 
         NodeSeqRoute cloned = new NodeSeqRoute(capacity, demand, cost, clonedNodeSeq, clonedFracSeq);
-        cloned.setNextTask(nextTask);
+        cloned.nextTask = new Arc(nextTask);
+//        cloned.setNextTask(nextTask);
 
         return cloned;
     }

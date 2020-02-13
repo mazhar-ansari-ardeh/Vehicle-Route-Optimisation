@@ -76,8 +76,9 @@ public class EvaluateOnTest
 		Population pop = PopulationUtils.loadPopulation(inputPopFile.toFile());
 		for(Subpopulation sub : pop.subpops)
 		{
-			for(Individual ind : sub.individuals)
+			for(int i = 0; i < sub.individuals.length; i++)
 			{
+				Individual ind = sub.individuals[i];
 				if(!(ind instanceof GPIndividual))
 				{
 					System.err.println("WARNING: Found and object in the saved population file"
@@ -86,7 +87,7 @@ public class EvaluateOnTest
 					continue;
 				}
 				evaluate(state, (GPIndividual)ind);
-//				state.output.message("Finished evaluating the individual. Fitness on test: " + fitness);
+				 state.output.message("Finished evaluating the individual " + i);
 			}
 		}
 		Path outputFile = Paths.get(testedPopulationFolder.toString(), inputPopFile.getFileName().toString());

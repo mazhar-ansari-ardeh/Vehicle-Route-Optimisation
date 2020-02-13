@@ -23,7 +23,8 @@ public class ReactiveDecisionProcess extends DecisionProcess {
 
     public ReactiveDecisionProcess(DecisionProcessState state,
                                    PriorityQueue<DecisionProcessEvent> eventQueue,
-                                   RoutingPolicy routingPolicy) {
+                                   RoutingPolicy routingPolicy)
+    {
         super(state, eventQueue, routingPolicy, null);
     }
 
@@ -35,11 +36,13 @@ public class ReactiveDecisionProcess extends DecisionProcess {
             eventQueue.add(new ReactiveRefillEvent(0, route));
     }
 
-    @Override
-    protected ReactiveDecisionProcess clone() {
-        DecisionProcessState clonedState = state.clone();
-        PriorityQueue<DecisionProcessEvent> clonedEQ = new PriorityQueue<>(eventQueue);
-
-        return new ReactiveDecisionProcess(clonedState, clonedEQ, routingPolicy);
-    }
+//    @Override
+//    protected ReactiveDecisionProcess clone()
+//    {
+//        // TODO: Replace with copy constructor
+//        DecisionProcessState clonedState = new DecisionProcessState(state); // .clone();
+//        PriorityQueue<DecisionProcessEvent> clonedEQ = new PriorityQueue<>(eventQueue);
+//
+//        return new ReactiveDecisionProcess(clonedState, clonedEQ, routingPolicy);
+//    }
 }

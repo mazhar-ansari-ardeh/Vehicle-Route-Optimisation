@@ -1,5 +1,6 @@
 package gphhucarp.core;
 
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
@@ -25,6 +26,79 @@ public class Graph {
     public Graph(List<Integer> nodes, Map<Pair<Integer, Integer>, Arc> arcMap) {
         this.nodes = nodes;
         this.arcMap = arcMap;
+        calcNeighbours();
+        calcEstDistMatrix();
+    }
+
+    public Graph(Graph g)
+    {
+        if(g.nodes != null)
+        {
+            nodes = new ArrayList<>(g.nodes.size());
+            nodes.addAll(g.nodes);
+        }
+
+        if(g.arcMap != null)
+        {
+            arcMap = new HashMap<>(g.arcMap.size());
+            for(Pair<Integer, Integer> pair : g.arcMap.keySet())
+            {
+                Pair<Integer, Integer> cpair = new ImmutablePair<>(pair.getLeft(), pair.getRight());
+                Arc arc = new Arc(g.arcMap.get(pair));
+                this.arcMap.put(cpair, arc);
+            }
+        }
+
+        this.estCostMatrix = new double[g.estCostMatrix.length][];
+        for(int i = 0; i < this.estCostMatrix.length; i++)
+            this.estCostMatrix[i] = g.estCostMatrix[i].clone();
+//            System.arraycopy(g.estCostMatrix[i], 0, this.estCostMatrix[i], 0, g.estCostMatrix[i].length);
+
+        this.estDistMatrix = new double[g.estDistMatrix.length][];
+        for(int i = 0; i < this.estDistMatrix.length; i++)
+            this.estDistMatrix[i] = g.estDistMatrix[i].clone();
+//            System.arraycopy(g.estDistMatrix[i], 0, this.estDistMatrix[i], 0, g.estDistMatrix[i].length);
+
+        this.pathFrom = new int[g.pathFrom.length][];
+        for(int i = 0; i < this.pathFrom.length; i++)
+            this.pathFrom[i] = g.pathFrom[i].clone();
+//            System.arraycopy(g.pathFrom[i], 0, this.pathFrom[i], 0, g.pathFrom[i].length);
+
+        this.pathTo = new int[g.pathTo.length][];
+        for(int i = 0; i < this.pathTo.length; i++)
+            this.pathTo[i] = g.pathTo[i].clone();
+//            System.arraycopy(g.pathTo[i], 0, this.pathTo[i], 0, g.pathTo[i].length);
+
+        if(g.outNeighbourMap != null)
+        {
+            this.outNeighbourMap = new HashMap<>(g.outNeighbourMap.size());
+            for(Integer i : g.outNeighbourMap.keySet())
+            {
+                List<Arc> arcList = g.outNeighbourMap.get(i);
+                ArrayList<Arc> clonedArcList = new ArrayList<>(arcList.size());
+                for(Arc arc : arcList)
+                {
+                    clonedArcList.add(new Arc(arc));
+                }
+                this.outNeighbourMap.put(i, clonedArcList);
+            }
+        }
+
+        if(g.inNeighbourMap != null)
+        {
+            this.inNeighbourMap = new HashMap<>(g.inNeighbourMap.size());
+            for(Integer i : g.inNeighbourMap.keySet())
+            {
+                List<Arc> arcList = g.inNeighbourMap.get(i);
+                ArrayList<Arc> clonedArcList = new ArrayList<>(arcList.size());
+                for(Arc arc : arcList)
+                {
+                    clonedArcList.add(new Arc(arc));
+                }
+                this.inNeighbourMap.put(i, clonedArcList);
+            }
+        }
+
         calcNeighbours();
         calcEstDistMatrix();
     }

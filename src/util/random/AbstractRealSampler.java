@@ -19,5 +19,15 @@ abstract public class AbstractRealSampler {
 	abstract public void setMean(double mean);
 	abstract public double getMean();
 
-	abstract public AbstractRealSampler clone();
+	public Object clone()
+	{
+		try
+		{
+			return super.clone();
+		} catch (CloneNotSupportedException e)
+		{
+			e.printStackTrace();
+			throw new RuntimeException(e); // This should not happen.
+		}
+	}
 }

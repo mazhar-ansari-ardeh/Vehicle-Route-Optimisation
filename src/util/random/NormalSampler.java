@@ -2,7 +2,7 @@ package util.random;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
-public class NormalSampler extends AbstractRealSampler {
+public class NormalSampler extends AbstractRealSampler implements Cloneable {
 
 	private double mean;
 	private double sd;
@@ -56,7 +56,16 @@ public class NormalSampler extends AbstractRealSampler {
 	}
 
 	@Override
-	public AbstractRealSampler clone() {
-		return new NormalSampler(mean, sd);
+	public NormalSampler clone()
+	{
+//		try
+//		{
+		NormalSampler retval = (NormalSampler) super.clone();
+		return retval;
+//		} catch (CloneNotSupportedException e)
+//		{
+//			e.printStackTrace();
+//			throw new RuntimeException(e); // This should not happen.
+//		}
 	}
 }

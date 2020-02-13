@@ -40,7 +40,7 @@ public abstract class DecisionProcessEvent implements Comparable<DecisionProcess
     public void recordDecisionSituation(DecisionSituation decisionSituation) {
         // default do nothing
         if(decisionSituation != null)
-            recordedSituations.add(((ReactiveDecisionSituation)decisionSituation).clone());
+            recordedSituations.add(new ReactiveDecisionSituation((ReactiveDecisionSituation)decisionSituation));
 //            recordedSituations.add(((ReactiveDecisionSituation)decisionSituation));
     }
 

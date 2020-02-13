@@ -24,6 +24,19 @@ public class Solution<T extends Route> {
         this.routes = routes;
     }
 
+    public Solution(Solution<T> other)
+    {
+        if(other == null)
+            throw new NullPointerException("Cannot copy a null object");
+
+        if(other.routes != null)
+        {
+            this.routes = new ArrayList<>(other.routes.size());
+            for(T route : other.routes)
+                this.routes.add((T) route.clone());
+        }
+    }
+
     /**
      * Construct empty routes.
      */
@@ -161,11 +174,11 @@ public class Solution<T extends Route> {
         return str;
     }
 
-    public Solution<T> clone() {
-        Solution<T> clonedSol = new Solution<>();
-        for (T route : routes)
-            clonedSol.addRoute((T)route.clone());
-
-        return clonedSol;
-    }
+//    public Solution<T> clone() {
+//        Solution<T> clonedSol = new Solution<>();
+//        for (T route : routes)
+//            clonedSol.addRoute((T)route.clone());
+//
+//        return clonedSol;
+//    }
 }
