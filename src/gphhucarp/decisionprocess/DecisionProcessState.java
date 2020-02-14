@@ -395,7 +395,8 @@ public class DecisionProcessState {
     public void calcRouteToTaskMap(NodeSeqRoute currRoute) {
         Graph graph = instance.getGraph();
 
-        for (Arc task : routeToTaskMap.keySet()) {
+        for (Arc task : routeToTaskMap.keySet())
+        {
             List<NodeSeqRoute> routeAdjacencyList = routeToTaskMap.get(task);
 
             routeAdjacencyList.clear();

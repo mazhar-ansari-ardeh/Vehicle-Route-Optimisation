@@ -17,6 +17,31 @@ public class NormalSampler extends AbstractRealSampler implements Cloneable {
 		this.sd = sd;
 	}
 
+	@Override
+	public boolean equals(Object o)
+	{
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		NormalSampler that = (NormalSampler) o;
+
+		if (Double.compare(that.mean, mean) != 0) return false;
+		return Double.compare(that.sd, sd) == 0;
+
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int result;
+		long temp;
+		temp = Double.doubleToLongBits(mean);
+		result = (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(sd);
+		result = 31 * result + (int) (temp ^ (temp >>> 32));
+		return result;
+	}
+
 	public void set(double mean, double sd) {
 		this.mean = mean;
 		this.sd = sd;

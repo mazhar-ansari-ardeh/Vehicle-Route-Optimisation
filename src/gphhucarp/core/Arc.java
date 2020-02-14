@@ -78,23 +78,40 @@ public class Arc implements Comparable<Arc> {
         }
     }
 
-//    public boolean equals(Object other)
-//    {
-//        if(!(other instanceof Arc))
-//            return false;
-//        if(this == other)
-//            return true;
-//
-//        Arc arc = (Arc) other;
-//
-//        return this.from == arc.from && this.to == arc.to && this.serveCost == arc.serveCost;
-//    }
-//
-//    @Override
-//    public int hashCode()
-//    {
-//        return Objects.hash(from, to, serveCost, priority);
-//    }
+    @Override
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Arc arc = (Arc) o;
+
+        if (from != arc.from) return false;
+        if (to != arc.to) return false;
+        if (Double.compare(arc.serveCost, serveCost) != 0) return false;
+        if (Double.compare(arc.priority, priority) != 0) return false;
+//        if (inverse != null ? !inverse.equals(arc.inverse) : arc.inverse != null) return false;
+        if (!demandSampler.equals(arc.demandSampler)) return false;
+        return costSampler.equals(arc.costSampler);
+
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result;
+        long temp;
+        result = from;
+        result = 31 * result + to;
+        temp = Double.doubleToLongBits(serveCost);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+//        result = 31 * result + (inverse != null ? inverse.hashCode() : 0);
+        result = 31 * result + demandSampler.hashCode();
+        result = 31 * result + costSampler.hashCode();
+        temp = Double.doubleToLongBits(priority);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
+    }
 
     public int getFrom() {
         return from;
