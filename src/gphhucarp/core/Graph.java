@@ -4,6 +4,7 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -13,7 +14,8 @@ import java.util.*;
  *
  * Created by gphhucarp on 14/06/17.
  */
-public class Graph {
+public class Graph implements Serializable
+{
     private List<Integer> nodes; // the node ids are ascendingly ordered
     private Map<Pair<Integer, Integer>, Arc> arcMap;
     private double[][] estCostMatrix; // the estimated cost of edges
@@ -44,7 +46,7 @@ public class Graph {
             for(Pair<Integer, Integer> pair : g.arcMap.keySet())
             {
                 Pair<Integer, Integer> cpair = new ImmutablePair<>(pair.getLeft(), pair.getRight());
-                Arc arc = new Arc(g.arcMap.get(pair));
+                Arc arc = Arc.copy(g.arcMap.get(pair));
                 this.arcMap.put(cpair, arc);
             }
         }
@@ -78,7 +80,7 @@ public class Graph {
                 ArrayList<Arc> clonedArcList = new ArrayList<>(arcList.size());
                 for(Arc arc : arcList)
                 {
-                    clonedArcList.add(new Arc(arc));
+                    clonedArcList.add(Arc.copy(arc));
                 }
                 this.outNeighbourMap.put(i, clonedArcList);
             }
@@ -93,7 +95,7 @@ public class Graph {
                 ArrayList<Arc> clonedArcList = new ArrayList<>(arcList.size());
                 for(Arc arc : arcList)
                 {
-                    clonedArcList.add(new Arc(arc));
+                    clonedArcList.add(Arc.copy(arc));
                 }
                 this.inNeighbourMap.put(i, clonedArcList);
             }
