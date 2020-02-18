@@ -16,7 +16,7 @@ import java.util.*;
  *
  * Created by gphhucarp on 14/06/17.
  */
-public class Instance {
+public class Instance implements Serializable {
     private String name = null; // the name of the instance
 
     private Graph graph;
@@ -67,14 +67,14 @@ public class Instance {
         this.tasks = new ArrayList<>(inst.tasks.size());
         for(Arc arc : inst.tasks)
         {
-            Arc clArc = new Arc(arc);
+            Arc clArc = Arc.copy(arc);
             this.tasks.add(clArc);
         }
 
         this.actDemandMap = new HashMap<>(inst.actDemandMap.size());
         for(Arc arc : inst.actDemandMap.keySet())
         {
-            Arc clArc = new Arc(arc);
+            Arc clArc = Arc.copy(arc);
             double cost = inst.actDemandMap.get(arc); // Just to be sure that a reference is not copied instead of the value
             this.actDemandMap.put(clArc, cost);
         }
@@ -82,14 +82,14 @@ public class Instance {
         this.actDeadheadingCostMap = new HashMap<>(inst.actDeadheadingCostMap.size());
         for(Arc arc : inst.actDeadheadingCostMap.keySet())
         {
-            Arc clArc = new Arc(arc);
+            Arc clArc = Arc.copy(arc);
             double cost = inst.actDeadheadingCostMap.get(arc);
             this.actDeadheadingCostMap.put(clArc, cost);
         }
 
         this.depot = inst.depot;
 
-        this.depotLoop = new Arc(inst.depotLoop);
+        this.depotLoop = Arc.copy(inst.depotLoop);
 
         this.capacity = inst.capacity;
         this.numVehicles = inst.numVehicles;
@@ -124,12 +124,12 @@ public class Instance {
             for(Arc arc : inst.taskToTaskMap.keySet())
             {
                 List<Arc> arcList = inst.taskToTaskMap.get(arc);
-                LinkedList<Arc> clArcList = new LinkedList<>();
+                List<Arc> clArcList = new ArrayList<>(arcList.size());
                 for(Arc arc2 : arcList)
                 {
-                    clArcList.add(new Arc(arc2));
+                    clArcList.add(Arc.copy(arc2));
                 }
-                Arc clArc = new Arc(arc);
+                Arc clArc = Arc.copy(arc);
                 this.taskToTaskMap.put(clArc, clArcList);
             }
         }
