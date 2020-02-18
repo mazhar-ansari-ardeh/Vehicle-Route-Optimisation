@@ -1,4 +1,7 @@
 package gphhucarp.decisionprocess;
 
-public abstract class DecisionSituation {
+import java.io.Serializable;
+
+public abstract class DecisionSituation implements Serializable
+{
 }

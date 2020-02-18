@@ -2,6 +2,8 @@ package util.random;
 
 import org.apache.commons.math3.random.RandomDataGenerator;
 
+import java.io.Serializable;
+
 /**
  *
  * The abstract property of a distribution.
@@ -10,7 +12,8 @@ import org.apache.commons.math3.random.RandomDataGenerator;
  *
  */
 
-abstract public class AbstractRealSampler {
+abstract public class AbstractRealSampler implements Serializable
+{
 
 	abstract public double next(RandomDataGenerator rdg);
 

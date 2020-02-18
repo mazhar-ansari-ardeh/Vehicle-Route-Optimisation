@@ -2,6 +2,8 @@ package gphhucarp.representation.route;
 
 import gphhucarp.core.Instance;
 
+import java.io.Serializable;
+
 /**
  * An abstract class of a route.
  * A route should start and end at the depot.
@@ -9,7 +11,8 @@ import gphhucarp.core.Instance;
  *
  * Created by gphhucarp on 25/08/17.
  */
-public abstract class Route {
+public abstract class Route implements Serializable
+{
 
     protected double capacity; // the capacity of the route
     protected double demand; // the total demand served by the route

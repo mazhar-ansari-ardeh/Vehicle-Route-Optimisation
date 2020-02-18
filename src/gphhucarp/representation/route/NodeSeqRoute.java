@@ -147,7 +147,7 @@ public class NodeSeqRoute extends Route {
         List<Double> clonedFracSeq = new ArrayList<>(fracSequence);
 
         NodeSeqRoute cloned = new NodeSeqRoute(capacity, demand, cost, clonedNodeSeq, clonedFracSeq);
-        cloned.nextTask = new Arc(nextTask);
+        cloned.nextTask = Arc.copy(nextTask);
 //        cloned.setNextTask(nextTask);
 
         return cloned;

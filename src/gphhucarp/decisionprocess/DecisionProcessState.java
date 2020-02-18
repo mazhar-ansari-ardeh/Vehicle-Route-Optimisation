@@ -4,6 +4,7 @@ import gphhucarp.core.*;
 import gphhucarp.representation.Solution;
 import gphhucarp.representation.route.NodeSeqRoute;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -15,7 +16,8 @@ import java.util.*;
  *  - a partial node sequence solution.
  * Created by gphhucarp on 27/08/17.
  */
-public class DecisionProcessState {
+public class DecisionProcessState implements Serializable
+{
 
     private Instance instance; // the UCARP instance
     private long seed; // the seed to sample the random variables in the UCARP instance
@@ -52,14 +54,14 @@ public class DecisionProcessState {
         {
             this.remainingTasks = new ArrayList<>(other.remainingTasks.size());
             for(Arc arc : other.remainingTasks)
-                this.remainingTasks.add(new Arc(arc));
+                this.remainingTasks.add(Arc.copy(arc));
         }
 
         if(other.unassignedTasks != null)
         {
             this.unassignedTasks = new ArrayList<>(other.unassignedTasks.size());
             for(Arc arc : other.unassignedTasks)
-                this.unassignedTasks.add(new Arc(arc));
+                this.unassignedTasks.add(Arc.copy(arc));
         }
 
         if(other.solution != null)
@@ -71,7 +73,7 @@ public class DecisionProcessState {
             for(Arc arc : other.taskRemainingDemandFrac.keySet())
             {
                 double frac = other.taskRemainingDemandFrac.get(arc);
-                this.taskRemainingDemandFrac.put(new Arc(arc), frac);
+                this.taskRemainingDemandFrac.put(Arc.copy(arc), frac);
             }
         }
 
@@ -82,8 +84,8 @@ public class DecisionProcessState {
             {
                 List<Arc> list = other.taskToTaskMap.get(arc);
                 ArrayList<Arc> clonedList = new ArrayList<>(list.size());
-                list.forEach(item -> clonedList.add(new Arc(item)));
-                this.taskToTaskMap.put(new Arc(arc), clonedList);
+                list.forEach(item -> clonedList.add(Arc.copy(item)));
+                this.taskToTaskMap.put(Arc.copy(arc), clonedList);
             }
         }
 
@@ -95,7 +97,7 @@ public class DecisionProcessState {
                 List<NodeSeqRoute> list = other.routeToTaskMap.get(arc);
                 ArrayList<NodeSeqRoute> clonedList = new ArrayList<>(list.size());
                 list.forEach(item -> clonedList.add((NodeSeqRoute) item.clone()));
-                this.routeToTaskMap.put(new Arc(arc), clonedList);
+                this.routeToTaskMap.put(Arc.copy(arc), clonedList);
             }
         }
 
@@ -106,8 +108,8 @@ public class DecisionProcessState {
             {
                 List<Arc> list = other.floodMap.get(arc);
                 ArrayList<Arc> clonedList = new ArrayList<>(list.size());
-                list.forEach(item -> clonedList.add(new Arc(item)));
-                this.floodMap.put(new Arc(arc), clonedList);
+                list.forEach(item -> clonedList.add(Arc.copy(item)));
+                this.floodMap.put(Arc.copy(arc), clonedList);
             }
         }
 
@@ -118,8 +120,8 @@ public class DecisionProcessState {
             {
                 List<Arc> list = other.onFloodMap.get(arc);
                 ArrayList<Arc> clonedList = new ArrayList<>(list.size());
-                list.forEach(item -> clonedList.add(new Arc(item)));
-                this.onFloodMap.put(new Arc(arc), clonedList);
+                list.forEach(item -> clonedList.add(Arc.copy(item)));
+                this.onFloodMap.put(Arc.copy(arc), clonedList);
             }
         }
     }

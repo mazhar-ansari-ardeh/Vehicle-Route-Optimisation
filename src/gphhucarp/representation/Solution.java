@@ -6,6 +6,7 @@ import gphhucarp.representation.route.NodeSeqRoute;
 import gphhucarp.representation.route.Route;
 import gphhucarp.representation.route.TaskSeqRoute;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +18,8 @@ import java.util.List;
  * Created by gphhucarp on 25/08/17.
  */
 
-public class Solution<T extends Route> {
+public class Solution<T extends Route> implements Serializable
+{
     private List<T> routes;
 
     public Solution(List<T> routes) {

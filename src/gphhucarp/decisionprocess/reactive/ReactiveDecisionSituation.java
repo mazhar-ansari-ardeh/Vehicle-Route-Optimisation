@@ -22,7 +22,7 @@ public class ReactiveDecisionSituation extends DecisionSituation {
     public ReactiveDecisionSituation(List<Arc> pool, NodeSeqRoute route, DecisionProcessState state) {
         // TODO: Should this constructor clone the received objects?
 //        this.pool = new ArrayList<>(pool.size());
-//        pool.forEach(item -> this.pool.add(new Arc(item)));
+//        pool.forEach(item -> this.pool.add(Arc.copy(item)));
 //        this.route = (NodeSeqRoute) route.clone();
 //        this.state = new DecisionProcessState(state);
 
@@ -36,7 +36,7 @@ public class ReactiveDecisionSituation extends DecisionSituation {
         if(other.pool != null)
         {
             this.pool = new ArrayList<>(other.pool.size());
-            other.pool.forEach(arc -> this.pool.add(new Arc(arc)));
+            other.pool.forEach(arc -> this.pool.add(Arc.copy(arc)));
         }
         if(other.route != null)
             this.route = (NodeSeqRoute) other.route.clone();
