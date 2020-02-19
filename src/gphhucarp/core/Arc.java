@@ -4,7 +4,9 @@ import org.apache.commons.math3.random.RandomDataGenerator;
 import util.random.AbstractRealSampler;
 import util.random.NormalSampler;
 
+import java.io.Serializable;
 import java.util.Objects;
+import java.util.WeakHashMap;
 
 /**
  * An arc, which is a directed edge of the graph.
@@ -24,17 +26,18 @@ import java.util.Objects;
  * Created by gphhucarp on 14/06/17.
  */
 
-public class Arc implements Comparable<Arc> {
-    private int from; // from node id
-    private int to; // to node id
-    private double serveCost; // serve cost >= 0
+public class Arc implements Comparable<Arc>, Serializable
+{
+    private final int from; // from node id
+    private final int to; // to node id
+    private final double serveCost; // serve cost >= 0
 
     private Arc inverse; // the inverse arc is (to, from)
 
     // In UCARP, the demand and costs are random variables.
     // Their distributions are known in advance (e.g. estimated from history).
-    private AbstractRealSampler demandSampler; // the sampler for the demand.
-    private AbstractRealSampler costSampler; // the sampler for the deadheading cost.
+    private final AbstractRealSampler demandSampler; // the sampler for the demand.
+    private final AbstractRealSampler costSampler; // the sampler for the deadheading cost.
 
     private double priority; // the priority for decision making process.
 
@@ -46,14 +49,39 @@ public class Arc implements Comparable<Arc> {
         this.serveCost = serveCost;
         this.inverse = inverse;
 
-        this.demandSampler = new NormalSampler(demand, demandUncertaintyLevel * demand);
-        this.costSampler = new NormalSampler(deadheadingCost, costUncertaintyLevel * deadheadingCost);
+        this.demandSampler = NormalSampler.create(demand, demandUncertaintyLevel * demand);
+        this.costSampler = NormalSampler.create(deadheadingCost, costUncertaintyLevel * deadheadingCost);
     }
 
-    private Arc()
+    private Arc(int from, int to, double serveCost, AbstractRealSampler demandSampler, AbstractRealSampler costSampler)
     {
-
+        this.from = from;
+        this.to = to;
+        this.serveCost = serveCost;
+        this.demandSampler = demandSampler;
+        this.costSampler = costSampler;
     }
+
+    public static Arc copy(Arc other)
+    {
+        return new Arc(other);
+////        return new Arc(other);
+//        int hash = other.hashCode();
+//        synchronized (CACHE)
+//        {
+//            return CACHE.computeIfAbsent(hash, i -> new Arc(other));
+//        }
+    }
+
+
+//    private static final WeakHashMap<Integer, Arc> CACHE = new WeakHashMap<>();
+//    public static int cacheSize()
+//    {
+//        synchronized (CACHE)
+//        {
+//            return CACHE.size();
+//        }
+//    }
 
     public Arc(Arc arc)
     {
@@ -66,12 +94,9 @@ public class Arc implements Comparable<Arc> {
 
         if(arc.inverse != null)
         {
-            this.inverse = new Arc();
-            this.inverse.from = arc.inverse.from;
-            this.inverse.to = arc.inverse.to;
-            this.inverse.serveCost = arc.inverse.serveCost;
-            this.inverse.demandSampler = (AbstractRealSampler) arc.inverse.demandSampler.clone();
-            this.inverse.costSampler = (AbstractRealSampler) arc.inverse.costSampler.clone();
+            AbstractRealSampler cDemandSampler = (AbstractRealSampler) arc.inverse.demandSampler.clone();
+            AbstractRealSampler cCostSampler = (AbstractRealSampler) arc.inverse.costSampler.clone();
+            this.inverse = new Arc(this.from, this.to, this.serveCost, cDemandSampler, cCostSampler);
             this.inverse.priority = arc.inverse.priority;
 
             this.inverse.inverse = this;
@@ -105,10 +130,10 @@ public class Arc implements Comparable<Arc> {
         result = 31 * result + to;
         temp = Double.doubleToLongBits(serveCost);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
-//        result = 31 * result + (inverse != null ? inverse.hashCode() : 0);
         result = 31 * result + demandSampler.hashCode();
         result = 31 * result + costSampler.hashCode();
-        temp = Double.doubleToLongBits(priority);
+//        result = 31 * result + (inverse != null ? inverse.hashCode() : 0);
+//        temp = Double.doubleToLongBits(priority);
         result = 31 * result + (int) (temp ^ (temp >>> 32));
         return result;
     }
@@ -141,9 +166,9 @@ public class Arc implements Comparable<Arc> {
         return priority;
     }
 
-    public void setServeCost(double serveCost) {
-        this.serveCost = serveCost;
-    }
+//    public void setServeCost(double serveCost) {
+//        this.serveCost = serveCost;
+//    }
 
     public void setInverse(Arc inverse) {
         this.inverse = inverse;
