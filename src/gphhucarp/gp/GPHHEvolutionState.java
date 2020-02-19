@@ -11,13 +11,10 @@ import gputils.TerminalERCEvolutionState;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import gputils.terminal.DoubleERC;
 import tl.TLLogger;
-import tl.gp.FCFStatistics;
-import tl.gp.PopulationUtils;
 import tl.gp.niching.SimpleNichingAlgorithm;
-import tl.knowledge.driftdetection.BaseDriftDetector;
-import tl.knowledge.driftdetection.SimpleDriftDetector;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -228,6 +225,18 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 //			output.fatal("Parameter not found: " + P_CLEAR);
 		clear = parameters.getBoolean(p, null, false);
 		output.warning("Clear: " + clear);
+
+		try
+		{
+			Files.deleteIfExists(Paths.get("file.db"));
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+
+//		seenSituations = DBMaker.fileDB("file.db").fileMmapEnable().concurrencyDisable().make().hashMap("seen").keySerializer(Serializer.JAVA).valueSerializer(Serializer.JAVA).create();
+//		seenSituations = DBMaker.memoryDB().concurrencyDisable().make().hashMap("seen").keySerializer(Serializer.JAVA).valueSerializer(Serializer.JAVA).create();
+		seenSituations = new HashMap<>();
 	}
 
 	protected void clear()
