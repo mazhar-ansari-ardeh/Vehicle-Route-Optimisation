@@ -1,32 +1,15 @@
 package gphhucarptest;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
-
-import ec.gp.GPIndividual;
-import org.apache.commons.lang3.tuple.Pair;
+import java.util.*;
 import org.apache.commons.math3.random.RandomDataGenerator;
 
 import gphhucarp.core.Arc;
-import gphhucarp.core.Graph;
 import gphhucarp.representation.route.NodeSeqRoute;
-import org.mapdb.DB;
-import org.mapdb.DBMaker;
-import tl.gp.GPIndividualUtils;
 
 public class Main
 {
 	public static void main(String[] args)
 	{
-		DB db = DBMaker.memoryDB().make();
-		ConcurrentMap map = db.hashMap("map").createOrOpen();
-		GPIndividual ind = GPIndividualUtils.sampleInd();
-
-		map.put(ind, ind);
-
 		Arc arc = new Arc(0, 1, 5, 6, 4, null, 0.2, 0.3);
 		System.out.println("Expected demand: " + arc.getExpectedDemand());
 		System.out.println("Expected deadheading cost: " + arc.getExpectedDeadheadingCost());
