@@ -6,7 +6,6 @@ import gphhucarp.decisionprocess.DecisionSituation;
 import gphhucarp.representation.route.NodeSeqRoute;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -22,7 +21,7 @@ public class ReactiveDecisionSituation extends DecisionSituation {
     public ReactiveDecisionSituation(List<Arc> pool, NodeSeqRoute route, DecisionProcessState state) {
         // TODO: Should this constructor clone the received objects?
 //        this.pool = new ArrayList<>(pool.size());
-//        pool.forEach(item -> this.pool.add(Arc.copy(item)));
+//        pool.forEach(item -> this.pool.add(Arc.cachedCopy(item)));
 //        this.route = (NodeSeqRoute) route.clone();
 //        this.state = new DecisionProcessState(state);
 
@@ -36,7 +35,7 @@ public class ReactiveDecisionSituation extends DecisionSituation {
         if(other.pool != null)
         {
             this.pool = new ArrayList<>(other.pool.size());
-            other.pool.forEach(arc -> this.pool.add(Arc.copy(arc)));
+            other.pool.forEach(arc -> this.pool.add(Arc.cachedCopy(arc)));
         }
         if(other.route != null)
             this.route = (NodeSeqRoute) other.route.clone();
@@ -58,7 +57,7 @@ public class ReactiveDecisionSituation extends DecisionSituation {
     }
 
 //    public ReactiveDecisionSituation clone() {
-//        // TODO: Replace with copy constructor
+//        // TODO: Replace with cachedCopy constructor
 //        List<Arc> clonedPool = new LinkedList<>(pool);
 //        NodeSeqRoute clonedRoute = (NodeSeqRoute)route.clone();
 //        DecisionProcessState clonedState = new DecisionProcessState(state); // .clone();
