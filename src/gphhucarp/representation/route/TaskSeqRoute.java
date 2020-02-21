@@ -95,7 +95,7 @@ public class TaskSeqRoute extends Route {
     public Route clone() {
         ArrayList<Arc> tSeq = new ArrayList<>(taskSequence.size());
         for(Arc arc : taskSequence)
-            tSeq.add(Arc.copy(arc));
+            tSeq.add(Arc.cachedCopy(arc));
 
         return new TaskSeqRoute(capacity, demand, cost, tSeq, currNode);
     }
