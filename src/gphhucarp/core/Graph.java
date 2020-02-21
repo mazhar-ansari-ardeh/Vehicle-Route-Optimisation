@@ -2,7 +2,6 @@ package gphhucarp.core;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.math3.random.RandomDataGenerator;
 
 import java.io.Serializable;
 import java.util.*;
@@ -16,7 +15,7 @@ import java.util.*;
  */
 public class Graph implements Serializable
 {
-    private List<Integer> nodes; // the node ids are ascendingly ordered
+    private final List<Integer> nodes; // the node ids are ascendingly ordered
     private Map<Pair<Integer, Integer>, Arc> arcMap;
     private double[][] estCostMatrix; // the estimated cost of edges
     private double[][] estDistMatrix; // the estimated distance between nodes
@@ -26,7 +25,7 @@ public class Graph implements Serializable
     private Map<Integer, List<Arc>> inNeighbourMap; // the incoming neighbours of each node.
 
     public Graph(List<Integer> nodes, Map<Pair<Integer, Integer>, Arc> arcMap) {
-        this.nodes = nodes;
+        this.nodes = Collections.unmodifiableList(nodes);
         this.arcMap = arcMap;
         calcNeighbours();
         calcEstDistMatrix();
@@ -34,11 +33,14 @@ public class Graph implements Serializable
 
     public Graph(Graph g)
     {
+
         if(g.nodes != null)
         {
             nodes = new ArrayList<>(g.nodes.size());
             nodes.addAll(g.nodes);
         }
+        else
+            nodes = null;
 
         if(g.arcMap != null)
         {
@@ -46,7 +48,7 @@ public class Graph implements Serializable
             for(Pair<Integer, Integer> pair : g.arcMap.keySet())
             {
                 Pair<Integer, Integer> cpair = new ImmutablePair<>(pair.getLeft(), pair.getRight());
-                Arc arc = Arc.copy(g.arcMap.get(pair));
+                Arc arc = Arc.cachedCopy(g.arcMap.get(pair));
                 this.arcMap.put(cpair, arc);
             }
         }
@@ -80,7 +82,7 @@ public class Graph implements Serializable
                 ArrayList<Arc> clonedArcList = new ArrayList<>(arcList.size());
                 for(Arc arc : arcList)
                 {
-                    clonedArcList.add(Arc.copy(arc));
+                    clonedArcList.add(Arc.cachedCopy(arc));
                 }
                 this.outNeighbourMap.put(i, clonedArcList);
             }
@@ -95,14 +97,14 @@ public class Graph implements Serializable
                 ArrayList<Arc> clonedArcList = new ArrayList<>(arcList.size());
                 for(Arc arc : arcList)
                 {
-                    clonedArcList.add(Arc.copy(arc));
+                    clonedArcList.add(Arc.cachedCopy(arc));
                 }
                 this.inNeighbourMap.put(i, clonedArcList);
             }
         }
 
-        calcNeighbours();
-        calcEstDistMatrix();
+//        calcNeighbours();
+//        calcEstDistMatrix();
     }
 
     public List<Integer> getNodes() {

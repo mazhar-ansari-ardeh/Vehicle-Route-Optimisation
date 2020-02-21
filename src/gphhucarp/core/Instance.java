@@ -19,7 +19,7 @@ import java.util.*;
 public class Instance implements Serializable {
     private String name = null; // the name of the instance
 
-    private Graph graph;
+    private final Graph graph;
     private List<Arc> tasks;
     private Map<Arc, Double> actDemandMap; // the actual (sampled) demand of tasks
     private Map<Arc, Double> actDeadheadingCostMap; // the actual (sampled) deadheading cost of arcs
@@ -67,14 +67,14 @@ public class Instance implements Serializable {
         this.tasks = new ArrayList<>(inst.tasks.size());
         for(Arc arc : inst.tasks)
         {
-            Arc clArc = Arc.copy(arc);
+            Arc clArc = Arc.cachedCopy(arc);
             this.tasks.add(clArc);
         }
 
         this.actDemandMap = new HashMap<>(inst.actDemandMap.size());
         for(Arc arc : inst.actDemandMap.keySet())
         {
-            Arc clArc = Arc.copy(arc);
+            Arc clArc = Arc.cachedCopy(arc);
             double cost = inst.actDemandMap.get(arc); // Just to be sure that a reference is not copied instead of the value
             this.actDemandMap.put(clArc, cost);
         }
@@ -82,14 +82,14 @@ public class Instance implements Serializable {
         this.actDeadheadingCostMap = new HashMap<>(inst.actDeadheadingCostMap.size());
         for(Arc arc : inst.actDeadheadingCostMap.keySet())
         {
-            Arc clArc = Arc.copy(arc);
+            Arc clArc = Arc.cachedCopy(arc);
             double cost = inst.actDeadheadingCostMap.get(arc);
             this.actDeadheadingCostMap.put(clArc, cost);
         }
 
         this.depot = inst.depot;
 
-        this.depotLoop = Arc.copy(inst.depotLoop);
+        this.depotLoop = Arc.cachedCopy(inst.depotLoop);
 
         this.capacity = inst.capacity;
         this.numVehicles = inst.numVehicles;
@@ -127,9 +127,9 @@ public class Instance implements Serializable {
                 List<Arc> clArcList = new ArrayList<>(arcList.size());
                 for(Arc arc2 : arcList)
                 {
-                    clArcList.add(Arc.copy(arc2));
+                    clArcList.add(Arc.cachedCopy(arc2));
                 }
-                Arc clArc = Arc.copy(arc);
+                Arc clArc = Arc.cachedCopy(arc);
                 this.taskToTaskMap.put(clArc, clArcList);
             }
         }

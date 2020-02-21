@@ -62,26 +62,26 @@ public class Arc implements Comparable<Arc>, Serializable
         this.costSampler = costSampler;
     }
 
-    public static Arc copy(Arc other)
+    public static Arc cachedCopy(Arc other)
     {
-        return new Arc(other);
-////        return new Arc(other);
-//        int hash = other.hashCode();
-//        synchronized (CACHE)
-//        {
-//            return CACHE.computeIfAbsent(hash, i -> new Arc(other));
-//        }
+//        return new Arc(other);
+//        return new Arc(other);
+        int hash = other.hashCode();
+        synchronized (CACHE)
+        {
+            return CACHE.computeIfAbsent(hash, i -> new Arc(other));
+        }
     }
 
 
-//    private static final WeakHashMap<Integer, Arc> CACHE = new WeakHashMap<>();
-//    public static int cacheSize()
-//    {
-//        synchronized (CACHE)
-//        {
-//            return CACHE.size();
-//        }
-//    }
+    private static final WeakHashMap<Integer, Arc> CACHE = new WeakHashMap<>();
+    public static int cacheSize()
+    {
+        synchronized (CACHE)
+        {
+            return CACHE.size();
+        }
+    }
 
     public Arc(Arc arc)
     {
@@ -114,7 +114,7 @@ public class Arc implements Comparable<Arc>, Serializable
         if (from != arc.from) return false;
         if (to != arc.to) return false;
         if (Double.compare(arc.serveCost, serveCost) != 0) return false;
-        if (Double.compare(arc.priority, priority) != 0) return false;
+//        if (Double.compare(arc.priority, priority) != 0) return false;
 //        if (inverse != null ? !inverse.equals(arc.inverse) : arc.inverse != null) return false;
         if (!demandSampler.equals(arc.demandSampler)) return false;
         return costSampler.equals(arc.costSampler);
