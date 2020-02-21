@@ -3,15 +3,20 @@ package gphhucarp.gp;
 import ec.*;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
+import ec.gp.GPTree;
 import ec.util.Checkpoint;
 import ec.util.Parameter;
 import gphhucarp.decisionprocess.DecisionSituation;
+import gphhucarp.decisionprocess.PoolFilter;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
+import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 import gputils.TerminalERCEvolutionState;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import gputils.terminal.DoubleERC;
 import tl.TLLogger;
+import tl.gp.PopulationUtils;
 import tl.gp.niching.SimpleNichingAlgorithm;
+import tl.gp.similarity.PhenotypicTreeSimilarityMetric;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -57,7 +62,7 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 	protected File statFile;
 	protected String statDir;
 
-	private HashMap<Individual, ArrayList<DecisionSituation>> seenSituations = new HashMap<>();
+	private TreeMap<Individual, List<DecisionSituation>> seenSituations = new TreeMap<>();
 
 	public void resetSeenSituations()
 	{
@@ -236,12 +241,12 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 
 //		seenSituations = DBMaker.fileDB("file.db").fileMmapEnable().concurrencyDisable().make().hashMap("seen").keySerializer(Serializer.JAVA).valueSerializer(Serializer.JAVA).create();
 //		seenSituations = DBMaker.memoryDB().concurrencyDisable().make().hashMap("seen").keySerializer(Serializer.JAVA).valueSerializer(Serializer.JAVA).create();
-		seenSituations = new HashMap<>();
+//		seenSituations = new HashMap<>();
 	}
 
 	protected void clear()
 	{
-		if(!clear)
+		if(!clear || seenSituations.size() == 0)
 		{
 			seenSituations.clear();
 			return;
@@ -261,9 +266,15 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 		seenSituations.clear();
 	}
 
-	public void updateSeenSituations(Individual ind, List<DecisionSituation> seenSituations)
+	void updateSeenSituations(Individual ind, List<DecisionSituation> situations)
 	{
-		this.seenSituations.put(ind, new ArrayList<DecisionSituation>(seenSituations));
+		List<DecisionSituation> clonedSituations = new ArrayList<>(situations.size());
+		situations.forEach(situation -> clonedSituations.add(new ReactiveDecisionSituation((ReactiveDecisionSituation) situation)));
+		seenSituations.put(ind, clonedSituations);
+		if(this.seenSituations.size() > 5)
+		{
+			seenSituations.remove(seenSituations.lastKey());
+		}
 	}
 
 	private List<ReactiveDecisionSituation> getAllSeenSituations()
@@ -272,7 +283,7 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 
 		for(Individual ind : seenSituations.keySet())
 		{
-			ArrayList<DecisionSituation> situations = seenSituations.get(ind);
+			List<DecisionSituation> situations = seenSituations.get(ind);
 			for(DecisionSituation situation : situations)
 			{
 				ReactiveDecisionSituation rds = (ReactiveDecisionSituation)situation;
@@ -282,6 +293,42 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 		}
 
 		return retval;
+	}
+
+	private double KNNFitness(Individual ind)
+	{
+		List<ReactiveDecisionSituation> situations = getAllSeenSituations().subList(0, 10);
+		PhenotypicTreeSimilarityMetric metric = new PhenotypicTreeSimilarityMetric(situations);
+		if(!(this.evaluator.p_problem instanceof ReactiveGPHHProblem))
+			throw new RuntimeException("Problem is not of type ReactiveGPHHProblem");
+		PoolFilter filter = ((ReactiveGPHHProblem)((ReactiveGPHHProblem) this.evaluator.p_problem)).poolFilter;
+
+		Individual[] pop = Arrays.copyOf(population.subpops[0].individuals, population.subpops[0].individuals.length);
+		List<Individual> pop2 = new ArrayList<>(Arrays.asList(pop));
+		pop2.remove(ind);
+		pop = pop2.toArray(new Individual[]{});
+		pop = PopulationUtils.filterIndividuals(pop, (GPIndividual i) -> i.trees[0].child.depth() > 3);
+
+		Arrays.sort(pop, (i1, i2) ->
+			{
+				GPTree t = ((GPIndividual) ind).trees[0];
+//				System.out.println(t.child.makeLispTree() + ", " + ind.fitness.fitness());
+
+				GPTree t1 = ((GPIndividual) i1).trees[0];
+				GPTree t2 = ((GPIndividual) i2).trees[0];
+
+//				System.out.println(t1.child.makeLispTree() + ", " + i1.fitness.fitness());
+//				System.out.println(t2.child.makeLispTree() + ", " + i2.fitness.fitness());
+
+				long time = System.currentTimeMillis();
+				double sim1 = metric.distance(new GPRoutingPolicy(filter, t), new GPRoutingPolicy(filter, t1));
+				double sim2 = metric.distance(new GPRoutingPolicy(filter, t), new GPRoutingPolicy(filter, t2));
+//				System.out.println(System.currentTimeMillis() - time);
+//				System.out.println(sim1 + ", " + sim2 + "\n");
+				return Double.compare(sim1, sim2);
+			});
+
+		return pop[0].fitness.fitness();
 	}
 
 	@Override
@@ -315,6 +362,14 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 	    // EVALUATION
 	    statistics.preEvaluationStatistics(this);
 	    evaluator.evaluatePopulation(this);
+	    for(Individual ind : population.subpops[0].individuals)
+		{
+			double fit = ind.fitness.fitness();
+			long t = System.currentTimeMillis();
+			double kfit = KNNFitness(ind);
+			t = System.currentTimeMillis() - t;
+			System.out.println(fit + ", " + kfit + ", done in " + t + " millis");
+		}
 		clear();
 		statistics.postEvaluationStatistics(this);
 

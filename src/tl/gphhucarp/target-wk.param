@@ -170,9 +170,9 @@ ppt-state.niche-capacity=2
 # ==============================
 # The test set
 # ==============================
-# state = gphhucarp.gp.GPHHEvolutionState
+state = gphhucarp.gp.GPHHEvolutionState
 
-state = tl.gp.PPTEvolutionState
+# state = tl.gp.PPTEvolutionState
 ppt-state.lr=0.8
 ppt-state.sample-size=100
 ppt-state.tournament-size=20

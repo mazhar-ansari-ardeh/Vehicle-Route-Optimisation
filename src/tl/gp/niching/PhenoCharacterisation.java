@@ -25,6 +25,14 @@ public class PhenoCharacterisation
         this.calcReferenceIndexes();
     }
 
+    public PhenoCharacterisation(final List<ReactiveDecisionSituation> dps) {
+//        this.decisionProcess = null;
+        this.decisionSituations = dps;
+        this.referenceRule = null;
+        this.referenceIndexes = new int[this.decisionSituations.size()];
+//        this.calcReferenceIndexes();
+    }
+
 //    public List<ReactiveDecisionSituation> getDecisionSituations() {
 //        return this.decisionSituations;
 //    }

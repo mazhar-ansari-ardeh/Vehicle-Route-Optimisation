@@ -103,10 +103,13 @@ public class ReactiveGPHHProblem extends GPProblem implements SimpleProblemForm 
                 new GPRoutingPolicy(poolFilter, ((GPIndividual)indi).trees[0]);
 
         // the evaluation model is reactive, so no plan is specified.
+        long t = System.currentTimeMillis();
         evaluationModel.evaluate(policy, null, indi.fitness, state);
+        t = System.currentTimeMillis() - t;
         ArrayList<DecisionSituation> seenDecicionSituations = evaluationModel.getSeenDecicionSituations();
 
         GPHHEvolutionState gstate = (GPHHEvolutionState) state;
+
 //        for(int i = 0; i < seenDecicionSituations.size(); i++)
 //        {
 //            ReactiveDecisionSituation rds = (ReactiveDecisionSituation)seenDecicionSituations.get(i);
@@ -116,15 +119,16 @@ public class ReactiveGPHHProblem extends GPProblem implements SimpleProblemForm 
 //            if(i != seenDecicionSituations.size() - 1 && ((ReactiveDecisionSituation)seenDecicionSituations.get(i+1)).getState().getRemainingTasks().size() != 0)
 //            System.out.println(rds.getState().getSolution().toString());
 //        }
-        final int numSeenSituations = seenDecicionSituations.size();
-        Collections.shuffle(seenDecicionSituations);
-        List<DecisionSituation> subList = seenDecicionSituations.subList(0, (numSeenSituations > 5) ? 5 : numSeenSituations);
-        List<DecisionSituation> sublist = new ArrayList<>(subList.size());
-        subList.forEach(item -> sublist.add(new ReactiveDecisionSituation((ReactiveDecisionSituation) item)));
-        gstate.updateSeenSituations(indi, sublist);
+//        final int numSeenSituations = seenDecicionSituations.size();
+//        Collections.shuffle(seenDecicionSituations);
+//        List<DecisionSituation> subList = seenDecicionSituations.subList(0, (numSeenSituations > 5) ? 5 : numSeenSituations);
+//        List<DecisionSituation> sublist = new ArrayList<>(subList.size());
+//        subList.forEach(item -> sublist.add(new ReactiveDecisionSituation((ReactiveDecisionSituation) item)));
+        gstate.updateSeenSituations(indi, seenDecicionSituations);
         this.evaluationModel.resetSeenSituations();
 
         indi.evaluated = true;
         evalCount++;
+        System.out.println(evalCount + ": " + t);
     }
 }

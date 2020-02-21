@@ -106,7 +106,7 @@ init = ec.gp.GPInitializer
 # GP breeding pipeline
 pop.subpop.0.species.pipe = ec.breed.MultiBreedingPipeline
 pop.subpop.0.species.pipe.generate-max = false
-pop.subpop.0.species.pipe.num-sources = 4
+pop.subpop.0.species.pipe.num-sources = 3
 pop.subpop.0.species.pipe.source.0 = ec.gp.koza.CrossoverPipeline
 pop.subpop.0.species.pipe.source.0.prob = 0.8
 pop.subpop.0.species.pipe.source.1 = ec.gp.koza.MutationPipeline
