@@ -8,6 +8,8 @@ import gphhucarp.core.Instance;
 import gphhucarp.core.InstanceSamples;
 import gphhucarp.core.Objective;
 import gphhucarp.decisionprocess.DecisionSituation;
+import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
+import gphhucarp.gp.GPHHEvolutionState;
 import gphhucarp.representation.Solution;
 import gphhucarp.representation.route.NodeSeqRoute;
 import gphhucarp.representation.route.TaskSeqRoute;
@@ -170,6 +172,8 @@ public abstract class EvaluationModel {
         // calculate the initial objective reference values
         objRefValueMap = new HashMap<>();
         calcObjRefValueMap();
+//        ((GPHHEvolutionState)state).initialSituations.addAll(seenDecicionSituations);
+        seenDecicionSituations.forEach(s -> ((GPHHEvolutionState)state).initialSituations.add((ReactiveDecisionSituation) s));
     }
 
     /**
@@ -193,6 +197,7 @@ public abstract class EvaluationModel {
      */
     public void calcObjRefValueMap() {
         int index = 0;
+        ArrayList<DecisionSituation> situations = new ArrayList<>();
         for (InstanceSamples iSamples : instanceSamples) {
             for (long seed : iSamples.getSeeds()) {
                 // create a new reactive decision process from the based intance and the seed.
@@ -202,6 +207,7 @@ public abstract class EvaluationModel {
 
                 // get the objective reference values by applying the reference routing policy.
                 dp.run();
+                updateSeenDecicionSituations(dp.getSeenSituations());
                 Solution<NodeSeqRoute> solution = dp.getState().getSolution();
                 for (Objective objective : objectives) {
                     double objValue = solution.objValue(objective);

@@ -4,9 +4,8 @@ import ec.EvolutionState;
 import ec.gp.*;
 import ec.gp.koza.HalfBuilder;
 import ec.util.Parameter;
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import tl.TLLogger;
-import tl.gp.hash.AlgebraicHashCalculator;
 import tl.gp.hash.VectorialAlgebraicHashCalculator;
 
 import java.io.FileInputStream;

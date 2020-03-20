@@ -5,13 +5,14 @@ import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 import tl.gp.niching.PhenoCharacterisation;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.WeakHashMap;
 
 /**
- * Implements the distance metric based on the phenotypic distance of the trees.
+ * Implements the distance metric based on the Euclidean phenotypic distance of the trees.
  */
-public class PhenotypicTreeSimilarityMetric implements TreeDistanceMetric
+public class PhenotypicTreeSimilarityMetric implements TreeDistanceMetric<int[]>
 {
     /**
      * The decision making situations that will be used to observe the phenotypic characteristics of routing policies.
@@ -33,25 +34,38 @@ public class PhenotypicTreeSimilarityMetric implements TreeDistanceMetric
      * Calculates the phenotypic distance of two trees.
      * @param tree1 a GP tree. This argument cannot be {@code null}.
      * @param tree2 another GP tree. This argument cannot be {@code null}.
-     * @return
+     * @return the Euclidean distance
      */
     @Override
     public double distance(GPRoutingPolicy tree1, GPRoutingPolicy tree2)
     {
-        tree1.getGPTree();
-        int[] ch1 = getPhenChars(tree1);
-        int[] ch2 = getPhenChars(tree2);
+//        tree1.getGPTree();
+        int[] ch1 = characterise(tree1);
+        int[] ch2 = characterise(tree2);
 
         double distance = PhenoCharacterisation.distance(ch1, ch2);
         return distance;
     }
 
+    public double distance(ArrayList<GPRoutingPolicy> policies, GPRoutingPolicy aPolicy)
+    {
+        int[] ch1 = ch.characterise(policies);
+        int[] ch2 = ch.characterise(aPolicy);
+        double distance = PhenoCharacterisation.distance(ch1, ch2);
+        return distance;
+    }
+
     private final WeakHashMap<GPTree, int[]> cache = new WeakHashMap<>();
-    private int[] getPhenChars(GPRoutingPolicy tree)
+
+    public int[] characterise(GPRoutingPolicy tree)
     {
         synchronized (cache)
         {
+            int CACHE_SIZE = 10000;
+            if(cache.size() > CACHE_SIZE)
+                cache.clear();
             return cache.computeIfAbsent(tree.getGPTree(), t -> ch.characterise(tree));
+//            return cache.computeIfAbsent(tree.getGPTree().treeHashCode(), t -> ch.characterise(tree));
         }
     }
 }

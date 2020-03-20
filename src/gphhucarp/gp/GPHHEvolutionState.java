@@ -1,24 +1,25 @@
 package gphhucarp.gp;
 
-import ec.*;
+import ec.EvolutionState;
+import ec.Individual;
+import ec.Initializer;
+import ec.Population;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
-import ec.gp.GPTree;
 import ec.util.Checkpoint;
 import ec.util.Parameter;
 import gphhucarp.decisionprocess.DecisionSituation;
-import gphhucarp.decisionprocess.PoolFilter;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
-import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 import gputils.TerminalERCEvolutionState;
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import gputils.terminal.DoubleERC;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import tl.TLLogger;
-import tl.gp.PopulationUtils;
 import tl.gp.niching.SimpleNichingAlgorithm;
-import tl.gp.similarity.PhenotypicTreeSimilarityMetric;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -231,14 +232,6 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 		clear = parameters.getBoolean(p, null, false);
 		output.warning("Clear: " + clear);
 
-		try
-		{
-			Files.deleteIfExists(Paths.get("file.db"));
-		} catch (IOException e)
-		{
-			e.printStackTrace();
-		}
-
 //		seenSituations = DBMaker.fileDB("file.db").fileMmapEnable().concurrencyDisable().make().hashMap("seen").keySerializer(Serializer.JAVA).valueSerializer(Serializer.JAVA).create();
 //		seenSituations = DBMaker.memoryDB().concurrencyDisable().make().hashMap("seen").keySerializer(Serializer.JAVA).valueSerializer(Serializer.JAVA).create();
 //		seenSituations = new HashMap<>();
@@ -266,8 +259,11 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 		seenSituations.clear();
 	}
 
-	void updateSeenSituations(Individual ind, List<DecisionSituation> situations)
+	public void updateSeenSituations(Individual ind, List<DecisionSituation> situations)
 	{
+		if(seenSituations.size() > 1)
+			return;
+
 		List<DecisionSituation> clonedSituations = new ArrayList<>(situations.size());
 		situations.forEach(situation -> clonedSituations.add(new ReactiveDecisionSituation((ReactiveDecisionSituation) situation)));
 		seenSituations.put(ind, clonedSituations);
@@ -277,13 +273,15 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 		}
 	}
 
-	private List<ReactiveDecisionSituation> getAllSeenSituations()
+	public List<ReactiveDecisionSituation> initialSituations = new ArrayList<>();
+
+	List<ReactiveDecisionSituation> getAllSeenSituations()
 	{
 		ArrayList<ReactiveDecisionSituation> retval = new ArrayList<>();
-
-		for(Individual ind : seenSituations.keySet())
+		Set<Map.Entry<Individual, List<DecisionSituation>>> a = seenSituations.entrySet();
+		for(Map.Entry<Individual, List<DecisionSituation>> e : a)
 		{
-			List<DecisionSituation> situations = seenSituations.get(ind);
+			List<DecisionSituation> situations = e.getValue();
 			for(DecisionSituation situation : situations)
 			{
 				ReactiveDecisionSituation rds = (ReactiveDecisionSituation)situation;
@@ -292,43 +290,18 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 			}
 		}
 
+//		for(Individual ind : seenSituations.keySet())
+//		{
+//			List<DecisionSituation> situations = seenSituations.get(ind);
+//			for(DecisionSituation situation : situations)
+//			{
+//				ReactiveDecisionSituation rds = (ReactiveDecisionSituation)situation;
+//				if(rds.getPool().size() > 0)
+//					retval.add(rds);
+//			}
+//		}
+
 		return retval;
-	}
-
-	private double KNNFitness(Individual ind)
-	{
-		List<ReactiveDecisionSituation> situations = getAllSeenSituations().subList(0, 10);
-		PhenotypicTreeSimilarityMetric metric = new PhenotypicTreeSimilarityMetric(situations);
-		if(!(this.evaluator.p_problem instanceof ReactiveGPHHProblem))
-			throw new RuntimeException("Problem is not of type ReactiveGPHHProblem");
-		PoolFilter filter = ((ReactiveGPHHProblem)((ReactiveGPHHProblem) this.evaluator.p_problem)).poolFilter;
-
-		Individual[] pop = Arrays.copyOf(population.subpops[0].individuals, population.subpops[0].individuals.length);
-		List<Individual> pop2 = new ArrayList<>(Arrays.asList(pop));
-		pop2.remove(ind);
-		pop = pop2.toArray(new Individual[]{});
-		pop = PopulationUtils.filterIndividuals(pop, (GPIndividual i) -> i.trees[0].child.depth() > 3);
-
-		Arrays.sort(pop, (i1, i2) ->
-			{
-				GPTree t = ((GPIndividual) ind).trees[0];
-//				System.out.println(t.child.makeLispTree() + ", " + ind.fitness.fitness());
-
-				GPTree t1 = ((GPIndividual) i1).trees[0];
-				GPTree t2 = ((GPIndividual) i2).trees[0];
-
-//				System.out.println(t1.child.makeLispTree() + ", " + i1.fitness.fitness());
-//				System.out.println(t2.child.makeLispTree() + ", " + i2.fitness.fitness());
-
-				long time = System.currentTimeMillis();
-				double sim1 = metric.distance(new GPRoutingPolicy(filter, t), new GPRoutingPolicy(filter, t1));
-				double sim2 = metric.distance(new GPRoutingPolicy(filter, t), new GPRoutingPolicy(filter, t2));
-//				System.out.println(System.currentTimeMillis() - time);
-//				System.out.println(sim1 + ", " + sim2 + "\n");
-				return Double.compare(sim1, sim2);
-			});
-
-		return pop[0].fitness.fitness();
 	}
 
 	@Override
@@ -362,15 +335,7 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 	    // EVALUATION
 	    statistics.preEvaluationStatistics(this);
 	    evaluator.evaluatePopulation(this);
-	    for(Individual ind : population.subpops[0].individuals)
-		{
-			double fit = ind.fitness.fitness();
-			long t = System.currentTimeMillis();
-			double kfit = KNNFitness(ind);
-			t = System.currentTimeMillis() - t;
-			System.out.println(fit + ", " + kfit + ", done in " + t + " millis");
-		}
-		clear();
+	    clear();
 		statistics.postEvaluationStatistics(this);
 
 		finish = util.Timer.getCpuTime();
@@ -387,63 +352,88 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 		}
 
 	    // SHOULD WE QUIT?
-	    if (generation == numGenerations-1) {
-	        return R_FAILURE;
-		}
+	    if (generation == numGenerations-1) return R_FAILURE;
 
-	    // PRE-BREEDING EXCHANGING
-	    statistics.prePreBreedingExchangeStatistics(this);
-	    population = exchanger.preBreedingExchangePopulation(this);
-	    statistics.postPreBreedingExchangeStatistics(this);
-
-	    String exchangerWantsToShutdown = exchanger.runComplete(this);
-	    if (exchangerWantsToShutdown!=null)
-	        {
-	        output.message(exchangerWantsToShutdown);
-	        /*
-	         * Don't really know what to return here.  The only place I could
-	         * find where runComplete ever returns non-null is
-	         * IslandExchange.  However, that can return non-null whether or
-	         * not the ideal individual was found (for example, if there was
-	         * a communication error with the server).
-	         *
-	         * Since the original version of this code didn't care, and the
-	         * result was initialized to R_SUCCESS before the while loop, I'm
-	         * just going to return R_SUCCESS here.
-	         */
-
-	        return R_SUCCESS;
-	        }
+		if (exchangePopulationPreBreeding()) return R_SUCCESS;
 
 	    // BREEDING
-	    statistics.preBreedingStatistics(this);
+		breed();
 
-	    population = breeder.breedPopulation(this);
-
-	    // POST-BREEDING EXCHANGING
-	    statistics.postBreedingStatistics(this);
-
-	    // POST-BREEDING EXCHANGING
-	    statistics.prePostBreedingExchangeStatistics(this);
-	    population = exchanger.postBreedingExchangePopulation(this);
-	    statistics.postPostBreedingExchangeStatistics(this);
+		// POST-BREEDING EXCHANGING
+		exchangePopulationPostBreeding();
 
 	    // Generate new instances if needed
+		rotateEvalModel();
+
+	    // INCREMENT GENERATION AND CHECKPOINT
+	    generation++;
+		doCheckpoit();
+
+	    return R_NOTDONE;
+	}
+
+	boolean exchangePopulationPreBreeding()
+	{
+		// PRE-BREEDING EXCHANGING
+		statistics.prePreBreedingExchangeStatistics(this);
+		population = exchanger.preBreedingExchangePopulation(this);
+		statistics.postPreBreedingExchangeStatistics(this);
+
+		String exchangerWantsToShutdown = exchanger.runComplete(this);
+		if (exchangerWantsToShutdown!=null)
+		{
+			output.message(exchangerWantsToShutdown);
+			/*
+			 * Don't really know what to return here.  The only place I could
+			 * find where runComplete ever returns non-null is
+			 * IslandExchange.  However, that can return non-null whether or
+			 * not the ideal individual was found (for example, if there was
+			 * a communication error with the server).
+			 *
+			 * Since the original version of this code didn't care, and the
+			 * result was initialized to R_SUCCESS before the while loop, I'm
+			 * just going to return R_SUCCESS here.
+			 */
+
+			return true;
+		}
+
+		return false;
+	}
+
+	void exchangePopulationPostBreeding()
+	{
+		statistics.prePostBreedingExchangeStatistics(this);
+		population = exchanger.postBreedingExchangePopulation(this);
+		statistics.postPostBreedingExchangeStatistics(this);
+	}
+
+	protected void breed()
+	{
+		statistics.preBreedingStatistics(this);
+
+		population = breeder.breedPopulation(this);
+
+		// POST-BREEDING EXCHANGING
+		statistics.postBreedingStatistics(this);
+	}
+
+	void rotateEvalModel()
+	{
 		if (rotateEvalModel) {
 			ReactiveGPHHProblem problem = (ReactiveGPHHProblem)evaluator.p_problem;
 			problem.rotateEvaluationModel();
 		}
+	}
 
-	    // INCREMENT GENERATION AND CHECKPOINT
-	    generation++;
-	    if (checkpoint && generation%checkpointModulo == 0)
-	        {
-	        output.message("Checkpointing");
-	        statistics.preCheckpointStatistics(this);
-	        Checkpoint.setCheckpoint(this);
-	        statistics.postCheckpointStatistics(this);
-	        }
-
-	    return R_NOTDONE;
+	void doCheckpoit()
+	{
+		if (checkpoint && generation%checkpointModulo == 0)
+		{
+			output.message("Checkpointing");
+			statistics.preCheckpointStatistics(this);
+			Checkpoint.setCheckpoint(this);
+			statistics.postCheckpointStatistics(this);
+		}
 	}
 }

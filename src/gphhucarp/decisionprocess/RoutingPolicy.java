@@ -29,7 +29,7 @@ public abstract class RoutingPolicy implements Cloneable {
     }
 
     public RoutingPolicy(PoolFilter poolFilter) {
-        this(poolFilter, new SimpleTieBreaker());
+        this(poolFilter, SimpleTieBreaker.getInstance());
     }
 
     public RoutingPolicy(TieBreaker tieBreaker) {
@@ -98,10 +98,12 @@ public abstract class RoutingPolicy implements Cloneable {
 
         Arc next = filteredPool.get(0);
         next.setPriority(priority(next, route, state));
+//        System.out.println(next.toString() + ": " + next.getPriority());
 
         for (int i = 1; i < filteredPool.size(); i++) {
             Arc tmp = filteredPool.get(i);
             tmp.setPriority(priority(tmp, route, state));
+//            System.out.println(tmp.toString() + ": " + tmp.getPriority());
 
             if (Double.compare(tmp.getPriority(), next.getPriority()) < 0 ||
                     (Double.compare(tmp.getPriority(), next.getPriority()) == 0 &&
@@ -112,7 +114,12 @@ public abstract class RoutingPolicy implements Cloneable {
         return next;
     }
 
-//    HashMap<String, Double> terminalValues(Arc candidate, NodeSeqRoute route, DecisionProcessState state, ReactiveDecisionSituation rds)
+    public void setPoolFilter(PoolFilter poolFilter)
+    {
+        this.poolFilter = poolFilter;
+    }
+
+    //    HashMap<String, Double> terminalValues(Arc candidate, NodeSeqRoute route, DecisionProcessState state, ReactiveDecisionSituation rds)
 //    {
 //        HashMap<String, Double> retval = new HashMap<>();
 //        List<GPNode> terminals = UCARPPrimitiveSet.wholeTerminalSet().getList();

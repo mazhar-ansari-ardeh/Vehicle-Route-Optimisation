@@ -5,7 +5,7 @@ import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import ec.util.Parameter;
 import ec.util.ParameterDatabase;
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import tl.TLLogger;
 import tl.gp.PopulationUtils;
 import tl.gp.TLGPIndividual;
@@ -131,7 +131,8 @@ public class AnalyzeSubtrees
 
 	private static int logID;
 
-	private static HashMap<GPIndividual, ArrayList<Pair<GPNode, Double>>> book = new HashMap<>();
+	private static HashMap<GPIndividual, ArrayList<Pair
+			<GPNode, Double>>> book = new HashMap<>();
 
 	private static void loadECJ(String paramFileNamePath, String... ecjParams)
 	{

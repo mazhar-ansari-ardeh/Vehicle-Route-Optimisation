@@ -5,7 +5,7 @@ import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 /**
  * This interface encapsulates the distance measure between two GP individuals.
  */
-public interface TreeDistanceMetric
+public interface TreeDistanceMetric<T>
 {
     /**
      * Measures how similar two given GP routing policies are to each other.
@@ -15,4 +15,6 @@ public interface TreeDistanceMetric
      * distance and higher-values indicate higher distance.
      */
     double distance(GPRoutingPolicy tree1, GPRoutingPolicy tree2);
+
+    T characterise(GPRoutingPolicy tree);
 }

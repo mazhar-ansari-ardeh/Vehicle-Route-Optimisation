@@ -29,6 +29,11 @@ public class GPRoutingPolicy extends RoutingPolicy {
         this.gpTree = gpTree;
     }
 
+    public void setName(String name)
+    {
+        this.name = name;
+    }
+
     public GPRoutingPolicy(GPTree gpTree) {
         this(new IdentityPoolFilter(), gpTree);
     }

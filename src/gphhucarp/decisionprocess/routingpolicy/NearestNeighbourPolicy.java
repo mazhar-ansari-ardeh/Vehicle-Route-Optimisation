@@ -28,7 +28,7 @@ public class NearestNeighbourPolicy extends RoutingPolicy {
     }
 
     public NearestNeighbourPolicy() {
-        this(new SimpleTieBreaker());
+        this(SimpleTieBreaker.getInstance());
     }
 
     @Override

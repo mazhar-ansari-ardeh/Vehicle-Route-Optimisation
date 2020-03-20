@@ -54,14 +54,14 @@ public class DecisionProcessState implements Serializable
         {
             this.remainingTasks = new ArrayList<>(other.remainingTasks.size());
             for(Arc arc : other.remainingTasks)
-                this.remainingTasks.add(Arc.copy(arc));
+                this.remainingTasks.add(Arc.cachedCopy(arc));
         }
 
         if(other.unassignedTasks != null)
         {
             this.unassignedTasks = new ArrayList<>(other.unassignedTasks.size());
             for(Arc arc : other.unassignedTasks)
-                this.unassignedTasks.add(Arc.copy(arc));
+                this.unassignedTasks.add(Arc.cachedCopy(arc));
         }
 
         if(other.solution != null)
@@ -73,7 +73,7 @@ public class DecisionProcessState implements Serializable
             for(Arc arc : other.taskRemainingDemandFrac.keySet())
             {
                 double frac = other.taskRemainingDemandFrac.get(arc);
-                this.taskRemainingDemandFrac.put(Arc.copy(arc), frac);
+                this.taskRemainingDemandFrac.put(Arc.cachedCopy(arc), frac);
             }
         }
 
@@ -84,8 +84,8 @@ public class DecisionProcessState implements Serializable
             {
                 List<Arc> list = other.taskToTaskMap.get(arc);
                 ArrayList<Arc> clonedList = new ArrayList<>(list.size());
-                list.forEach(item -> clonedList.add(Arc.copy(item)));
-                this.taskToTaskMap.put(Arc.copy(arc), clonedList);
+                list.forEach(item -> clonedList.add(Arc.cachedCopy(item)));
+                this.taskToTaskMap.put(Arc.cachedCopy(arc), clonedList);
             }
         }
 
@@ -97,7 +97,7 @@ public class DecisionProcessState implements Serializable
                 List<NodeSeqRoute> list = other.routeToTaskMap.get(arc);
                 ArrayList<NodeSeqRoute> clonedList = new ArrayList<>(list.size());
                 list.forEach(item -> clonedList.add((NodeSeqRoute) item.clone()));
-                this.routeToTaskMap.put(Arc.copy(arc), clonedList);
+                this.routeToTaskMap.put(Arc.cachedCopy(arc), clonedList);
             }
         }
 
@@ -108,8 +108,8 @@ public class DecisionProcessState implements Serializable
             {
                 List<Arc> list = other.floodMap.get(arc);
                 ArrayList<Arc> clonedList = new ArrayList<>(list.size());
-                list.forEach(item -> clonedList.add(Arc.copy(item)));
-                this.floodMap.put(Arc.copy(arc), clonedList);
+                list.forEach(item -> clonedList.add(Arc.cachedCopy(item)));
+                this.floodMap.put(Arc.cachedCopy(arc), clonedList);
             }
         }
 
@@ -120,8 +120,8 @@ public class DecisionProcessState implements Serializable
             {
                 List<Arc> list = other.onFloodMap.get(arc);
                 ArrayList<Arc> clonedList = new ArrayList<>(list.size());
-                list.forEach(item -> clonedList.add(Arc.copy(item)));
-                this.onFloodMap.put(Arc.copy(arc), clonedList);
+                list.forEach(item -> clonedList.add(Arc.cachedCopy(item)));
+                this.onFloodMap.put(Arc.cachedCopy(arc), clonedList);
             }
         }
     }

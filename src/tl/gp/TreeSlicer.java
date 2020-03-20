@@ -9,7 +9,9 @@ import ec.gp.GPTree;
 import ec.simple.SimpleProblemForm;
 import gputils.terminal.DoubleERC;
 import gputils.terminal.TerminalERC;
-import javafx.util.Pair;
+//import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 
 public class TreeSlicer
 {
@@ -210,7 +212,7 @@ public class TreeSlicer
 // 		System.out.println(newFitness + "\n");
 //		System.out.println(gind.trees[0].child.makeGraphvizTree());
 
-		return new Pair<>(oldFitness, newFitness);
+		return new ImmutablePair<>(oldFitness, newFitness);
 	}
 
 
@@ -286,7 +288,7 @@ public class TreeSlicer
 				double contrib = getSubtreeContrib(state, theIndividual, node);
 				GPNode nodeClone = (GPNode) node.clone();
 				nodeClone.parent = null;
-				retval.add(new Pair<GPNode, Double>(nodeClone, contrib));
+				retval.add(new ImmutablePair<>(nodeClone, contrib));
 			}
 		}
 
@@ -331,7 +333,7 @@ public class TreeSlicer
 			if(includeTerminals)
 			{
 				double contrib = getSubtreeContrib(state, theIndividual, root);
-				retval.add(new Pair<>((GPNode)root.clone(), contrib));
+				retval.add(new ImmutablePair<>((GPNode)root.clone(), contrib));
 			}
 			return retval;
 		}
@@ -343,7 +345,7 @@ public class TreeSlicer
 			rootClone.parent = null;
 
 			double contrib = getSubtreeContrib(state, theIndividual, root);
-			retval.add(new Pair<>(rootClone, contrib));
+			retval.add(new ImmutablePair<>(rootClone, contrib));
 		}
 		for(int i = 0; i < root.children.length; i++)
 			retval.addAll(sliceAllWithContrib(state, theIndividual, root.children[i],

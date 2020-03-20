@@ -11,7 +11,8 @@ import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import ec.util.Parameter;
 import ec.util.RandomChoice;
-import javafx.util.Pair;
+//import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 
 public class TerminalERCContribOnlyWeighted extends TerminalERCWeighted
 {

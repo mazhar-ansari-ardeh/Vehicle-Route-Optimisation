@@ -4,7 +4,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 import ec.gp.GPIndividual;
-import javafx.util.Pair;
+//import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  *

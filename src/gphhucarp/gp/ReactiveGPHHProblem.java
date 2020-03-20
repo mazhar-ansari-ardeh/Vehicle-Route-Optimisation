@@ -129,6 +129,7 @@ public class ReactiveGPHHProblem extends GPProblem implements SimpleProblemForm 
 
         indi.evaluated = true;
         evalCount++;
-        System.out.println(evalCount + ": " + t);
+        indi.evalTime = t;
+//        System.out.println(evalCount + ": " + ((GPIndividual)indi).trees[0].child.makeLispTree() + indi.fitness.fitness() + ", " + t);
     }
 }

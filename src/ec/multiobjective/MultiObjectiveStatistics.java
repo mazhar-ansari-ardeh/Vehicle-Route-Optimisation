@@ -107,13 +107,13 @@ public class MultiObjectiveStatistics extends SimpleStatistics
                 {
                 public boolean lt(Object a, Object b)
                     {
-                    return (((MultiObjectiveFitness) (((Individual) a).fitness)).getObjective(0) < 
+                    return (((MultiObjectiveFitness) (((Individual) a).fitness)).getObjective(0) <
                         (((MultiObjectiveFitness) ((Individual) b).fitness)).getObjective(0));
                     }
                 
                 public boolean gt(Object a, Object b)
                     {
-                    return (((MultiObjectiveFitness) (((Individual) a).fitness)).getObjective(0) > 
+                    return (((MultiObjectiveFitness) (((Individual) a).fitness)).getObjective(0) >
                         ((MultiObjectiveFitness) (((Individual) b).fitness)).getObjective(0));
                     }
                 });

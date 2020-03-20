@@ -31,7 +31,7 @@ public class PathScanning2Policy extends RoutingPolicy {
     }
 
     public PathScanning2Policy() {
-        this(new SimpleTieBreaker());
+        this(SimpleTieBreaker.getInstance());
     }
 
     @Override

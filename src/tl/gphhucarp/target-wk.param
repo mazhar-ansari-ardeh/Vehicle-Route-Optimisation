@@ -166,11 +166,23 @@ ppt-state.niche-capacity=2
 # gp.tc.0.init.tournament-size=20
 
 
+# ==============================
+# The Surrogate
+# ==============================
+state = gphhucarp.gp.SurrogatedGPHHEState
+surrogate-state.surrogate-updpool-policy=Entropy
+surrogate-state.surr-log-path=./stats/target-wk/
+surrogate-state.eval-surpool-on-init=true
+gp.tc.0.init=ec.SurrogateBuilder
+gp.tc.0.init.knowledge-file=/home/mazhar/grid/gdb1.vs5:gen_50/KnowledgeSource/3/population.gen.49.bin
+gp.tc.0.init.knowledge-log-file=./stats/target-wk/SurrogateBuilderLog
+gp.tc.0.init.init-surrogate-pool=true
+gp.tc.0.init.transfer-percent=0.2
 
 # ==============================
 # The test set
 # ==============================
-state = gphhucarp.gp.GPHHEvolutionState
+# state = gphhucarp.gp.GPHHEvolutionState
 
 # state = tl.gp.PPTEvolutionState
 ppt-state.lr=0.8

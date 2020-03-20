@@ -8,7 +8,7 @@ import ec.*;
 import ec.gp.*;
 import ec.util.*;
 import gputils.terminal.TerminalERCUniform;
-import javafx.util.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import tl.TLLogger;
 import tl.gp.hash.AlgebraicHashCalculator;
 import tl.gp.hash.HashCalculator;

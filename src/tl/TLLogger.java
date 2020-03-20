@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import ec.EvolutionState;
+import ec.util.Log;
 import ec.util.Parameter;
 import tl.knowledge.KnowledgeItem;
 
@@ -52,12 +53,23 @@ public interface TLLogger<T>
 			file.createNewFile();
 			state.output.warning("Log file created: " + file.getAbsolutePath());
 
-			return state.output.addLog(file, false);
+			return state.output.addLog(file, false, true);
 		}
 		catch (IOException e) {
 			e.printStackTrace();
 			state.output.fatal("Failed to create knowledge log file");
 			return -1;
+		}
+	}
+
+	default void closeLogger(EvolutionState state, int id)
+	{
+		state.output.flush();
+		Log logger = state.output.getLog(id);
+		if (!logger.isLoggingToSystemOut)
+		{
+			logger.writer.close();
+//			state.output.removeLog(id); Don't remove it. There is a bug in ECJ that makes this troublesome.
 		}
 	}
 
@@ -112,7 +124,7 @@ public interface TLLogger<T>
 		for(int i = 0; i < messages.length; i++)
 		{
 			state.output.print(messages[i] + (i == messages.length - 1 ? "" : ", "), logID);
-			state.output.warning(messages[i] + (i == messages.length - 1 ? "" : ", "));
+//			state.output.warning(messages[i] + (i == messages.length - 1 ? "" : ", "));
 		}
 		state.output.flush();
 	}

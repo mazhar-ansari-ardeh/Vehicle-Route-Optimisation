@@ -77,3 +77,20 @@ Completed the phenotypic characterisation.
 This is a temporary version. There are a few issues at this stage:
 - There is a memory bug in the Instance.clone and as a result, it is not possible to have a correct record of the seen decision situations.
 - FrequencyLearner uses a hardcoded simplifier.
+
+26/02/20
+This is the first version that contains a semi-correct surrogate method. This version just implements a simple surrogate
+that uses the whole previous generation as the pool for the surrogate method.
+
+27/02/20
+Removed a caching bug in the surrogate method.
+Added a clearing to the intermediate population.
+
+09/03/20
+Implemented different policies for updating surrogate pools.
+
+11/03/20
+Modified SurrogateBuilder. Now, it initialises GP with individuals from the surrogate pool.
+
+16/03/20
+Completed the entropy update policy for knn pools.

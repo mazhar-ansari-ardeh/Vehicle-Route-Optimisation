@@ -1,10 +1,11 @@
 package tl.gp;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.BiFunction;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import ec.*;
 import ec.gp.GPIndividual;
@@ -67,9 +68,9 @@ public class PopulationUtils
 		Arrays.sort(ind, comp);
 	}
 
-	public static GPIndividual[] filterIndividuals(GPIndividual[] pop, Predicate<GPIndividual> filter)
+	public static GPIndividual[] filterIndividuals(Individual[] pop, Predicate<GPIndividual> filter)
 	{
-		return Arrays.stream(pop).filter(filter).toArray(GPIndividual[]::new);
+		return Arrays.stream(pop).map(i -> (GPIndividual)i).filter(filter).toArray(GPIndividual[]::new);
 	}
 
 	public static void savePopulation(Population pop, String fileName)
@@ -163,4 +164,21 @@ public class PopulationUtils
 		File file = new File(fileName);
 		return loadPopulation(file);
 	}
+
+//	public static <E> ArrayList<List<E>> partition(Collection<E> pool, BiFunction<E, E, Double> dist)
+//	{ // this code is buggy.
+//		Queue<E> cPool = new ConcurrentLinkedQueue<>(pool);
+//
+//		ArrayList<List<E>> partitions = new ArrayList<>();
+//
+//		for (E p : cPool)
+//		{
+//			List<E> part = cPool.stream().filter(in -> dist.apply(in, p) <= 1).collect(Collectors.toList());
+//			cPool.removeAll(part);
+//			if(!part.isEmpty())
+//				partitions.add(part);
+//		}
+//
+//		return partitions;
+//	}
 }

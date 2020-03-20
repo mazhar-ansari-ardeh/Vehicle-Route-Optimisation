@@ -116,7 +116,7 @@ public class EvaluateOnTest
 			return;
 
 		((SimpleProblemForm)state.evaluator.p_problem).evaluate(state, gind, 0, 0);
-		((GPHHEvolutionState)state).resetSeenSituations();
+//		((GPHHEvolutionState)state).resetSeenSituations();
 
 //		return gind.fitness.fitness();
 	}
