@@ -41,11 +41,11 @@ public class SurrogateFitness
     {
     }
 
-    public void setSituations(List<ReactiveDecisionSituation> situations)
-    {
-        this.situations = situations;
-        metric = new PhenotypicTreeSimilarityMetric(situations);
-    }
+//    public void setSituations(List<ReactiveDecisionSituation> situations)
+//    {
+//        this.situations = situations;
+//        metric = new PhenotypicTreeSimilarityMetric(situations);
+//    }
 
     public List<ReactiveDecisionSituation> getSituations()
     {
