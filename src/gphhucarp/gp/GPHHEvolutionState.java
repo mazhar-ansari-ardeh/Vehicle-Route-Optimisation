@@ -273,7 +273,19 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 		}
 	}
 
-	public List<ReactiveDecisionSituation> initialSituations = new ArrayList<>();
+	public List<ReactiveDecisionSituation> getInitialSituations()
+	{
+		return initialSituations;
+	}
+
+	public void addToInitialSituations(DecisionSituation initialSituation)
+	{
+		if(this.initialSituations.size()> 10000)
+			return;
+		this.initialSituations.add((ReactiveDecisionSituation) initialSituation);
+	}
+
+	private List<ReactiveDecisionSituation> initialSituations = new ArrayList<>();
 
 	List<ReactiveDecisionSituation> getAllSeenSituations()
 	{
@@ -285,7 +297,7 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 			for(DecisionSituation situation : situations)
 			{
 				ReactiveDecisionSituation rds = (ReactiveDecisionSituation)situation;
-				if(rds.getPool().size() > 0)
+				if(rds.getPool().size() >= 2) // greater than two because the correlation-based phenotypics require it.
 					retval.add(rds);
 			}
 		}
