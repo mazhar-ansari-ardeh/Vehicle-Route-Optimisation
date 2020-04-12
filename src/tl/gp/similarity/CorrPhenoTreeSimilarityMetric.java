@@ -3,30 +3,25 @@ package tl.gp.similarity;
 import ec.gp.GPTree;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
-import tl.gp.niching.PhenoCharacterisation;
+import tl.gp.characterisation.TaskRankCharacterisation;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.WeakHashMap;
 
-public class CorrPhenoTreeSimilarityMetric implements TreeDistanceMetric<List<double[]>>
+public class CorrPhenoTreeSimilarityMetric implements SituationBasedTreeSimilarityMetric
 {
 
-    private PhenoCharacterisation ch;
+    private TaskRankCharacterisation ch;
 
-    /**
-     * Constructs a new object with the given decision-making situations.
-     * @param situations This constructor does not preserve a deep copy of the given list and hence, any modifications to the
-     *                   list outside the scope of this class affect the behavior of this class.
-     */
-    public CorrPhenoTreeSimilarityMetric(List<ReactiveDecisionSituation> situations)
-    {
-        ch = new PhenoCharacterisation(situations);
+
+    public CorrPhenoTreeSimilarityMetric() {
     }
 
-    @Override
-    public double distance(GPRoutingPolicy tree1, GPRoutingPolicy tree2)
+    private double calcDistance(GPRoutingPolicy tree1, GPRoutingPolicy tree2)
     {
         List<double[]> ch1 = characterise(tree1);
         List<double[]> ch2 = characterise(tree2);
@@ -36,39 +31,50 @@ public class CorrPhenoTreeSimilarityMetric implements TreeDistanceMetric<List<do
         double sum = 0;
         for (int i = 0; i < ch1.size(); i++)
         {
+            if(ch1.get(i).length < 2 || ch2.get(i).length < 2)
+                continue;
             sum += sc.correlation(ch1.get(i), ch2.get(i));
         }
 
-        return sum / ch1.size();
+        return 1 - (sum / ch1.size());
     }
 
+    private final int CACHE_SIZE = 5000;
+
     @Override
+    public double distance(GPRoutingPolicy tree1, GPRoutingPolicy tree2)
+    {
+        synchronized (corrCache)
+        {
+            if (cache.size() > CACHE_SIZE)
+                corrCache.clear();
+            return corrCache.computeIfAbsent(new ImmutablePair<>(tree1.getGPTree(), tree2.getGPTree()), gpTreeGPTreePair ->
+                            calcDistance(tree1, tree2)
+                    );
+        }
+    }
+
+//    @Override
     public List<double[]> characterise(GPRoutingPolicy tree)
     {
         synchronized (cache)
         {
-            int CACHE_SIZE = 1000;
             if (cache.size() > CACHE_SIZE)
                 cache.clear();
 
             return cache.computeIfAbsent(tree.getGPTree(), t -> {
-                List<int[]> ints = ch.cha(tree);
+                List<int[]> ints = ch.characterise(tree);
                 List<double[]> doubles = new ArrayList<>();
                 ints.forEach(ints1 -> doubles.add(copyFromIntArray(ints1)));
 
                 return doubles;
             });
         }
-
-//        List<int[]> ints = ch.cha(tree);
-//        List<double[]> doubles = new ArrayList<>();
-//        ints.forEach(ints1 -> doubles.add(copyFromIntArray(ints1)));
-//
-//        return doubles;
     }
 
     private final WeakHashMap<GPTree, List<double[]>> cache = new WeakHashMap<>();
 
+    private final WeakHashMap<Pair<GPTree, GPTree>, Double> corrCache = new WeakHashMap<>();
 
     private static double[] copyFromIntArray(int[] source) {
         double[] dest = new double[source.length];
@@ -76,5 +82,21 @@ public class CorrPhenoTreeSimilarityMetric implements TreeDistanceMetric<List<do
             dest[i] = source[i];
         }
         return dest;
+    }
+
+    @Override
+    public void setSituations(List<ReactiveDecisionSituation> situations)
+    {
+        ch = new TaskRankCharacterisation(situations);
+        synchronized (cache)
+        {
+            cache.clear();
+            corrCache.clear();
+        }
+    }
+
+    @Override
+    public String getName() {
+        return "CorrPhenotypic";
     }
 }
