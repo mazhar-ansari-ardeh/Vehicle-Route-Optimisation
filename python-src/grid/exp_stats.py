@@ -55,7 +55,7 @@ def update_wdl(exp_data, wdltable, rename_map, *, base_line='WithoutKnowledge', 
         else:
             wdltable[renamed_alg][1] += 1
 
-def wdl(dirbase, experiments, inclusion_filter, exclusion_filter, rename_map, *, base_line='WithoutKnowledge', num_generations=50, dump_file='./wdl'):
+def wdl(dirbase, experiments, inclusion_filter, exclusion_filter, rename_map, *, base_line='WithoutKnowledge', num_generations=50, dump_file=Path('./wdl')):
     wdltable = {}
 
     for exp in experiments: 
@@ -63,11 +63,11 @@ def wdl(dirbase, experiments, inclusion_filter, exclusion_filter, rename_map, *,
         exp_data = get_test_fitness(dirbase / exp, inclusion_filter, exclusion_filter, num_generations=num_generations)
         update_wdl(exp_data, wdltable, rename_map, base_line=base_line, num_generations=num_generations)
 
-    with open(dump_file+'.json', 'w') as file: 
+    with open(str(dump_file) + '.json', 'w') as file: 
         json.dump(wdltable, file, indent=4)
         print('WDL: results saved to:', dump_file)
 
-    with open(dump_file+'.csv', 'w', newline="") as csv_file:  
+    with open(str(dump_file) + '.csv', 'w', newline="") as csv_file:  
         writer = csv.writer(csv_file)
         for key, value in wdltable.items():
             writer.writerow([key, *value])

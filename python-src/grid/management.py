@@ -13,12 +13,12 @@ def compress_grid(*, experiments, dirbase, save_to='/local/scratch/'):
             print(Path(save_to) / exp / algorithm, 'finished.')
 
 
-def delete_alg(*, experiments, algortithm_to_delete, dirbase='/home/mazhar/grid/', save_to='/local/scratch/'):
+def delete_alg(*, experiments, algorithm_to_delete, dirbase='/home/mazhar/grid/', save_to='/local/scratch/'):
     dirbase = Path(dirbase)
     for exp in experiments:
         (_, algorithms, _) = next(os.walk(dirbase / exp))
         for algorithm in algorithms:
-            if (not re.search(algortithm_to_delete, algorithm)): # and (not re.search(r'PPTPipe', algorithm)):
+            if (not re.search(algorithm_to_delete, algorithm)): # and (not re.search(r'PPTPipe', algorithm)):
                 continue
             if save_to:
                 (_, runs, _) = next(os.walk(dirbase / exp / algorithm))
@@ -64,3 +64,4 @@ def rename_alg_folder(*, experiments, dirbase, rename_from, rename_to):
             if rename_from != algorithm:
                 continue
             os.rename(Path(dirbase) / exp / rename_from, Path(dirbase) / exp / rename_to )
+            print('Renamed', Path(dirbase) / exp / rename_from, 'to', Path(dirbase) / exp / rename_to)
