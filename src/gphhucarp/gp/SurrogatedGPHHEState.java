@@ -8,10 +8,11 @@ import ec.gp.GPNode;
 import ec.multiobjective.MultiObjectiveFitness;
 import ec.util.Parameter;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
-import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 import tl.TLLogger;
-import tl.gp.niching.PhenoCharacterisation;
 import tl.gp.niching.SimpleNichingAlgorithm;
+import tl.gp.similarity.CorrPhenoTreeSimilarityMetric;
+import tl.gp.similarity.HammingPhenoTreeSimilarityMetric;
+import tl.gp.similarity.PhenotypicTreeSimilarityMetric;
 import tl.knowledge.surrogate.knn.*;
 
 import java.io.File;
@@ -30,6 +31,9 @@ public class SurrogatedGPHHEState extends GPHHEvolutionState implements TLLogger
     private int surLogID;
     private int interimPopLogID;
     private int popLogID;
+
+    private String surLogPath;
+
     private static final String P_BASE = "surrogate-state";
 
     private static final String P_SURR_LOG_PATH = "surr-log-path";
@@ -39,12 +43,21 @@ public class SurrogatedGPHHEState extends GPHHEvolutionState implements TLLogger
     private static final String P_EVAL_SURPOOL_ON_INIT = "eval-surpool-on-init";
     private boolean evaluateSurOnInit = true;
 
-    private String surLogPath;
+    /**
+     * The distance metric that KNN uses. Acceptable values are (case insensitive):
+     *  - phenotypic
+     *  - corrphenotypic
+     * Some updating policies, such as CorrEntropy or Entropy, may have their own metric and will override this
+     * parameter.
+     */
+    private static final String P_KNN_DISTANCE_METRIC = "knn-distance-metric";
+
+
 
     /**
      * Number of decision-making situations to consider for phenotypic characterisation.
      */
-    public final int DMS_SIZE = 20;
+    public final int DMS_SIZE = 30;
 
     private void setupSurrogate(EvolutionState state, Parameter surBase)
     {
@@ -60,6 +73,16 @@ public class SurrogatedGPHHEState extends GPHHEvolutionState implements TLLogger
         state.output.warning("Surrogate log path: " + surLogPath);
 
         surLogID = setupLogger(this, new File(surLogPath, "surr/SurrogatePool.0.csv").getAbsolutePath());
+
+        String metricParam = state.parameters.getString(surBase.push(P_KNN_DISTANCE_METRIC), null);
+        if(metricParam.equalsIgnoreCase("CorrPhenotypic"))
+            surFitness.setMetric(new CorrPhenoTreeSimilarityMetric());
+        else if(metricParam.equalsIgnoreCase("Phenotypic"))
+            surFitness.setMetric(new PhenotypicTreeSimilarityMetric());
+        else if(metricParam.equalsIgnoreCase("Hamming"))
+            surFitness.setMetric(new HammingPhenoTreeSimilarityMetric());
+        else
+            state.output.fatal("Unknown distance metric");
 
         String updatePolicy = state.parameters.getString(surBase.push(P_SURROGATE_POOL_UPDATE_POLICY), null);
         if(updatePolicy == null)
@@ -96,6 +119,22 @@ public class SurrogatedGPHHEState extends GPHHEvolutionState implements TLLogger
         else if(updatePolicy.equalsIgnoreCase("Entropy"))
         {
             policy = new EntropyUpdatePolicy(1024, this, 0, 100, new File(surLogPath, "surr"));
+            state.output.warning("EntropyUpdatePolicy uses PhenotypicTreeSimilarityMetric");
+            surFitness.setMetric(new PhenotypicTreeSimilarityMetric());
+        }
+        else if(updatePolicy.equalsIgnoreCase("CorrEntropy"))
+        {
+            final String P_UPDATE_FITNESS_DUPLICATES = "surrogate-average-dup-fitness";
+            boolean update = parameters.getBoolean(surBase.push(P_UPDATE_FITNESS_DUPLICATES), null, true);
+            output.warning("Update average dup: " + update);
+            double eps = parameters.getDouble(surBase.push("corr-entropy").push("eps"), null);
+            output.warning("EPS: " + eps);
+            int minClusterSize = parameters.getInt(surBase.push("corr-entropy").push("min-cluster-size"), null);
+            output.warning("Min cluster size: " + minClusterSize);
+            policy = new CorrEntropyUpdatePolicy(1024, this, new File(surLogPath, "surr"),
+                                                 update, eps, minClusterSize);
+            state.output.warning("CorrEntropyUpdatePolicy uses CorrPhenoTreeSimilarityMetric");
+            surFitness.setMetric(new CorrPhenoTreeSimilarityMetric());
         }
         else
         {
@@ -108,7 +147,7 @@ public class SurrogatedGPHHEState extends GPHHEvolutionState implements TLLogger
     @Override
     public void setup(EvolutionState state, Parameter base)
     {
-        surFitness = new KNNSurrogateFitness();
+        surFitness = new KNNSurrogateFitness(new PhenotypicTreeSimilarityMetric());
         Parameter surBase = new Parameter(P_BASE);
         setupSurrogate(state, surBase);
         super.setup(this, base);
@@ -138,19 +177,20 @@ public class SurrogatedGPHHEState extends GPHHEvolutionState implements TLLogger
         return retVal;
     }
 
-    private ArrayList<Individual> breedMode(int howMany)
-    {
-        ArrayList<Individual> retVal = new ArrayList<>();
-        while (howMany-- > 0)
-        {
-            Population p = breeder.breedPopulation((this));
-            retVal.addAll(Arrays.asList(p.subpops[0].individuals));
-        }
-
-        return retVal;
-    }
-
     private ArrayList<Population> temporaryPop;
+
+//    private ArrayList<Individual> breedMode(int howMany)
+//    {
+//        ArrayList<Individual> retVal = new ArrayList<>();
+//        while (howMany-- > 0)
+//        {
+//            Population p = breeder.breedPopulation((this));
+//            retVal.addAll(Arrays.asList(p.subpops[0].individuals));
+//        }
+//
+//        return retVal;
+//    }
+
 
     private void evaluate()
     {
@@ -196,7 +236,8 @@ public class SurrogatedGPHHEState extends GPHHEvolutionState implements TLLogger
                 return Integer.compare(((GPIndividual)o1).trees[0].child.depth(), ((GPIndividual)o2).trees[0].child.depth());
             return c;
         });
-        allInds.forEach(i -> log(this, interimPopLogID, i.surFit + "," + i.fitness.fitness() + "," + ((GPIndividual)i).trees[0].child.makeLispTree() + "\n"));
+        allInds.forEach(i -> log(this, interimPopLogID, i.surFit + "," + i.fitness.fitness()
+                                    + "," + ((GPIndividual)i).trees[0].child.makeLispTree() + "\n"));
 
         Population pop = temporaryPop.get(0);
         pop.subpops[0].individuals = allInds.subList(0, population.subpops[0].individuals.length).toArray(new Individual[]{});
@@ -209,7 +250,6 @@ public class SurrogatedGPHHEState extends GPHHEvolutionState implements TLLogger
         {
             log(this, popLogID, ind.surtime + "," + ind.evalTime + "," + ind.surFit + "," + ind.fitness.fitness() + ","
                                             + ((GPIndividual)ind).trees[0].child.makeLispTree() + "\n");
-//            System.out.println("Ind logged.");
         }
 
         surFitness.setSituations(getAllSeenSituations().subList(0, DMS_SIZE));
@@ -238,10 +278,10 @@ public class SurrogatedGPHHEState extends GPHHEvolutionState implements TLLogger
             output.message("Generation " + generation);
         }
 
-        List<ReactiveDecisionSituation> situations = initialSituations;
-
-        PhenoCharacterisation ph = new PhenoCharacterisation(situations);
-        ph.cha(new GPRoutingPolicy(((GPIndividual)(population.subpops[0].individuals[0])).trees[0]));
+//        List<ReactiveDecisionSituation> situations = initialSituations;
+//
+//        PhenoCharacterisation ph = new PhenoCharacterisation(situations);
+//        ph.cha(new GPRoutingPolicy(((GPIndividual)(population.subpops[0].individuals[0])).trees[0]));
 
         evaluate();
 
