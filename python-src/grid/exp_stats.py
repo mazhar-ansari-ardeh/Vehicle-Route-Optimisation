@@ -74,6 +74,104 @@ def wdl(dirbase, experiments, inclusion_filter, exclusion_filter, rename_map, *,
 
     return wdltable
 
+def summary(dirbase, experiments, inclusion_filter, exclusion_filter, rename_map,
+            *, base_line='WithoutKnowledge', num_generations=50, dump_file=Path('./wdl'), 
+            baseline_alg = 'WithoutKnowledge'):
+    summary_table = {}
+    test_data_table = {}
+    gen = 49
+    for exp in experiments: 
+        print('WDL: processing', dirbase / exp)
+        test_fitness = get_test_fitness(dirbase / exp, inclusion_filter, exclusion_filter, num_generations=num_generations)
+        test_data_table[exp] = test_fitness
+        if not exp in summary_table:
+            summary_table[exp] = {}
+        for alg in sort_algorithms(test_fitness):
+            mini = round(min(list(test_fitness[alg][gen].values())), 2)
+            maxi = round(max(list(test_fitness[alg][gen].values())), 2)
+            mean = round(statistics.mean(list(test_fitness[alg][gen].values())), 2)
+            std = round(statistics.stdev(list(test_fitness[alg][gen].values())), 2)
+            median = round(statistics.median(list(test_fitness[alg][gen].values())), 2)
+            
+            if alg == baseline_alg:
+                pval_wo_wil = '--'
+                pval_wo_t = '--'
+            else: 
+                if len(list(test_fitness[baseline_alg][gen].values())) != len(list(test_fitness[alg][gen].values())):
+                    alg_len = len(list(test_fitness[alg][gen].values()))
+                    print("Warning: Len of ", alg, "(", alg_len, ") is not 30. Test is done for this length.")
+                    pval_wo_wil = stats.wilcoxon(list(test_fitness[baseline_alg][gen].values())[:alg_len], list(test_fitness[alg][gen].values()))[1]
+                    pval_wo_t = stats.ttest_rel(list(test_fitness[baseline_alg][gen].values())[:alg_len], list(test_fitness[alg][gen].values()))[1]
+                    # pval_wo_t = -1
+                else:
+                    pval_wo_wil = stats.wilcoxon(list(test_fitness[baseline_alg][gen].values()), list(test_fitness[alg][gen].values()))[1]
+                    pval_wo_t   = stats.ttest_rel(list(test_fitness[baseline_alg][gen].values()), list(test_fitness[alg][gen].values()))[1]
+
+            if isinstance(pval_wo_wil, float):
+                pval_wo_wil = round(pval_wo_wil, 2)
+                pval_wo_t = round(pval_wo_t, 2)
+            if not alg in summary_table[exp]:
+                summary_table[exp][alg] = {}
+            summary_table[exp][alg]['Average'] = mean
+            summary_table[exp][alg]['Stdev'] = std
+            summary_table[exp][alg]['min'] = mini
+            summary_table[exp][alg]['max'] = maxi
+            summary_table[exp][alg]['pval_wo_t'] = pval_wo_t
+            summary_table[exp][alg]['pval_wo_wil'] = pval_wo_wil
+
+    return summary_table, test_data_table
+
+def save_summary(summary_table, output_folder, rename_map):
+    output_folder = Path(output_folder)
+    if not output_folder.exists(): 
+        output_folder.mkdir(parents=True)
+    csv_file = open(output_folder / 'summary_stats.csv', 'w')
+    cvs_table = ''
+    latex_table = ''
+    
+    latex_header = r'\begin{table}[]' + '\n' \
+                 + r'\resizebox{\columnwidth}{!}{%'  + '\n' \
+                 + r'\begin{tabular}{} \hline'  + '\n'
+    latex_file = open(output_folder / 'summary_stats.tex', 'w')
+    header = []
+    hc = 0
+    header.append(',')
+    for exp in summary_table:
+        csv_line = f'{exp},'
+        latex_line = f'{exp} & '.replace(':gen_50', r'').replace('.vs', '-').replace('.vt', '').replace('.gdb', '').replace('gdb', 'G')
+        for alg in sort_algorithms(summary_table[exp]):
+            ren_alg = rename_alg(alg, rename_map)
+            header[hc] += f'"{ren_alg}"' + ','
+            mean = summary_table[exp][alg]['Average'] 
+            std = summary_table[exp][alg]['Stdev']
+            mini = summary_table[exp][alg]['min'] 
+            maxi = summary_table[exp][alg]['max'] 
+            pval_wo_t = summary_table[exp][alg]['pval_wo_t'] 
+            pval_wo_wil = summary_table[exp][alg]['pval_wo_wil'] 
+
+            csv_line += f'{mean} + {std} + {pval_wo_t},'
+            if isinstance(pval_wo_wil, float) and  pval_wo_wil < 0.05: 
+                latex_line += r'\textbf{' + f'{mean}' + r'$\pm$' + f'{std}' + '} &' 
+            else: 
+                latex_line += f' {mean}' + r'$\pm$' + f'{std} &' 
+        hc += 1
+        header.append('')
+        # csv_file.write(line.strip(',') +  '\n')
+        cvs_table += (csv_line.strip(',') +  '\n')
+        latex_table += (latex_line.strip('&') + r'\\' + ' \n')
+    csv_file.write(header[0].rstrip(',') + '\n' + cvs_table + '\n')
+    csv_file.close()
+
+    latex_file.write(latex_header + header[0].rstrip(',').replace(',', ' & ').replace('_', r'\_').replace('"', '') 
+                    + '\\\\ \\hline \n' 
+                    + latex_table
+                    + r'\hline \end{tabular}' + '\n'
+                    + r'}' + '\n'
+                    + r'\caption{Means of 30 runs of best of GP generations for dataset \textbf{}, from  to  vehicles}' + '\n'
+                    + r'\end{table}')
+    latex_file.close()
+
+
 
 def save_stats(test_fitness, exp_name, output_folder, *, rename_map, gen = 49, round_results = False, baseline_alg = 'WithoutKnowledge'):
     if not Path(output_folder / exp_name).exists(): 
@@ -107,6 +205,7 @@ def save_stats(test_fitness, exp_name, output_folder, *, rename_map, gen = 49, r
                 alg_len = len(list(test_fitness[alg][gen].values()))
                 print("Warning: Len of ", alg, "(", alg_len, ") is not 30. Test is done for this length.")
                 pval_wo_wil = stats.wilcoxon(list(test_fitness[baseline_alg][gen].values())[:alg_len], list(test_fitness[alg][gen].values()))[1]
+                # pval_wo_t = stats.ttest_rel(list(test_fitness[baseline_alg][gen].values()), list(test_fitness[alg][gen].values()))[1]
                 pval_wo_t = -1
             else:
                 pval_wo_wil = stats.wilcoxon(list(test_fitness[baseline_alg][gen].values()), list(test_fitness[alg][gen].values()))[1]

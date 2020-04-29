@@ -146,7 +146,7 @@ def get_test_fitness(experiment_path, inclusion_filter, exclusion_filter, *, num
 
     return test_fitness
 
-def get_train_mean(experiment_path, inclusion_filter, exclusion_filter, *, num_generations=49):
+def get_train_mean(experiment_path, inclusion_filter, exclusion_filter, *, num_generations=50):
     """
     Reads the 'jobs.0.stat.csv' file of experiments and collects the population mean of each generation.
     """
@@ -165,11 +165,13 @@ def get_train_mean(experiment_path, inclusion_filter, exclusion_filter, *, num_g
                 if not gen in mean_train_fitness[algorithm]:
                     mean_train_fitness[algorithm][gen] = {}
                 mean_train_fitness[algorithm][gen][int(run)] = float(csv.iloc[gen]['FitMean'])
+            return True
         except Exception as exp:
             print(exp)
             print(file)
-            print(algorithm, gen, run)
-            raise exp
+            return False
+            # print(algorithm, run)
+            # raise exp
 
     experiment_path = Path(experiment_path)
     (_, algorithms, _) = next(os.walk(experiment_path))
@@ -189,7 +191,8 @@ def get_train_mean(experiment_path, inclusion_filter, exclusion_filter, *, num_g
             if not (stat_file).exists():
                 print('Warning: the stat file does not exist: ', stat_file)
                 continue
-            update_mean_train_fitness(stat_file, algorithm, run)
+            if not update_mean_train_fitness(stat_file, algorithm, run):
+                print("Warning: Something is wrong with the file: ", str(stat_file))
 
     return mean_train_fitness
 
