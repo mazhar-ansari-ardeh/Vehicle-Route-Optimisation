@@ -66,6 +66,8 @@ public abstract class EvaluationModel {
 
     public void updateSeenDecicionSituations(ArrayList<DecisionSituation> seenDecicionSituations)
     {
+        if(this.seenDecicionSituations.size() > 2000)
+            return;
         this.seenDecicionSituations.addAll(seenDecicionSituations);
     }
 
@@ -173,7 +175,7 @@ public abstract class EvaluationModel {
         objRefValueMap = new HashMap<>();
         calcObjRefValueMap();
 //        ((GPHHEvolutionState)state).initialSituations.addAll(seenDecicionSituations);
-        seenDecicionSituations.forEach(s -> ((GPHHEvolutionState)state).initialSituations.add((ReactiveDecisionSituation) s));
+        seenDecicionSituations.forEach(s -> ((GPHHEvolutionState)state).addToInitialSituations(s));
     }
 
     /**

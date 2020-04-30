@@ -6,7 +6,7 @@ import gphhucarp.decisionprocess.PoolFilter;
 import gphhucarp.decisionprocess.poolfilter.ExpFeasibleNoRefillPoolFilter;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import tl.gp.niching.SimpleNichingAlgorithm;
-import tl.gp.similarity.TreeDistanceMetric;
+import tl.gp.similarity.TreeSimilarityMetric;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,7 +21,7 @@ public class AddOncePhenotypicUpdatePolicy implements KNNPoolUpdatePolicy
 {
     @Override
     public Collection<KNNPoolItem> update(Collection<KNNPoolItem> pool, Individual[] inds, String source, PoolFilter filter,
-                                          TreeDistanceMetric metric, List<ReactiveDecisionSituation> dps, Object... extra)
+										  TreeSimilarityMetric metric, List<ReactiveDecisionSituation> dps, Object... extra)
     {
         if(pool != null && !pool.isEmpty())
             return pool;
