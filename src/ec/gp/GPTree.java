@@ -156,13 +156,7 @@ public class GPTree implements GPNodeParent, Prototype
     public static final String P_TREE = "tree";
     public static final String P_TREECONSTRAINTS = "tc";
 
-        @Override
-        public int hashCode()
-        {
-            return super.hashCode();
-        }
-
-        public static final String P_USEGRAPHVIZ = "graphviz";
+    public static final String P_USEGRAPHVIZ = "graphviz";
     public static final String P_USELATEX = "latex";
     public static final String P_USEC = "c";
     public static final String P_USEOPS = "c-operators";
