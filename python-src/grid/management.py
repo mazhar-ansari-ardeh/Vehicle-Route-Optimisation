@@ -12,13 +12,31 @@ def compress_grid(*, experiments, dirbase, save_to='/local/scratch/'):
             shutil.make_archive(Path(save_to) / exp / algorithm, 'bztar', Path(dirbase) / exp / algorithm)
             print(Path(save_to) / exp / algorithm, 'finished.')
 
-
-def delete_alg(*, experiments, algortithm_to_delete, dirbase='/home/mazhar/grid/', save_to='/local/scratch/'):
+def delete_exp(*, experiments, dirbase='/home/mazhar/grid/', save_to='/local/scratch/'):
     dirbase = Path(dirbase)
     for exp in experiments:
         (_, algorithms, _) = next(os.walk(dirbase / exp))
         for algorithm in algorithms:
-            if (not re.search(algortithm_to_delete, algorithm)): # and (not re.search(r'PPTPipe', algorithm)):
+            if save_to:
+                (_, runs, _) = next(os.walk(dirbase / exp / algorithm))
+                for run in runs: 
+                    if (not (Path(save_to) / exp / algorithm / (run + ".tar.bz2")).is_file()):
+                        print(dirbase / exp / algorithm / run, ' is not backed up. Backing it up now.')
+                        shutil.make_archive(Path(save_to) / exp / algorithm / run, 'bztar', dirbase / exp / algorithm / run)
+                        print(dirbase / exp / algorithm / run, ' backed up.')
+                        
+                        shutil.rmtree(dirbase / exp / algorithm / run)
+                        print(dirbase / exp / algorithm / run, ' deleted.')
+            shutil.rmtree(dirbase / exp / algorithm)
+            print(dirbase / exp / algorithm, 'deleted.')
+
+
+def delete_alg(*, experiments, algorithm_to_delete, dirbase='/home/mazhar/grid/', save_to='/local/scratch/'):
+    dirbase = Path(dirbase)
+    for exp in experiments:
+        (_, algorithms, _) = next(os.walk(dirbase / exp))
+        for algorithm in algorithms:
+            if (not re.search(algorithm_to_delete, algorithm)): # and (not re.search(r'PPTPipe', algorithm)):
                 continue
             if save_to:
                 (_, runs, _) = next(os.walk(dirbase / exp / algorithm))
@@ -64,3 +82,4 @@ def rename_alg_folder(*, experiments, dirbase, rename_from, rename_to):
             if rename_from != algorithm:
                 continue
             os.rename(Path(dirbase) / exp / rename_from, Path(dirbase) / exp / rename_to )
+            print('Renamed', Path(dirbase) / exp / rename_from, 'to', Path(dirbase) / exp / rename_to)

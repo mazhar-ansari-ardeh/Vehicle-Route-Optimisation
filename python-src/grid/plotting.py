@@ -9,7 +9,7 @@ import pandas as pd
 from pathlib import Path
 
 def plot_grid_output(test_fitness, exp_name, inclusion_filter, exclusion_filter, output_folder,
-                     rename_map, base_line='WithoutKnowledge', boxplots=False, lcols=2, lfontsize=40, linewidth=19):
+                     rename_map, base_line='WithoutKnowledge', boxplots=False, lcols=2, lfontsize=95, linewidth=19):
 
     markers = ["", ',', 'o', 'v', '^', '<', '>', 's', 'p', '*', 'h', 'H', '+', 'x', 'D', 'd', '|', '_']
     line_styles = ['--', '-.', ':']
@@ -32,7 +32,7 @@ def plot_grid_output(test_fitness, exp_name, inclusion_filter, exclusion_filter,
         box_data = []
         mean_data = []
         for gen in test_fitness[algorithm]:
-            box_data.append((list(test_fitness[algorithm][gen].values())))
+            # box_data.append((list(test_fitness[algorithm][gen].values())))
             mean_data.append(statistics.mean(list(test_fitness[algorithm][gen].values())))
 
         if not Path(output_folder / exp_name).exists(): 

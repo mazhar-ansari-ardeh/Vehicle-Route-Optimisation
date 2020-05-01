@@ -109,13 +109,15 @@ def get_test_fitness(experiment_path, inclusion_filter, exclusion_filter, *, num
                     test_fitness[algorithm][gen] = {}
                 if csv.shape[0] - 1 <= gen : # -1 is for the header
                     print("Warning: The csv file does not contain generation:", gen)
-                    return
+                    return False
                 test_fitness[algorithm][gen][int(run)] = float(csv.iloc[gen]['TestFitness'])
+            return True
         except Exception as exp:
             print(exp)
             print(file)
-            print(algorithm, gen, run)
-            raise exp
+            # print(algorithm, run)
+            return False
+            # raise exp
 
     experiment_path = Path(experiment_path)
     (_, algorithms, _) = next(os.walk(experiment_path))
@@ -138,11 +140,13 @@ def get_test_fitness(experiment_path, inclusion_filter, exclusion_filter, *, num
                     print("Warning: Test file does not exist in: ", test_dir)
                 if not test_file.endswith('.csv'):
                     continue
-                update_test_fitness(test_dir / test_file, algorithm, run)
+                if not update_test_fitness(test_dir / test_file, algorithm, run):
+                    print("Warning: Something is wrong with the test file: ", test_dir)
+                    # continue
 
     return test_fitness
 
-def get_train_mean(experiment_path, inclusion_filter, exclusion_filter, *, num_generations=49):
+def get_train_mean(experiment_path, inclusion_filter, exclusion_filter, *, num_generations=50):
     """
     Reads the 'jobs.0.stat.csv' file of experiments and collects the population mean of each generation.
     """
@@ -161,11 +165,13 @@ def get_train_mean(experiment_path, inclusion_filter, exclusion_filter, *, num_g
                 if not gen in mean_train_fitness[algorithm]:
                     mean_train_fitness[algorithm][gen] = {}
                 mean_train_fitness[algorithm][gen][int(run)] = float(csv.iloc[gen]['FitMean'])
+            return True
         except Exception as exp:
             print(exp)
             print(file)
-            print(algorithm, gen, run)
-            raise exp
+            return False
+            # print(algorithm, run)
+            # raise exp
 
     experiment_path = Path(experiment_path)
     (_, algorithms, _) = next(os.walk(experiment_path))
@@ -185,6 +191,77 @@ def get_train_mean(experiment_path, inclusion_filter, exclusion_filter, *, num_g
             if not (stat_file).exists():
                 print('Warning: the stat file does not exist: ', stat_file)
                 continue
-            update_mean_train_fitness(stat_file, algorithm, run)
+            if not update_mean_train_fitness(stat_file, algorithm, run):
+                print("Warning: Something is wrong with the file: ", str(stat_file))
 
     return mean_train_fitness
+
+def find_failed(basedir, experiments, to_find, num_generations = 50):
+    """
+    Finds the failed runs of experiments given in the list argument 'experiments'
+    """
+    for exp in experiments:
+        experiment_path = Path(basedir) / exp
+        (_, algorithms, _) = next(os.walk(experiment_path))
+        if not to_find in algorithms:
+            print(exp, to_find, 'is missing')
+            continue
+        (_, runs, _) = next(os.walk(experiment_path / to_find))
+        for i in range(1, 31):
+            if not str(i) in runs:
+                print(exp, to_find, str(i), 'is missing')
+                continue
+            test_dir = experiment_path / to_find / str(i) / 'test'
+            if not (test_dir).is_dir():
+                print(exp, to_find, str(i), 'test folder is missing')
+                continue
+            (_, _, test_files) = next(os.walk(test_dir))
+            if not test_files:
+                    print(exp, to_find, str(i), 'test folder is empty')
+            csv_found = False
+            for test_file in test_files:
+                if not test_file.endswith('.csv'):
+                    continue
+                csv_found = True
+                csv = pd.read_csv(test_dir / test_file)
+                if csv.shape[0] - 1 < num_generations : # -1 is for the header
+                    print(exp, to_find, str(i), 'test file does not contain', num_generations, 
+                        'generation', csv.shape[0])
+            if not csv_found:
+                print(exp, to_find, str(i), 'test file does not contain any CSVs')
+                continue
+
+def find_all_failed(basedir, experiments, inclusion_filter, exclusion_filter, num_generations = 50):
+    for exp in experiments:
+        experiment_path = Path(basedir) / exp
+        (_, algorithms, _) = next(os.walk(experiment_path))
+        for algorithm in algorithms:
+            if not should_process(algorithm, inclusion_filter, exclusion_filter):
+                continue
+            (_, runs, _) = next(os.walk(experiment_path / algorithm))
+            for i in range(1, 31):
+                if not str(i) in runs:
+                    print(exp, algorithm, str(i), 'is missing')
+                    continue
+                test_dir = experiment_path / algorithm / str(i) / 'test'
+                if not (test_dir).is_dir():
+                    print(exp, algorithm, str(i), 'test folder is missing')
+                    continue
+                (_, _, test_files) = next(os.walk(test_dir))
+                if not test_files:
+                        print(exp, algorithm, str(i), 'test folder is empty')
+                csv_found = False
+                for test_file in test_files:
+                    if not test_file.endswith('.csv'):
+                        continue
+                    csv_found = True
+                    if (test_dir / test_file).stat().st_size == 0:
+                        print(exp, algorithm, str(i), 'test file is empty:', test_file)
+                        continue
+                    csv = pd.read_csv(test_dir / test_file)
+                    if csv.shape[0] - 1 < num_generations : # -1 is for the header
+                        print(exp, algorithm, str(i), 'test file does not contain', num_generations, 
+                            'generation', csv.shape[0])
+                if not csv_found:
+                    print(exp, algorithm, str(i), 'test file does not contain any CSVs')
+                    continue
