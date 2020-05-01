@@ -5,7 +5,7 @@ import ec.gp.GPIndividual;
 import gphhucarp.decisionprocess.PoolFilter;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
-import tl.gp.similarity.PhenotypicTreeSimilarityMetric;
+import tl.gp.similarity.SituationBasedTreeSimilarityMetric;
 
 import java.util.Comparator;
 import java.util.List;
@@ -20,15 +20,26 @@ public class KNNSurrogateFitness
 
     private List<ReactiveDecisionSituation> situations;
 
-    private PhenotypicTreeSimilarityMetric metric;
+    public void setMetric(SituationBasedTreeSimilarityMetric metric)
+    {
+        this.metric = metric;
+    }
+
+    private SituationBasedTreeSimilarityMetric metric;
 
     public void rerevaluate(Function<Individual, Double> with)
     {
         knnPool.reevaluate(with);
     }
 
+    public KNNSurrogateFitness(SituationBasedTreeSimilarityMetric metric)
+    {
+        this.metric = metric;
+    }
+
     public KNNSurrogateFitness()
     {
+
     }
 
     public String logSurrogatePool()
@@ -43,7 +54,10 @@ public class KNNSurrogateFitness
 
     public List<GPIndividual> getSurrogatePool()
     {
-        return knnPool.pool.stream().sorted(Comparator.comparingDouble(p -> p.fitness)).map(p -> p.policy.getGPTree().owner).collect(Collectors.toList());
+        return knnPool.pool.stream().sorted(Comparator.comparingDouble(p -> p.fitness))
+                                    .map(p -> p.policy.getGPTree().owner)
+
+                .collect(Collectors.toList());
     }
 
     public boolean isKNNPoolEmpty()
@@ -81,8 +95,11 @@ public class KNNSurrogateFitness
 
     public void setSituations(List<ReactiveDecisionSituation> situations)
     {
+        if(situations == null || situations.size() == 0)
+            throw new RuntimeException("Situations cannot be null or empty");
+
         this.situations = situations;
-        metric = new PhenotypicTreeSimilarityMetric(situations);
+        metric.setSituations(situations);
     }
 
     public List<ReactiveDecisionSituation> getSituations()

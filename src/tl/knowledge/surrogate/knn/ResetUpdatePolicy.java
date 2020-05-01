@@ -4,7 +4,7 @@ import ec.Individual;
 import ec.gp.GPIndividual;
 import gphhucarp.decisionprocess.PoolFilter;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
-import tl.gp.similarity.TreeDistanceMetric;
+import tl.gp.similarity.TreeSimilarityMetric;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -20,7 +20,7 @@ public class ResetUpdatePolicy implements KNNPoolUpdatePolicy
 {
     @Override
     public Collection<KNNPoolItem> update(Collection<KNNPoolItem> pool, Individual[] inds, String source, PoolFilter filter,
-                                          TreeDistanceMetric metric, List<ReactiveDecisionSituation> dps, Object ... extra)
+										  TreeSimilarityMetric metric, List<ReactiveDecisionSituation> dps, Object ... extra)
     {
         return Arrays.stream(inds).map(i -> new KNNPoolItem((GPIndividual) i, filter, source)).collect(Collectors.toList());
     }

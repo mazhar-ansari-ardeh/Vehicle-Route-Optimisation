@@ -3,7 +3,7 @@ package tl.knowledge.surrogate.knn;
 import ec.Individual;
 import gphhucarp.decisionprocess.PoolFilter;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
-import tl.gp.similarity.TreeDistanceMetric;
+import tl.gp.similarity.TreeSimilarityMetric;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -48,7 +48,7 @@ class KNNPool implements Iterable<KNNPoolItem>
         }
     }
 
-    public void update(Individual[] inds, String source, PoolFilter filter, TreeDistanceMetric metric, List<ReactiveDecisionSituation> dps, Object... extra)
+    public void update(Individual[] inds, String source, PoolFilter filter, TreeSimilarityMetric metric, List<ReactiveDecisionSituation> dps, Object... extra)
     {
         pool = updatePolicy.update(pool, inds, source, filter, metric, dps, extra);
     }

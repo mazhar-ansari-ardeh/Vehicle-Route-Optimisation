@@ -6,7 +6,7 @@ import gphhucarp.decisionprocess.PoolFilter;
 import gphhucarp.decisionprocess.poolfilter.ExpFeasibleNoRefillPoolFilter;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
-import tl.gp.similarity.TreeDistanceMetric;
+import tl.gp.similarity.TreeSimilarityMetric;
 
 import java.util.Collection;
 import java.util.List;
@@ -20,7 +20,7 @@ public class UnboundedPhenotypicUpdatePolicy implements KNNPoolUpdatePolicy
 {
     @Override
     public Collection<KNNPoolItem> update(Collection<KNNPoolItem> pool, Individual[] inds, String source,
-                                          PoolFilter filter, TreeDistanceMetric metric, List<ReactiveDecisionSituation> dps, Object ... extra)
+										  PoolFilter filter, TreeSimilarityMetric metric, List<ReactiveDecisionSituation> dps, Object ... extra)
     {
 //        PhenotypicTreeSimilarityMetric metric = (PhenotypicTreeSimilarityMetric)extra[0];
         if(filter == null)
