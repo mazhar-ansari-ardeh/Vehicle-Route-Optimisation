@@ -19,10 +19,10 @@ public class SurrogateFitness
         this.filter = filter;
     }
 
-    public void setRadius(double radius)
-    {
-//        this.radius = radius;
-    }
+//    public void setRadius(double radius)
+//    {
+////        this.radius = radius;
+//    }
 
     public LinkedList<Individual[]> getSurrogatePool()
     {
