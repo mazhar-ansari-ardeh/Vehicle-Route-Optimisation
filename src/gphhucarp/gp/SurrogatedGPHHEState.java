@@ -7,26 +7,20 @@ import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import ec.multiobjective.MultiObjectiveFitness;
 import ec.util.Parameter;
-import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import tl.TLLogger;
 import tl.gp.niching.SimpleNichingAlgorithm;
 import tl.gp.similarity.CorrPhenoTreeSimilarityMetric;
 import tl.gp.similarity.HammingPhenoTreeSimilarityMetric;
 import tl.gp.similarity.PhenotypicTreeSimilarityMetric;
+import tl.gphhucarp.dms.DMSSavingGPHHState;
 import tl.knowledge.surrogate.knn.*;
 
 import java.io.File;
 import java.util.*;
 
-public class SurrogatedGPHHEState extends GPHHEvolutionState implements TLLogger<GPNode>
+public class SurrogatedGPHHEState extends DMSSavingGPHHState implements TLLogger<GPNode>
 {
     public KNNSurrogateFitness surFitness;
-
-    @Override
-    List<ReactiveDecisionSituation> getAllSeenSituations()
-    {
-        return super.getAllSeenSituations();
-    }
 
     private int surLogID;
     private int interimPopLogID;

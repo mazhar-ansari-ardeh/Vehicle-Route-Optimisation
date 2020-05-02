@@ -11,20 +11,15 @@ import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import tl.TLLogger;
 import tl.gp.niching.SimpleNichingAlgorithm;
 import tl.gp.similarity.*;
+import tl.gphhucarp.dms.DMSSavingGPHHState;
 import tl.knowledge.surrogate.knn.*;
 
 import java.io.File;
 import java.util.*;
 
-public class EnsembleSurrogatedGPHHState extends GPHHEvolutionState implements TLLogger<GPNode>
+public class EnsembleSurrogatedGPHHState extends DMSSavingGPHHState implements TLLogger<GPNode>
 {
 	public EnsembleSurrogateFitness surFitness;
-
-	@Override
-	List<ReactiveDecisionSituation> getAllSeenSituations()
-	{
-		return super.getAllSeenSituations();
-	}
 
 	private int surLogID;
 	private int interimPopLogID;

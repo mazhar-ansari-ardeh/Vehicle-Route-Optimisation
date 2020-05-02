@@ -20,6 +20,7 @@ import tl.gp.similarity.CorrPhenoTreeSimilarityMetric;
 import tl.gp.similarity.HammingPhenoTreeSimilarityMetric;
 import tl.gp.similarity.PhenotypicTreeSimilarityMetric;
 import tl.gp.similarity.RefRulePhenoTreeSimilarityMetric;
+import tl.gphhucarp.dms.DMSSavingGPHHState;
 import tl.knowledge.surrogate.knn.FIFONoDupPhenotypicUpdatePolicy;
 import tl.knowledge.surrogate.knn.KNNSurrogateFitness;
 
@@ -33,7 +34,7 @@ import tl.knowledge.surrogate.knn.KNNSurrogateFitness;
  */
 public class TestSimilarity
 {
-	static GPHHEvolutionState state = null;
+	static DMSSavingGPHHState state = null;
 
 	/**
 	 * Initialize ECJ. For this purpose, the function loads ECJ with a param file and any additional
@@ -45,7 +46,7 @@ public class TestSimilarity
 	 */
 	private static void setup(String paramFileNamePath, String... ecjParams)
 	{
-		state = (GPHHEvolutionState) ECJUtils.loadECJ(paramFileNamePath, ecjParams);
+		state = (DMSSavingGPHHState) ECJUtils.loadECJ(paramFileNamePath, ecjParams);
 
 		Parameter p = new Parameter("eval.problem.eval-model.instances.0.samples");
 		int samples = state.parameters.getInt(p, null);
