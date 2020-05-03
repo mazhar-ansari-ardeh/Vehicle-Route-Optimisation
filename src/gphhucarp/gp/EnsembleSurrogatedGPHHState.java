@@ -12,6 +12,7 @@ import tl.TLLogger;
 import tl.gp.niching.SimpleNichingAlgorithm;
 import tl.gp.similarity.*;
 import tl.gphhucarp.dms.DMSSavingGPHHState;
+import tl.knowledge.surrogate.SuGPIndividual;
 import tl.knowledge.surrogate.knn.*;
 
 import java.io.File;
@@ -100,7 +101,7 @@ public class EnsembleSurrogatedGPHHState extends DMSSavingGPHHState implements T
 		log(this, interimPopLogID, "SurrogateFitness,SurrogateFitnessAfterClearing,Individual\n");
 
 		popLogID = setupLogger(this, new File(surLogPath, "pop/Pop.0.csv").getAbsolutePath());
-		log(this, popLogID, "SurrogateTime,EvaluationTime,SurrogateFitness,Fitness,Tree\n");
+		log(this, popLogID, "SurrogateTime,SurrogateFitness,Fitness,Tree\n");
 	}
 
 	private ArrayList<Population> breedMore(int howMany)
@@ -149,11 +150,12 @@ public class EnsembleSurrogatedGPHHState extends DMSSavingGPHHState implements T
 		{
 			for(Individual ind : pop.subpops[0].individuals)
 			{
-				ind.surtime = System.currentTimeMillis();
+				long surtime = System.currentTimeMillis();
 				double fit = surFitness.fitness(ind);
-				ind.surtime = System.currentTimeMillis() - ind.surtime;
+				surtime = System.currentTimeMillis() - surtime;
 				((MultiObjectiveFitness)ind.fitness).objectives[0] = fit;
-				ind.surFit = fit;
+				((SuGPIndividual)ind).setSurtime(surtime);
+				((SuGPIndividual)ind).setSurFit(fit);
 				allInds.add(ind);
 			}
 		}
@@ -166,7 +168,7 @@ public class EnsembleSurrogatedGPHHState extends DMSSavingGPHHState implements T
 				return Integer.compare(((GPIndividual)o1).trees[0].child.depth(), ((GPIndividual)o2).trees[0].child.depth());
 			return c;
 		});
-		allInds.forEach(i -> log(this, interimPopLogID, i.surFit + "," + i.fitness.fitness()
+		allInds.forEach(i -> log(this, interimPopLogID, ((SuGPIndividual)i).getSurFit() + "," + i.fitness.fitness()
 				+ "," + ((GPIndividual)i).trees[0].child.makeLispTree() + "\n"));
 
 		Population pop = temporaryPop.get(0);
@@ -178,7 +180,8 @@ public class EnsembleSurrogatedGPHHState extends DMSSavingGPHHState implements T
 		evaluator.evaluatePopulation(this);
 		for(Individual ind : population.subpops[0].individuals)
 		{
-			log(this, popLogID, ind.surtime + "," + ind.evalTime + "," + ind.surFit + "," + ind.fitness.fitness() + ","
+			SuGPIndividual ind1 = (SuGPIndividual) ind;
+			log(this, popLogID, ind1.getSurtime() + "," + "," + ind1.getSurFit() + "," + ind.fitness.fitness() + ","
 					+ ((GPIndividual)ind).trees[0].child.makeLispTree() + "\n");
 		}
 
@@ -260,7 +263,7 @@ public class EnsembleSurrogatedGPHHState extends DMSSavingGPHHState implements T
 
 		closeLogger(this, popLogID);
 		popLogID = setupLogger(this, new File(surLogPath, "pop/Pop." + (generation + 1) + ".csv").getAbsolutePath());
-		log(this, popLogID, "SurrogateTime,EvaluationTime,SurrogateFitness,Fitness,Tree\n");
+		log(this, popLogID, "SurrogateTime,SurrogateFitness,Fitness,Tree\n");
 
 		closeLogger(this, interimPopLogID);
 		interimPopLogID = setupLogger(this, new File(surLogPath, "pop/InterimPop." + (generation + 1) + ".csv").getAbsolutePath());

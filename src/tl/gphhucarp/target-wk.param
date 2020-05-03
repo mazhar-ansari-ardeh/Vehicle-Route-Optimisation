@@ -177,6 +177,7 @@ ppt-state.niche-capacity=2
 # The Surrogate
 # ==============================
 state = gphhucarp.gp.SurrogatedGPHHEState
+pop.subpop.0.species.ind = tl.knowledge.surrogate.SuGPIndividual
 surrogate-state.surr-log-path=./stats/target-wk/
 surrogate-state.surrogate-updpool-policy=CorrEntropy
 surrogate-state.eval-surpool-on-init=true
@@ -195,6 +196,7 @@ surrogate-state.knn-distance-metric=corrphenotypic
 # The Ensemble Surrogate
 # ==============================
 state = gphhucarp.gp.EnsembleSurrogatedGPHHState
+pop.subpop.0.species.ind = tl.knowledge.surrogate.SuGPIndividual
 ensemble-surrogate-state.surr-log-path=./stats/target-wk/
 ensemble-surrogate-state.eval-surpool-on-init=true
 gp.tc.0.init=tl.gp.EnsembleSurrogateBuilder

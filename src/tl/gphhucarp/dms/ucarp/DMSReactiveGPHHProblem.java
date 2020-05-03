@@ -79,6 +79,6 @@ public class DMSReactiveGPHHProblem extends ReactiveGPHHProblem
 
 		indi.evaluated = true;
 		evalCount++;
-		indi.evalTime = t;
+//		indi.evalTime = t;
 	}
 }

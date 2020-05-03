@@ -322,10 +322,11 @@ else
   L_SURUPOL="$6"
 fi
 
-L_EXP_NAME="Surrogate:initsurpool_$1:tp_$2:knndistmetr_$3:avefitdup_$5:dms_30:surupol_$L_SURUPOL"
-L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
+local L_EXP_NAME="Surrogate:initsurpool_$1:tp_$2:knndistmetr_$3:avefitdup_$5:dms_30:surupol_$L_SURUPOL"
+local L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
 do_knowledge_experiment $L_EXP_NAME \
                         -p state=gphhucarp.gp.SurrogatedGPHHEState \
+                        -p pop.subpop.0.species.ind=tl.knowledge.surrogate.SuGPIndividual \
                         -p surrogate-state.surr-log-path=$L_EXPERIMENT_DIR/ \
                         -p surrogate-state.surrogate-updpool-policy=$6 \
                         -p surrogate-state.eval-surpool-on-init=$4 \
@@ -354,6 +355,7 @@ local L_EXP_NAME="EnsembleSurrogate:initsurpool_$1:tp_$2:knndistmetr_$3:dms_30"
 local L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
 do_knowledge_experiment $L_EXP_NAME \
                         -p state=gphhucarp.gp.EnsembleSurrogatedGPHHState \
+                        -p pop.subpop.0.species.ind=tl.knowledge.surrogate.SuGPIndividual \
                         -p ensemble-surrogate-state.surr-log-path=$L_EXPERIMENT_DIR/ \
                         -p ensemble-surrogate-state.eval-surpool-on-init=$4 \
                         -p gp.tc.0.init=tl.gp.EnsembleSurrogateBuilder \
