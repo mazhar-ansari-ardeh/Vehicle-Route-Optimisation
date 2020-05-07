@@ -70,7 +70,7 @@ seed.0=19
 # PPT Builder
 # ==============================
 # gp.tc.0.init=tl.gp.PPTBuilder
-gp.tc.0.init.knowledge-file=/am/vuwstocoisnrin1.vuw.ac.nz/grid-solar/sgeusers/mazhar/gdb1.vs5.gdb1.vt6:gen_50/PPTFreqLearning:percent_0.5:nrad_-1:ncap_2:gens_49_49:lr_0.8:ss_100:ts_-1/3/PPTFreqLearning:percent_0.5:nrad_-1:ncap_2:gens_49_49:lr_0.8:ss_100:ts_-1.ppt
+gp.tc.0.init.knowledge-file=~/grid/gdb1.vs5.gdb1.vt6:gen_50/PPTFreqLearning:percent_0.5:nrad_-1:ncap_2:gens_49_49:lr_0.8:ss_100:ts_-1/3/PPTFreqLearning:percent_0.5:nrad_-1:ncap_2:gens_49_49:lr_0.8:ss_100:ts_-1.ppt
 percentage of initial population that is created from extracted knowledge
 gp.tc.0.init.transfer-percent=0.50
 gp.tc.0.init.knowledge-log-file=./stats/target-wk/PPTBuildLog
@@ -176,36 +176,51 @@ ppt-state.niche-capacity=2
 # ==============================
 # The Surrogate
 # ==============================
-state = gphhucarp.gp.SurrogatedGPHHEState
-pop.subpop.0.species.ind = tl.knowledge.surrogate.SuGPIndividual
-surrogate-state.surr-log-path=./stats/target-wk/
-surrogate-state.surrogate-updpool-policy=CorrEntropy
-surrogate-state.eval-surpool-on-init=true
-gp.tc.0.init=ec.SurrogateBuilder
-gp.tc.0.init.knowledge-file=population.gen.49.bin
-gp.tc.0.init.knowledge-log-file=./stats/target-wk/SurrogateBuilderLog
-gp.tc.0.init.init-surrogate-pool=true
-gp.tc.0.init.transfer-percent=0.2
-surrogate-state.surrogate-average-dup-fitness=true
-surrogate-state.corr-entropy.eps=0.1
-surrogate-state.corr-entropy.min-cluster-size=0
-surrogate-state.knn-distance-metric=corrphenotypic
+# state = gphhucarp.gp.SurrogatedGPHHEState
+# pop.subpop.0.species.ind = tl.knowledge.surrogate.SuGPIndividual
+# surrogate-state.surr-log-path=./stats/target-wk/
+# surrogate-state.surrogate-updpool-policy=CorrEntropy
+# surrogate-state.eval-surpool-on-init=true
+# gp.tc.0.init=ec.SurrogateBuilder
+# gp.tc.0.init.knowledge-file=population.gen.49.bin
+# gp.tc.0.init.knowledge-log-file=./stats/target-wk/SurrogateBuilderLog
+# gp.tc.0.init.init-surrogate-pool=true
+# gp.tc.0.init.transfer-percent=0.2
+# surrogate-state.surrogate-average-dup-fitness=true
+# surrogate-state.corr-entropy.eps=0.1
+# surrogate-state.corr-entropy.min-cluster-size=0
+# surrogate-state.knn-distance-metric=corrphenotypic
 
 
 # ==============================
 # The Ensemble Surrogate
 # ==============================
-state = gphhucarp.gp.EnsembleSurrogatedGPHHState
-pop.subpop.0.species.ind = tl.knowledge.surrogate.SuGPIndividual
-ensemble-surrogate-state.surr-log-path=./stats/target-wk/
-ensemble-surrogate-state.eval-surpool-on-init=true
-gp.tc.0.init=tl.gp.EnsembleSurrogateBuilder
-gp.tc.0.init.knowledge-file=population.gen.49.bin
-gp.tc.0.init.knowledge-log-file=./stats/target-wk/SurrogateBuilderLog
-gp.tc.0.init.init-surrogate-pool=true
-gp.tc.0.init.transfer-percent=0.2
+# state = gphhucarp.gp.EnsembleSurrogatedGPHHState
+# pop.subpop.0.species.ind = tl.knowledge.surrogate.SuGPIndividual
+# ensemble-surrogate-state.surr-log-path=./stats/target-wk/
+# ensemble-surrogate-state.eval-surpool-on-init=true
+# gp.tc.0.init=tl.gp.EnsembleSurrogateBuilder
+# gp.tc.0.init.knowledge-file=population.gen.49.bin
+# gp.tc.0.init.knowledge-log-file=./stats/target-wk/SurrogateBuilderLog
+# gp.tc.0.init.init-surrogate-pool=true
+# gp.tc.0.init.transfer-percent=0.2
 # ensemble-surrogate-state.surrogate-average-dup-fitness=true
-ensemble-surrogate-state.knn-distance-metric=corrphenotypic
+# ensemble-surrogate-state.knn-distance-metric=corrphenotypic
+
+
+# ==============================
+# Cleared FullTree
+# ==============================
+state=tl.gphhucarp.dms.DMSSavingGPHHState
+gp.tc.0.init=tl.gp.ClearedFullTreeBuilder
+gp.tc.0.init.knowledge-path=/Users/mzhr/Desktop/
+gp.tc.0.init.transfer-percent=0.5
+gp.tc.0.init.knowledge-log-file=./stats/target-wk/FullTreeLog
+gp.tc.0.init.distance-metric=hamming
+gp.tc.0.init.num-generations=50
+gp.tc.0.init.from-generation=49
+gp.tc.0.init.to-generation=49
+gp.tc.0.init.niche-radius=0
 
 # ==============================
 # The test set
