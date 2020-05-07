@@ -293,6 +293,17 @@ function do_knowledge_experiment()
     printf "$(date)\t $SGE_TASK_ID \n" >> $SAVE_TO/Finished$L_EXPERIMENT_NAME.txt
 }
 
+# This function performs the cleared fulltree experiment. This method gets a path to a directory or file that contains
+# knowledge, loads the population from it, performs a clearing on it and forms a pool from the cleared population to
+# initialise a percentage of target domains. This function has the foloowing parameters:
+# 1. Percentage of the target population to initialise,
+# 2. Similarity metric:
+#       2.1. phenotypic
+#       2.2. corrphenotypic
+#       2.3. hamming
+# 3. Generation of source domain from which to start loading populations (inclusive)
+# 4. Generation of source domain until which which to start loading populations (inclusive)
+# 5. Niche radius.
 function ClearedFullTree()
 {
   local L_EXP_NAME="ClearedFullTree:tp_$1:metric_$2:gen_$3_$4:nrad_$5"
@@ -317,6 +328,7 @@ function ClearedFullTree()
 #   3. KNN distance metric:
 #       3.1. phenotypic
 #       3.2. corrphenotypic
+#       3.3. hamming
 #   4. evaluate surrogate pool on initialisatoin: "true" or "false". This parameter is not reflected in experiment names.
 #   5. Average fitness for duplicate individuals: "true", "false"
 #   6. surupol: Surrogate update policy. Acceptable values are:
