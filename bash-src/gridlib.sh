@@ -79,7 +79,8 @@ else
 fi
 KNOWLEDGE_SOURCE_DIR="./$KNOWLEDGE_SOURCE_NAME/$SGE_TASK_ID"
 
-# Extracted knowledge. This is the name of the file that will contain the results of programms such as 'AnalyzeTerminals' that output their results in an external file.
+# Extracted knowledge. This is the name of the file that will contain the results of programms such as
+# 'AnalyzeTerminals' that output their results in an external file.
 # KNOWLEDGE_FILE_BASE="$DATASET_SOURCE-v$NUM_VEHICLES_SOURCE"
 
 
@@ -292,10 +293,27 @@ function do_knowledge_experiment()
     printf "$(date)\t $SGE_TASK_ID \n" >> $SAVE_TO/Finished$L_EXPERIMENT_NAME.txt
 }
 
+function ClearedFullTree()
+{
+  local L_EXP_NAME="ClearedFullTree:tp_$1:metric_$2:gen_$3_$4:nrad_$5"
+  do_knowledge_experiment "$L_EXP_NAME" \
+                          -p state=tl.gphhucarp.dms.DMSSavingGPHHState \
+                          -p gp.tc.0.init=tl.gp.ClearedFullTreeBuilder \
+                          -p gp.tc.0.init.knowledge-path=$KNOWLEDGE_SOURCE_DIR/ \
+                          -p gp.tc.0.init.transfer-percent=$1 \
+                          -p gp.tc.0.init.distance-metric=$2 \
+                          -p gp.tc.0.init.num-generations=$GENERATIONS \
+                          -p gp.tc.0.init.from-generation=$3 \
+                          -p gp.tc.0.init.to-generation=$4 \
+                          -p gp.tc.0.init.niche-radius=$5
+}
+
 # This function performs the surrogate-assisted transfer learning.
 # The function takes the following parameters:
-#   1. Init the surrogate pool in the builder. If "false" (the default), the surrogate pool will not be initialised and hence transferred from the source domain. Don't forget the quotation marks.
-#   2. Transfer percent (in [0, 1]), the percent of the initial population that is transferred exactly from the source domain.
+#   1. Init the surrogate pool in the builder. If "false" (the default), the surrogate pool will not be initialised and
+#   hence transferred from the source domain. Don't forget the quotation marks.
+#   2. Transfer percent (in [0, 1]), the percent of the initial population that is transferred exactly from the source
+#   domain.
 #   3. KNN distance metric:
 #       3.1. phenotypic
 #       3.2. corrphenotypic
@@ -343,8 +361,10 @@ do_knowledge_experiment $L_EXP_NAME \
 
 # This function performs the ensemble-surrogate-assisted transfer learning.
 # The function takes the following parameters:
-#   1. Init the surrogate pool in the builder. If "false" (the default), the surrogate pool will not be initialised and hence transferred from the source domain. Don't forget the quotation marks.
-#   2. Transfer percent (in [0, 1]), the percent of the initial population that is transferred exactly from the source domain.
+#   1. Init the surrogate pool in the builder. If "false" (the default), the surrogate pool will not be initialised and
+#   hence transferred from the source domain. Don't forget the quotation marks.
+#   2. Transfer percent (in [0, 1]), the percent of the initial population that is transferred exactly from the source
+#   domain.
 #   3. KNN distance metric:
 #       3.1. phenotypic
 #       3.2. corrphenotypic
