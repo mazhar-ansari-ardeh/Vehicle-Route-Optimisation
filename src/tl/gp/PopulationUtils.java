@@ -1,6 +1,7 @@
 package tl.gp;
 
 import java.io.*;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.BiFunction;
@@ -9,6 +10,10 @@ import java.util.stream.Collectors;
 
 import ec.*;
 import ec.gp.GPIndividual;
+import ec.gp.GPNode;
+import tl.TLLogger;
+import tl.gp.niching.SimpleNichingAlgorithm;
+import tl.gp.similarity.SituationBasedTreeSimilarityMetric;
 
 public class PopulationUtils
 {
@@ -122,6 +127,71 @@ public class PopulationUtils
 		return retval;
 	}
 
+	/**
+	 * Loads GP population from a file or a set of files in a directory. The method performs a clearning operation on
+	 * the loaded pool to remove duplicated.
+	 * @param state The evolutionary state that governs this process.
+	 * @param inputPath The path to the knowledge file or directory.
+	 * @param fromGeneration If the path is to a directory, the generation to start loading populations; otherwise, it
+	 *                       is ignored.
+	 * @param toGeneration If the path is to a directory, the generation to start loading populations; otherwise, it
+  	 *                     is ignored.
+	 * @param metrics The similarity metric used for performing niching. This metric is expected to be configured before
+	 *                passing it in.
+	 * @param nicheRadius The niching radius
+	 * @param logger The logger needed for logging the method.
+	 * @param logID The ID of the logger.
+	 * @return A pool of individuals, sorted based on their fitness.
+	 */
+	public static List<Individual> loadPopulations(EvolutionState state, String inputPath,
+												   int fromGeneration, int toGeneration,
+											 			SituationBasedTreeSimilarityMetric metrics,
+														double nicheRadius,
+														TLLogger<GPNode> logger,
+														int logID) throws IOException, ClassNotFoundException
+	{
+		File f = new File(inputPath);
+
+		List<Individual> pool = new ArrayList<>();
+		if (f.isDirectory())
+		{
+			if (fromGeneration <= -1 || toGeneration <= -1)
+			{
+				logger.log(state, logID, "Generation range is invalid: " + fromGeneration
+						+ " to " + toGeneration + "\n");
+				state.output.fatal("Generation range is invalid: " + fromGeneration + " to "
+						+ toGeneration);
+			}
+			for (int i = toGeneration; i >= fromGeneration; i--)
+			{
+				File file = Paths.get(inputPath, "population.gen." + i + ".bin").toFile();
+				if(!file.exists())
+				{
+					logger.log(state, logID, "The file " + file.toString() + " does not exist. Ignoring.\n");
+					continue;
+				}
+				Population p = PopulationUtils.loadPopulation(file);
+				PopulationUtils.sort(p);
+				pool.addAll(Arrays.asList(p.subpops[0].individuals));
+				SimpleNichingAlgorithm.clearPopulation(pool, metrics, nicheRadius, 1);
+				pool = pool.stream().filter(ind -> ind.fitness.fitness() != Double.POSITIVE_INFINITY).collect(Collectors.toList());
+			}
+		}
+		else if (f.isFile())
+		{
+			Population p = PopulationUtils.loadPopulation(f);
+			PopulationUtils.sort(p);
+			pool.addAll(Arrays.asList(p.subpops[0].individuals));
+			SimpleNichingAlgorithm.clearPopulation(pool, metrics, nicheRadius, 1);
+			pool = pool.stream().filter(ind -> ind.fitness.fitness() != Double.POSITIVE_INFINITY).collect(Collectors.toList());
+		}
+
+		logger.log(state, logID, "pool size: " + pool.size() + "\n");
+		pool.forEach(i ->
+				logger.log(state, logID, i.fitness.fitness() + ", " + ((GPIndividual)i).trees[0].child.makeLispTree() + "\n"));
+
+		return pool;
+	}
 
 	/**
 	 * Performs a tournament selection on the given individuals.
