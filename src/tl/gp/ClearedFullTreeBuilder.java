@@ -115,6 +115,10 @@ public class ClearedFullTreeBuilder extends HalfBuilder implements TLLogger<GPNo
 			}
 		}
 
+		log(state, logID, "pool size: " + pool.size() + "\n");
+		pool.forEach(i ->
+				log(state, logID, i.fitness.fitness() + ", " + ((GPIndividual)i).trees[0].child.makeLispTree() + "\n"));
+
 		return pool;
 	}
 
@@ -133,6 +137,7 @@ public class ClearedFullTreeBuilder extends HalfBuilder implements TLLogger<GPNo
 			state.output.fatal("Transfer percent must be in [0, 1]");
 		} else {
 			log(state, knowledgeSuccessLogID, "Transfer percent: " + transferPercent);
+			state.output.warning( "Transfer percent: " + transferPercent);
 		}
 
 		fromGeneration = state.parameters.getIntWithDefault(base.push(P_GENERATION_FROM), null, -1);
@@ -199,14 +204,15 @@ public class ClearedFullTreeBuilder extends HalfBuilder implements TLLogger<GPNo
 								final GPNodeParent parent, final GPFunctionSet set, final int argposition,
 								final int requestedSize)
 	{
-		if (cfCounter < populationSize * transferPercent)
+		if (cfCounter < populationSize * transferPercent && !pool.isEmpty())
 		{
 			Individual ind = pool.remove(0);
+			double fitness = ind.fitness.fitness();
 			GPNode root = GPIndividualUtils.stripRoots((GPIndividual) ind).get(0);
 
 			cfCounter++;
-			log(state, knowledgeSuccessLogID, cfCounter + ": \t" + root.makeCTree(false,
-					true, true) + "\n\n");
+			log(state, knowledgeSuccessLogID, cfCounter + ": \t" + fitness + ", " +
+					root.makeCTree(false, true, true) + "\n\n");
 			root.parent = parent;
 			root.argposition = (byte) argposition;
 			return root;
