@@ -109,6 +109,8 @@ public class ReactiveGPHHProblem extends GPProblem implements SimpleProblemForm 
 
         if(state instanceof DMSSaver) {
             DMSSaver gstate = (DMSSaver) state;
+            boolean saveDMS = gstate.isDMSSavingEnabled();
+            evaluationModel.setSaveDMSEnabled(saveDMS);
 
 //        for(int i = 0; i < seenDecicionSituations.size(); i++)
 //        {
@@ -124,9 +126,10 @@ public class ReactiveGPHHProblem extends GPProblem implements SimpleProblemForm 
 //        List<DecisionSituation> subList = seenDecicionSituations.subList(0, (numSeenSituations > 5) ? 5 : numSeenSituations);
 //        List<DecisionSituation> sublist = new ArrayList<>(subList.size());
 //        subList.forEach(item -> sublist.add(new ReactiveDecisionSituation((ReactiveDecisionSituation) item)));
-            gstate.updateSeenSituations(indi, seenDecicionSituations);
-            this.evaluationModel.resetSeenSituations();
+            if(saveDMS)
+                gstate.updateSeenSituations(indi, seenDecicionSituations);
         }
+        this.evaluationModel.resetSeenSituations();
 
         indi.evaluated = true;
         evalCount++;
