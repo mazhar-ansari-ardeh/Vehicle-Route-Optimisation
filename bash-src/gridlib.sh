@@ -293,6 +293,20 @@ function do_knowledge_experiment()
     printf "$(date)\t $SGE_TASK_ID \n" >> $SAVE_TO/Finished$L_EXPERIMENT_NAME.txt
 }
 
+# This function performs the Surrogate-EvaluatedFulltree experiment. This method gets a path to a directory or file that
+# contains knowledge, loads the population from it, performs a clearing on it and forms a surrogate pool from the
+# cleared population. The experiment creates an intermediate population of 10 times the size of the originial
+# population, evaluates the intermediate population with the surrogate, removes duplicates with a clearing method and
+# then, initialise a percentage of target domains from the top individuals of the cleared population. This function has
+# the foloowing parameters:
+# 1. Percentage of the target population to initialise,
+# 2. Similarity metric:
+#       2.1. phenotypic
+#       2.2. corrphenotypic
+#       2.3. hamming
+# 3. Generation of source domain from which to start loading populations (inclusive)
+# 4. Generation of source domain until which which to start loading populations (inclusive)
+# 5. Niche radius.
 function SurEvalFullTree()
 {
   local L_EXP_NAME="SurEvalFullTree:tp_$1:metric_$2:gen_$3_$4:nrad_$5:dms_20"
