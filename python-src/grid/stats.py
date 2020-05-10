@@ -56,6 +56,12 @@ def update_wdl(exp_data, wdltable, rename_map, *, base_line='WithoutKnowledge', 
             wdltable[renamed_alg][1] += 1
 
 def wdl(dirbase, experiments, inclusion_filter, exclusion_filter, rename_map, *, base_line='WithoutKnowledge', num_generations=50, dump_file=Path('./wdl')):
+    """
+    Computes the Win-Draw-Loss statistics of algorithms compared to a baseline. The function saves 
+    the stats to a JSON and CSV files and also returns them. This function reads the fitness values
+    from the 'dirbase' location. 
+    Usage: wdl(dirbase, experiments, inclusion_filter, exclusion_filter, dump_file=output_folder / 'wdl', rename_map=rename_map)
+    """
     wdltable = {}
 
     for exp in experiments: 
@@ -66,6 +72,32 @@ def wdl(dirbase, experiments, inclusion_filter, exclusion_filter, rename_map, *,
     with open(str(dump_file) + '.json', 'w') as file: 
         json.dump(wdltable, file, indent=4)
         print('WDL: results saved to:', dump_file)
+
+    with open(str(dump_file) + '.csv', 'w', newline="") as csv_file:  
+        writer = csv.writer(csv_file)
+        for key, value in wdltable.items():
+            writer.writerow([key, *value])
+
+    return wdltable
+
+def wdl2(experiment_data, rename_map, *, base_line='WithoutKnowledge', num_generations=50, dump_file=Path('./wdl')):
+    """
+    Computes the Win-Draw-Loss statistics of algorithms compared to a baseline. The function saves 
+    the stats to a JSON and CSV files and also returns them. The function does not read fitness data 
+    from files and treats 'experiment_data' as a dictionary that contains fitness information for 
+    each experiment. 
+    Usage: wdl2(experiment_data, dump_file=output_folder / 'wdl', rename_map=rename_map)
+    """
+    wdltable = {}
+
+    for exp in experiment_data: 
+        print('WDL2: processing', exp)
+        exp_data = experiment_data[exp]
+        update_wdl(exp_data, wdltable, rename_map, base_line=base_line, num_generations=num_generations)
+
+    with open(str(dump_file) + '.json', 'w') as file: 
+        json.dump(wdltable, file, indent=4)
+        print('WDL2: results saved to:', dump_file)
 
     with open(str(dump_file) + '.csv', 'w', newline="") as csv_file:  
         writer = csv.writer(csv_file)
@@ -171,8 +203,6 @@ def save_summary(summary_table, output_folder, rename_map):
                     + r'\end{table}')
     latex_file.close()
 
-
-
 def save_stats(test_fitness, exp_name, output_folder, *, rename_map, gen = 49, round_results = False, baseline_alg = 'WithoutKnowledge'):
     if not Path(output_folder / exp_name).exists(): 
         Path(output_folder / exp_name).mkdir(parents=True)
@@ -230,3 +260,71 @@ def save_stats(test_fitness, exp_name, output_folder, *, rename_map, gen = 49, r
                     + r'\caption{Means of 30 runs of best of GP generations for dataset \textbf{}, from  to  vehicles}' + '\n'
                     + r'\end{table}')
     latex_file.close()
+
+
+def improvements(test_fitnesses, rename_map, num_generations = 50, dump_file=Path('./improvements')):
+
+    def find_improvement(fitness, *, base_line='WithoutKnowledge', generations=num_generations):
+        retval = {} 
+        for alg in fitness:
+            if alg == base_line: 
+                continue
+            retval[alg] = []
+            for i in range(generations):
+                # if len(list(fitness[base_line][generations-1].values())) !=  len(list(fitness[alg][i].values())):
+                #     print('Imbalanced len:', alg, 'at generation:', i)
+                #     continue
+
+                pval_wo_wil = stats.wilcoxon(list(fitness[base_line][generations-1].values())[:len(fitness[alg][i].values())], list(fitness[alg][i].values()))[1]
+                if pval_wo_wil >= 0.05:
+                    # The performance is similar now. 
+                    retval[alg].append(0)
+                if pval_wo_wil < 0.05:
+                    mean_alg = statistics.mean(list(fitness[alg][i].values()))
+                    mean_bse = statistics.mean(list(fitness[base_line][generations-1].values()))
+                    if mean_alg > mean_bse:
+                        # Oh oh
+                        retval[alg].append(-1) # = f'{i} failed.'
+                    else: 
+                        retval[alg].append(1)
+
+        return retval
+
+    def update_improvement_percentage(improvements, improve_perc_table, improve_table):
+        # retval = {}
+        for alg in improvements: 
+            # retval[alg] = 0
+            if alg not in improve_perc_table:
+                improve_perc_table[alg] = 0
+                improve_table[alg] = []
+            improvement = improvements[alg]
+            improved = 0
+            for i in range(len(improvement)):
+                if improvement[i] >= 0 :
+                    improved += 1
+                    if improved == 3: 
+                        # retval[alg] = 1 -  (i + 1 - improved)/len(improvement)
+                        perc = 1 -  (i + 1 - improved)/len(improvement)
+                        improve_perc_table[alg] += perc
+                        improve_table[alg].append(perc)
+                        break
+                else: 
+                    improved = 0
+        # return retval
+
+    imp_perc_table = {}
+    imp_table = {}
+    for exp in test_fitnesses:
+        print('\n', exp)
+        test_fitness = test_fitnesses[exp]
+        imps = find_improvement(test_fitness, base_line='WithoutKnowledge')
+        update_improvement_percentage(imps, imp_perc_table, imp_table)
+    
+    retval = {}
+    for alg in imp_perc_table: 
+        retval[rename_alg(alg, rename_map)] = imp_perc_table[alg] / len(test_fitnesses)
+        print(rename_alg(alg, rename_map), imp_perc_table[alg] / len(test_fitnesses), '\n')
+
+    with open(str(dump_file) + '.json', 'w') as file: 
+        json.dump(retval, file, indent=4)
+        print('WDL2: results saved to:', dump_file)

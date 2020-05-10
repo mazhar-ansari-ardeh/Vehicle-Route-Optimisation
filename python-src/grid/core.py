@@ -198,7 +198,12 @@ def get_train_mean(experiment_path, inclusion_filter, exclusion_filter, *, num_g
 
 def find_failed(basedir, experiments, to_find, num_generations = 50):
     """
-    Finds the failed runs of experiments given in the list argument 'experiments'
+    Finds the failed runs of experiments given in the list argument 'experiments'. The function 
+    considers only the given algorithm and nothing else. The parameter 'algorithm' refers to a single
+    algorithm and and is not expected to be a regex. 
+    This function can have an edge over 'find_all_failed' in the regard that this function can detect
+    the algorithm is missing entirely while the other function will miss this situation. 
+    Usage: find_failed(dirbase, experiments, 'Surrogate:initsurpool_true:tp_0:knndistmetr_corrphenotypic:avefitdup_true:dms_30:surupol_Reset')
     """
     for exp in experiments:
         experiment_path = Path(basedir) / exp
@@ -232,6 +237,13 @@ def find_failed(basedir, experiments, to_find, num_generations = 50):
                 continue
 
 def find_all_failed(basedir, experiments, inclusion_filter, exclusion_filter, num_generations = 50):
+    """
+    Finds the failed runs of experiments given in the list argument 'experiments'. The function 
+    considers the set of algorithms given by the parameter 'algorithm' which can be a regex. 
+    The 'find_failed' function can have an edge over this one in the regard that that function can 
+    detect if an algorithm is missing entirely while this function will miss this situation. 
+    Usage: find_all_failed(dirbase, experiments, inclusion_filter, exclusion_filter)
+    """
     for exp in experiments:
         experiment_path = Path(basedir) / exp
         (_, algorithms, _) = next(os.walk(experiment_path))

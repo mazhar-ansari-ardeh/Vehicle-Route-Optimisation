@@ -13,6 +13,11 @@ def compress_grid(*, experiments, dirbase, save_to='/local/scratch/'):
             print(Path(save_to) / exp / algorithm, 'finished.')
 
 def delete_exp(*, experiments, dirbase='/home/mazhar/grid/', save_to='/local/scratch/'):
+    """
+    Deletes the given experiments and all algorithms inside them. The function will create a zipped
+    backup to 'save_to' if it is not 'None'. 
+    Usage: delete_exp(experiments=experiments, save_to = '/home/mazhar/')
+    """
     dirbase = Path(dirbase)
     for exp in experiments:
         (_, algorithms, _) = next(os.walk(dirbase / exp))
@@ -32,6 +37,11 @@ def delete_exp(*, experiments, dirbase='/home/mazhar/grid/', save_to='/local/scr
 
 
 def delete_alg(*, experiments, algorithm_to_delete, dirbase='/home/mazhar/grid/', save_to='/local/scratch/'):
+    """
+    Deletes all runs of an algorithm. The function will create a backup to 'save_to' if it is not 'None'.
+    Usage: delete_alg(experiments=experiments, algorithm_to_delete='KnowledgeSource', save_to='/home/mazhar/')
+           delete_alg(experiments=experiments, algortithm_to_delete='Surrogate:initsurpool_true:tp_0:surupol_UnboundedPhenotypic$', save_to='')
+    """
     dirbase = Path(dirbase)
     for exp in experiments:
         (_, algorithms, _) = next(os.walk(dirbase / exp))
