@@ -61,6 +61,12 @@ def delete_alg(*, experiments, algorithm_to_delete, dirbase='/home/mazhar/grid/'
             shutil.rmtree(dirbase / exp / algorithm)
             print(dirbase / exp / algorithm, 'deleted.')
 
+def unarchive(experiment, algorithm, dir_from, dir_to):
+    alg_dir = Path(dir_from) / experiment / algorithm
+    (_, _, files) = next(os.walk(alg_dir))
+    for file in files:
+        shutil.unpack_archive(alg_dir / file, dir_to)
+
 def delete_alg_files(experiment_path, alg, file_name, runs_to_exclude=range(1, 5)):
     """
     Deletes specified files in given experiments to save space. 
