@@ -3,9 +3,9 @@ print-params = false
 
 stat.file=$./stats/target-wk/job.0.out.stat
 stat.gen-pop-file=./stats/target-wk/population.gen
-eval.problem.eval-model.instances.0.file=gdb/gdb1.dat
-eval.problem.eval-model.instances.0.vehicles=6
-seed.0=2
+eval.problem.eval-model.instances.0.file=gdb/gdb8.dat
+eval.problem.eval-model.instances.0.vehicles=11
+seed.0=19
 # gp.tc.0.init=tl.gp.IqKnowledgeBuilder
 # gp.tc.0.init = ec.gp.koza.HalfBuilder
 # gp.tc.0.init.knowledge-log-file=./stats/target-wk/IqKnowledgeBuilder
@@ -69,8 +69,8 @@ seed.0=2
 # ==============================
 # PPT Builder
 # ==============================
-gp.tc.0.init=tl.gp.PPTBuilder
-gp.tc.0.init.knowledge-file=/home/mazhar/grid/gdb1.vs5.gdb1.vt6:gen_50/PPTBreeding:ppt_0.4:cmpppt_0:xover_0.4:mut_0.15:repro_0.05:lr_0.8:ss_100:ts:_7:initperc_0.1:igen_49_49:inrad_-1:incap_1:mnThr_0:clear_true/1/PPTBreeding:ppt_0.4:cmpppt_0:xover_0.4:mut_0.15:repro_0.05:lr_0.8:ss_100:ts:_7:initperc_0.1:igen_49_49:inrad_-1:incap_1:mnThr_0:clear_true.ppt
+# gp.tc.0.init=tl.gp.PPTBuilder
+gp.tc.0.init.knowledge-file=~/grid/gdb1.vs5.gdb1.vt6:gen_50/PPTFreqLearning:percent_0.5:nrad_-1:ncap_2:gens_49_49:lr_0.8:ss_100:ts_-1/3/PPTFreqLearning:percent_0.5:nrad_-1:ncap_2:gens_49_49:lr_0.8:ss_100:ts_-1.ppt
 percentage of initial population that is created from extracted knowledge
 gp.tc.0.init.transfer-percent=0.50
 gp.tc.0.init.knowledge-log-file=./stats/target-wk/PPTBuildLog
@@ -114,11 +114,18 @@ gp.tc.0.init.knowledge-log-file=./stats/target-wk/PPTBuildLog
 # ==============================
 # The training results
 # ==============================
+policy-type = gp-evolved
+#policy-type = manual
+
 # for manual policies
 manual-policies = 1
 manual-policies.0 = gphhucarp.decisionprocess.routingpolicy.PathScanning5Policy
+
 # for gp-evolved policies
 train-path = /home/mazhar/MyPhD/SourceCodes/gpucarp/stats/target-wk/
+solution-type = simple-solution
+fitness-type = simple-fitness
+num-trains = 1
 generations=50
 
 
@@ -169,15 +176,51 @@ ppt-state.niche-capacity=2
 # ==============================
 # The Surrogate
 # ==============================
-state = gphhucarp.gp.SurrogatedGPHHEState
-surrogate-state.surrogate-updpool-policy=Entropy
-surrogate-state.surr-log-path=./stats/target-wk/
-surrogate-state.eval-surpool-on-init=true
-gp.tc.0.init=ec.SurrogateBuilder
-gp.tc.0.init.knowledge-file=/home/mazhar/grid/gdb1.vs5:gen_50/KnowledgeSource/3/population.gen.49.bin
-gp.tc.0.init.knowledge-log-file=./stats/target-wk/SurrogateBuilderLog
-gp.tc.0.init.init-surrogate-pool=true
-gp.tc.0.init.transfer-percent=0.2
+# state = gphhucarp.gp.SurrogatedGPHHEState
+# pop.subpop.0.species.ind = tl.knowledge.surrogate.SuGPIndividual
+# surrogate-state.surr-log-path=./stats/target-wk/
+# surrogate-state.surrogate-updpool-policy=CorrEntropy
+# surrogate-state.eval-surpool-on-init=true
+# gp.tc.0.init=ec.SurrogateBuilder
+# gp.tc.0.init.knowledge-file=population.gen.49.bin
+# gp.tc.0.init.knowledge-log-file=./stats/target-wk/SurrogateBuilderLog
+# gp.tc.0.init.init-surrogate-pool=true
+# gp.tc.0.init.transfer-percent=0.2
+# surrogate-state.surrogate-average-dup-fitness=true
+# surrogate-state.corr-entropy.eps=0.1
+# surrogate-state.corr-entropy.min-cluster-size=0
+# surrogate-state.knn-distance-metric=corrphenotypic
+
+
+# ==============================
+# The Ensemble Surrogate
+# ==============================
+# state = gphhucarp.gp.EnsembleSurrogatedGPHHState
+# pop.subpop.0.species.ind = tl.knowledge.surrogate.SuGPIndividual
+# ensemble-surrogate-state.surr-log-path=./stats/target-wk/
+# ensemble-surrogate-state.eval-surpool-on-init=true
+# gp.tc.0.init=tl.gp.EnsembleSurrogateBuilder
+# gp.tc.0.init.knowledge-file=population.gen.49.bin
+# gp.tc.0.init.knowledge-log-file=./stats/target-wk/SurrogateBuilderLog
+# gp.tc.0.init.init-surrogate-pool=true
+# gp.tc.0.init.transfer-percent=0.2
+# ensemble-surrogate-state.surrogate-average-dup-fitness=true
+# ensemble-surrogate-state.knn-distance-metric=corrphenotypic
+
+
+# ==============================
+# Cleared FullTree
+# ==============================
+state=tl.gphhucarp.dms.DMSSavingGPHHState
+gp.tc.0.init=tl.gp.ClearedFullTreeBuilder
+gp.tc.0.init.knowledge-path=/Users/mzhr/Desktop/
+gp.tc.0.init.transfer-percent=0.5
+gp.tc.0.init.knowledge-log-file=./stats/target-wk/FullTreeLog
+gp.tc.0.init.distance-metric=hamming
+gp.tc.0.init.num-generations=50
+gp.tc.0.init.from-generation=49
+gp.tc.0.init.to-generation=49
+gp.tc.0.init.niche-radius=0
 
 # ==============================
 # The test set
@@ -209,4 +252,3 @@ ppt-state.ppt-log=PPTLog
 
 
 
-clear = true

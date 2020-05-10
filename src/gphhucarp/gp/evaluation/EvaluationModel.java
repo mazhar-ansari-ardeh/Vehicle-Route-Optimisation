@@ -18,6 +18,7 @@ import gphhucarp.decisionprocess.RoutingPolicy;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionProcess;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import tl.gphhucarp.dms.DMSSaver;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -59,6 +60,14 @@ public abstract class EvaluationModel {
      */
     private ArrayList<DecisionSituation> seenDecicionSituations = new ArrayList<>();
 
+    // It should be true at first so that initial seen situations will be recorded.
+    private boolean saveDMS = true;
+
+    public void setSaveDMSEnabled(boolean enabled)
+    {
+        saveDMS = enabled;
+    }
+
     public ArrayList<DecisionSituation> getSeenDecicionSituations()
     {
         return seenDecicionSituations;
@@ -66,6 +75,12 @@ public abstract class EvaluationModel {
 
     public void updateSeenDecicionSituations(ArrayList<DecisionSituation> seenDecicionSituations)
     {
+        if(!saveDMS)
+            return;
+
+        final int MAX_SEEN_SITUATIONS = 2000;
+        if(this.seenDecicionSituations.size() > MAX_SEEN_SITUATIONS)
+            return;
         this.seenDecicionSituations.addAll(seenDecicionSituations);
     }
 
@@ -173,7 +188,21 @@ public abstract class EvaluationModel {
         objRefValueMap = new HashMap<>();
         calcObjRefValueMap();
 //        ((GPHHEvolutionState)state).initialSituations.addAll(seenDecicionSituations);
-        seenDecicionSituations.forEach(s -> ((GPHHEvolutionState)state).initialSituations.add((ReactiveDecisionSituation) s));
+        if(state instanceof DMSSaver)
+        {
+            DMSSaver dmsState = (DMSSaver)state;
+            if(dmsState.isDMSSavingEnabled())
+            {
+                seenDecicionSituations.forEach(dmsState::addToInitialSituations);
+                saveDMS = true;
+            }
+            else
+                saveDMS = false;
+        }
+        else {
+            saveDMS = false;
+            seenDecicionSituations.clear();
+        }
     }
 
     /**
@@ -207,7 +236,8 @@ public abstract class EvaluationModel {
 
                 // get the objective reference values by applying the reference routing policy.
                 dp.run();
-                updateSeenDecicionSituations(dp.getSeenSituations());
+                if(saveDMS)
+                    updateSeenDecicionSituations(dp.getSeenSituations());
                 Solution<NodeSeqRoute> solution = dp.getState().getSolution();
                 for (Objective objective : objectives) {
                     double objValue = solution.objValue(objective);

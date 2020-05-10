@@ -79,8 +79,8 @@ public class SurrogateBuilder extends HalfBuilder implements TLLogger<GPNode>
         try
         {
             Individual[] inds = PopulationUtils.loadPopulation(kbFile).subpops[0].individuals;
-            sstate.surFitness.setSituations(sstate.initialSituations.subList(0,
-                    sstate.initialSituations.size() > sstate.DMS_SIZE ? sstate.DMS_SIZE : sstate.initialSituations.size()));
+            sstate.surFitness.setSituations(sstate.getInitialSituations().subList(0,
+                    Math.min(sstate.getInitialSituations().size(), sstate.DMS_SIZE)));
             if(initSurrogatePool)
             {
                 // TODO: Get pool filter here.

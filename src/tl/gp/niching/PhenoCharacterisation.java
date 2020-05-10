@@ -35,6 +35,11 @@ public class PhenoCharacterisation
         this.referenceIndexes = new int[this.decisionSituations.size()];
     }
 
+    /**
+     * This method is deprecated. A better implementation of this method is provided in
+     * {@link tl.gp.characterisation.TaskIndexCharacterisation}.
+     */
+    @Deprecated
     public int[] characterise(final RoutingPolicy rule) {
         final int[] charList = new int[this.decisionSituations.size()];
         for (int i = 0; i < this.decisionSituations.size(); i++) {
@@ -48,6 +53,11 @@ public class PhenoCharacterisation
         return charList;
     }
 
+    /**
+     * This method is deprecated. A better implementation of the method is provided in
+     * {@link tl.gp.characterisation.TaskRankCharacterisation} class.
+     */
+    @Deprecated
     public List<int[]> cha(final RoutingPolicy rule)
     {
         List<int[]> retval = new ArrayList<>();

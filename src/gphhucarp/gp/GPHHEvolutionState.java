@@ -51,7 +51,7 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 	public static final String P_ROTATE_EVAL_MODEL = "rotate-eval-model";
 
 	public static final String P_CLEAR = "clear";
-	private boolean clear;
+	protected boolean clear;
 
 	protected String terminalFrom;
 	protected boolean includeErc;
@@ -62,13 +62,6 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
     protected Map<String, DescriptiveStatistics> statisticsMap;
 	protected File statFile;
 	protected String statDir;
-
-	private TreeMap<Individual, List<DecisionSituation>> seenSituations = new TreeMap<>();
-
-	public void resetSeenSituations()
-	{
-		seenSituations.clear();
-	}
 
 	public Map<String, DescriptiveStatistics> getStatisticsMap() {
 		return statisticsMap;
@@ -239,70 +232,14 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 
 	protected void clear()
 	{
-		if(!clear || seenSituations.size() == 0)
-		{
-			seenSituations.clear();
-			return;
-		}
-
-		int numDecisionSituations = 30;
-		long shuffleSeed = 8295342;
-
-		List<ReactiveDecisionSituation> allSeenSituations = getAllSeenSituations();
-		Collections.shuffle(allSeenSituations, new Random(shuffleSeed));
-		allSeenSituations = allSeenSituations.subList(0, numDecisionSituations);
-
-		SimpleNichingAlgorithm.clearPopulation(this, allSeenSituations, 0, 1);
-		allSeenSituations.clear();
-
-		// Clear the list so that new situations do not pile on the old ones. Don't know if this is a good idea.
-		seenSituations.clear();
-	}
-
-	public void updateSeenSituations(Individual ind, List<DecisionSituation> situations)
-	{
-		if(seenSituations.size() > 1)
-			return;
-
-		List<DecisionSituation> clonedSituations = new ArrayList<>(situations.size());
-		situations.forEach(situation -> clonedSituations.add(new ReactiveDecisionSituation((ReactiveDecisionSituation) situation)));
-		seenSituations.put(ind, clonedSituations);
-		if(this.seenSituations.size() > 5)
-		{
-			seenSituations.remove(seenSituations.lastKey());
-		}
-	}
-
-	public List<ReactiveDecisionSituation> initialSituations = new ArrayList<>();
-
-	List<ReactiveDecisionSituation> getAllSeenSituations()
-	{
-		ArrayList<ReactiveDecisionSituation> retval = new ArrayList<>();
-		Set<Map.Entry<Individual, List<DecisionSituation>>> a = seenSituations.entrySet();
-		for(Map.Entry<Individual, List<DecisionSituation>> e : a)
-		{
-			List<DecisionSituation> situations = e.getValue();
-			for(DecisionSituation situation : situations)
-			{
-				ReactiveDecisionSituation rds = (ReactiveDecisionSituation)situation;
-				if(rds.getPool().size() > 0)
-					retval.add(rds);
-			}
-		}
-
-//		for(Individual ind : seenSituations.keySet())
+		throw new RuntimeException("Not implemented for this class. If you are seeing this, you should use one of the subclasses instead.");
+//		if(!clear)
 //		{
-//			List<DecisionSituation> situations = seenSituations.get(ind);
-//			for(DecisionSituation situation : situations)
-//			{
-//				ReactiveDecisionSituation rds = (ReactiveDecisionSituation)situation;
-//				if(rds.getPool().size() > 0)
-//					retval.add(rds);
-//			}
+//			return;
 //		}
-
-		return retval;
 	}
+
+
 
 	@Override
 	public void run(int condition) {
@@ -372,7 +309,7 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 	    return R_NOTDONE;
 	}
 
-	boolean exchangePopulationPreBreeding()
+	protected boolean exchangePopulationPreBreeding()
 	{
 		// PRE-BREEDING EXCHANGING
 		statistics.prePreBreedingExchangeStatistics(this);
@@ -401,7 +338,7 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 		return false;
 	}
 
-	void exchangePopulationPostBreeding()
+	protected void exchangePopulationPostBreeding()
 	{
 		statistics.prePostBreedingExchangeStatistics(this);
 		population = exchanger.postBreedingExchangePopulation(this);
@@ -418,7 +355,7 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 		statistics.postBreedingStatistics(this);
 	}
 
-	void rotateEvalModel()
+	protected void rotateEvalModel()
 	{
 		if (rotateEvalModel) {
 			ReactiveGPHHProblem problem = (ReactiveGPHHProblem)evaluator.p_problem;
@@ -426,7 +363,7 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 		}
 	}
 
-	void doCheckpoit()
+	protected void doCheckpoit()
 	{
 		if (checkpoint && generation%checkpointModulo == 0)
 		{

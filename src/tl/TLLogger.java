@@ -50,7 +50,7 @@ public interface TLLogger<T>
 							+ pathToSuccDir.toString());
 			}
 
-			file.createNewFile();
+//			file.createNewFile();
 			state.output.warning("Log file created: " + file.getAbsolutePath());
 
 			return state.output.addLog(file, false, true);
@@ -125,6 +125,19 @@ public interface TLLogger<T>
 		{
 			state.output.print(messages[i] + (i == messages.length - 1 ? "" : ", "), logID);
 //			state.output.warning(messages[i] + (i == messages.length - 1 ? "" : ", "));
+//			System.out.println(messages[i] + (i == messages.length - 1 ? "" : ", "));
+		}
+		state.output.flush();
+	}
+
+	default void log(EvolutionState state, int logID, boolean logSysout, String... messages)
+	{
+		for(int i = 0; i < messages.length; i++)
+		{
+			state.output.print(messages[i] + (i == messages.length - 1 ? "" : ", "), logID);
+			if(logSysout)
+				state.output.warning(messages[i] + (i == messages.length - 1 ? "" : ", "));
+//			System.out.println(messages[i] + (i == messages.length - 1 ? "" : ", "));
 		}
 		state.output.flush();
 	}

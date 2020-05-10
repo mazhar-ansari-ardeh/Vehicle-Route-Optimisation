@@ -3,6 +3,7 @@ package tl.gp.similarity;
 import ec.gp.GPTree;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
+import tl.gp.characterisation.TaskIndexCharacterisation;
 import tl.gp.niching.PhenoCharacterisation;
 
 import java.util.ArrayList;
@@ -11,23 +12,14 @@ import java.util.WeakHashMap;
 
 /**
  * Implements the distance metric based on the Euclidean phenotypic distance of the trees.
+ * This class uses the {@link TaskIndexCharacterisation} for characterising GP rules.
  */
-public class PhenotypicTreeSimilarityMetric implements TreeDistanceMetric<int[]>
+public class PhenotypicTreeSimilarityMetric implements SituationBasedTreeSimilarityMetric
 {
-    /**
-     * The decision making situations that will be used to observe the phenotypic characteristics of routing policies.
-     */
-//    private final List<ReactiveDecisionSituation> situations;
-    PhenoCharacterisation ch;
+    TaskIndexCharacterisation ch;
 
-    /**
-     * Constructs a new object with the given decision-making situations.
-     * @param situations This constructor does not preserve a deep copy of the given list and hence, any modifications to the
-     *                   list outside the scope of this class affect the behavior of this class.
-     */
-    public PhenotypicTreeSimilarityMetric(List<ReactiveDecisionSituation> situations)
+    public PhenotypicTreeSimilarityMetric()
     {
-        ch = new PhenoCharacterisation(situations);
     }
 
     /**
@@ -47,14 +39,6 @@ public class PhenotypicTreeSimilarityMetric implements TreeDistanceMetric<int[]>
         return distance;
     }
 
-    public double distance(ArrayList<GPRoutingPolicy> policies, GPRoutingPolicy aPolicy)
-    {
-        int[] ch1 = ch.characterise(policies);
-        int[] ch2 = ch.characterise(aPolicy);
-        double distance = PhenoCharacterisation.distance(ch1, ch2);
-        return distance;
-    }
-
     private final WeakHashMap<GPTree, int[]> cache = new WeakHashMap<>();
 
     public int[] characterise(GPRoutingPolicy tree)
@@ -68,4 +52,27 @@ public class PhenotypicTreeSimilarityMetric implements TreeDistanceMetric<int[]>
 //            return cache.computeIfAbsent(tree.getGPTree().treeHashCode(), t -> ch.characterise(tree));
         }
     }
+
+    @Override
+    public void setSituations(List<ReactiveDecisionSituation> situations)
+    {
+        ch = new TaskIndexCharacterisation(situations);
+        synchronized (cache)
+        {
+            cache.clear();
+        }
+    }
+
+    @Override
+    public String getName() {
+        return "Phenotypic";
+    }
+
+    //    public double distance(ArrayList<GPRoutingPolicy> policies, GPRoutingPolicy aPolicy)
+//    {
+//        int[] ch1 = ch.characterise(policies);
+//        int[] ch2 = ch.characterise(aPolicy);
+//        double distance = PhenoCharacterisation.distance(ch1, ch2);
+//        return distance;
+//    }
 }

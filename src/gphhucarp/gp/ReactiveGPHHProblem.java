@@ -8,14 +8,13 @@ import ec.simple.SimpleProblemForm;
 import ec.util.Parameter;
 import gphhucarp.core.Objective;
 import gphhucarp.decisionprocess.DecisionSituation;
-import gphhucarp.decisionprocess.TieBreaker;
-import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
-import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 import gphhucarp.decisionprocess.PoolFilter;
+import gphhucarp.decisionprocess.TieBreaker;
+import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 import gphhucarp.gp.evaluation.EvaluationModel;
+import tl.gphhucarp.dms.DMSSaver;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -108,7 +107,10 @@ public class ReactiveGPHHProblem extends GPProblem implements SimpleProblemForm 
         t = System.currentTimeMillis() - t;
         ArrayList<DecisionSituation> seenDecicionSituations = evaluationModel.getSeenDecicionSituations();
 
-        GPHHEvolutionState gstate = (GPHHEvolutionState) state;
+        if(state instanceof DMSSaver) {
+            DMSSaver gstate = (DMSSaver) state;
+            boolean saveDMS = gstate.isDMSSavingEnabled();
+            evaluationModel.setSaveDMSEnabled(saveDMS);
 
 //        for(int i = 0; i < seenDecicionSituations.size(); i++)
 //        {
@@ -124,12 +126,14 @@ public class ReactiveGPHHProblem extends GPProblem implements SimpleProblemForm 
 //        List<DecisionSituation> subList = seenDecicionSituations.subList(0, (numSeenSituations > 5) ? 5 : numSeenSituations);
 //        List<DecisionSituation> sublist = new ArrayList<>(subList.size());
 //        subList.forEach(item -> sublist.add(new ReactiveDecisionSituation((ReactiveDecisionSituation) item)));
-        gstate.updateSeenSituations(indi, seenDecicionSituations);
+            if(saveDMS)
+                gstate.updateSeenSituations(indi, seenDecicionSituations);
+        }
         this.evaluationModel.resetSeenSituations();
 
         indi.evaluated = true;
         evalCount++;
-        indi.evalTime = t;
+//        indi.evalTime = t;
 //        System.out.println(evalCount + ": " + ((GPIndividual)indi).trees[0].child.makeLispTree() + indi.fitness.fitness() + ", " + t);
     }
 }

@@ -7,7 +7,7 @@ import gphhucarp.decisionprocess.poolfilter.ExpFeasibleNoRefillPoolFilter;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 import tl.gp.niching.SimpleNichingAlgorithm;
-import tl.gp.similarity.TreeDistanceMetric;
+import tl.gp.similarity.TreeSimilarityMetric;
 
 import java.util.*;
 
@@ -31,7 +31,7 @@ public class FIFONoDupPhenotypicUpdatePolicy implements KNNPoolUpdatePolicy
 
     @Override
     public Collection<KNNPoolItem> update(Collection<KNNPoolItem> pool, Individual[] inds, String source, PoolFilter filter,
-                                          TreeDistanceMetric metric, List<ReactiveDecisionSituation> dps, Object... extra)
+										  TreeSimilarityMetric metric, List<ReactiveDecisionSituation> dps, Object... extra)
     {
         final LinkedList<KNNPoolItem> retval; // = new LinkedList<>();
         if(pool == null || pool.isEmpty())

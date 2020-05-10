@@ -73,12 +73,8 @@ import ec.util.*;
  */
 
 public abstract class Individual implements Prototype, Comparable
-    {
-        transient public double surFit;
-        transient public long surtime;
-        transient public long evalTime;
-
-        public static final long serialVersionUID = -5038880988304161990L;
+{
+    public static final long serialVersionUID = -5038880988304161990L;
 
     /** A reasonable parameter base element for individuals*/
     public static final String P_INDIVIDUAL = "individual";

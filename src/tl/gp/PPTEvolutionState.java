@@ -6,11 +6,11 @@ import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import ec.util.Checkpoint;
 import ec.util.Parameter;
-import gphhucarp.gp.GPHHEvolutionState;
 import gphhucarp.gp.ReactiveGPHHProblem;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import tl.TLLogger;
 import tl.gphhucarp.UCARPUtils;
+import tl.gphhucarp.dms.DMSSavingGPHHState;
 import tl.knowledge.ppt.gp.PPTBreedingPipeline;
 import tl.knowledge.ppt.pipe.FrequencyLearner;
 import tl.knowledge.ppt.pipe.PPTree;
@@ -23,7 +23,7 @@ import java.util.*;
  * @author gphhucarp
  *
  */
-public class PPTEvolutionState extends GPHHEvolutionState implements TLLogger<GPNode>
+public class PPTEvolutionState extends DMSSavingGPHHState implements TLLogger<GPNode>
 {
     private PPTree ppt;
 

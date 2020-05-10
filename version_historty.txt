@@ -94,3 +94,9 @@ Modified SurrogateBuilder. Now, it initialises GP with individuals from the surr
 
 16/03/20
 Completed the entropy update policy for knn pools.
+
+27/03/20
+Added the DBScan algorithm for entropy clustering. Added correlation phenotypic implementations.
+
+07/05/20
+Added the implementation for the 'ClearedFullTree' method.

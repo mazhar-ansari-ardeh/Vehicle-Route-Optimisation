@@ -79,7 +79,8 @@ else
 fi
 KNOWLEDGE_SOURCE_DIR="./$KNOWLEDGE_SOURCE_NAME/$SGE_TASK_ID"
 
-# Extracted knowledge. This is the name of the file that will contain the results of programms such as 'AnalyzeTerminals' that output their results in an external file.
+# Extracted knowledge. This is the name of the file that will contain the results of programms such as
+# 'AnalyzeTerminals' that output their results in an external file.
 # KNOWLEDGE_FILE_BASE="$DATASET_SOURCE-v$NUM_VEHICLES_SOURCE"
 
 
@@ -191,6 +192,28 @@ function evaluate_on_test()
     printf "$(date)\t $SGE_TASK_ID \n" >> /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/FinishedTestEvaluations.txt
 }
 
+function test_similarity()
+{
+    local L_EXP_NAME="TestSimilarity"
+	GENS=$@
+    cp -r -v /vol/grid-solar/sgeusers/mazhar/$GPHH_REPOSITORY_SOURCE/$KNOWLEDGE_SOURCE_DIR/population.gen.49.bin .
+	# mkdir -p $GPHH_REPOSITORY_SOURCE/$SLURM_ARRAY_TASK_ID
+	# cd $GPHH_REPOSITORY_SOURCE/$SLURM_ARRAY_TASK_ID
+
+	java -cp .:tl.jar tl.gp.TestSimilarity carp_param_base.param population.gen.49.bin simtest \
+					    eval.problem.eval-model.instances.0.file=$DATASET_FILE_SOURCE \
+                                            stat.file="\$EvaluateOnTest.job.0.out.stat" \
+                                            eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_SOURCE \
+                                            eval.problem.eval-model.instances.0.samples=500 \
+                                            stat.gen-pop-file=eval.population.gen \
+                                            generations=$GENERATIONS \
+                                            seed.0=$TEST_SEED
+
+    SAVE_TO=/vol/grid-solar/sgeusers/mazhar/$DATASET_SOURCE.vs$NUM_VEHICLES_SOURCE:gen_$GENERATIONS/"$L_EXP_NAME/$SGE_TASK_ID/"
+    mkdir -p $SAVE_TO
+    cp -r -v *.* $SAVE_TO/
+}
+
 # This is done on the target domain. This experiment does not use transfer learning.
 function do_non_knowledge_experiment()
 {
@@ -225,16 +248,16 @@ function do_non_knowledge_experiment()
     mkdir -p $SAVE_TO
     cp -r -v $WITHOUT_KNOW_STAT_DIR/ $SAVE_TO/
     printf "$(date)\t $SGE_TASK_ID \n" >> $SAVE_TO/Finished"$L_EXP_NAME".txt
-    
+
     printf "Finished running tests on target without knowledge\n\n\n"
 }
 
-# This is done on the target domain. This experiment uses transfer learning. 
+# This is done on the target domain. This experiment uses transfer learning.
 # This function requires one argument: the name of the experiment.
-# The function defines a global variable: SAVE_TO which is the name of the directory that it saved the results to. 
+# The function defines a global variable: SAVE_TO which is the name of the directory that it saved the results to.
 function do_knowledge_experiment()
 {
-    # The L prefix indicates that the varaible is local 
+    # The L prefix indicates that the varaible is local
     L_EXPERIMENT_NAME=$1
     echo "Experiment arguments:" "${@}"
     printf "Running experiment on target problem with knowledge, experiment: $L_EXPERIMENT_NAME\n\n"
@@ -247,6 +270,7 @@ function do_knowledge_experiment()
                                     -p generations=$GENERATIONS_ON_TARGET \
                                     -p eval.problem.eval-model.instances.0.file=$DATASET_FILE_TARGET \
                                     -p eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_TARGET \
+                                    -p clear=$CLEAR \
                                     "${@:2}" \
                                     -p seed.0=$SGE_TASK_ID
 
@@ -261,11 +285,150 @@ function do_knowledge_experiment()
                                         -p generations=$GENERATIONS_ON_TARGET \
                                         -p seed.0=$TEST_SEED
     printf "Finished running tests on target with knowledge, experiment: $L_EXPERIMENT_NAME \n\n\n"
-    
+
     SAVE_TO=/vol/grid-solar/sgeusers/mazhar/$DATASET_SOURCE.vs$NUM_VEHICLES_SOURCE.$DATASET_TARGET.vt$NUM_VEHICLES_TARGET:gen_$GENERATIONS/$L_EXPERIMENT_NAME
     mkdir -p $SAVE_TO
     cp -r -v $L_EXPERIMENT_DIR/ $SAVE_TO/
+	# chmod -R 777 $SAVE_TO
     printf "$(date)\t $SGE_TASK_ID \n" >> $SAVE_TO/Finished$L_EXPERIMENT_NAME.txt
+}
+
+# This function performs the Surrogate-EvaluatedFulltree experiment. This method gets a path to a directory or file that
+# contains knowledge, loads the population from it, performs a clearing on it and forms a surrogate pool from the
+# cleared population. The experiment creates an intermediate population of 10 times the size of the originial
+# population, evaluates the intermediate population with the surrogate, removes duplicates with a clearing method and
+# then, initialise a percentage of target domains from the top individuals of the cleared population. This function has
+# the foloowing parameters:
+# 1. Percentage of the target population to initialise,
+# 2. Similarity metric:
+#       2.1. phenotypic
+#       2.2. corrphenotypic
+#       2.3. hamming
+# 3. Generation of source domain from which to start loading populations (inclusive)
+# 4. Generation of source domain until which which to start loading populations (inclusive)
+# 5. Niche radius.
+function SurEvalFullTree()
+{
+  local L_EXP_NAME="SurEvalFullTree:tp_$1:metric_$2:gen_$3_$4:nrad_$5:dms_20"
+  local L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
+  do_knowledge_experiment "$L_EXP_NAME" \
+                          -p state=tl.gphhucarp.dms.DMSSavingGPHHState \
+                          -p gp.tc.0.init=tl.knowledge.surrogate.SurEvalBuilder \
+                          -p gp.tc.0.init.knowledge-path=$KNOWLEDGE_SOURCE_DIR/ \
+                          -p gp.tc.0.init.num-generations=$GENERATIONS \
+                          -p gp.tc.0.init.surr-log-path=$L_EXPERIMENT_DIR/ \
+                          -p gp.tc.0.init.transfer-percent=$1 \
+                          -p gp.tc.0.init.distance-metric=$2 \
+                          -p gp.tc.0.init.from-generation=$3 \
+                          -p gp.tc.0.init.to-generation=$4 \
+                          -p gp.tc.0.init.niche-radius=$5
+
+#gp.tc.0.init.surr-log-path=./stats/target-wk/SurEvalFullTree/
+}
+
+# This function performs the cleared fulltree experiment. This method gets a path to a directory or file that contains
+# knowledge, loads the population from it, performs a clearing on it and forms a pool from the cleared population to
+# initialise a percentage of target domains. This function has the foloowing parameters:
+# 1. Percentage of the target population to initialise,
+# 2. Similarity metric:
+#       2.1. phenotypic
+#       2.2. corrphenotypic
+#       2.3. hamming
+# 3. Generation of source domain from which to start loading populations (inclusive)
+# 4. Generation of source domain until which which to start loading populations (inclusive)
+# 5. Niche radius.
+function ClearedFullTree()
+{
+  local L_EXP_NAME="ClearedFullTree:tp_$1:metric_$2:gen_$3_$4:nrad_$5:dms_20"
+  do_knowledge_experiment "$L_EXP_NAME" \
+                          -p state=tl.gphhucarp.dms.DMSSavingGPHHState \
+                          -p gp.tc.0.init=tl.gp.ClearedFullTreeBuilder \
+                          -p gp.tc.0.init.knowledge-path=$KNOWLEDGE_SOURCE_DIR/ \
+                          -p gp.tc.0.init.transfer-percent=$1 \
+                          -p gp.tc.0.init.distance-metric=$2 \
+                          -p gp.tc.0.init.num-generations=$GENERATIONS \
+                          -p gp.tc.0.init.from-generation=$3 \
+                          -p gp.tc.0.init.to-generation=$4 \
+                          -p gp.tc.0.init.niche-radius=$5
+}
+
+# This function performs the surrogate-assisted transfer learning.
+# The function takes the following parameters:
+#   1. Init the surrogate pool in the builder. If "false" (the default), the surrogate pool will not be initialised and
+#   hence transferred from the source domain. Don't forget the quotation marks.
+#   2. Transfer percent (in [0, 1]), the percent of the initial population that is transferred exactly from the source
+#   domain.
+#   3. KNN distance metric:
+#       3.1. phenotypic
+#       3.2. corrphenotypic
+#       3.3. hamming
+#   4. evaluate surrogate pool on initialisatoin: "true" or "false". This parameter is not reflected in experiment names.
+#   5. Average fitness for duplicate individuals: "true", "false"
+#   6. surupol: Surrogate update policy. Acceptable values are:
+#       6.1. FIFOPhenotypic
+#       6.2. AddOncePhenotypic
+#       6.3. FIFONoDupPhenotypic
+#       6.4. Reset
+#       6.5. UnboundedPhenotypic
+#       6.6. Unbounded
+#       6.7. Entropy
+#       6.8. CorrEntropy
+#   7. If surrogate updade policy is "CorrEntropy", then this represents eps.
+#   8. If surrogate updade policy is "CorrEntropy", then this represents mininum cluster size.
+function Surrogate()
+{
+#L_SURUPOL=""
+if [ "$6" == "corrphenotypic" ]
+then
+  L_SURUPOL="$6_eps_$7_minpt_$8"
+else
+  L_SURUPOL="$6"
+fi
+
+local L_EXP_NAME="Surrogate:initsurpool_$1:tp_$2:knndistmetr_$3:avefitdup_$5:dms_30:surupol_$L_SURUPOL"
+local L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
+do_knowledge_experiment $L_EXP_NAME \
+                        -p state=gphhucarp.gp.SurrogatedGPHHEState \
+                        -p pop.subpop.0.species.ind=tl.knowledge.surrogate.SuGPIndividual \
+                        -p surrogate-state.surr-log-path=$L_EXPERIMENT_DIR/ \
+                        -p surrogate-state.surrogate-updpool-policy=$6 \
+                        -p surrogate-state.eval-surpool-on-init=$4 \
+                        -p gp.tc.0.init=ec.SurrogateBuilder \
+                        -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin \
+                        -p gp.tc.0.init.knowledge-log-file=$L_EXPERIMENT_DIR/SurrogateBuilderLog \
+                        -p gp.tc.0.init.init-surrogate-pool=$1 \
+                        -p gp.tc.0.init.transfer-percent=$2 \
+                        -p surrogate-state.surrogate-average-dup-fitness=$5 \
+                        -p surrogate-state.knn-distance-metric=$3 \
+                        -p surrogate-state.corr-entropy.eps=$7 \
+                        -p surrogate-state.corr-entropy.min-cluster-size=$8
+}
+
+# This function performs the ensemble-surrogate-assisted transfer learning.
+# The function takes the following parameters:
+#   1. Init the surrogate pool in the builder. If "false" (the default), the surrogate pool will not be initialised and
+#   hence transferred from the source domain. Don't forget the quotation marks.
+#   2. Transfer percent (in [0, 1]), the percent of the initial population that is transferred exactly from the source
+#   domain.
+#   3. KNN distance metric:
+#       3.1. phenotypic
+#       3.2. corrphenotypic
+#   4. evaluate surrogate pool on initialisatoin: "true" or "false". This parameter is not reflected in experiment names.
+function EnsembleSurrogate()
+{
+local L_EXP_NAME="EnsembleSurrogate:initsurpool_$1:tp_$2:knndistmetr_$3:dms_30"
+local L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
+do_knowledge_experiment $L_EXP_NAME \
+                        -p state=gphhucarp.gp.EnsembleSurrogatedGPHHState \
+                        -p pop.subpop.0.species.ind=tl.knowledge.surrogate.SuGPIndividual \
+                        -p ensemble-surrogate-state.surr-log-path=$L_EXPERIMENT_DIR/ \
+                        -p ensemble-surrogate-state.eval-surpool-on-init=$4 \
+                        -p gp.tc.0.init=tl.gp.EnsembleSurrogateBuilder \
+                        -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin \
+                        -p gp.tc.0.init.knowledge-log-file=$L_EXPERIMENT_DIR/EnsembleSurrogateBuilderLog \
+                        -p gp.tc.0.init.init-surrogate-pool=$1 \
+                        -p gp.tc.0.init.transfer-percent=$2 \
+                        -p ensemble-surrogate-state.knn-distance-metric=$3
 }
 
 function PPTEvolutionState()
@@ -351,20 +514,6 @@ cp -p -v $KNOWLEDGE_SOURCE_DIR/$L_EXP_NAME.ppt $SAVE_TO/$SGE_TASK_ID
 }
 
 
-# This function performs the transfer learning experiment 'FullTree'.
-# This function takes two input parameters: 
-#   1. the transfer percent (in the range [0, 100])
-#   2. allow duplicates.
-function FullTreeExp()
-{
-do_knowledge_experiment FullTree:tp_$1:dup_$2 \
-                        -p gp.tc.0.init=tl.gp.SimpleCodeFragmentBuilder \
-                        -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin \
-                        -p gp.tc.0.init.transfer-percent=$1 \
-                        -p gp.tc.0.init.allow-duplicates=$2 \
-                        -p gp.tc.0.init.knowledge-extraction=root
-}
-
 function TournamentFullTreeExp()
 {
 do_knowledge_experiment TournamentFullTreeTree:tp_$1:tournament_$2 \
@@ -376,9 +525,9 @@ do_knowledge_experiment TournamentFullTreeTree:tp_$1:tournament_$2 \
 }
 
 # This function performs the transfer learning experiment 'MutatingSubtree'.
-# This function takes 7 input parameters: 
+# This function takes 7 input parameters:
 #   1. the transfer percent (in (0, 100])
-#   2. extraction method: acceptable values are: 
+#   2. extraction method: acceptable values are:
 #       + rootsubtree
 #       + all
 #       + root
@@ -399,7 +548,7 @@ do_knowledge_experiment MutatingSubtree:tp_$1:ext_$2:mut_$3:sim_$4:tgtp_$5:rad_$
                         -p gp.tc.0.init.simplify=$4 \
                         -p gp.tc.0.init.target-percent=$5 \
                         -p gp.tc.0.init.niche-radius=$6 \
-                        -p gp.tc.0.init.niche-capacity=$7 
+                        -p gp.tc.0.init.niche-capacity=$7
 }
 
 # This function performs the transfer learning experiment 'SubTree'.
@@ -407,11 +556,28 @@ do_knowledge_experiment MutatingSubtree:tp_$1:ext_$2:mut_$3:sim_$4:tgtp_$5:rad_$
 function SubTree()
 {
 ls
-do_knowledge_experiment Subtree_$1 \
+
+L_EXP_NAME="Subtree:perc_$1:clear_$CLEAR"
+
+do_knowledge_experiment $L_EXP_NAME \
                         -p gp.tc.0.init=tl.gp.SimpleCodeFragmentBuilder \
                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin \
                         -p gp.tc.0.init.transfer-percent=$1 \
                         -p gp.tc.0.init.knowledge-extraction=rootsubtree
+}
+
+# This function performs the transfer learning experiment 'FullTree'.
+# This function takes two input parameters:
+#   1. the transfer percent (in the range [0, 100])
+#   2. allow duplicates.
+function FullTreeExp()
+{
+do_knowledge_experiment FullTree:tp_$1:dup_$2:clear_$CLEAR \
+                        -p gp.tc.0.init=tl.gp.SimpleCodeFragmentBuilder \
+                        -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin \
+                        -p gp.tc.0.init.transfer-percent=$1 \
+                        -p gp.tc.0.init.allow-duplicates=$2 \
+                        -p gp.tc.0.init.knowledge-extraction=root
 }
 
 # This function performs the transfer learning experiment 'BestGen'.
@@ -421,7 +587,7 @@ function BestGen()
 do_knowledge_experiment BestGen:k_$1 \
                         -p gp.tc.0.init=tl.gp.BestGenKnowledgeBuilder \
                         -p gp.tc.0.init.k=$1 \
-                        -p gp.tc.0.init.knowledge-folder=$KNOWLEDGE_SOURCE_DIR/ 
+                        -p gp.tc.0.init.knowledge-folder=$KNOWLEDGE_SOURCE_DIR/
 }
 
 # This function performs the transfer learning experiment 'GTLKnow'.
@@ -430,22 +596,26 @@ function GTLKnow()
 {
 do_knowledge_experiment GTLKnowlege  \
                         -p gp.tc.0.init=tl.gp.GTLKnowlegeBuilder \
-                        -p gp.tc.0.init.knowledge-folder=$KNOWLEDGE_SOURCE_DIR/ 
+                        -p gp.tc.0.init.knowledge-folder=$KNOWLEDGE_SOURCE_DIR/
 }
 
 # This function performs the transfer learning experiment "FrequentSub'.
-# The function takes one input argument: the extraction method. Acceptable values are: 
-# - rootsubtree
-# - all
-# - root
+# The function takes three input arguments:
+# 1. the extraction method. Acceptable values are:
+#   - rootsubtree
+#   - all
+#   - root
+# 2. extraction percent: the percent of initial population to consider for extraction, must be in [0, 1].
+# 3. transfer percent: the percent of initial population of target domain to create from the extracted subtrees, must be in [0, 1].
 function FrequentSub()
 {
-do_knowledge_experiment FrequentSub:Extract_$1 \
+L_EXP_NAME="FrequentSub:extract_$1:extperc_$2:tranperc_$3:clear_$CLEAR"
+do_knowledge_experiment $L_EXP_NAME \
                         -p gp.tc.0.init=tl.gp.FrequentCodeFragmentBuilder \
                         -p gp.tc.0.init.knowledge-directory=$KNOWLEDGE_SOURCE_DIR/ \
                         -p gp.tc.0.init.knowledge-extraction=$1 \
-                        -p gp.tc.0.init.transfer-percent=0.50 \
-                        -p gp.tc.0.init.extract-percent=0.50 \
+                        -p gp.tc.0.init.extract-percent=$2 \
+                        -p gp.tc.0.init.transfer-percent=$3 \
                         -p gp.tc.0.init.min-cf-depth=2 \
                         -p gp.tc.0.init.max-cf-depth=8
 }

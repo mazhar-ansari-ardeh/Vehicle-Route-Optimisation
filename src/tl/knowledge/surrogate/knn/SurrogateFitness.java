@@ -19,10 +19,10 @@ public class SurrogateFitness
         this.filter = filter;
     }
 
-    public void setRadius(double radius)
-    {
-//        this.radius = radius;
-    }
+//    public void setRadius(double radius)
+//    {
+////        this.radius = radius;
+//    }
 
     public LinkedList<Individual[]> getSurrogatePool()
     {
@@ -41,12 +41,6 @@ public class SurrogateFitness
     {
     }
 
-    public void setSituations(List<ReactiveDecisionSituation> situations)
-    {
-        this.situations = situations;
-        metric = new PhenotypicTreeSimilarityMetric(situations);
-    }
-
     public List<ReactiveDecisionSituation> getSituations()
     {
         return situations;
@@ -57,41 +51,6 @@ public class SurrogateFitness
 //        this.radius = radius;
         this.filter = filter;
     }
-
-//    private GPRoutingPolicy[] hartFilter(List<Individual[]> pops)
-//    {
-//        ArrayList<GPRoutingPolicy> retval = new ArrayList<>();
-//        for(Individual[] pop : pops)
-//        {
-//            GPRoutingPolicy[] ret = hartFilter(pop);
-//            retval.addAll(Arrays.asList(ret));
-//        }
-//
-//        return retval.toArray(new GPRoutingPolicy[]{});
-//    }
-//
-//    private GPRoutingPolicy[] hartFilter(Individual[] pop)
-//    {
-////            List<ReactiveDecisionSituation> situations = getAllSeenSituations().subList(0, 10);
-//        PhenotypicTreeSimilarityMetric metric = new PhenotypicTreeSimilarityMetric(situations);
-//
-//        List<GPRoutingPolicy> pop2 = Stream.of(pop).sorted().map(p -> new GPRoutingPolicy(filter, ((GPIndividual)p).trees[0])).collect(Collectors.toList());
-//        ArrayList<GPRoutingPolicy> R = new ArrayList<>();
-//        R.add(pop2.get(0));
-//        pop2.remove(0);
-//        while(!pop2.isEmpty())
-//        {
-//            GPRoutingPolicy x = pop2.get(0);
-//            pop2.remove(0);
-//            double distance = metric.distance(R, x);
-//            if(distance > radius)
-//            {
-//                R.add(x);
-//            }
-//        }
-//
-//        return R.toArray(new GPRoutingPolicy[0]);
-//    }
 
     private GPRoutingPolicy[] unityFilter(Individual[] pop)
     {
@@ -146,39 +105,43 @@ public class SurrogateFitness
     }
 }
 
+//    public void setSituations(List<ReactiveDecisionSituation> situations)
+//    {
+//        this.situations = situations;
+//        metric = new PhenotypicTreeSimilarityMetric(situations);
+//    }
 
-
-//interface SurrogatePoolUpdatePolicy
-//{
-//    LinkedList<Individual[]> update(LinkedList<Individual[]> pool, Individual[] pop);
-//}
-//
-//class ReplacementUpdatePolicy implements SurrogatePoolUpdatePolicy
-//{
-//    private int gensToRetain = 1;
-//
-//    ReplacementUpdatePolicy(int gensToRetain)
+//    private GPRoutingPolicy[] hartFilter(List<Individual[]> pops)
 //    {
-//        this.gensToRetain = gensToRetain;
+//        ArrayList<GPRoutingPolicy> retval = new ArrayList<>();
+//        for(Individual[] pop : pops)
+//        {
+//            GPRoutingPolicy[] ret = hartFilter(pop);
+//            retval.addAll(Arrays.asList(ret));
+//        }
+//
+//        return retval.toArray(new GPRoutingPolicy[]{});
 //    }
 //
-//    @Override
-//    public LinkedList<Individual[]> update(LinkedList<Individual[]> pool, Individual[] pop)
+//    private GPRoutingPolicy[] hartFilter(Individual[] pop)
 //    {
-//        pool.addFirst(pop);
-//        if(pool.size() > gensToRetain)
-//            pool.removeLast();
+////            List<ReactiveDecisionSituation> situations = getAllSeenSituations().subList(0, 10);
+//        PhenotypicTreeSimilarityMetric metric = new PhenotypicTreeSimilarityMetric(situations);
 //
-//        return pool;
+//        List<GPRoutingPolicy> pop2 = Stream.of(pop).sorted().map(p -> new GPRoutingPolicy(filter, ((GPIndividual)p).trees[0])).collect(Collectors.toList());
+//        ArrayList<GPRoutingPolicy> R = new ArrayList<>();
+//        R.add(pop2.get(0));
+//        pop2.remove(0);
+//        while(!pop2.isEmpty())
+//        {
+//            GPRoutingPolicy x = pop2.get(0);
+//            pop2.remove(0);
+//            double distance = metric.distance(R, x);
+//            if(distance > radius)
+//            {
+//                R.add(x);
+//            }
+//        }
+//
+//        return R.toArray(new GPRoutingPolicy[0]);
 //    }
-//}
-//
-//class SimilarityUpdatePolicy implements SurrogatePoolUpdatePolicy
-//{
-//
-//    @Override
-//    public LinkedList<Individual[]> update(LinkedList<Individual[]> pool, Individual[] pop)
-//    {
-//        return null;
-//    }
-//}

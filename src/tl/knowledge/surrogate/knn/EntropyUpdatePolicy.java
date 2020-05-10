@@ -9,8 +9,9 @@ import gphhucarp.decisionprocess.poolfilter.ExpFeasibleNoRefillPoolFilter;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 import tl.TLLogger;
+import tl.gp.characterisation.TaskIndexCharacterisation;
 import tl.gp.niching.SimpleNichingAlgorithm;
-import tl.gp.similarity.TreeDistanceMetric;
+import tl.gp.similarity.TreeSimilarityMetric;
 import tl.knowledge.surrogate.knn.kmeans.Centroid;
 import tl.knowledge.surrogate.knn.kmeans.EuclideanDistance;
 import tl.knowledge.surrogate.knn.kmeans.KMeans;
@@ -51,7 +52,7 @@ public class EntropyUpdatePolicy implements KNNPoolUpdatePolicy, TLLogger
     }
 
     @Override
-    public Collection<KNNPoolItem> update(Collection<KNNPoolItem> pool, Individual[] inds, String source, PoolFilter filter, TreeDistanceMetric metric,
+    public Collection<KNNPoolItem> update(Collection<KNNPoolItem> pool, Individual[] inds, String source, PoolFilter filter, TreeSimilarityMetric metric,
                                           List<ReactiveDecisionSituation> dps, Object... extra)
     {
         if(filter == null)
@@ -101,7 +102,7 @@ public class EntropyUpdatePolicy implements KNNPoolUpdatePolicy, TLLogger
         if(!(pool instanceof ArrayList))
             pool = new ArrayList<>(pool);
 
-        Map<Centroid, List<FeatureVector>> cl = kmeans(pool, k, metric, rand);
+        Map<Centroid, List<FeatureVector>> cl = kmeans(pool, k, dps, rand);
         double entropy = entropy(cl, pool.size());
         logClusters("Pool before update: " + entropy, cl);
         pool.forEach(i -> log(state, logID, i.toCSVString(), "\n"));
@@ -109,7 +110,7 @@ public class EntropyUpdatePolicy implements KNNPoolUpdatePolicy, TLLogger
 
         for (KNNPoolItem newItem : newItems)
         {
-            update((ArrayList<KNNPoolItem>) pool, newItem, rand, metric);
+            update((ArrayList<KNNPoolItem>) pool, newItem, rand, dps);
         }
 
         entropy = entropy(cl, pool.size());
@@ -123,13 +124,16 @@ public class EntropyUpdatePolicy implements KNNPoolUpdatePolicy, TLLogger
         return pool;
     }
 
-    private static Map<Centroid, List<FeatureVector>> kmeans(Collection<KNNPoolItem> pool, int k, TreeDistanceMetric dist
+    private static Map<Centroid, List<FeatureVector>> kmeans(Collection<KNNPoolItem> pool, int k, List<ReactiveDecisionSituation> dps
             , MersenneTwisterFast rand)
     {
         assert !pool.isEmpty();
 
-        List<FeatureVector> collect =
-                pool.stream().map(item -> new KNNItemFeature(item, dist)).collect(Collectors.toList());
+        List<FeatureVector> collect = new ArrayList<>();
+        for (KNNPoolItem item : pool) {
+            KNNItemFeature knnItemFeature = new KNNItemFeature(item, dps);
+            collect.add(knnItemFeature);
+        }
 
 //        for(Centroid c : cl.keySet())
 //        {
@@ -141,19 +145,19 @@ public class EntropyUpdatePolicy implements KNNPoolUpdatePolicy, TLLogger
         return KMeans.fit(collect, k, new EuclideanDistance(), 10000, rand);
     }
 
-    private void update(ArrayList<KNNPoolItem> pool, Map<Centroid, List<FeatureVector>> cl, KNNPoolItem item, TreeDistanceMetric dist)
+    private void update(ArrayList<KNNPoolItem> pool, Map<Centroid, List<FeatureVector>> cl, KNNPoolItem item, List<ReactiveDecisionSituation> dps)
     {
         int poolSize = pool.size();
         double maxEntropy = entropy(cl, poolSize);
 
-        KNNItemFeature kItem = new KNNItemFeature(item, dist);
+        KNNItemFeature kItem = new KNNItemFeature(item, dps);
         Centroid centroid = KMeans.nearestCentroid(kItem, cl.keySet(), euDist);
         cl.get(centroid).add(kItem);
 
         KNNPoolItem toRemove = null;
         for(KNNPoolItem p : pool)
         {
-            KNNItemFeature feature = new KNNItemFeature(p, dist);
+            KNNItemFeature feature = new KNNItemFeature(p, dps);
             centroid = KMeans.nearestCentroid(feature, cl.keySet(), euDist);
             cl.get(centroid).remove(feature);
             double newEntropy = entropy(cl, poolSize);
@@ -169,7 +173,7 @@ public class EntropyUpdatePolicy implements KNNPoolUpdatePolicy, TLLogger
             pool.remove(toRemove);
             pool.add(item);
 
-            KNNItemFeature feaToRemove = new KNNItemFeature(toRemove, dist);
+            KNNItemFeature feaToRemove = new KNNItemFeature(toRemove, dps);
 
             cl.get(centroid).remove(feaToRemove);
             Centroid receiver = KMeans.nearestCentroid(kItem, cl.keySet(), euDist);
@@ -184,11 +188,11 @@ public class EntropyUpdatePolicy implements KNNPoolUpdatePolicy, TLLogger
             log(state, logID, "Item discarded: " + item.fitness + "\n");
         }
     }
-    private void update(ArrayList<KNNPoolItem> pool, KNNPoolItem item, MersenneTwisterFast rand, TreeDistanceMetric dist)
+    private void update(ArrayList<KNNPoolItem> pool, KNNPoolItem item, MersenneTwisterFast rand, List<ReactiveDecisionSituation> dps)
     {
-        Map<Centroid, List<FeatureVector>> cl = kmeans(pool, k, dist, rand);
+        Map<Centroid, List<FeatureVector>> cl = kmeans(pool, k, dps, rand);
 
-        update(pool, cl, item, dist);
+        update(pool, cl, item, dps);
     }
 
     private static double entropy(Map<Centroid, List<FeatureVector>> clusters, int poolSize)
@@ -233,23 +237,27 @@ public class EntropyUpdatePolicy implements KNNPoolUpdatePolicy, TLLogger
 
     static class KNNItemFeature implements FeatureVector, Comparable<KNNItemFeature>
     {
-        KNNItemFeature(KNNPoolItem item, TreeDistanceMetric<int[]> dist)
+        private List<ReactiveDecisionSituation> dps;
+
+        KNNItemFeature(KNNPoolItem item, List<ReactiveDecisionSituation> dps)
         {
             this.item = item;
-            this.dist = dist;
+            this.dps = dps;
+//            this.dist = dist;
         }
 
         private KNNPoolItem item;
-        private TreeDistanceMetric<int[]> dist;
+//        private TreeSimilarityMetric<int[]> dist;
 
         @Override
         public double[] getFeatures()
         {
-            int[] ch = dist.characterise(item.policy);
+            int[] ch = new TaskIndexCharacterisation(dps).characterise(item.policy);
+//            int[] ch = dist.characterise(item.policy);
             double[] features = new double[ch.length];
             for (int i = 0; i < features.length; i++)
             {
-                features[i] = (double) ch[i];
+                features[i] = ch[i];
             }
             return features;
         }

@@ -4,7 +4,7 @@ import ec.Individual;
 import ec.gp.GPIndividual;
 import gphhucarp.decisionprocess.PoolFilter;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
-import tl.gp.similarity.TreeDistanceMetric;
+import tl.gp.similarity.TreeSimilarityMetric;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -15,7 +15,7 @@ public class UnboundedUpdatePolicy implements KNNPoolUpdatePolicy
 
     @Override
     public Collection<KNNPoolItem> update(Collection<KNNPoolItem> pool, Individual[] inds, String source, PoolFilter filter,
-                                          TreeDistanceMetric metric, List<ReactiveDecisionSituation> dps, Object ... extra)
+										  TreeSimilarityMetric metric, List<ReactiveDecisionSituation> dps, Object ... extra)
     {
         Arrays.stream(inds).map(i -> new KNNPoolItem(((GPIndividual)i), filter, source)).forEach(pool::add);
         return pool;

@@ -3,21 +3,18 @@ package tl.knowledge.surrogate.knn;
 import ec.gp.GPIndividual;
 import gphhucarp.decisionprocess.PoolFilter;
 import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
-import org.apache.commons.lang3.ArrayUtils;
-import tl.gp.similarity.TreeDistanceMetric;
-
-import java.util.Arrays;
+import tl.gp.similarity.TreeSimilarityMetric;
 
 class KNNPoolItem
 {
     GPRoutingPolicy policy;
 
-    public void setDist(TreeDistanceMetric dist)
+    public void setDist(TreeSimilarityMetric dist)
     {
         this.dist = dist;
     }
 
-    private TreeDistanceMetric dist;
+    private TreeSimilarityMetric dist;
 
     /**
      * Where did this item come from?
@@ -72,15 +69,15 @@ class KNNPoolItem
     }
 
 //    @Override
-    public double[] getFeatures()
-    {
-        int[] characterise = dist.characterise(this.policy);
-        double[] retval = new double[characterise.length];
-        for (int i = 0; i < characterise.length; i++)
-        {
-            retval[i] = (double) characterise[i];
-        }
-
-        return retval;
-    }
+//    public double[] getFeatures()
+//    {
+//        int[] characterise = dist.characterise(this.policy);
+//        double[] retval = new double[characterise.length];
+//        for (int i = 0; i < characterise.length; i++)
+//        {
+//            retval[i] = (double) characterise[i];
+//        }
+//
+//        return retval;
+//    }
 }
