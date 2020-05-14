@@ -1,3 +1,12 @@
+from pathlib import Path
+import os
+import pandas as pd
+
+
+
+# def missing_exps(basedir, experiments, inclusion_filter, exclusion_filter):
+#     for exp in experiments:
+#         experiment_path = Path(basedir) / exp
 # def improv_hist(imp_table):
 #     box_fig = plt.figure(figsize=(12,14))
 #     box_ax = box_fig.add_subplot(111)
@@ -219,3 +228,119 @@
 #             json.dump(imp_table, f)
 
 #         return imp_perc_table, imp_table
+
+
+def improv_hist(imp_table):
+    box_fig = plt.figure(figsize=(60,50))
+    box_ax = box_fig.add_subplot(111)
+    box_ax.set_title('algorithm', fontdict={'fontsize':100 })
+    box_ax.set_xlabel('Generation', fontdict={'fontsize':100 })
+    box_ax.set_ylabel('Fitness', fontdict={'fontsize':100 })
+    flierprops = dict(marker='o', markerfacecolor='r', markersize=30, linestyle='none')
+    boxprops = dict(linestyle='-', linewidth=5, color='black')
+    whiskerprops = dict(linewidth=5)
+    medianprops = dict(linewidth=5)
+
+    labels, data = imp_table.keys(), imp_table.values()
+
+    ren_labels = []
+    for label in labels:
+        label = rename_alg(label, rename_map)
+        ren_labels.append(label)
+    box_ax.boxplot(data, flierprops=flierprops, boxprops=boxprops, whiskerprops=whiskerprops,medianprops=medianprops)
+    # box_ax.set_xticks(range(1, len(labels) + 1), ren_labels)
+    box_ax.set_xticklabels(ren_labels, rotation=90)
+    box_ax.tick_params(axis='both', which='major', labelsize=50)
+
+    box_fig.savefig('improvements.jpg', bbox_inches='tight', pad_inches=0)
+
+def plot_corr():
+    exp = experiments[5]
+    algorithms = [
+        # 'EnsembleSurrogate:initsurpool_true:tp_0:knndistmetr_corrphenotypic:dms_30',
+                #   'EnsembleSurrogate:initsurpool_true:tp_0.1:knndistmetr_corrphenotypic:dms_30',
+                #   'Surrogate:initsurpool_true:tp_0:knndistmetr_corrphenotypic:avefitdup_true:dms_30:surupol_Reset',
+                  'Surrogate:initsurpool_true:tp_0.1:knndistmetr_corrphenotypic:avefitdup_true:dms_30:surupol_Reset',
+                  'Surrogate:initsurpool_true:tp_0.1:knndistmetr_hamming:avefitdup_true:dms_30:surupol_Reset',
+                #   'Surrogate:initsurpool_true:tp_0:knndistmetr_corrphenotypic:avefitdup_true:dms_30:surupol_AddOncePhenotypic',
+                  'Surrogate:initsurpool_true:tp_0.1:knndistmetr_corrphenotypic:avefitdup_true:dms_30:surupol_AddOncePhenotypic',
+                  'Surrogate:initsurpool_true:tp_0:knndistmetr_phenotypic:avefitdup_true:surupol_Reset',
+                  'Surrogate:initsurpool_true:tp_0:surupol_resgen',
+    ]
+    run = '3'
+    corr = {}
+    for alg in algorithms:
+        if alg not in corr:
+            corr[alg] = []
+        for gen in range(0, 50):
+            df = pd.read_csv(dirbase / exp / alg / str(run) / 'pop' / f'Pop.{gen}.csv.gz')
+            corr[alg].append( df['SurrogateFitness'].corr(df['Fitness']))
+
+    fig = plt.figure(figsize=(60, 32))
+    ax = fig.add_subplot(111)
+    ax.set_xlabel('Generation', fontdict={'fontsize':120 })
+    ax.set_ylabel('Weight', fontdict={'fontsize':120 })
+    ax.tick_params(axis='both', which='major', labelsize=100)
+
+    for alg in corr:
+        ax.plot(range(0, 50), corr[alg], label = rename_alg(alg, rename_map), linewidth=19)
+    leg = ax.legend(fontsize=95)
+    for line in leg.get_lines():
+        line.set_linewidth(20)
+    
+    fig.savefig(f'{exp.replace(".", "-").replace(":gen_50", "")}-corr-{run}.jpg', bbox_inches='tight', pad_inches=0)
+
+def plot_weight():
+    exp = experiments[13]
+    alg = 'EnsembleSurrogate:initsurpool_true:tp_0.1:knndistmetr_corrphenotypic:dms_30'
+    run = '2'
+    w1 = []
+    w2 = []
+    for gen in range(0, 50):
+        df = pd.read_csv(dirbase / exp / alg / str(run) / 'surr' / f'SurrogatePool.{gen}.csv.gz')
+        w1.append(df['weight 0'][0])
+        w2.append(df['weight 1'][0])
+
+    fig = plt.figure(figsize=(60, 32))
+    ax = fig.add_subplot(111)
+    ax.set_xlabel('Generation', fontdict={'fontsize':120 })
+    ax.set_ylabel('Weight', fontdict={'fontsize':120 })
+    ax.tick_params(axis='both', which='major', labelsize=100)
+    
+    ax.plot(range(0, 50), w1, label = '$ \omega_1 $', linewidth=19)
+    ax.plot(range(0, 50), w2, label = '$ \omega_2 $', linewidth=19)
+    leg = ax.legend(fontsize=95)
+    for line in leg.get_lines():
+        line.set_linewidth(20)
+    
+    fig.savefig(f'{exp.replace(".", "-").replace(":gen_50", "")}-weights-{run}.jpg', bbox_inches='tight', pad_inches=0)
+
+def plot_weights():
+    exp = experiments[2]
+    alg = 'EnsembleSurrogate:initsurpool_true:tp_0.1:knndistmetr_corrphenotypic:dms_30'
+    run = '6'
+    w1 = {}
+    w2 = {}
+    for run in range(1, 31):
+        for gen in range(0, 50):
+            if not gen in w1:
+                w1[gen] = []
+                w2[gen] = []
+            df = pd.read_csv(dirbase / exp / alg / str(run) / 'surr' / f'SurrogatePool.{gen}.csv.gz')
+            w1[gen].append(df['weight 0'][0])
+            w2[gen].append(df['weight 1'][0])
+        # for i in range(0, 50):
+        #     w1.append(df['weight 0'][0])
+        #     w2.append(df['weight 1'][0])
+
+        # print(df['weight 0'][0], df['weight 1'][0])
+
+    ww1 = []
+    ww2 = []
+    for gen in range(0, 50):
+        ww1.append( statistics.mean(w1[gen]))
+        ww2.append( statistics.mean(w2[gen]))
+    plt.plot(range(0, 50), ww1)
+    plt.plot(range(0, 50), ww2)
+    plt.show()
+    plt.savefig('weights' + '.jpg')
