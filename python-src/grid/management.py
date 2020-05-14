@@ -63,9 +63,13 @@ def delete_alg(*, experiments, algorithm_to_delete, dirbase='/home/mazhar/grid/'
 
 def unarchive(experiment, algorithm, dir_from, dir_to):
     alg_dir = Path(dir_from) / experiment / algorithm
+    print(alg_dir)
     (_, _, files) = next(os.walk(alg_dir))
+    print(files)
     for file in files:
-        shutil.unpack_archive(alg_dir / file, dir_to)
+        save_to = Path(dir_to) / experiment / algorithm / file.rstrip('.tar.bz2')
+        shutil.unpack_archive(alg_dir / file, save_to)
+        print('Unpacked', alg_dir / file, 'to', save_to)
 
 def delete_alg_files(experiment_path, alg, file_name, runs_to_exclude=range(1, 5)):
     """
