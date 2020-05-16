@@ -10,7 +10,6 @@ import gphhucarp.decisionprocess.poolfilter.ExpFeasibleNoRefillPoolFilter;
 import tl.TLLogger;
 import tl.gp.GPIndividualUtils;
 import tl.gp.PopulationUtils;
-import tl.gp.TLGPIndividual;
 import tl.gp.niching.SimpleNichingAlgorithm;
 import tl.gp.similarity.CorrPhenoTreeSimilarityMetric;
 import tl.gp.similarity.HammingPhenoTreeSimilarityMetric;
@@ -24,6 +23,22 @@ import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * # This class performs the Surrogate-Evaluated Fulltree transfer. This method gets a path to a directory or file that
+ * # contains knowledge, loads the population from it, performs a clearing on it and forms a surrogate pool from the
+ * # cleared population. The experiment creates an intermediate population of 10 times the size of the originial
+ * # population, evaluates the intermediate population with the surrogate, removes duplicates with a clearing method and
+ * # then, initialise a percentage of target domains from the top individuals of the cleared population. This function has
+ * # the foloowing parameters:
+ * # 1. Percentage of the target population to initialise,
+ * # 2. Similarity metric:
+ * #       2.1. phenotypic
+ * #       2.2. corrphenotypic
+ * #       2.3. hamming
+ * # 3. Generation of source domain from which to start loading populations (inclusive)
+ * # 4. Generation of source domain until which which to start loading populations (inclusive)
+ * # 5. Niche radius.
+ */
 public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 {
 	/**
@@ -57,6 +72,15 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 	 * Niche radius. All items within this radius of a niche center will be cleared.
 	 */
 	public final String P_NICHE_RADIUS = "niche-radius";
+
+	/**
+	 * Disable surrogate evaluation of the newly created individuals. If this boolean parameter is true, newly-created
+	 * trees will not be evaluated with the surrogate method and a fitness value of -1 will be
+	 * assigned to them. This feature acts as a control measure for testing to see if the results come from the
+	 * surrogate or not. The default value of this parameter is {@code false}.
+	 */
+	public final String P_DISABLE_SUR_EVAL = "disable-sur-eval";
+	private boolean disableSurEval;
 
 	/**
 	 * The distance metric that KNN uses. Acceptable values are (case insensitive):
@@ -132,6 +156,8 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 		surFitness.updateSurrogatePool(inds.toArray(new Individual[0]), "s:gen_49");
 		sstate.setDMSSavingEnabled(false);
 
+		this.disableSurEval = state.parameters.getBoolean(base.push(P_DISABLE_SUR_EVAL), null, false);
+
 		log(state, surPoolLogID, surFitness.logSurrogatePool());
 		closeLogger(state, surPoolLogID);
 	}
@@ -178,8 +204,16 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 			{
 				GPNode root = super.newRootedTree(state, type, thread, parent, set, argposition, requestedSize);
 				SuGPIndividual ind = SuGPIndividual.asGPIndividual(root, -1);
-				((MultiObjectiveFitness) ind.fitness).objectives[0] = surFitness.fitness(ind);
-				ind.setSurFit(ind.fitness.fitness());
+				if(disableSurEval)
+				{
+					((MultiObjectiveFitness) ind.fitness).objectives[0] = -1;
+					ind.setSurFit(-1);
+				} else
+				{
+					((MultiObjectiveFitness) ind.fitness).objectives[0] = surFitness.fitness(ind);
+					ind.setSurFit(ind.fitness.fitness());
+				}
+
 				pop.add(ind);
 			}
 			pop.sort(Comparator.comparingDouble(i -> i.fitness.fitness()));

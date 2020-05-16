@@ -326,6 +326,38 @@ function SurEvalFullTree()
 #gp.tc.0.init.surr-log-path=./stats/target-wk/SurEvalFullTree/
 }
 
+# This function performs the Surrogate-EvaluatedFulltree experiment without surrogate evaluation. newly-created
+#	 rees will not be evaluated with the surrogate method and a fitness value of -1 will be
+#	 assigned to them. This feature acts as a control measure for testing to see if the results come from the
+#	 surrogate or not. This function has the foloowing parameters:
+# 1. Percentage of the target population to initialise,
+# 2. Similarity metric:
+#       2.1. phenotypic
+#       2.2. corrphenotypic
+#       2.3. hamming
+# 3. Generation of source domain from which to start loading populations (inclusive)
+# 4. Generation of source domain until which which to start loading populations (inclusive)
+# 5. Niche radius.
+function RandSurEvalFullTree()
+{
+  local L_EXP_NAME="SurEvalFullTree:tp_$1:metric_$2:gen_$3_$4:nrad_$5:dms_20"
+  local L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
+  do_knowledge_experiment "$L_EXP_NAME" \
+                          -p state=tl.gphhucarp.dms.DMSSavingGPHHState \
+                          -p gp.tc.0.init=tl.knowledge.surrogate.SurEvalBuilder \
+                          -p gp.tc.0.init.knowledge-path=$KNOWLEDGE_SOURCE_DIR/ \
+                          -p gp.tc.0.init.num-generations=$GENERATIONS \
+                          -p gp.tc.0.init.surr-log-path=$L_EXPERIMENT_DIR/ \
+                          -p gp.tc.0.init.transfer-percent=$1 \
+                          -p gp.tc.0.init.distance-metric=$2 \
+                          -p gp.tc.0.init.from-generation=$3 \
+                          -p gp.tc.0.init.to-generation=$4 \
+                          -p gp.tc.0.init.disable-sur-eval=true \
+                          -p gp.tc.0.init.niche-radius=$5
+
+#gp.tc.0.init.surr-log-path=./stats/target-wk/SurEvalFullTree/
+}
+
 # This function performs the cleared fulltree experiment. This method gets a path to a directory or file that contains
 # knowledge, loads the population from it, performs a clearing on it and forms a pool from the cleared population to
 # initialise a percentage of target domains. This function has the foloowing parameters:
