@@ -41,7 +41,7 @@ params
 # vim's swp files
 *.swp
 
-# I don't know what this file is for but it is not useful for me
+# macOS folder attributes
 .DS_Store
 
 # Log file
@@ -116,11 +116,8 @@ fabric.properties
 # Editor-based Rest Client
 .idea/httpRequests
 
-# macOS folder attributes
-.DS_Store
-
 # Saved GP populations used for testing.
-gdb1.vs5-gen_50
+KnowledgeSource
 
 .csv
 /.metadata/
