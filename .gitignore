@@ -119,6 +119,9 @@ fabric.properties
 # macOS folder attributes
 .DS_Store
 
+# Saved GP populations used for testing.
+gdb1.vs5-gen_50
+
 .csv
 /.metadata/
 /bin/
