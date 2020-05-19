@@ -37,8 +37,10 @@ public interface TLLogger<T>
 		try
 		{
 			File file = new File(fileName);
-			if (file.exists())
-				file.delete();
+			if (file.exists() && !file.delete())
+			{
+				throw new RuntimeException("The log file" + fileName + " already exists and failed to delete it");
+			}
 
 			Path pathToSuccFile = file.toPath();
 			Path pathToSuccDir = pathToSuccFile.getParent();
@@ -50,7 +52,6 @@ public interface TLLogger<T>
 							+ pathToSuccDir.toString());
 			}
 
-//			file.createNewFile();
 			state.output.warning("Log file created: " + file.getAbsolutePath());
 
 			return state.output.addLog(file, false, true);
@@ -59,17 +60,6 @@ public interface TLLogger<T>
 			e.printStackTrace();
 			state.output.fatal("Failed to create knowledge log file");
 			return -1;
-		}
-	}
-
-	default void closeLogger(EvolutionState state, int id)
-	{
-		state.output.flush();
-		Log logger = state.output.getLog(id);
-		if (!logger.isLoggingToSystemOut)
-		{
-			logger.writer.close();
-//			state.output.removeLog(id); Don't remove it. There is a bug in ECJ that makes this troublesome.
 		}
 	}
 
@@ -87,8 +77,8 @@ public interface TLLogger<T>
 				state.output.warning("Log file name: " + knowledgeLogFile);
 
 			File successKnLog = new File(knowledgeLogFile + ".succ.log");
-			if(successKnLog.exists())
-				successKnLog.delete();
+			if(successKnLog.exists() && !successKnLog.delete())
+				throw new RuntimeException("The log file" + knowledgeLogFile + " already exists and failed to delete it");
 
 			Path pathToSuccFile = successKnLog.toPath();
 			Path pathToSuccDir = pathToSuccFile.getParent();
@@ -100,7 +90,8 @@ public interface TLLogger<T>
 							+ pathToSuccDir.toString());
 			}
 
-			successKnLog.createNewFile();
+			if(!successKnLog.createNewFile())
+				throw new RuntimeException("Failed to create the log file: " + successKnLog.getAbsolutePath());
 			state.output.warning("Log file created: " + successKnLog.getAbsolutePath());
 
 			return state.output.addLog(successKnLog, false);
@@ -112,22 +103,19 @@ public interface TLLogger<T>
 		}
 	}
 
-	default void log(EvolutionState state, KnowledgeItem<T> it, int cfCounter, int logID)
+	default void closeLogger(EvolutionState state, int id)
 	{
-		state.output.println("CFCounter: " + cfCounter + ": \t" + (it == null ? "null" : it.toString()), logID);
 		state.output.flush();
-		state.output.println("", logID);
+		Log logger = state.output.getLog(id);
+		if (!logger.isLoggingToSystemOut)
+		{
+			logger.writer.close();
+		}
 	}
 
 	default void log(EvolutionState state, int logID, String... messages)
 	{
-		for(int i = 0; i < messages.length; i++)
-		{
-			state.output.print(messages[i] + (i == messages.length - 1 ? "" : ", "), logID);
-//			state.output.warning(messages[i] + (i == messages.length - 1 ? "" : ", "));
-//			System.out.println(messages[i] + (i == messages.length - 1 ? "" : ", "));
-		}
-		state.output.flush();
+		log(state, logID, true, messages);
 	}
 
 	default void log(EvolutionState state, int logID, boolean logSysout, String... messages)
@@ -137,11 +125,18 @@ public interface TLLogger<T>
 			state.output.print(messages[i] + (i == messages.length - 1 ? "" : ", "), logID);
 			if(logSysout)
 				state.output.warning(messages[i] + (i == messages.length - 1 ? "" : ", "));
-//			System.out.println(messages[i] + (i == messages.length - 1 ? "" : ", "));
 		}
 		state.output.flush();
 	}
 
+	@Deprecated
+	default void log(EvolutionState state, KnowledgeItem<T> it, int cfCounter, int logID)
+	{
+		state.output.println("CFCounter: " + cfCounter + ": \t" + (it == null ? "null" : it.toString()), logID);
+		state.output.flush();
+		state.output.println("", logID);
+	}
+	@Deprecated
 	default void log(EvolutionState state, T it, int logID, String... messages)
 	{
 		state.output.print("[item: " + (it == null ? "null" : it.toString()), logID);
