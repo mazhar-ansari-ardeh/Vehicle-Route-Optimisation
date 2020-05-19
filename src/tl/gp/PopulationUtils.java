@@ -141,14 +141,16 @@ public class PopulationUtils
 	 * @param nicheRadius The niching radius
 	 * @param logger The logger needed for logging the method.
 	 * @param logID The ID of the logger.
+	 * @param logPopulation If {@code true}, the function will log all the loaded individuals at the end of its operation.
 	 * @return A pool of individuals, sorted based on their fitness.
 	 */
 	public static List<Individual> loadPopulations(EvolutionState state, String inputPath,
 												   int fromGeneration, int toGeneration,
-											 			SituationBasedTreeSimilarityMetric metrics,
-														double nicheRadius,
-														TLLogger<GPNode> logger,
-														int logID) throws IOException, ClassNotFoundException
+												   SituationBasedTreeSimilarityMetric metrics,
+												   double nicheRadius,
+												   TLLogger<GPNode> logger,
+												   int logID,
+												   boolean logPopulation) throws IOException, ClassNotFoundException
 	{
 		File f = new File(inputPath);
 
@@ -186,10 +188,13 @@ public class PopulationUtils
 			pool = pool.stream().filter(ind -> ind.fitness.fitness() != Double.POSITIVE_INFINITY).collect(Collectors.toList());
 		}
 
-		logger.log(state, logID, "pool size: " + pool.size() + "\n");
-		pool.forEach(i ->
-				logger.log(state, logID, i.fitness.fitness() + ", " + ((GPIndividual)i).trees[0].child.makeLispTree() + "\n"));
-
+		if(logPopulation)
+		{
+			logger.log(state, logID, "pool size: " + pool.size() + "\n");
+			pool.forEach(i ->
+					logger.log(state, logID, i.fitness.fitness() + ", "
+											+ ((GPIndividual) i).trees[0].child.makeLispTree() + "\n"));
+		}
 		return pool;
 	}
 
