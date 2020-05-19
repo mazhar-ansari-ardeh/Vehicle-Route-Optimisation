@@ -136,7 +136,7 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 
 		DMSSaver sstate = (DMSSaver) state;
 		surFitness = new KNNSurrogateFitness();
-		surFitness.setSurrogateUpdatePolicy(new AddOncePhenotypicUpdatePolicy());
+		surFitness.setSurrogateUpdatePolicy(new AddOncePhenotypicUpdatePolicy(nicheRadius));
 		surFitness.setMetric(metrics);
 		surFitness.setSituations(sstate.getInitialSituations().subList(0,
 				Math.min(sstate.getInitialSituations().size(), DMS_SIZE)));
