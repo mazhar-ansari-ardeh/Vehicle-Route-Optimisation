@@ -157,6 +157,7 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 		sstate.setDMSSavingEnabled(false);
 
 		this.disableSurEval = state.parameters.getBoolean(base.push(P_DISABLE_SUR_EVAL), null, false);
+		log(state, knowledgeSuccessLogID, true, "disableSurEval: " + disableSurEval + "\n");
 
 		log(state, surPoolLogID, surFitness.logSurrogatePool());
 		closeLogger(state, surPoolLogID);
@@ -246,8 +247,7 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 			GPNode root = GPIndividualUtils.stripRoots((GPIndividual) pop.remove(0)).get(0);
 
 			cfCounter++;
-			log(state, knowledgeSuccessLogID, cfCounter + ": \t" + root.makeCTree(false,
-					true, true) + "\n\n");
+			log(state, knowledgeSuccessLogID, cfCounter + ": \t" + root.makeLispTree() + "\n\n");
 			root.parent = parent;
 			root.argposition = (byte) argposition;
 			return root;
