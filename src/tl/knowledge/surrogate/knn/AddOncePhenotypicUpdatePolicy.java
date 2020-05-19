@@ -20,6 +20,17 @@ import java.util.List;
  */
 public class AddOncePhenotypicUpdatePolicy implements KNNPoolUpdatePolicy
 {
+    double nicheradius = 0;
+
+    public AddOncePhenotypicUpdatePolicy(double nicheradius)
+    {
+        this.nicheradius = nicheradius;
+    }
+
+    public AddOncePhenotypicUpdatePolicy()
+    {
+    }
+
     @Override
     public Collection<KNNPoolItem> update(Collection<KNNPoolItem> pool, Individual[] inds, String source, PoolFilter filter,
 										  TreeSimilarityMetric metric, List<ReactiveDecisionSituation> dps, Object... extra)
@@ -34,10 +45,10 @@ public class AddOncePhenotypicUpdatePolicy implements KNNPoolUpdatePolicy
         List<Individual> sortedInds = Arrays.asList(inds);
         if(metric instanceof SituationBasedTreeSimilarityMetric)
         {
-            SimpleNichingAlgorithm.clearPopulation(sortedInds, (SituationBasedTreeSimilarityMetric) metric, 0, 1);
+            SimpleNichingAlgorithm.clearPopulation(sortedInds, (SituationBasedTreeSimilarityMetric) metric, nicheradius, 1);
         }
         else
-            SimpleNichingAlgorithm.clearPopulation(sortedInds, dps, 0, 1);
+            SimpleNichingAlgorithm.clearPopulation(sortedInds, dps, nicheradius, 1);
 
         final ArrayList<KNNPoolItem> retval = new ArrayList<>();
         for (Individual i : sortedInds)
