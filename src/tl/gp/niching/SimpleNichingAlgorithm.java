@@ -1,15 +1,15 @@
 package tl.gp.niching;
 
 import ec.EvolutionState;
-import ec.Fitness;
 import ec.Individual;
 import ec.Subpopulation;
 import ec.gp.GPIndividual;
 import ec.multiobjective.MultiObjectiveFitness;
-import gphhucarp.decisionprocess.RoutingPolicy;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 import tl.gp.PopulationUtils;
+import tl.gp.similarity.PhenotypicTreeSimilarityMetric;
+import tl.gp.similarity.SituationBasedTreeSimilarityMetric;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,6 +29,8 @@ public class SimpleNichingAlgorithm implements NicheAlgorithm
      */
     private final int capacity;
 
+    private SituationBasedTreeSimilarityMetric similarityMetric;
+
     /**
      * Creates a new instance of the algorithm.
      * @param radius the niche radius. A negative value for this parameter will effectively disable the niching operation.
@@ -36,11 +38,20 @@ public class SimpleNichingAlgorithm implements NicheAlgorithm
      */
     public SimpleNichingAlgorithm(double radius, int capacity)
     {
+        // This is the original implementation, based on the code that I got from Shaolin. In this implementation, the
+        // tasks index is used as the characterisation array.
+        this(radius, capacity, new PhenotypicTreeSimilarityMetric());
+    }
+
+    public SimpleNichingAlgorithm(double radius, int capacity, SituationBasedTreeSimilarityMetric metric)
+    {
         if(capacity <= 0)
             throw new IllegalArgumentException("Niche capacity must be positive integer: " + capacity);
 
         this.radius = radius;
         this.capacity = capacity;
+
+        similarityMetric = metric;
     }
 
     private static int compare(GPIndividual i1, GPIndividual i2)
@@ -95,14 +106,14 @@ public class SimpleNichingAlgorithm implements NicheAlgorithm
                 nicheCenter = indFitness;
 //              niche.sort(Comparator.comparingInt(ind -> ind.trees[0].child.depth()));
                 niche.sort(SimpleNichingAlgorithm::compare);
-                retval.addAll(niche.subList(0, niche.size() >= capacity ? capacity : niche.size()));
+                retval.addAll(niche.subList(0, Math.min(niche.size(), capacity)));
                 niche.clear();
                 niche.add(individual);
             }
         }
 
         niche.sort(SimpleNichingAlgorithm::compare);
-        retval.addAll(niche.subList(0, niche.size() >= capacity ? capacity : niche.size()));
+        retval.addAll(niche.subList(0, Math.min(niche.size(), capacity)));
         return retval.toArray(new GPIndividual[0]);
     }
 
@@ -172,7 +183,9 @@ public class SimpleNichingAlgorithm implements NicheAlgorithm
         }
     }
 
-    public static void clearPopulation(final List<Individual> sortedIindividuals, List<ReactiveDecisionSituation> dps, final double radius, final int capacity) {
+    public static void clearPopulation(final List<Individual> sortedIindividuals,
+                                       List<ReactiveDecisionSituation> dps, final double radius, final int capacity)
+    {
 //        for (final Subpopulation subpop : state.population.subpops)
         {
 //            final Individual[] sortedPop = individuals;
@@ -212,36 +225,68 @@ public class SimpleNichingAlgorithm implements NicheAlgorithm
         }
     }
 
-    public static void clearPopulation(final List<Individual> sortedIindividuals, List<ReactiveDecisionSituation> dps,
-                                       final double radius, final int capacity, Function<Individual, Double> getFitness, BiConsumer<Individual, Double> setFitness)
+    /**
+     *
+     * @param sortedIindividuals
+     * @param metric the metric to measure distance of individuals. This object must be configured before passing to
+     *               this method.
+     * @param radius
+     * @param capacity
+     */
+    public static void clearPopulation(List<Individual> sortedIindividuals, SituationBasedTreeSimilarityMetric metric,
+                                       double radius, int capacity)
     {
-        final PhenoCharacterisation pc = new PhenoCharacterisation(dps, new GPRoutingPolicy(((GPIndividual)sortedIindividuals.get(0)).trees[0]));
-        final List<int[]> sortedPopCharLists = new ArrayList<>();
-        for (final Individual indi : sortedIindividuals)
-        {
-            final int[] charList = pc.characterise(new GPRoutingPolicy(((GPIndividual)indi).trees[0]));
-            sortedPopCharLists.add(charList);
-        }
         for (int i = 0; i < sortedIindividuals.size(); ++i)
         {
-            if(getFitness.apply(sortedIindividuals.get(i)) == Double.POSITIVE_INFINITY)
-//            if (isCleared((MultiObjectiveFitness) sortedIindividuals.get(i).fitness))
+            if (isCleared((MultiObjectiveFitness) sortedIindividuals.get(i).fitness))
                 continue;
             int numWinners = 1;
+            GPRoutingPolicy pi = new GPRoutingPolicy(((GPIndividual)sortedIindividuals.get(i)).trees[0]);
             for (int j = i + 1; j < sortedIindividuals.size(); ++j)
             {
-                if(getFitness.apply(sortedIindividuals.get(j)) == Double.POSITIVE_INFINITY)
-//                if (isCleared((MultiObjectiveFitness) sortedIindividuals.get(j).fitness))
+                if (isCleared((MultiObjectiveFitness) sortedIindividuals.get(j).fitness))
                     continue;
+                GPRoutingPolicy pj = new GPRoutingPolicy(((GPIndividual)sortedIindividuals.get(j)).trees[0]);
 
-                final double distance = PhenoCharacterisation.distance(sortedPopCharLists.get(i), sortedPopCharLists.get(j));
+                double distance = metric.distance(pi, pj);
                 if (distance <= radius)
                 {
                     if (numWinners < capacity)
                     {
                         ++numWinners;
                     }
-                    else {
+                    else
+                    {
+                        clear((MultiObjectiveFitness) sortedIindividuals.get(j).fitness);
+                    }
+                }
+            }
+        }
+    }
+
+    public static void clearPopulation(final List<Individual> sortedIindividuals, List<ReactiveDecisionSituation> dps,
+                                       final double radius, final int capacity, Function<Individual, Double> getFitness, BiConsumer<Individual, Double> setFitness) {
+        final PhenoCharacterisation pc = new PhenoCharacterisation(dps, new GPRoutingPolicy(((GPIndividual) sortedIindividuals.get(0)).trees[0]));
+        final List<int[]> sortedPopCharLists = new ArrayList<>();
+        for (final Individual indi : sortedIindividuals) {
+            final int[] charList = pc.characterise(new GPRoutingPolicy(((GPIndividual) indi).trees[0]));
+            sortedPopCharLists.add(charList);
+        }
+        for (int i = 0; i < sortedIindividuals.size(); ++i) {
+            if (getFitness.apply(sortedIindividuals.get(i)) == Double.POSITIVE_INFINITY)
+//            if (isCleared((MultiObjectiveFitness) sortedIindividuals.get(i).fitness))
+                continue;
+            int numWinners = 1;
+            for (int j = i + 1; j < sortedIindividuals.size(); ++j) {
+                if (getFitness.apply(sortedIindividuals.get(j)) == Double.POSITIVE_INFINITY)
+//                if (isCleared((MultiObjectiveFitness) sortedIindividuals.get(j).fitness))
+                    continue;
+
+                final double distance = PhenoCharacterisation.distance(sortedPopCharLists.get(i), sortedPopCharLists.get(j));
+                if (distance <= radius) {
+                    if (numWinners < capacity) {
+                        ++numWinners;
+                    } else {
 //                        clear((MultiObjectiveFitness) sortedIindividuals.get(j).fitness);
                         setFitness.accept(sortedIindividuals.get(j), Double.POSITIVE_INFINITY);
 //                            state.output.warning("Cleared: " + ((GPIndividual)sortedPop[i]).trees[0].child.makeLispTree());
@@ -250,7 +295,6 @@ public class SimpleNichingAlgorithm implements NicheAlgorithm
             }
         }
     }
-
 }
 
 
