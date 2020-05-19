@@ -6,6 +6,7 @@ import gphhucarp.decisionprocess.PoolFilter;
 import gphhucarp.decisionprocess.poolfilter.ExpFeasibleNoRefillPoolFilter;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import tl.gp.niching.SimpleNichingAlgorithm;
+import tl.gp.similarity.SituationBasedTreeSimilarityMetric;
 import tl.gp.similarity.TreeSimilarityMetric;
 
 import java.util.ArrayList;
@@ -31,7 +32,12 @@ public class AddOncePhenotypicUpdatePolicy implements KNNPoolUpdatePolicy
 
         Arrays.sort(inds);
         List<Individual> sortedInds = Arrays.asList(inds);
-        SimpleNichingAlgorithm.clearPopulation(sortedInds, dps, 0, 1);
+        if(metric instanceof SituationBasedTreeSimilarityMetric)
+        {
+            SimpleNichingAlgorithm.clearPopulation(sortedInds, (SituationBasedTreeSimilarityMetric) metric, 0, 1);
+        }
+        else
+            SimpleNichingAlgorithm.clearPopulation(sortedInds, dps, 0, 1);
 
         final ArrayList<KNNPoolItem> retval = new ArrayList<>();
         for (Individual i : sortedInds)
