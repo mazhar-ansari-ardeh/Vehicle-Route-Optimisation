@@ -338,9 +338,10 @@ function SurEvalFullTree()
 # 3. Generation of source domain from which to start loading populations (inclusive)
 # 4. Generation of source domain until which which to start loading populations (inclusive)
 # 5. Niche radius.
+# 6. Niche capacity
 function RandSurEvalFullTree()
 {
-  local L_EXP_NAME="SurEvalFullTree:tp_$1:metric_$2:gen_$3_$4:nrad_$5:dms_20"
+  local L_EXP_NAME="SurEvalFullTree:tp_$1:metric_$2:gen_$3_$4:nrad_$5:ncap_$6:dms_20"
   local L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
   do_knowledge_experiment "$L_EXP_NAME" \
                           -p state=tl.gphhucarp.dms.DMSSavingGPHHState \
@@ -353,7 +354,8 @@ function RandSurEvalFullTree()
                           -p gp.tc.0.init.from-generation=$3 \
                           -p gp.tc.0.init.to-generation=$4 \
                           -p gp.tc.0.init.disable-sur-eval=true \
-                          -p gp.tc.0.init.niche-radius=$5
+                          -p gp.tc.0.init.niche-radius=$5 \
+                          -p gp.tc.0.init.niche-radius=$6
 
 #gp.tc.0.init.surr-log-path=./stats/target-wk/SurEvalFullTree/
 }
@@ -369,19 +371,21 @@ function RandSurEvalFullTree()
 # 3. Generation of source domain from which to start loading populations (inclusive)
 # 4. Generation of source domain until which which to start loading populations (inclusive)
 # 5. Niche radius.
+# 6. Niche capacity
 function ClearedFullTree()
 {
-  local L_EXP_NAME="ClearedFullTree:tp_$1:metric_$2:gen_$3_$4:nrad_$5:dms_20"
+  local L_EXP_NAME="ClearedFullTree:tp_$1:metric_$2:gen_$3_$4:nrad_$5:ncap_$6:dms_20"
   do_knowledge_experiment "$L_EXP_NAME" \
                           -p state=tl.gphhucarp.dms.DMSSavingGPHHState \
                           -p gp.tc.0.init=tl.gp.ClearedFullTreeBuilder \
-                          -p gp.tc.0.init.knowledge-path=$KNOWLEDGE_SOURCE_DIR/ \
-                          -p gp.tc.0.init.transfer-percent=$1 \
-                          -p gp.tc.0.init.distance-metric=$2 \
+                          -p gp.tc.0.init.knowledge-path="$KNOWLEDGE_SOURCE_DIR"/ \
+                          -p gp.tc.0.init.transfer-percent="$1" \
+                          -p gp.tc.0.init.distance-metric="$2" \
                           -p gp.tc.0.init.num-generations=$GENERATIONS \
-                          -p gp.tc.0.init.from-generation=$3 \
-                          -p gp.tc.0.init.to-generation=$4 \
-                          -p gp.tc.0.init.niche-radius=$5
+                          -p gp.tc.0.init.from-generation="$3" \
+                          -p gp.tc.0.init.to-generation="$4" \
+                          -p gp.tc.0.init.niche-radius="$5" \
+                          -p gp.tc.0.init.niche-radius="$6"
 }
 
 # This function performs the surrogate-assisted transfer learning.

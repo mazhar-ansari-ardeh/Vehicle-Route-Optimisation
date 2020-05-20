@@ -45,8 +45,6 @@ public class EnsembleSurrogatedGPHHState extends DMSSavingGPHHState implements T
 	 */
 	private static final String P_KNN_DISTANCE_METRIC = "knn-distance-metric";
 
-
-
 	/**
 	 * Number of decision-making situations to consider for phenotypic characterisation.
 	 */
