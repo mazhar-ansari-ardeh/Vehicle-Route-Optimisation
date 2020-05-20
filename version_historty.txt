@@ -103,3 +103,6 @@ Added the implementation for the 'ClearedFullTree' method.
 
 16/05/20
 Added the feature to disable surrogate evaluation to SurEvalBuilder.
+
+21/05/20
+Debugged SurEvalBuilder. There was a bad bug in the method that made the effect of niching almost null.
