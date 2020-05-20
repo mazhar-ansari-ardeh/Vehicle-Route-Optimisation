@@ -340,9 +340,9 @@ function SurEvalFullTree()
 #       2.3. hamming
 # 3. Niche radius
 # 4. Niche capacity
-function RandSurEvalFullTree()
+function RandPoolFullTree()
 {
-  local L_EXP_NAME="RandSurEvalFullTree:tp_$1:metric_$2:nrad_$3:ncap_$4:dms_20"
+  local L_EXP_NAME="RandPoolFullTree:tp_$1:metric_$2:nrad_$3:ncap_$4:dms_20"
   local L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
   do_knowledge_experiment "$L_EXP_NAME" \
                           -p state=tl.gphhucarp.dms.DMSSavingGPHHState \
