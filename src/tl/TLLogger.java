@@ -25,9 +25,14 @@ public interface TLLogger<T>
 {
 	String P_KNOWLEDGE_LOG_FILE_NAME = "knowledge-log-file";
 
+	default int setupLogger(EvolutionState state, Parameter base, boolean zip)
+	{
+		return setupLogger(state, base, P_KNOWLEDGE_LOG_FILE_NAME, zip);
+	}
+
 	default int setupLogger(EvolutionState state, Parameter base)
 	{
-		return setupLogger(state, base, P_KNOWLEDGE_LOG_FILE_NAME);
+		return setupLogger(state, base, P_KNOWLEDGE_LOG_FILE_NAME, false);
 	}
 
 	default int setupLogger(EvolutionState state, String fileName)
@@ -63,7 +68,7 @@ public interface TLLogger<T>
 		}
 	}
 
-	default int setupLogger(EvolutionState state, Parameter base, String fileParamName)
+	default int setupLogger(EvolutionState state, Parameter base, String fileParamName, boolean zip)
 	{
 		if(fileParamName == null || fileParamName.isEmpty())
 			throw new RuntimeException("Log file name cannot be empty.");
@@ -94,7 +99,7 @@ public interface TLLogger<T>
 				throw new RuntimeException("Failed to create the log file: " + successKnLog.getAbsolutePath());
 			state.output.warning("Log file created: " + successKnLog.getAbsolutePath());
 
-			return state.output.addLog(successKnLog, false);
+			return state.output.addLog(successKnLog, false, zip);
 		}
 		catch (IOException e) {
 			e.printStackTrace();
