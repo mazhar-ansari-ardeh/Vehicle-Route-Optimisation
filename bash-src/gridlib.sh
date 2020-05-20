@@ -323,16 +323,16 @@ function SurEvalFullTree()
                           -p gp.tc.0.init.from-generation=$3 \
                           -p gp.tc.0.init.to-generation=$4 \
                           -p gp.tc.0.init.niche-radius=$5 \
-                          -p gp.tc.0.init.niche-radius="$6"
+                          -p gp.tc.0.init.niche-capacity="$6"
 
 
 #gp.tc.0.init.surr-log-path=./stats/target-wk/SurEvalFullTree/
 }
 
-# This function performs the Surrogate-EvaluatedFulltree experiment without surrogate evaluation. newly-created
-#	 rees will not be evaluated with the surrogate method and a fitness value of -1 will be
-#	 assigned to them. This feature acts as a control measure for testing to see if the results come from the
-#	 surrogate or not. This function has the foloowing parameters:
+# This function performs the Surrogate-EvaluatedFulltree experiment without surrogate evaluation. Newly-created
+#	trees will not be evaluated with the surrogate method and a fitness value of -1 will be
+#	assigned to them. This feature acts as a control measure for testing to see if the results come from the
+#	surrogate or not. This function has the foloowing parameters:
 # 1. Percentage of the target population to initialise,
 # 2. Similarity metric:
 #       2.1. phenotypic
@@ -358,7 +358,7 @@ function RandSurEvalFullTree()
                           -p gp.tc.0.init.to-generation=$4 \
                           -p gp.tc.0.init.disable-sur-eval=true \
                           -p gp.tc.0.init.niche-radius=$5 \
-                          -p gp.tc.0.init.niche-radius=$6
+                          -p gp.tc.0.init.niche-capacity=$6
 
 #gp.tc.0.init.surr-log-path=./stats/target-wk/SurEvalFullTree/
 }
