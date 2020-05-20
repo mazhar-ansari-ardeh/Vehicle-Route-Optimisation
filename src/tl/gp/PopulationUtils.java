@@ -138,8 +138,9 @@ public class PopulationUtils
   	 *                     is ignored.
 	 * @param metrics The similarity metric used for performing niching. This metric is expected to be configured before
 	 *                passing it in.
-	 * @param nicheRadius The niching radius
-	 * @param logger The logger needed for logging the method.
+	 * @param nicheRadius The niching radius. This parameter is used for population clearing.
+	 * @param nicheCapacity The niching capacity. This parameter is used for population clearing.
+	 * @param logger The logger needed for logging the method. Error messages are always logged to this logger.
 	 * @param logID The ID of the logger.
 	 * @param logPopulation If {@code true}, the function will log all the loaded individuals at the end of its operation.
 	 * @return A pool of individuals, sorted based on their fitness.
@@ -148,6 +149,7 @@ public class PopulationUtils
 												   int fromGeneration, int toGeneration,
 												   SituationBasedTreeSimilarityMetric metrics,
 												   double nicheRadius,
+												   int nicheCapacity,
 												   TLLogger<GPNode> logger,
 												   int logID,
 												   boolean logPopulation) throws IOException, ClassNotFoundException
@@ -173,9 +175,9 @@ public class PopulationUtils
 					continue;
 				}
 				Population p = PopulationUtils.loadPopulation(file);
-				PopulationUtils.sort(p);
 				pool.addAll(Arrays.asList(p.subpops[0].individuals));
-				SimpleNichingAlgorithm.clearPopulation(pool, metrics, nicheRadius, 1);
+				pool.sort(Comparator.comparingDouble(ind -> ind.fitness.fitness()));
+				SimpleNichingAlgorithm.clearPopulation(pool, metrics, nicheRadius, nicheCapacity);
 				pool = pool.stream().filter(ind -> ind.fitness.fitness() != Double.POSITIVE_INFINITY).collect(Collectors.toList());
 			}
 		}
