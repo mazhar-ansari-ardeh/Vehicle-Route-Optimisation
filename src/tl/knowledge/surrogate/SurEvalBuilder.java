@@ -150,8 +150,7 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 			// I like a large and diverse KNN pool so I set the niche radius to zero so that policies that are very
 			// similar and are potentially duplicate are discarded without being too strict about it.
 			inds = PopulationUtils.loadPopulations(state, kbFile, fromGeneration, toGeneration, metrics, 0,
-											1,
-											this, knowledgeSuccessLogID, true);
+											1, this, knowledgeSuccessLogID, true);
 		} catch (IOException | ClassNotFoundException e)
 		{
 			e.printStackTrace();
