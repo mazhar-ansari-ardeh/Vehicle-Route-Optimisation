@@ -338,10 +338,8 @@ function SurEvalFullTree()
 #       2.1. phenotypic
 #       2.2. corrphenotypic
 #       2.3. hamming
-# 3. Generation of source domain from which to start loading populations (inclusive)
-# 4. Generation of source domain until which which to start loading populations (inclusive)
-# 5. Niche radius
-# 6. Niche capacity
+# 3. Niche radius
+# 4. Niche capacity
 function RandSurEvalFullTree()
 {
   local L_EXP_NAME="RandSurEvalFullTree:tp_$1:metric_$2:nrad_$3:ncap_$4:dms_20"
