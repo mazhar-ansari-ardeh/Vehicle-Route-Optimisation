@@ -130,30 +130,11 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 		interimPopLogID = setupLogger(state, new File(surLogPath, "pop/InterimPop.0.csv").getAbsolutePath());
 		log(state, interimPopLogID, "SurrogateFitness,SurrogateFitnessAfterClearing,Individual\n");
 
-		metrics = null;
-		String metricParam = state.parameters.getString(base.push(P_DISTANCE_METRIC), null);
-		log(state, knowledgeSuccessLogID, "Similarity metric: " + metricParam + "\n");
-		if(metricParam.equalsIgnoreCase("CorrPhenotypic"))
-			metrics = new CorrPhenoTreeSimilarityMetric();
-		else if(metricParam.equalsIgnoreCase("Phenotypic"))
-			metrics = new PhenotypicTreeSimilarityMetric();
-		else if(metricParam.equalsIgnoreCase("Hamming"))
-			metrics = new HammingPhenoTreeSimilarityMetric();
-		else
-			state.output.fatal("Unknown distance metric");
-
 		int fromGeneration = state.parameters.getIntWithDefault(base.push(P_GENERATION_FROM), null, -1);
 		int toGeneration = state.parameters.getIntWithDefault(base.push(P_GENERATION_TO), null, -1);
 		log(state, knowledgeSuccessLogID, true, "Load surrogate pool from generation " + fromGeneration +
 				 									 ", to generation " + toGeneration + "\n");
-
-		if(!(state instanceof DMSSaver))
-		{
-			String message = "Evolution state must be of type DMSaver for this builder\n";
-			log(state, knowledgeSuccessLogID, message);
-			state.output.fatal(message);
-		}
-		DMSSaver sstate = (DMSSaver) state;
+		DMSSaver sstate = (DMSSaver) state; // This is checked in the 'setup' method.
 		surFitness = new KNNSurrogateFitness();
 
 		// Almost all other update policy methods do some modifications to the pool. However, in this experiment, I
@@ -180,10 +161,6 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 
 		surFitness.setFilter(new ExpFeasibleNoRefillPoolFilter());
 		surFitness.updateSurrogatePool(inds.toArray(new Individual[0]), "s:gen_49");
-		sstate.setDMSSavingEnabled(false);
-
-		this.disableSurEval = state.parameters.getBoolean(base.push(P_DISABLE_SUR_EVAL), null, false);
-		log(state, knowledgeSuccessLogID, true, "disableSurEval: " + disableSurEval + "\n");
 
 		log(state, surPoolLogID, surFitness.logSurrogatePool());
 		closeLogger(state, surPoolLogID);
@@ -213,16 +190,45 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 		nicheCapacity = state.parameters.getInt(base.push(P_NICHE_CAPACITY), null);
 		log(state, knowledgeSuccessLogID, true, "Niche capacity " + nicheCapacity + "\n");
 
+		populationSize = state.parameters.getInt(new Parameter("pop.subpop.0.size"), null);
+
+		if(!(state instanceof DMSSaver))
+		{
+			String message = "Evolution state must be of type DMSaver for this builder\n";
+			log(state, knowledgeSuccessLogID, message);
+			state.output.fatal(message);
+		}
+		DMSSaver sstate = (DMSSaver) state;
+
+		metrics = null;
+		String metricParam = state.parameters.getString(base.push(P_DISTANCE_METRIC), null);
+		log(state, knowledgeSuccessLogID, "Similarity metric: " + metricParam + "\n");
+		if(metricParam.equalsIgnoreCase("CorrPhenotypic"))
+			metrics = new CorrPhenoTreeSimilarityMetric();
+		else if(metricParam.equalsIgnoreCase("Phenotypic"))
+			metrics = new PhenotypicTreeSimilarityMetric();
+		else if(metricParam.equalsIgnoreCase("Hamming"))
+			metrics = new HammingPhenoTreeSimilarityMetric();
+		else
+			state.output.fatal("Unknown distance metric");
+
+		metrics.setSituations(sstate.getInitialSituations().subList(0,
+				Math.min(sstate.getInitialSituations().size(), DMS_SIZE)));
+		sstate.setDMSSavingEnabled(false);
+
+		this.disableSurEval = state.parameters.getBoolean(base.push(P_DISABLE_SUR_EVAL), null, false);
+		log(state, knowledgeSuccessLogID, true, "disableSurEval: " + disableSurEval + "\n");
+		if(disableSurEval)
+			return;
+
 		String knowledgePath = state.parameters.getString(base.push(P_KNOWLEDGE_PATH), null);
 		if (knowledgePath == null)
 		{
-			state.output.fatal("Knowledge file name cannot be null");
+			state.output.fatal("Knowledge path cannot be null");
 			return;
 		}
 
 		setupSurrogate(state, base, knowledgePath);
-		populationSize = state.parameters.getInt(new Parameter("pop.subpop.0.size"), null);
-		((DMSSaver)state).setDMSSavingEnabled(false);
 	}
 
 	void createInitPop(final EvolutionState state, final GPType type, final int thread,
