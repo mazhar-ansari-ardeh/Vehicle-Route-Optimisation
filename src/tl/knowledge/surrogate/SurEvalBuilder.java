@@ -16,35 +16,40 @@ import tl.gp.similarity.HammingPhenoTreeSimilarityMetric;
 import tl.gp.similarity.PhenotypicTreeSimilarityMetric;
 import tl.gp.similarity.SituationBasedTreeSimilarityMetric;
 import tl.gphhucarp.dms.DMSSaver;
-import tl.knowledge.surrogate.knn.AddOncePhenotypicUpdatePolicy;
 import tl.knowledge.surrogate.knn.KNNSurrogateFitness;
+import tl.knowledge.surrogate.knn.UnboundedUpdatePolicy;
 
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * # This class performs the Surrogate-Evaluated Fulltree transfer. This method gets a path to a directory or file that
- * # contains knowledge, loads the population from it, performs a clearing on it and forms a surrogate pool from the
- * # cleared population. The experiment creates an intermediate population of 10 times the size of the originial
- * # population, evaluates the intermediate population with the surrogate, removes duplicates with a clearing method and
- * # then, initialise a percentage of target domains from the top individuals of the cleared population. This function has
- * # the foloowing parameters:
- * # 1. Percentage of the target population to initialise,
- * # 2. Similarity metric:
- * #       2.1. phenotypic
- * #       2.2. corrphenotypic
- * #       2.3. hamming
- * # 3. Generation of source domain from which to start loading populations (inclusive)
- * # 4. Generation of source domain until which which to start loading populations (inclusive)
- * # 5. Niche radius.
+ * This class performs the Surrogate-Evaluated Fulltree transfer. This method gets a path to a directory or file that
+ * contains knowledge, loads the population from it, performs a clearing on it and forms a surrogate pool from the
+ * cleared population. The experiment creates an intermediate population of 10 times the size of the originial
+ * population, evaluates the intermediate population with the surrogate, removes duplicates with a clearing method and
+ * then, initialise a percentage of target domains from the top individuals of the cleared population.
+ *
+ * The basic idea of this class/experiment is to create a set of individuals that are potentially good and are also as
+ * diverse as possible, hoping that the diversity and the good quality of the individuals will help to create an initial
+ * state that will have a lasting effect.
+ *
+ * This function has the following parameters:
+ * 1. Percentage of the target population to initialise,
+ * 2. Similarity metric:
+ *       2.1. phenotypic
+ *       2.2. corrphenotypic
+ *       2.3. hamming
+ * 3. Generation of source domain from which to start loading populations (inclusive)
+ * 4. Generation of source domain until which which to start loading populations (inclusive)
+ * 5. Niche radius.
  */
 public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 {
 	/**
 	 * The path to the file or directory that contains GP populations.
 	 */
-	public static final String P_KNOWLEDGE_FILE = "knowledge-path";
+	public static final String P_KNOWLEDGE_PATH = "knowledge-path";
 
 	/**
 	 * The percentage of initial population that is created from extracted knowledge. The value must
@@ -52,8 +57,6 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 	 */
 	private static final String P_TRANSFER_PERCENT = "transfer-percent";
 	private double transferPercent;
-
-	private static final String P_SURR_LOG_PATH = "surr-log-path";
 
 	/**
 	 * When the knowledge source is a directory, this parameter specifies from which generation on
@@ -69,9 +72,18 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 	public final String P_GENERATION_TO = "to-generation";
 
 	/**
-	 * Niche radius. All items within this radius of a niche center will be cleared.
+	 * Niche radius. All items within this radius of a niche center will be cleared. The niche radius is used only for
+	 * clearing the newly-created intermediate pool.
 	 */
 	public final String P_NICHE_RADIUS = "niche-radius";
+	double nicheRadius;
+
+	/**
+	 * The capacity of each niche that is used for clearing. This parameter is only used during the clearing process of
+	 * the intermediate population.
+	 */
+	public final String P_NICHE_CAPACITY = "niche-capacity";
+	int nicheCapacity;
 
 	/**
 	 * Disable surrogate evaluation of the newly created individuals. If this boolean parameter is true, newly-created
@@ -94,11 +106,14 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 	private SituationBasedTreeSimilarityMetric metrics;
 
 	private static final int DMS_SIZE = 20;
+
+	private static final String P_SURR_LOG_PATH = "surr-log-path";
 	private int knowledgeSuccessLogID;
+	private int interimPopLogID;
+
 	private static int cfCounter = 0;
 	private int populationSize;
 	private List<Individual> pop;
-	private int interimPopLogID;
 	public KNNSurrogateFitness surFitness;
 
 	private void setupSurrogate(EvolutionState state, Parameter base, String kbFile)
@@ -117,6 +132,7 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 
 		metrics = null;
 		String metricParam = state.parameters.getString(base.push(P_DISTANCE_METRIC), null);
+		log(state, knowledgeSuccessLogID, "Similarity metric: " + metricParam + "\n");
 		if(metricParam.equalsIgnoreCase("CorrPhenotypic"))
 			metrics = new CorrPhenoTreeSimilarityMetric();
 		else if(metricParam.equalsIgnoreCase("Phenotypic"))
@@ -131,20 +147,30 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 		log(state, knowledgeSuccessLogID, true, "Load surrogate pool from generation " + fromGeneration +
 				 									 ", to generation " + toGeneration + "\n");
 
-		double nicheRadius = state.parameters.getDouble(base.push(P_NICHE_RADIUS), null);
-		log(state, knowledgeSuccessLogID, true, "Niche radius " + nicheRadius + "\n");
-
+		if(!(state instanceof DMSSaver))
+		{
+			String message = "Evolution state must be of type DMSaver for this builder\n";
+			log(state, knowledgeSuccessLogID, message);
+			state.output.fatal(message);
+		}
 		DMSSaver sstate = (DMSSaver) state;
 		surFitness = new KNNSurrogateFitness();
-		surFitness.setSurrogateUpdatePolicy(new AddOncePhenotypicUpdatePolicy(nicheRadius));
+
+		// Almost all other update policy methods do some modifications to the pool. However, in this experiment, I
+		// don't want this because I want to have a pool that is as large as possible. I perform all modifications
+		// myself and before passing the pool to the KNN and its update policy.
+		surFitness.setSurrogateUpdatePolicy(new UnboundedUpdatePolicy());
 		surFitness.setMetric(metrics);
 		surFitness.setSituations(sstate.getInitialSituations().subList(0,
 				Math.min(sstate.getInitialSituations().size(), DMS_SIZE)));
 		List<Individual> inds;
 		try
 		{
-			inds = PopulationUtils.loadPopulations(state, kbFile, fromGeneration, toGeneration, metrics, nicheRadius,
-											this, surPoolLogID);
+			// I like a large and diverse KNN pool so I set the niche radius to zero so that policies that are very
+			// similar and are potentially duplicate are discarded without being too strict about it.
+			inds = PopulationUtils.loadPopulations(state, kbFile, fromGeneration, toGeneration, metrics, 0,
+											1,
+											this, knowledgeSuccessLogID, true);
 		} catch (IOException | ClassNotFoundException e)
 		{
 			e.printStackTrace();
@@ -167,7 +193,7 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 	{
 		super.setup(state, base);
 
-		knowledgeSuccessLogID = setupLogger(state, base);
+		knowledgeSuccessLogID = setupLogger(state, base, true);
 
 		Parameter transferPercentParam = base.push(P_TRANSFER_PERCENT);
 		transferPercent = state.parameters.getDouble(transferPercentParam, null);
@@ -181,14 +207,20 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 			log(state, knowledgeSuccessLogID, "Transfer percent: " + transferPercent);
 		}
 
-		String fileName = state.parameters.getString(base.push(P_KNOWLEDGE_FILE), null);
-		if (fileName == null)
+		nicheRadius = state.parameters.getDouble(base.push(P_NICHE_RADIUS), null);
+		log(state, knowledgeSuccessLogID, true, "Niche radius " + nicheRadius + "\n");
+
+		nicheCapacity = state.parameters.getInt(base.push(P_NICHE_CAPACITY), null);
+		log(state, knowledgeSuccessLogID, true, "Niche capacity " + nicheCapacity + "\n");
+
+		String knowledgePath = state.parameters.getString(base.push(P_KNOWLEDGE_PATH), null);
+		if (knowledgePath == null)
 		{
 			state.output.fatal("Knowledge file name cannot be null");
 			return;
 		}
 
-		setupSurrogate(state, base, fileName);
+		setupSurrogate(state, base, knowledgePath);
 		populationSize = state.parameters.getInt(new Parameter("pop.subpop.0.size"), null);
 		((DMSSaver)state).setDMSSavingEnabled(false);
 	}
@@ -218,8 +250,9 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 				pop.add(ind);
 			}
 			pop.sort(Comparator.comparingDouble(i -> i.fitness.fitness()));
-			SimpleNichingAlgorithm.clearPopulation(pop, metrics, 0d, 1);
-			pop.forEach(ind -> log(state, interimPopLogID, ((SuGPIndividual)ind).getSurFit() + "," + ind.fitness.fitness()
+			SimpleNichingAlgorithm.clearPopulation(pop, metrics, nicheRadius, nicheCapacity);
+			pop.forEach(ind -> log(state, interimPopLogID,
+					((SuGPIndividual)ind).getSurFit() + "," + ind.fitness.fitness()
 					+ "," + ((GPIndividual)ind).trees[0].child.makeLispTree() + "\n"));
 			log(state, interimPopLogID, ",,Iteration " + k + " finished.\n\n");
 
