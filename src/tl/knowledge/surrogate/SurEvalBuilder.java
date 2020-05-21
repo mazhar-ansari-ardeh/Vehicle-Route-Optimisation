@@ -116,20 +116,9 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 	private List<Individual> pop;
 	public KNNSurrogateFitness surFitness;
 
-	private void setupSurrogate(EvolutionState state, Parameter base, String kbFile)
+	private void setupSurrogate(EvolutionState state, Parameter base, String kbFile,
+								 String surLogPath)
 	{
-		String surLogPath = state.parameters.getString(base.push(P_SURR_LOG_PATH), null);
-		if(surLogPath == null)
-		{
-			state.output.fatal("Surrogate log path cannot be null");
-			return;
-		}
-		state.output.warning("Surrogate log path: " + surLogPath);
-
-		int surPoolLogID = setupLogger(state, new File(surLogPath, "surr/SurrogatePool.0.csv").getAbsolutePath());
-		interimPopLogID = setupLogger(state, new File(surLogPath, "pop/InterimPop.0.csv").getAbsolutePath());
-		log(state, interimPopLogID, "SurrogateFitness,SurrogateFitnessAfterClearing,Individual\n");
-
 		int fromGeneration = state.parameters.getIntWithDefault(base.push(P_GENERATION_FROM), null, -1);
 		int toGeneration = state.parameters.getIntWithDefault(base.push(P_GENERATION_TO), null, -1);
 		log(state, knowledgeSuccessLogID, true, "Load surrogate pool from generation " + fromGeneration +
@@ -161,6 +150,7 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 		surFitness.setFilter(new ExpFeasibleNoRefillPoolFilter());
 		surFitness.updateSurrogatePool(inds.toArray(new Individual[0]), "s:gen_49");
 
+		int surPoolLogID = setupLogger(state, new File(surLogPath, "surr/SurrogatePool.0.csv").getAbsolutePath());
 		log(state, surPoolLogID, surFitness.logSurrogatePool());
 		closeLogger(state, surPoolLogID);
 	}
@@ -171,6 +161,16 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 
 		knowledgeSuccessLogID = setupLogger(state, base, true);
 
+		String surLogPath = state.parameters.getString(base.push(P_SURR_LOG_PATH), null);
+		if(surLogPath == null)
+		{
+			state.output.fatal("Surrogate log path cannot be null");
+			return;
+		}
+		state.output.warning("Surrogate log path: " + surLogPath);
+		interimPopLogID = setupLogger(state, new File(surLogPath, "pop/InterimPop.0.csv").getAbsolutePath());
+		log(state, interimPopLogID, "SurrogateFitness,SurrogateFitnessAfterClearing,Individual\n");
+
 		Parameter transferPercentParam = base.push(P_TRANSFER_PERCENT);
 		transferPercent = state.parameters.getDouble(transferPercentParam, null);
 		if(transferPercent < 0 || transferPercent > 1)
@@ -180,7 +180,7 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 		}
 		else
 		{
-			log(state, knowledgeSuccessLogID, "Transfer percent: " + transferPercent);
+			log(state, knowledgeSuccessLogID, true, "Transfer percent: " + transferPercent);
 		}
 
 		nicheRadius = state.parameters.getDouble(base.push(P_NICHE_RADIUS), null);
@@ -201,7 +201,7 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 
 		metrics = null;
 		String metricParam = state.parameters.getString(base.push(P_DISTANCE_METRIC), null);
-		log(state, knowledgeSuccessLogID, "Similarity metric: " + metricParam + "\n");
+		log(state, knowledgeSuccessLogID, true, "Similarity metric: " + metricParam + "\n");
 		if(metricParam.equalsIgnoreCase("CorrPhenotypic"))
 			metrics = new CorrPhenoTreeSimilarityMetric();
 		else if(metricParam.equalsIgnoreCase("Phenotypic"))
@@ -227,7 +227,7 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 			return;
 		}
 
-		setupSurrogate(state, base, knowledgePath);
+		setupSurrogate(state, base, knowledgePath, surLogPath);
 	}
 
 	void createInitPop(final EvolutionState state, final GPType type, final int thread,

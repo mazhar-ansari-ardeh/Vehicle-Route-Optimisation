@@ -120,7 +120,7 @@ public interface TLLogger<T>
 
 	default void log(EvolutionState state, int logID, String... messages)
 	{
-		log(state, logID, true, messages);
+		log(state, logID, false, messages);
 	}
 
 	default void log(EvolutionState state, int logID, boolean logSysout, String... messages)
