@@ -6,9 +6,8 @@ import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 import tl.gp.characterisation.TaskIndexCharacterisation;
 import tl.gp.niching.PhenoCharacterisation;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.WeakHashMap;
 
 /**
  * Implements the distance metric based on the Euclidean phenotypic distance of the trees.
@@ -39,7 +38,7 @@ public class PhenotypicTreeSimilarityMetric implements SituationBasedTreeSimilar
         return distance;
     }
 
-    private final WeakHashMap<GPTree, int[]> cache = new WeakHashMap<>();
+    private final HashMap<GPTree, int[]> cache = new HashMap<>();
 
     public int[] characterise(GPRoutingPolicy tree)
     {
