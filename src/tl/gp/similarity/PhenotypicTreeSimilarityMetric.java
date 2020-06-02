@@ -30,12 +30,10 @@ public class PhenotypicTreeSimilarityMetric implements SituationBasedTreeSimilar
     @Override
     public double distance(GPRoutingPolicy tree1, GPRoutingPolicy tree2)
     {
-//        tree1.getGPTree();
         int[] ch1 = characterise(tree1);
         int[] ch2 = characterise(tree2);
 
-        double distance = PhenoCharacterisation.distance(ch1, ch2);
-        return distance;
+        return PhenoCharacterisation.distance(ch1, ch2);
     }
 
     private final HashMap<GPTree, int[]> cache = new HashMap<>();
