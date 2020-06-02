@@ -5,17 +5,17 @@ import ec.Individual;
 import ec.Subpopulation;
 import ec.gp.GPIndividual;
 import ec.multiobjective.MultiObjectiveFitness;
+import gphhucarp.decisionprocess.PoolFilter;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 import tl.gp.PopulationUtils;
 import tl.gp.similarity.PhenotypicTreeSimilarityMetric;
 import tl.gp.similarity.SituationBasedTreeSimilarityMetric;
+import tl.gp.similarity.TreeSimilarityMetric;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
 
 public class SimpleNichingAlgorithm implements NicheAlgorithm
 {
@@ -145,6 +145,7 @@ public class SimpleNichingAlgorithm implements NicheAlgorithm
         // this.cleared = true;
     }
 
+    @Deprecated
     public static void clearPopulation(final EvolutionState state, List<ReactiveDecisionSituation> dps, final double radius, final int capacity) {
         for (final Subpopulation subpop : state.population.subpops) {
             final Individual[] sortedPop = subpop.individuals;
@@ -183,14 +184,11 @@ public class SimpleNichingAlgorithm implements NicheAlgorithm
         }
     }
 
+    @Deprecated
     public static void clearPopulation(final List<Individual> sortedIindividuals,
                                        List<ReactiveDecisionSituation> dps, final double radius, final int capacity)
     {
-//        for (final Subpopulation subpop : state.population.subpops)
         {
-//            final Individual[] sortedPop = individuals;
-//            Arrays.sort(sortedPop);
-//            individuals.sort();
             final PhenoCharacterisation pc = new PhenoCharacterisation(dps, new GPRoutingPolicy(((GPIndividual)sortedIindividuals.get(0)).trees[0]));
             final List<int[]> sortedPopCharLists = new ArrayList<>();
             for (final Individual indi : sortedIindividuals)
@@ -227,26 +225,32 @@ public class SimpleNichingAlgorithm implements NicheAlgorithm
 
     /**
      *
-     * @param sortedIindividuals
-     * @param metric the metric to measure distance of individuals. This object must be configured before passing to
-     *               this method.
-     * @param radius
-     * @param capacity
+     * @param sortedIindividuals The individuals to perform clearing on. These individuals are expected to be sorted
+     *                           based on their fitness value.
+     * @param metric the metric to measure distance of individuals. This object must be configured before being passed
+     *               to this method.
+     * @param radius Niche radius. This parameter must be greater than or equal to zero.
+     * @param capacity Capacity of each niche. This parameter must be greater than zero.
      */
-    public static void clearPopulation(List<Individual> sortedIindividuals, SituationBasedTreeSimilarityMetric metric,
-                                       double radius, int capacity)
+    public static void clearPopulation(List<Individual> sortedIindividuals, PoolFilter filter,
+                                       TreeSimilarityMetric metric, double radius, int capacity)
     {
+        if (radius < 0)
+            throw new IllegalArgumentException("Niche radius must be greater than or equal to zero.");
+        if(capacity <= 0)
+            throw new IllegalArgumentException("Niche capacity must be greater than zero.");
+
         for (int i = 0; i < sortedIindividuals.size(); ++i)
         {
             if (isCleared((MultiObjectiveFitness) sortedIindividuals.get(i).fitness))
                 continue;
             int numWinners = 1;
-            GPRoutingPolicy pi = new GPRoutingPolicy(((GPIndividual)sortedIindividuals.get(i)).trees[0]);
+            GPRoutingPolicy pi = new GPRoutingPolicy(filter, ((GPIndividual)sortedIindividuals.get(i)).trees[0]);
             for (int j = i + 1; j < sortedIindividuals.size(); ++j)
             {
                 if (isCleared((MultiObjectiveFitness) sortedIindividuals.get(j).fitness))
                     continue;
-                GPRoutingPolicy pj = new GPRoutingPolicy(((GPIndividual)sortedIindividuals.get(j)).trees[0]);
+                GPRoutingPolicy pj = new GPRoutingPolicy(filter, ((GPIndividual)sortedIindividuals.get(j)).trees[0]);
 
                 double distance = metric.distance(pi, pj);
                 if (distance <= radius)
@@ -264,37 +268,38 @@ public class SimpleNichingAlgorithm implements NicheAlgorithm
         }
     }
 
-    public static void clearPopulation(final List<Individual> sortedIindividuals, List<ReactiveDecisionSituation> dps,
-                                       final double radius, final int capacity, Function<Individual, Double> getFitness, BiConsumer<Individual, Double> setFitness) {
-        final PhenoCharacterisation pc = new PhenoCharacterisation(dps, new GPRoutingPolicy(((GPIndividual) sortedIindividuals.get(0)).trees[0]));
-        final List<int[]> sortedPopCharLists = new ArrayList<>();
-        for (final Individual indi : sortedIindividuals) {
-            final int[] charList = pc.characterise(new GPRoutingPolicy(((GPIndividual) indi).trees[0]));
-            sortedPopCharLists.add(charList);
-        }
-        for (int i = 0; i < sortedIindividuals.size(); ++i) {
-            if (getFitness.apply(sortedIindividuals.get(i)) == Double.POSITIVE_INFINITY)
-//            if (isCleared((MultiObjectiveFitness) sortedIindividuals.get(i).fitness))
-                continue;
-            int numWinners = 1;
-            for (int j = i + 1; j < sortedIindividuals.size(); ++j) {
-                if (getFitness.apply(sortedIindividuals.get(j)) == Double.POSITIVE_INFINITY)
-//                if (isCleared((MultiObjectiveFitness) sortedIindividuals.get(j).fitness))
-                    continue;
-
-                final double distance = PhenoCharacterisation.distance(sortedPopCharLists.get(i), sortedPopCharLists.get(j));
-                if (distance <= radius) {
-                    if (numWinners < capacity) {
-                        ++numWinners;
-                    } else {
-//                        clear((MultiObjectiveFitness) sortedIindividuals.get(j).fitness);
-                        setFitness.accept(sortedIindividuals.get(j), Double.POSITIVE_INFINITY);
-//                            state.output.warning("Cleared: " + ((GPIndividual)sortedPop[i]).trees[0].child.makeLispTree());
-                    }
-                }
-            }
-        }
-    }
+//    public static void clearPopulation(final List<Individual> sortedIindividuals, List<ReactiveDecisionSituation> dps,
+//                                       final double radius, final int capacity, Function<Individual, Double> getFitness, BiConsumer<Individual, Double> setFitness)
+//    {
+//        final PhenoCharacterisation pc = new PhenoCharacterisation(dps, new GPRoutingPolicy(((GPIndividual) sortedIindividuals.get(0)).trees[0]));
+//        final List<int[]> sortedPopCharLists = new ArrayList<>();
+//        for (final Individual indi : sortedIindividuals) {
+//            final int[] charList = pc.characterise(new GPRoutingPolicy(((GPIndividual) indi).trees[0]));
+//            sortedPopCharLists.add(charList);
+//        }
+//        for (int i = 0; i < sortedIindividuals.size(); ++i) {
+//            if (getFitness.apply(sortedIindividuals.get(i)) == Double.POSITIVE_INFINITY)
+////            if (isCleared((MultiObjectiveFitness) sortedIindividuals.get(i).fitness))
+//                continue;
+//            int numWinners = 1;
+//            for (int j = i + 1; j < sortedIindividuals.size(); ++j) {
+//                if (getFitness.apply(sortedIindividuals.get(j)) == Double.POSITIVE_INFINITY)
+////                if (isCleared((MultiObjectiveFitness) sortedIindividuals.get(j).fitness))
+//                    continue;
+//
+//                final double distance = PhenoCharacterisation.distance(sortedPopCharLists.get(i), sortedPopCharLists.get(j));
+//                if (distance <= radius) {
+//                    if (numWinners < capacity) {
+//                        ++numWinners;
+//                    } else {
+////                        clear((MultiObjectiveFitness) sortedIindividuals.get(j).fitness);
+//                        setFitness.accept(sortedIindividuals.get(j), Double.POSITIVE_INFINITY);
+////                            state.output.warning("Cleared: " + ((GPIndividual)sortedPop[i]).trees[0].child.makeLispTree());
+//                    }
+//                }
+//            }
+//        }
+//    }
 }
 
 
