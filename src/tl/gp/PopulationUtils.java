@@ -1,19 +1,24 @@
 package tl.gp;
 
-import java.io.*;
-import java.nio.file.Paths;
-import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.function.BiFunction;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-
-import ec.*;
+import ec.EvolutionState;
+import ec.Individual;
+import ec.Population;
+import ec.Subpopulation;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
+import gphhucarp.decisionprocess.PoolFilter;
 import tl.TLLogger;
 import tl.gp.niching.SimpleNichingAlgorithm;
 import tl.gp.similarity.SituationBasedTreeSimilarityMetric;
+
+import java.io.*;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class PopulationUtils
 {
@@ -83,7 +88,10 @@ public class PopulationUtils
 	{
 		File file = new File(fileName);
 		if(file.exists())
-			file.delete();
+		{
+			if(!file.delete())
+				throw new RuntimeException("Failed to delete the existing file: " + file.getAbsolutePath());
+		}
 		try(ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file)))
 		{
 			int nSubPops = pop.subpops.length;
@@ -101,7 +109,7 @@ public class PopulationUtils
 	}
 
 	public static Population loadPopulation(File file)
-			throws FileNotFoundException, IOException, ClassNotFoundException, InvalidObjectException
+			throws IOException, ClassNotFoundException
 	{
 		Population retval = new Population();
 		try(ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file)))
@@ -146,7 +154,7 @@ public class PopulationUtils
 	 * @return A pool of individuals, sorted based on their fitness.
 	 */
 	public static List<Individual> loadPopulations(EvolutionState state, String inputPath,
-												   int fromGeneration, int toGeneration,
+												   int fromGeneration, int toGeneration, PoolFilter filter,
 												   SituationBasedTreeSimilarityMetric metrics,
 												   double nicheRadius,
 												   int nicheCapacity,
@@ -161,7 +169,8 @@ public class PopulationUtils
 		{
 			if (fromGeneration <= -1 || toGeneration <= -1)
 			{
-				logger.log(state, logID, "Generation range is invalid: " + fromGeneration
+				if(logger != null)
+					logger.log(state, logID, true, "Generation range is invalid: " + fromGeneration
 						+ " to " + toGeneration + "\n");
 				state.output.fatal("Generation range is invalid: " + fromGeneration + " to "
 						+ toGeneration);
@@ -171,13 +180,14 @@ public class PopulationUtils
 				File file = Paths.get(inputPath, "population.gen." + i + ".bin").toFile();
 				if(!file.exists())
 				{
-					logger.log(state, logID, "The file " + file.toString() + " does not exist. Ignoring.\n");
+					if(logger != null)
+						logger.log(state, logID, true, "The file " + file.toString() + " does not exist. Ignoring.\n");
 					continue;
 				}
 				Population p = PopulationUtils.loadPopulation(file);
 				pool.addAll(Arrays.asList(p.subpops[0].individuals));
 				pool.sort(Comparator.comparingDouble(ind -> ind.fitness.fitness()));
-				SimpleNichingAlgorithm.clearPopulation(pool, metrics, nicheRadius, nicheCapacity);
+				SimpleNichingAlgorithm.clearPopulation(pool, filter, metrics, nicheRadius, nicheCapacity);
 				pool = pool.stream().filter(ind -> ind.fitness.fitness() != Double.POSITIVE_INFINITY).collect(Collectors.toList());
 			}
 		}
@@ -186,15 +196,15 @@ public class PopulationUtils
 			Population p = PopulationUtils.loadPopulation(f);
 			PopulationUtils.sort(p);
 			pool.addAll(Arrays.asList(p.subpops[0].individuals));
-			SimpleNichingAlgorithm.clearPopulation(pool, metrics, nicheRadius, 1);
+			SimpleNichingAlgorithm.clearPopulation(pool, filter, metrics, nicheRadius, 1);
 			pool = pool.stream().filter(ind -> ind.fitness.fitness() != Double.POSITIVE_INFINITY).collect(Collectors.toList());
 		}
 
-		if(logPopulation)
+		if(logPopulation && logger != null)
 		{
 			logger.log(state, logID, "pool size: " + pool.size() + "\n");
 			pool.forEach(i ->
-					logger.log(state, logID, i.fitness.fitness() + ", "
+					logger.log(state, logID, false, i.fitness.fitness() + ", "
 											+ ((GPIndividual) i).trees[0].child.makeLispTree() + "\n"));
 		}
 		return pool;
@@ -232,11 +242,11 @@ public class PopulationUtils
 	{
 		sort(pop);
 
-		return new ArrayList<>(Arrays.asList(pop).subList(0, pop.length >= sampleSize ? sampleSize : pop.length));
+		return new ArrayList<>(Arrays.asList(pop).subList(0, Math.min(pop.length, sampleSize)));
 	}
 
 	public static Population loadPopulation(String fileName)
-			throws FileNotFoundException, IOException, ClassNotFoundException, InvalidObjectException
+			throws IOException, ClassNotFoundException
 	{
 		File file = new File(fileName);
 		return loadPopulation(file);
