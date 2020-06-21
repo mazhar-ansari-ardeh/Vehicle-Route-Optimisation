@@ -6,7 +6,7 @@ import ec.gp.*;
 import ec.gp.koza.HalfBuilder;
 import ec.multiobjective.MultiObjectiveFitness;
 import ec.util.Parameter;
-import gphhucarp.decisionprocess.poolfilter.ExpFeasibleNoRefillPoolFilter;
+import gphhucarp.decisionprocess.PoolFilter;
 import tl.TLLogger;
 import tl.gp.GPIndividualUtils;
 import tl.gp.PopulationUtils;
@@ -34,15 +34,6 @@ import java.util.stream.Collectors;
  * diverse as possible, hoping that the diversity and the good quality of the individuals will help to create an initial
  * state that will have a lasting effect.
  *
- * This function has the following parameters:
- * 1. Percentage of the target population to initialise,
- * 2. Similarity metric:
- *       2.1. phenotypic
- *       2.2. corrphenotypic
- *       2.3. hamming
- * 3. Generation of source domain from which to start loading populations (inclusive)
- * 4. Generation of source domain until which which to start loading populations (inclusive)
- * 5. Niche radius.
  */
 public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 {
@@ -75,15 +66,27 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 	 * Niche radius. All items within this radius of a niche center will be cleared. The niche radius is used only for
 	 * clearing the newly-created intermediate pool.
 	 */
-	public final String P_NICHE_RADIUS = "niche-radius";
-	double nicheRadius;
+	public final String P_INTERIM_POP_NICHE_RADIUS = "interim-niche-radius";
+	double interimPopNicheRadius;
 
 	/**
 	 * The capacity of each niche that is used for clearing. This parameter is only used during the clearing process of
 	 * the intermediate population.
 	 */
-	public final String P_NICHE_CAPACITY = "niche-capacity";
-	int nicheCapacity;
+	public final String P_ITERIM_POP_NICHE_CAPACITY = "interim-niche-capacity";
+	int interimPopNicheCapacity;
+
+	/**
+	 * Niche radius. All items within this radius of a niche center will be cleared. The niche radius is used only for
+	 * clearing the KNN pool loaded from past experience.
+	 */
+	public final String P_KNNPOOL_NICHE_RADIUS = "knnpool-niche-radius";
+
+	/**
+	 * The capacity of each niche that is used for clearing. This parameter is only used during the clearing process of
+	 * clearing the KNN pool loaded from past experience.
+	 */
+	public final String P_KNNPOOL_NICHE_CAPACITY = "knnpool-niche-capacity";
 
 	/**
 	 * Disable surrogate evaluation of the newly created individuals. If this boolean parameter is true, newly-created
@@ -93,6 +96,19 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 	 */
 	public final String P_DISABLE_SUR_EVAL = "disable-sur-eval";
 	private boolean disableSurEval;
+
+	/**
+	 * Size of the decision-making situations.
+	 */
+	public final String P_DMS_SIZE = "dms-size";
+	private int dmsSize;
+
+	/**
+	 * The magnitude of the interim population, that is, how many times larger it is than the population.
+	 */
+	public final String P_INTERIM_MAGNITUDE = "interim-magnitude";
+	private int interimMagnitude;
+
 
 	/**
 	 * The distance metric that KNN uses. Acceptable values are (case insensitive):
@@ -105,8 +121,6 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 	private static final String P_DISTANCE_METRIC = "distance-metric";
 	private SituationBasedTreeSimilarityMetric metrics;
 
-	private static final int DMS_SIZE = 20;
-
 	private static final String P_SURR_LOG_PATH = "surr-log-path";
 	private int knowledgeSuccessLogID;
 	private int interimPopLogID;
@@ -115,45 +129,7 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 	private int populationSize;
 	private List<Individual> pop;
 	public KNNSurrogateFitness surFitness;
-
-	private void setupSurrogate(EvolutionState state, Parameter base, String kbFile,
-								 String surLogPath)
-	{
-		int fromGeneration = state.parameters.getIntWithDefault(base.push(P_GENERATION_FROM), null, -1);
-		int toGeneration = state.parameters.getIntWithDefault(base.push(P_GENERATION_TO), null, -1);
-		log(state, knowledgeSuccessLogID, true, "Load surrogate pool from generation " + fromGeneration +
-				 									 ", to generation " + toGeneration + "\n");
-		DMSSaver sstate = (DMSSaver) state; // This is checked in the 'setup' method.
-		surFitness = new KNNSurrogateFitness();
-
-		// Almost all other update policy methods do some modifications to the pool. However, in this experiment, I
-		// don't want this because I want to have a pool that is as large as possible. I perform all modifications
-		// myself and before passing the pool to the KNN and its update policy.
-		surFitness.setSurrogateUpdatePolicy(new UnboundedUpdatePolicy());
-		surFitness.setMetric(metrics);
-		surFitness.setSituations(sstate.getInitialSituations().subList(0,
-				Math.min(sstate.getInitialSituations().size(), DMS_SIZE)));
-		List<Individual> inds;
-		try
-		{
-			// I like a large and diverse KNN pool so I set the niche radius to zero so that policies that are very
-			// similar and are potentially duplicate are discarded without being too strict about it.
-			inds = PopulationUtils.loadPopulations(state, kbFile, fromGeneration, toGeneration, metrics, 0,
-											1, this, knowledgeSuccessLogID, true);
-		} catch (IOException | ClassNotFoundException e)
-		{
-			e.printStackTrace();
-			state.output.fatal("Failed to load the population from: " + kbFile);
-			return;
-		}
-
-		surFitness.setFilter(new ExpFeasibleNoRefillPoolFilter());
-		surFitness.updateSurrogatePool(inds.toArray(new Individual[0]), "s:gen_49");
-
-		int surPoolLogID = setupLogger(state, new File(surLogPath, "surr/SurrogatePool.0.csv").getAbsolutePath());
-		log(state, surPoolLogID, surFitness.logSurrogatePool());
-		closeLogger(state, surPoolLogID);
-	}
+	private PoolFilter filter;
 
 	public void setup(EvolutionState state, Parameter base)
 	{
@@ -183,11 +159,11 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 			log(state, knowledgeSuccessLogID, true, "Transfer percent: " + transferPercent);
 		}
 
-		nicheRadius = state.parameters.getDouble(base.push(P_NICHE_RADIUS), null);
-		log(state, knowledgeSuccessLogID, true, "Niche radius " + nicheRadius + "\n");
+		interimPopNicheRadius = state.parameters.getDouble(base.push(P_INTERIM_POP_NICHE_RADIUS), null);
+		log(state, knowledgeSuccessLogID, true, "Interim niche radius " + interimPopNicheRadius + "\n");
 
-		nicheCapacity = state.parameters.getInt(base.push(P_NICHE_CAPACITY), null);
-		log(state, knowledgeSuccessLogID, true, "Niche capacity " + nicheCapacity + "\n");
+		interimPopNicheCapacity = state.parameters.getInt(base.push(P_ITERIM_POP_NICHE_CAPACITY), null);
+		log(state, knowledgeSuccessLogID, true, "Interim niche capacity " + interimPopNicheCapacity + "\n");
 
 		populationSize = state.parameters.getInt(new Parameter("pop.subpop.0.size"), null);
 
@@ -211,8 +187,11 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 		else
 			state.output.fatal("Unknown distance metric");
 
+		dmsSize = state.parameters.getInt(base.push(P_DMS_SIZE), null);
+		log(state, knowledgeSuccessLogID, true, "DMS size: " + dmsSize + "\n");
+
 		metrics.setSituations(sstate.getInitialSituations().subList(0,
-				Math.min(sstate.getInitialSituations().size(), DMS_SIZE)));
+				Math.min(sstate.getInitialSituations().size(), dmsSize)));
 		sstate.setDMSSavingEnabled(false);
 
 		this.disableSurEval = state.parameters.getBoolean(base.push(P_DISABLE_SUR_EVAL), null, false);
@@ -227,7 +206,63 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 			return;
 		}
 
+		interimMagnitude = state.parameters.getInt(base.push(P_INTERIM_MAGNITUDE), null);
+		log(state, knowledgeSuccessLogID, true, "Interim magnitude: " + interimMagnitude + "\n");
+
 		setupSurrogate(state, base, knowledgePath, surLogPath);
+	}
+
+	private void setupSurrogate(EvolutionState state, Parameter base, String kbFile,
+								String surLogPath)
+	{
+		int fromGeneration = state.parameters.getIntWithDefault(base.push(P_GENERATION_FROM), null, -1);
+		int toGeneration = state.parameters.getIntWithDefault(base.push(P_GENERATION_TO), null, -1);
+		log(state, knowledgeSuccessLogID, true, "Load surrogate pool from generation " + fromGeneration +
+				", to generation " + toGeneration + "\n");
+
+		double knnPoolNicheRadius = state.parameters.getDouble(base.push(P_KNNPOOL_NICHE_RADIUS), null);
+		log(state, knowledgeSuccessLogID, true, "KNN pool niche radius " + knnPoolNicheRadius + "\n");
+
+		int knnPoolNicheCapacity = state.parameters.getInt(base.push(P_KNNPOOL_NICHE_CAPACITY), null);
+		log(state, knowledgeSuccessLogID, true, "KNN pool niche capacity " + knnPoolNicheCapacity + "\n");
+
+		DMSSaver sstate = (DMSSaver) state; // This is checked in the 'setup' method.
+		surFitness = new KNNSurrogateFitness();
+
+		// Almost all other update policy methods do some modifications to the pool. However, in this experiment, I
+		// don't want this because I want to have a pool that is as large as possible. I perform all modifications
+		// myself and before passing the pool to the KNN and its update policy.
+		surFitness.setSurrogateUpdatePolicy(new UnboundedUpdatePolicy());
+		surFitness.setMetric(metrics);
+		surFitness.setSituations(sstate.getInitialSituations().subList(0,
+				Math.min(sstate.getInitialSituations().size(), dmsSize)));
+
+		Parameter p = new Parameter("eval.problem.pool-filter");
+		filter = (PoolFilter)(state.parameters.getInstanceForParameter(p, null, PoolFilter.class));
+
+		List<Individual> inds;
+		try
+		{
+			// I like a large and diverse KNN pool so I set the niche radius to zero so that policies that are very
+			// similar and are potentially duplicate are discarded without being too strict about it.
+			inds = PopulationUtils.loadPopulations(state, kbFile, fromGeneration, toGeneration, filter, metrics,
+					knnPoolNicheRadius,	knnPoolNicheCapacity, this, knowledgeSuccessLogID, true);
+			if(inds == null || inds.isEmpty())
+				throw new RuntimeException("Could not load the saved populations");
+
+		} catch (IOException | ClassNotFoundException e)
+		{
+			e.printStackTrace();
+			state.output.fatal("Failed to load the population from: " + kbFile);
+			return;
+		}
+
+		surFitness.setFilter(filter);
+		surFitness.updateSurrogatePool(inds.toArray(new Individual[0]), "s:gen_49");
+
+		int surPoolLogID = setupLogger(state, new File(surLogPath, "surr/SurrogatePool.0.csv").getAbsolutePath());
+		log(state, surPoolLogID, surFitness.logSurrogatePool());
+		closeLogger(state, surPoolLogID);
 	}
 
 	void createInitPop(final EvolutionState state, final GPType type, final int thread,
@@ -236,8 +271,9 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 	{
 		pop = new ArrayList<>(populationSize);
 
-		for (int k = 0; k < 10; k++)
+		for (int k = 0; k < interimMagnitude; k++)
 		{
+			ArrayList<SuGPIndividual> tempPop = new ArrayList<>();
 			for (int i = 0; i < populationSize; i++)
 			{
 				GPNode root = super.newRootedTree(state, type, thread, parent, set, argposition, requestedSize);
@@ -252,25 +288,27 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 					ind.setSurFit(ind.fitness.fitness());
 				}
 
-				pop.add(ind);
+				tempPop.add(ind);
 			}
+			tempPop.forEach(ind -> log(state, interimPopLogID, ind.getSurFit() + "," + ind.fitness.fitness()
+					+ "," + ind.trees[0].child.makeLispTree() + "\n"));
+			pop.addAll(tempPop);
 			pop.sort(Comparator.comparingDouble(i -> i.fitness.fitness()));
-			SimpleNichingAlgorithm.clearPopulation(pop, metrics, nicheRadius, nicheCapacity);
-			pop.forEach(ind -> log(state, interimPopLogID,
-					((SuGPIndividual)ind).getSurFit() + "," + ind.fitness.fitness()
-					+ "," + ((GPIndividual)ind).trees[0].child.makeLispTree() + "\n"));
+			SimpleNichingAlgorithm.clearPopulation(pop, filter, metrics, interimPopNicheRadius, interimPopNicheCapacity);
 			log(state, interimPopLogID, ",,Iteration " + k + " finished.\n\n");
 
-			pop = pop.stream().filter(i -> i.fitness.fitness() != Double.POSITIVE_INFINITY)
+			pop = pop.stream().filter(i -> (i.fitness.fitness() != Double.POSITIVE_INFINITY) && i.fitness.fitness() != Double.NEGATIVE_INFINITY)
 					  		  .collect(Collectors.toList());
-			if(k == 9 && pop.size() < transferPercent * populationSize + 1)
+			if(k == (interimMagnitude - 1) && pop.size() < transferPercent * populationSize + 1)
 				--k; // Don't let the loop exit until enough individuals are created.
 		}
 
+		pop.forEach(ind -> log(state, interimPopLogID, ((SuGPIndividual)ind).getSurFit() + "," + ind.fitness.fitness()
+				+ "," + ((GPIndividual)ind).trees[0].child.makeLispTree() + "\n"));
 		closeLogger(state, interimPopLogID);
 
 		pop.sort((Comparator.comparingDouble(i -> i.fitness.fitness())));
-		pop = pop.subList(0, (int) (transferPercent * populationSize));
+		pop = pop.subList(0, ((int) (transferPercent * populationSize)) + 1); // + 1 is used just in case so that there is always enough
 	}
 
 	public GPNode newRootedTree(final EvolutionState state, final GPType type, final int thread,
@@ -280,12 +318,14 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 		if(pop == null)
 			createInitPop(state, type, thread, parent, set, argposition, requestedSize);
 
-		if(cfCounter < populationSize * transferPercent && !pop.isEmpty())
+		if(cfCounter < populationSize * transferPercent) // && !pop.isEmpty())
 		{
-			GPNode root = GPIndividualUtils.stripRoots((GPIndividual) pop.remove(0)).get(0);
+			GPIndividual ind = (GPIndividual) pop.remove(0);
+			double surFit = ind.fitness.fitness();
+			GPNode root = GPIndividualUtils.stripRoots(ind).get(0);
 
 			cfCounter++;
-			log(state, knowledgeSuccessLogID, cfCounter + ": \t" + root.makeLispTree() + "\n\n");
+			log(state, knowledgeSuccessLogID, cfCounter + ": \t" + surFit + ", " + root.makeLispTree() + "\n\n");
 			root.parent = parent;
 			root.argposition = (byte) argposition;
 			return root;
