@@ -22,9 +22,12 @@ public class AddOncePhenotypicUpdatePolicy implements KNNPoolUpdatePolicy
 {
     double nicheradius = 0;
 
-    public AddOncePhenotypicUpdatePolicy(double nicheradius)
+    int nicheCapacity = 1;
+
+    public AddOncePhenotypicUpdatePolicy(double nicheradius, int nicheCapacity)
     {
         this.nicheradius = nicheradius;
+        this.nicheCapacity = nicheCapacity;
     }
 
     public AddOncePhenotypicUpdatePolicy()
@@ -43,13 +46,7 @@ public class AddOncePhenotypicUpdatePolicy implements KNNPoolUpdatePolicy
 
         Arrays.sort(inds);
         List<Individual> sortedInds = Arrays.asList(inds);
-        if(metric instanceof SituationBasedTreeSimilarityMetric)
-        {
-            SimpleNichingAlgorithm.clearPopulation(sortedInds, (SituationBasedTreeSimilarityMetric) metric, nicheradius, 1);
-        }
-        else
-            SimpleNichingAlgorithm.clearPopulation(sortedInds, dps, nicheradius, 1);
-
+        SimpleNichingAlgorithm.clearPopulation(sortedInds, filter, metric, nicheradius, nicheCapacity);
         final ArrayList<KNNPoolItem> retval = new ArrayList<>();
         for (Individual i : sortedInds)
         {

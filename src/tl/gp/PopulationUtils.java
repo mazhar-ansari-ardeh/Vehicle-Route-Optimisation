@@ -143,6 +143,70 @@ public class PopulationUtils
 	 * @param fromGeneration If the path is to a directory, the generation to start loading populations; otherwise, it
 	 *                       is ignored.
 	 * @param toGeneration If the path is to a directory, the generation to start loading populations; otherwise, it
+	 *                     is ignored.
+	 * @param logger The logger needed for logging the method. Error messages are always logged to this logger.
+	 * @param logID The ID of the logger.
+	 * @param logPopulation If {@code true}, the function will log all the loaded individuals at the end of its operation.
+	 * @return A pool of individuals, sorted based on their fitness.
+	 */
+	public static List<Individual> loadPopulations(EvolutionState state, String inputPath, int fromGeneration,
+												   int toGeneration, TLLogger<GPNode> logger, int logID,
+												   boolean logPopulation) throws IOException, ClassNotFoundException
+	{
+		File f = new File(inputPath);
+
+		List<Individual> pool = new ArrayList<>();
+		if (f.isDirectory())
+		{
+			if (fromGeneration <= -1 || toGeneration <= -1)
+			{
+				if(logger != null)
+					logger.log(state, logID, true, "Generation range is invalid: " + fromGeneration
+							+ " to " + toGeneration + "\n");
+				state.output.fatal("Generation range is invalid: " + fromGeneration + " to "
+						+ toGeneration);
+			}
+			for (int i = toGeneration; i >= fromGeneration; i--)
+			{
+				File file = Paths.get(inputPath, "population.gen." + i + ".bin").toFile();
+				if(!file.exists())
+				{
+					if(logger != null)
+						logger.log(state, logID, true, "The file " + file.toString() + " does not exist. Ignoring.\n");
+					continue;
+				}
+				Population p = PopulationUtils.loadPopulation(file);
+				pool.addAll(Arrays.asList(p.subpops[0].individuals));
+				pool.sort(Comparator.comparingDouble(ind -> ind.fitness.fitness()));
+				pool = pool.stream().filter(ind -> ind.fitness.fitness() != Double.POSITIVE_INFINITY).collect(Collectors.toList());
+			}
+		}
+		else if (f.isFile())
+		{
+			Population p = PopulationUtils.loadPopulation(f);
+			PopulationUtils.sort(p);
+			pool.addAll(Arrays.asList(p.subpops[0].individuals));
+			pool = pool.stream().filter(ind -> ind.fitness.fitness() != Double.POSITIVE_INFINITY).collect(Collectors.toList());
+		}
+
+		if(logPopulation && logger != null)
+		{
+			logger.log(state, logID, "pool size: " + pool.size() + "\n");
+			pool.forEach(i ->
+					logger.log(state, logID, false, i.fitness.fitness() + ", "
+							+ ((GPIndividual) i).trees[0].child.makeLispTree() + "\n"));
+		}
+		return pool;
+	}
+
+	/**
+	 * Loads GP population from a file or a set of files in a directory. The method performs a clearning operation on
+	 * the loaded pool to remove duplicated.
+	 * @param state The evolutionary state that governs this process.
+	 * @param inputPath The path to the knowledge file or directory.
+	 * @param fromGeneration If the path is to a directory, the generation to start loading populations; otherwise, it
+	 *                       is ignored.
+	 * @param toGeneration If the path is to a directory, the generation to start loading populations; otherwise, it
   	 *                     is ignored.
 	 * @param metrics The similarity metric used for performing niching. This metric is expected to be configured before
 	 *                passing it in.
@@ -243,6 +307,18 @@ public class PopulationUtils
 		sort(pop);
 
 		return new ArrayList<>(Arrays.asList(pop).subList(0, Math.min(pop.length, sampleSize)));
+	}
+
+	public static ArrayList<GPIndividual> rankSelect(List<GPIndividual> pop, int sampleSize)
+	{
+		if(sampleSize < 0)
+			throw new IllegalArgumentException("Sample size cannot be a negative value: " + sampleSize);
+		if(pop == null || pop.isEmpty())
+			throw new IllegalArgumentException("Population cannot be null.");
+
+		pop.sort(Comparator.comparingDouble(i -> i.fitness.fitness()));
+
+		return new ArrayList<>(pop.subList(0, Math.min(pop.size(), sampleSize)));
 	}
 
 	public static Population loadPopulation(String fileName)
