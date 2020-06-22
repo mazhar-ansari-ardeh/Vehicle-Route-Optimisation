@@ -96,9 +96,9 @@ exec 2>&1
 
 
 cp -r /vol/grid-solar/sgeusers/mazhar/data/ .
-cp /vol/grid-solar/sgeusers/mazhar/*.jar .
-cp /vol/grid-solar/sgeusers/mazhar/*.sh .
-cp /vol/grid-solar/sgeusers/mazhar/*.param .
+cp -v /vol/grid-solar/sgeusers/mazhar/*.jar .
+cp -v /vol/grid-solar/sgeusers/mazhar/*.sh .
+cp -v /vol/grid-solar/sgeusers/mazhar/*.param .
 
 echo "All required files copied. Directory content: "
 
