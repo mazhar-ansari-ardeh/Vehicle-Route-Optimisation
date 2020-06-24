@@ -18,6 +18,8 @@ public class TaskIndexCharacterisation implements RuleCharacterisation<int[]>
 {
 	private final List<ReactiveDecisionSituation> decisionSituations;
 
+//	FileUtils fu = new FileUtils("ti");
+
 	public TaskIndexCharacterisation(final List<ReactiveDecisionSituation> dps)
 	{
 		if(dps == null || dps.isEmpty())
@@ -27,13 +29,33 @@ public class TaskIndexCharacterisation implements RuleCharacterisation<int[]>
 
 	public int[] characterise(GPRoutingPolicy rule)
 	{
-		final int[] charList = new int[this.decisionSituations.size()];
-		for (int i = 0; i < this.decisionSituations.size(); i++) {
+//		fu.println(rule.getGPTree().child.makeLispTree());
+		int dsSize = this.decisionSituations.size();
+		final int[] charList = new int[dsSize];
+		for (int i = 0; i < dsSize; i++) {
 			final ReactiveDecisionSituation situation = this.decisionSituations.get(i);
+//			if(rule.getGPTree().child.makeLispTree()
+//					.equalsIgnoreCase("(max (max (* (max CFD (+ FRT CFH)) (- RQ DC)) (* (min (* CFD DC) DEM) (max (min (- SC CTD) (* FUT (* FUT SC))) CFH))) (* (max CFD (max (max (max 0.8416072097232807 CFH) (min DEM DEM)) (max (min (* FUT SC) (+ CFH DEM)) (* CTT1 (* RQ CTD))))) (- RQ DC)))"))
+//			{
+//				final int j = i;
+//				if(j == 6)
+//				{
+//					fu.println("Instance: " + situation.getState().getInstance().toString());
+//				}
+//				fu.println("Pool: ");
+//				situation.getPool().forEach(a -> fu.print(j + ": " + a.toString()));
+//				fu.println("Route: " + situation.getRoute().toString() + ", current node: " + situation.getRoute().currNode());
+//			}
 			final Arc op = rule.next(situation);
-			final int rank = situation.getPool().indexOf(op);
-			charList[i] = rank;
+			final int index = situation.getPool().indexOf(op);
+//			if(rule.getGPTree().child.makeLispTree().equalsIgnoreCase("(max (- RQ CFH) (* (max CFD (max (max (max 0.8416072097232807 (- SC CTD)) CFD) (max (min (- RQ CFH) (* CFD DC)) (* CTT1 (* RQ CTD))))) (min (max (max (+ CFH DEM) (- SC CTD)) (* CTT1 RQ)) (* (max CFD (- SC CTD)) (- RQ DC)))))"))
+//			{
+//				fu.println("Selected: " + index + ", " + (op != null ? op.toString() + "pr: " + op.getPriority() + "\n" : "null"));
+//			}
+			charList[i] = index;
 		}
+//		fu.println(Arrays.toString(charList));
+//		fu.println();
 		return charList;
 	}
 }

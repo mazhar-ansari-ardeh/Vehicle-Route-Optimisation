@@ -173,7 +173,13 @@ public class KTMutationPipeline extends MutationPipeline implements TLLogger<GPN
 		for(GPIndividual i : ginds)
 		{
 			if(simplify)
-				ts.simplifyTree(state,i);
+			{
+				log(state, knowledgeSuccessLogID, true, "Loaded tree before simplification: \n");
+				log(state, knowledgeSuccessLogID, true, i.trees[0].child.makeLispTree());
+				ts.simplifyTree(state, i);
+				log(state, knowledgeSuccessLogID, true, "Loaded tree after simplification: \n");
+				log(state, knowledgeSuccessLogID, true, i.trees[0].child.makeLispTree());
+			}
 			ArrayList<GPNode> allNodes = new ArrayList<>();
 			switch (extractionMethod)
 			{
