@@ -41,9 +41,8 @@ public class TLGPCriptorMutation extends MutationPipeline implements TLLogger<GP
 		Parameter p = base.push(P_KNOWLEDGE_PROBABILITY);
 		knowledgeProbability = state.parameters.getDouble(p, null);
 
-		knowledgeSuccessLogID = setupLogger(state, base);
+		knowledgeSuccessLogID = setupLogger(state, base, true);
 	}
-
 
 	public int produce(final int min,
 			final int max,
@@ -72,11 +71,13 @@ public class TLGPCriptorMutation extends MutationPipeline implements TLLogger<GP
 			CodeFragmentKI item = (CodeFragmentKI) extractor.getNext();
 			item.incrementCounter();
 			GPNode node = item.getItem();
-			GPIndividual j = (GPIndividual) i.lightClone();
+			GPIndividual j = i.lightClone();
 			if(i.trees.length > 1)
 				state.output.fatal("This mutator supports only individuals with one tree");
+
+			log(state, knowledgeSuccessLogID, false, "Mutating: \n" + i.trees[0].child.makeLispTree() + "\n");
 			j.trees = new GPTree[i.trees.length];
-			j.trees[0] = (GPTree)(i.trees[0].lightClone());
+			j.trees[0] = i.trees[0].lightClone();
 			j.trees[0].owner = j;
 			j.trees[0].child = (GPNode) i.trees[0].child.clone();
 			j.trees[0].child.parent = j.trees[0];
@@ -86,15 +87,15 @@ public class TLGPCriptorMutation extends MutationPipeline implements TLLogger<GP
 			node.argposition = (byte) selectedChild;
 			j.evaluated = false;
 			inds[start] = j;
-			cfCounter++;
-			log(state, item, cfCounter, knowledgeSuccessLogID);
+//			cfCounter++;
+			log(state, knowledgeSuccessLogID, false, "Mutated: \n" + node.makeLispTree() + "\n\n");
 			return m;
 		}
 		else
 			return super.produce(min, max, start, subpopulation, inds, state, thread);
 	}
 
-	private static int cfCounter = 0;
+//	private static int cfCounter = 0;
 
 //	private void log(EvolutionState state, CodeFragmentKI it, int logID)
 //	{

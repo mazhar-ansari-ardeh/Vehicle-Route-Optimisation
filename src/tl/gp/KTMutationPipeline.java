@@ -175,10 +175,10 @@ public class KTMutationPipeline extends MutationPipeline implements TLLogger<GPN
 			if(simplify)
 			{
 				log(state, knowledgeSuccessLogID, false, "Loaded tree before simplification: \n");
-				log(state, knowledgeSuccessLogID, false, i.trees[0].child.makeLispTree());
+				log(state, knowledgeSuccessLogID, false, i.trees[0].child.makeLispTree() + "\n");
 				ts.simplifyTree(state, i);
 				log(state, knowledgeSuccessLogID, false, "Loaded tree after simplification: \n");
-				log(state, knowledgeSuccessLogID, false, i.trees[0].child.makeLispTree());
+				log(state, knowledgeSuccessLogID, false, i.trees[0].child.makeLispTree() + "\n\n");
 			}
 			ArrayList<GPNode> allNodes = new ArrayList<>();
 			switch (extractionMethod)
@@ -312,7 +312,7 @@ public class KTMutationPipeline extends MutationPipeline implements TLLogger<GPN
 			GPNode p1=null;  // the node we pick
 			GPNode p2=null;
 
-			log(state, knowledgeSuccessLogID, false, "Mutating " + i.trees[t].child.makeLispTree() + "\n");
+			log(state, knowledgeSuccessLogID, false, "Mutating:\n" + i.trees[t].child.makeLispTree() + "\n");
 
 			for(int x=0;x<numTries;x++)
 			{
@@ -395,7 +395,7 @@ public class KTMutationPipeline extends MutationPipeline implements TLLogger<GPN
 				}
 			}
 
-			log(state, knowledgeSuccessLogID, false, "Mutated: " + j.trees[t].child.makeLispTree() + "\n\n");
+			log(state, knowledgeSuccessLogID, false, "Mutated:\n" + j.trees[t].child.makeLispTree() + "\n\n");
 			// add the new individual, replacing its previous source
 			inds[q] = j;
 		}
