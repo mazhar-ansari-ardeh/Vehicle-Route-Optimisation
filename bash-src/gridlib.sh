@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 # Setting variables that config the experiment.
 
@@ -299,19 +299,45 @@ function do_knowledge_experiment() {
 # 3.3. root
 # 4. What percentage of the top individuals of the source domain to consider for subtree extraction.
 # 5. Simplify the loaded subtrees before the extraction or not.
+# 6. Mutation probability. This parameter is very important as it plays a very important role in striking the balance
+# between exploration and exploitation. The value of this parameter will be given to the mutation parameter and the
+# the crossover probability will be adjusted accordingly (pop.subpop.0.species.pipe.source.0.prob)
+# 7. Tournament size: the size of the tournament selection that is used for selecting subtrees from the archive of
+# subtrees.
 function KTMutation() {
-  local L_EXP_NAME="ktmutation:gen_$1_$2:extract_$3:extperc_$4:simplify_$5"
+  local L_EXP_NAME="ktmutation:gen_$1_$2:extract_$3:extperc_$4:simplify_$5:mut_$6:tournsize_$7"
   local L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
   do_knowledge_experiment "$L_EXP_NAME" \
     -p state=tl.gphhucarp.dms.DMSSavingGPHHState \
-    -p pop.subpop.0.species.pipe.source.1 = tl.gp.KTMutationPipeline \
+    -p pop.subpop.0.species.pipe.source.1=tl.gp.KTMutationPipeline \
     -p pop.subpop.0.species.pipe.source.1.from-generation=$1 \
     -p pop.subpop.0.species.pipe.source.1.to-generation=$2 \
     -p pop.subpop.0.species.pipe.source.1.knowledge-path=$KNOWLEDGE_SOURCE_DIR/ \
     -p pop.subpop.0.species.pipe.source.1.knowledge-extraction=$3 \
     -p pop.subpop.0.species.pipe.source.1.knowledge-log-file="$L_EXPERIMENT_DIR/knowmutation" \
     -p pop.subpop.0.species.pipe.source.1.extract-percent=$4 \
-    -p pop.subpop.0.species.pipe.source.1.simplify=$5
+    -p pop.subpop.0.species.pipe.source.1.simplify=$5 \
+    -p pop.subpop.0.species.pipe.source.1.prob=$6 \
+    -p pop.subpop.0.species.pipe.source.0.prob=$(echo 0.95 - $6|bc) \
+    -p pop.subpop.0.species.pipe.source.1.tournament-size=$7
+}
+
+# This function performs the TLGPCriptor experiment. The function has only one parameter:
+# 1. Mutation probability. This parameter is very important as it plays a very important role in striking the balance
+# between exploration and exploitation. The value of this parameter will be given to the mutation parameter and the
+# the crossover probability will be adjusted accordingly (pop.subpop.0.species.pipe.source.0.prob)
+TLGPCriptor()
+{
+   L_EXP_NAME="TLGPCriptor:mut_$1"
+   do_knowledge_experiment $L_EXP_NAME \
+                         -p gp.tc.0.init=tl.gp.TLGPCriptorBuilder \
+                         -p gp.tc.0.init.knowledge-probability=0.5 \
+                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin \
+                         -p gp.tc.0.init.knowledge-extraction=rootsubtree \
+                         -p pop.subpop.0.species.pipe.source.1 = tl.gp.TLGPCriptorMutation \
+                         -p pop.subpop.0.species.pipe.source.1.knowledge-probability=0.5 \
+                         -p pop.subpop.0.species.pipe.source.1.prob=$1 \
+                         -p pop.subpop.0.species.pipe.source.0.prob=$(echo 0.95 - $1|bc)
 }
 
 # This function performs the Surrogate-EvaluatedFulltree experiment. This method gets a path to a directory or file that
@@ -633,8 +659,6 @@ function MutatingSubtree() {
 # This function performs the transfer learning experiment 'SubTree'.
 # This function takes one input parameter: the transfer percent.
 function SubTree() {
-  ls
-
   L_EXP_NAME="Subtree:perc_$1:clear_$CLEAR"
 
   do_knowledge_experiment $L_EXP_NAME \
