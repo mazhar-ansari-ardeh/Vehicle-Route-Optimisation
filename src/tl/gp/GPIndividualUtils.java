@@ -56,6 +56,17 @@ public class GPIndividualUtils
 		return retval;
 	}
 
+	public static TLGPIndividual asGPIndividual(GPNode root, double fitness)
+	{
+		TLGPIndividual retval = asGPIndividual(root);
+		MultiObjectiveFitness aFitness = new MultiObjectiveFitness();
+		aFitness.objectives = new double[]{fitness};
+		aFitness.maximize = new boolean[]{false};
+		retval.fitness = aFitness;
+		retval.evaluated = false;
+		return retval;
+	}
+
 	/**
 	 * Gets a {@code GPNode} object and creates a {@code GPTree} object that contains that. The method severs any connection
 	 * that the given node may have to its parent.
