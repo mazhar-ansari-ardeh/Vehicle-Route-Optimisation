@@ -146,7 +146,7 @@ def get_test_fitness(experiment_path, inclusion_filter, exclusion_filter, *, num
 
     return test_fitness
 
-def get_train_mean(experiment_path, inclusion_filter, exclusion_filter, *, num_generations=50):
+def get_train_fitness(experiment_path, inclusion_filter, exclusion_filter, *, num_generations=50):
     """
     Reads the 'jobs.0.stat.csv' file of experiments and collects the population mean of each generation.
     """
@@ -203,11 +203,15 @@ def find_failed(basedir, experiments, to_find, num_generations = 50):
     algorithm and and is not expected to be a regex. 
     This function can have an edge over 'find_all_failed' in the regard that this function can detect
     the algorithm is missing entirely while the other function will miss this situation. 
-    Usage: find_failed(dirbase, experiments, 'Surrogate:initsurpool_true:tp_0:knndistmetr_corrphenotypic:avefitdup_true:dms_30:surupol_Reset')
+    Usage: find_failed(dirbase, experiments, 'WithoutKnowledge')
     """
     for exp in experiments:
         experiment_path = Path(basedir) / exp
-        (_, algorithms, _) = next(os.walk(experiment_path))
+        try:
+            (_, algorithms, _) = next(os.walk(experiment_path))
+        except StopIteration:
+            print(exp, 'is missing')
+            continue
         if not to_find in algorithms:
             print(exp, to_find, 'is missing')
             continue

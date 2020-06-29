@@ -35,7 +35,7 @@ def update_wdl(exp_data, wdltable, rename_map, wdltable_exp_names, exp_name, *,
             wdltable[renamed_alg] = [0, 0, 0, 0]
         if renamed_alg not in wdltable_exp_names:
             # wins, draws, losses, missing 
-            wdltable_exp_names[renamed_alg] = [[], [], []]
+            wdltable_exp_names[renamed_alg] = [[], [], [], []]
 
         try:
             mean = statistics.mean(list(exp_data[alg][generation].values()))
@@ -127,8 +127,7 @@ def wdl2(experiment_data, rename_map, *, base_line='WithoutKnowledge', num_gener
 def wdl2_exp_name(): pass
 
 def summary(dirbase, experiments, inclusion_filter, exclusion_filter, rename_map,
-            *, base_line='WithoutKnowledge', num_generations=50, dump_file=Path('./wdl'), 
-            baseline_alg = 'WithoutKnowledge'):
+            *, num_generations=50, dump_file=Path('./wdl'), baseline_alg):
     summary_table = {}
     test_data_table = {}
     gen = 49
@@ -282,7 +281,7 @@ def save_stats(test_fitness, exp_name, output_folder, *, rename_map, gen = 49, r
     latex_file.close()
 
 
-def improvements(test_fitnesses, rename_map, num_generations = 50, dump_file=Path('./improvements')):
+def improvements(test_fitnesses, rename_map, num_generations = 50, dump_file=Path('./improvements'), base_line='WithoutKnowledge'):
     """
     Calculates the improvement in training time achieved over baseline algorithm.
     """
@@ -292,7 +291,7 @@ def improvements(test_fitnesses, rename_map, num_generations = 50, dump_file=Pat
             if alg == base_line: 
                 continue
             retval[alg] = []
-            for i in range(generations):
+            for i in range(generations): # Delete -1. Added that to test something and it should be removed as soon as the something is done.
                 # if len(list(fitness[base_line][generations-1].values())) !=  len(list(fitness[alg][i].values())):
                 #     print('Imbalanced len:', alg, 'at generation:', i)
                 #     continue
@@ -339,7 +338,8 @@ def improvements(test_fitnesses, rename_map, num_generations = 50, dump_file=Pat
     for exp in test_fitnesses:
         print('\n', exp)
         test_fitness = test_fitnesses[exp]
-        imps = find_improvement(test_fitness, base_line='WithoutKnowledge')
+        imps = find_improvement(test_fitness, base_line=base_line)
+        print(imps)
         update_improvement_percentage(imps, imp_perc_table, imp_table)
     
     retval = {}
@@ -350,5 +350,7 @@ def improvements(test_fitnesses, rename_map, num_generations = 50, dump_file=Pat
     with open(str(dump_file) + '.json', 'w') as file: 
         json.dump(retval, file, indent=4)
         print('IMPR: results saved to:', dump_file)
+
+    # print(imp_table)
 
     return retval

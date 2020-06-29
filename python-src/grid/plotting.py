@@ -31,9 +31,16 @@ def plot_grid_output(test_fitness, exp_name, inclusion_filter, exclusion_filter,
 
         box_data = []
         mean_data = []
+        # miin = []
+        # maax = []
+        # yerr = []
         for gen in test_fitness[algorithm]:
-            # box_data.append((list(test_fitness[algorithm][gen].values())))
+            box_data.append((list(test_fitness[algorithm][gen].values())))
             mean_data.append(statistics.mean(list(test_fitness[algorithm][gen].values())))
+            # miin.append(min((list(test_fitness[algorithm][gen].values()))))
+            # maax.append(max((list(test_fitness[algorithm][gen].values()))))
+            # yerr.append(statistics.stdev(list(test_fitness[algorithm][gen].values())))
+
 
         if not Path(output_folder / exp_name).exists(): 
             Path(output_folder / exp_name).mkdir(parents=True)
@@ -52,7 +59,8 @@ def plot_grid_output(test_fitness, exp_name, inclusion_filter, exclusion_filter,
 
             box_ax.boxplot(box_data, flierprops=flierprops, boxprops=boxprops, whiskerprops=whiskerprops,medianprops=medianprops)
             box_ax.tick_params(axis='both', which='major', labelsize=45)
-            box_ax.plot(range(1, len(mean_data) + 1), mean_data, linewidth=linewidth/4)
+            box_ax.plot(range(1, len(mean_data) + 1), mean_data, linewidth=linewidth/4, label=exp_name)
+            box_ax.legend(fontsize=lfontsize, ncol=lcols, markerscale=1)
             box_fig.savefig(output_folder / f'{exp_name + "/" + algorithm}.jpg', bbox_inches='tight', pad_inches=0)
             plt.close(box_fig)
             # print('Saved', output_folder / f'{exp_name + "/" + algorithm}.jpg')
@@ -66,6 +74,9 @@ def plot_grid_output(test_fitness, exp_name, inclusion_filter, exclusion_filter,
             mc += 1
             mc %= len(markers)
 
+            # Uncomment this to make it draw error bars. 
+            # ax_all.errorbar(range(1, len(mean_data) + 1), mean_data, label=label, linewidth = linewidth
+            #                     , linestyle=line_styles[sc], marker=markers[mc], markersize=30, yerr = yerr)
             ax_all.plot(range(1, len(mean_data) + 1), mean_data, label=label, linewidth = linewidth
                                 , linestyle=line_styles[sc], marker=markers[mc], markersize=30)
 
@@ -75,8 +86,6 @@ def plot_grid_output(test_fitness, exp_name, inclusion_filter, exclusion_filter,
     
     fig_all.savefig(output_folder / exp_name / f'{exp_name}-all.jpg', bbox_inches='tight', pad_inches=0)
     plt.close(fig_all)
-
-
 
 # Warning: This is not finished.
 def plot_surr(dirbase, exp, algorithms, output_folder, GENERATIONS=50):
