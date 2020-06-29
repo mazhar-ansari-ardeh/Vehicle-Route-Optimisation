@@ -304,9 +304,16 @@ function do_knowledge_experiment() {
 # the crossover probability will be adjusted accordingly (pop.subpop.0.species.pipe.source.0.prob)
 # 7. Tournament size: the size of the tournament selection that is used for selecting subtrees from the archive of
 # subtrees.
-function KTMutation() {
-  local L_EXP_NAME="ktmutation:gen_$1_$2:extract_$3:extperc_$4:simplify_$5:mut_$6:tournsize_$7"
-  local L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
+# 8. niche radius for clearing the loaded populations.
+# 9. niche capacity for clearing the loaded populations.
+# 10. The distance metric that the clearing procedure uses. Acceptable values are (case insensitive):
+#	  - phenotypic
+#	  - corrphenotypic
+#	  - hamphenotypic
+# 11. Size of the decistion making situations that are used for comparing similarities of GP individuals.
+KTMutation() {
+  L_EXP_NAME="ktmutation:gen_$1_$2:extract_$3:extperc_$4:simplify_$5:mut_$6:tournsize_$7:nrad_$8:ncap_$9:metric_${10}:dms_${11}"
+  L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
   do_knowledge_experiment "$L_EXP_NAME" \
     -p state=tl.gphhucarp.dms.DMSSavingGPHHState \
     -p pop.subpop.0.species.pipe.source.1=tl.gp.KTMutationPipeline \
@@ -318,7 +325,11 @@ function KTMutation() {
     -p pop.subpop.0.species.pipe.source.1.extract-percent=$4 \
     -p pop.subpop.0.species.pipe.source.1.simplify=$5 \
     -p pop.subpop.0.species.pipe.source.1.prob=$6 \
-    -p pop.subpop.0.species.pipe.source.0.prob=$(echo 0.95 - $6|bc) \
+    -p pop.subpop.0.species.pipe.source.1.niche-radius=$8 \
+    -p pop.subpop.0.species.pipe.source.1.niche-capacity=$9 \
+    -p pop.subpop.0.species.pipe.source.1.distance-metric=${10} \
+    -p pop.subpop.0.species.pipe.source.1.dms-size=${11} \
+    -p pop.subpop.0.species.pipe.source.0.prob=$(echo 0.95 - $6 | bc) \
     -p pop.subpop.0.species.pipe.source.1.tournament-size=$7
 }
 
@@ -326,18 +337,17 @@ function KTMutation() {
 # 1. Mutation probability. This parameter is very important as it plays a very important role in striking the balance
 # between exploration and exploitation. The value of this parameter will be given to the mutation parameter and the
 # the crossover probability will be adjusted accordingly (pop.subpop.0.species.pipe.source.0.prob)
-TLGPCriptor()
-{
-   L_EXP_NAME="TLGPCriptor:mut_$1"
-   do_knowledge_experiment $L_EXP_NAME \
-                         -p gp.tc.0.init=tl.gp.TLGPCriptorBuilder \
-                         -p gp.tc.0.init.knowledge-probability=0.5 \
-                         -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin \
-                         -p gp.tc.0.init.knowledge-extraction=rootsubtree \
-                         -p pop.subpop.0.species.pipe.source.1 = tl.gp.TLGPCriptorMutation \
-                         -p pop.subpop.0.species.pipe.source.1.knowledge-probability=0.5 \
-                         -p pop.subpop.0.species.pipe.source.1.prob=$1 \
-                         -p pop.subpop.0.species.pipe.source.0.prob=$(echo 0.95 - $1|bc)
+TLGPCriptor() {
+  L_EXP_NAME="TLGPCriptor:mut_$1"
+  do_knowledge_experiment $L_EXP_NAME \
+    -p gp.tc.0.init=tl.gp.TLGPCriptorBuilder \
+    -p gp.tc.0.init.knowledge-probability=0.5 \
+    -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS - 1)).bin \
+    -p gp.tc.0.init.knowledge-extraction=rootsubtree \
+    -p pop.subpop.0.species.pipe.source.1 = tl.gp.TLGPCriptorMutation \
+    -p pop.subpop.0.species.pipe.source.1.knowledge-probability=0.5 \
+    -p pop.subpop.0.species.pipe.source.1.prob=$1 \
+    -p pop.subpop.0.species.pipe.source.0.prob=$(echo 0.95 - $1 | bc)
 }
 
 # This function performs the Surrogate-EvaluatedFulltree experiment. This method gets a path to a directory or file that

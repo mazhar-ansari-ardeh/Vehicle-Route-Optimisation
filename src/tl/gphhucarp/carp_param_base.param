@@ -49,14 +49,13 @@ quit-on-run-complete = true
 pop = ec.Population
 pop.subpops = 1
 pop.subpop.0 = ec.Subpopulation
-pop.subpop.0.size = 100
+pop.subpop.0.size = 1024
 
 breed.elite.0 = 10
 
 
 stat.file=$./stats/job.0.out.stat
 stat.gen-pop-file=./stats/population.gen
-# seed.0 = time
 erc.min = -2
 erc.max = +2
 
@@ -76,7 +75,6 @@ rotate-eval-model = true
 # ==============================
 evalthreads = 1
 breedthreads = 1
-# seed.0 = time
 checkpoint = false
 checkpoint-modulo = 1
 checkpoint-prefix = ec
@@ -98,7 +96,7 @@ pop.subpop.0.species.ind.tree.0.tc = tc0
 pop.subpop.0.species.fitness = ec.multiobjective.MultiObjectiveFitness
 pop.subpop.0.species.fitness.num-objectives = 1
 pop.subpop.0.species.fitness.maximize = false
-pop.subpop.0.duplicate-retries = 100
+pop.subpop.0.duplicate-retries = 1024
 
 # GP initializer
 init = ec.gp.GPInitializer

@@ -3,9 +3,7 @@ print-params = false
 
 stat.file=$./stats/target-wk/job.0.out.stat
 stat.gen-pop-file=./stats/target-wk/population.gen
-eval.problem.eval-model.instances.0.file=gdb/gdb8.dat
-eval.problem.eval-model.instances.0.vehicles=11
-seed.0=19
+seed.0=3
 # gp.tc.0.init=tl.gp.IqKnowledgeBuilder
 # gp.tc.0.init = ec.gp.koza.HalfBuilder
 # gp.tc.0.init.knowledge-log-file=./stats/target-wk/IqKnowledgeBuilder
@@ -70,10 +68,10 @@ seed.0=19
 # PPT Builder
 # ==============================
 # gp.tc.0.init=tl.gp.PPTBuilder
-gp.tc.0.init.knowledge-file=~/grid/gdb1.vs5.gdb1.vt6:gen_50/PPTFreqLearning:percent_0.5:nrad_-1:ncap_2:gens_49_49:lr_0.8:ss_100:ts_-1/3/PPTFreqLearning:percent_0.5:nrad_-1:ncap_2:gens_49_49:lr_0.8:ss_100:ts_-1.ppt
-percentage of initial population that is created from extracted knowledge
-gp.tc.0.init.transfer-percent=0.50
-gp.tc.0.init.knowledge-log-file=./stats/target-wk/PPTBuildLog
+# gp.tc.0.init.knowledge-file=~/grid/gdb1.vs5.gdb1.vt6:gen_50/PPTFreqLearning:percent_0.5:nrad_-1:ncap_2:gens_49_49:lr_0.8:ss_100:ts_-1/3/PPTFreqLearning:percent_0.5:nrad_-1:ncap_2:gens_49_49:lr_0.8:ss_100:ts_-1.ppt
+# percentage of initial population that is created from extracted knowledge
+# gp.tc.0.init.transfer-percent=0.50
+# gp.tc.0.init.knowledge-log-file=./stats/target-wk/PPTBuildLog
 
 # gp.tc.0.init.knowledge-extraction=rootsubtree
 # gp.tc.0.init.extract-percent=0.50
@@ -122,33 +120,33 @@ manual-policies = 1
 manual-policies.0 = gphhucarp.decisionprocess.routingpolicy.PathScanning5Policy
 
 # for gp-evolved policies
-train-path = /home/mazhar/MyPhD/SourceCodes/gpucarp/stats/target-wk/
+train-path = /Users/mzhr/MyPhD/SourceCodes/gpucarp/stats/target-wk/
 solution-type = simple-solution
 fitness-type = simple-fitness
 num-trains = 1
-generations=50
+generations=10
 
 
 # ==============================
 # KnowledgeableState
 # ==============================
 # state=gphhucarp.gp.KnowledgeableState
-knowledge-state.change-detction=simple
-knowledge-state.niche-radius=0.5
-knowledge-state.num-instance=8
-knowledge-state.immigrant-percent=0.1
-knowledge-state.knowledge-log-file=./stats/target-wk/KnowledgeState.Log
+# knowledge-state.change-detction=simple
+# knowledge-state.niche-radius=0.5
+# knowledge-state.num-instance=8
+# knowledge-state.immigrant-percent=0.1
+# knowledge-state.knowledge-log-file=./stats/target-wk/KnowledgeState.Log
 
 # ==============================
 # KnowledgeableState
 # ==============================
 # state=tl.gp.PPTEvolutionState
-ppt-state.lr=0.8
-ppt-state.sample-size=100
-ppt-state.tournament-size=20
-ppt-state.knowledge-log-file=PPTEvolutionStateLog
-ppt-state.niche-radius=0.1
-ppt-state.niche-capacity=2
+# ppt-state.lr=0.8
+# ppt-state.sample-size=100
+# ppt-state.tournament-size=20
+# ppt-state.knowledge-log-file=PPTEvolutionStateLog
+# ppt-state.niche-radius=0.1
+# ppt-state.niche-capacity=2
 
 
 # ==============================
@@ -211,44 +209,101 @@ ppt-state.niche-capacity=2
 # ==============================
 # Cleared FullTree
 # ==============================
-state=tl.gphhucarp.dms.DMSSavingGPHHState
-gp.tc.0.init=tl.gp.ClearedFullTreeBuilder
-gp.tc.0.init.knowledge-path=/Users/mzhr/Desktop/
-gp.tc.0.init.transfer-percent=0.5
-gp.tc.0.init.knowledge-log-file=./stats/target-wk/FullTreeLog
-gp.tc.0.init.distance-metric=hamming
-gp.tc.0.init.num-generations=50
-gp.tc.0.init.from-generation=49
+# state=tl.gphhucarp.dms.DMSSavingGPHHState
+# gp.tc.0.init=tl.gp.ClearedFullTreeBuilder
+# gp.tc.0.init.knowledge-path=/Users/mzhr/Desktop/
+# gp.tc.0.init.transfer-percent=0.5
+# gp.tc.0.init.knowledge-log-file=./stats/target-wk/FullTreeLog
+# gp.tc.0.init.distance-metric=hamming
+# gp.tc.0.init.num-generations=50
+# gp.tc.0.init.from-generation=49
+# gp.tc.0.init.to-generation=49
+# gp.tc.0.init.niche-radius=0
+
+# ==============================
+# Surrogate-Evaluated FullTree
+# ==============================
+# state=tl.gphhucarp.dms.DMSSavingGPHHState
+# pop.subpop.0.species.ind=tl.knowledge.surrogate.SuGPIndividual
+# gp.tc.0.init=tl.knowledge.surrogate.SurEvalBuilder
+
+gp.tc.0.init.knowledge-path=./KnowledgeSource/gdb1.vs5-gen_50/3/TestedPopulation
+gp.tc.0.init.transfer-percent=1
+gp.tc.0.init.surr-log-path=./stats/target-wk/SurEvalFullTree/
+gp.tc.0.init.knowledge-log-file=./stats/target-wk/SurEvalFullTree/SurEvalInit
+gp.tc.0.init.from-generation=47
 gp.tc.0.init.to-generation=49
-gp.tc.0.init.niche-radius=0
+gp.tc.0.init.knnpool-niche-radius=0
+gp.tc.0.init.knnpool-niche-capacity=1
+gp.tc.0.init.interim-niche-radius=15
+gp.tc.0.init.interim-niche-capacity=1
+gp.tc.0.init.dms-size=30
+gp.tc.0.init.distance-metric=hamming
+gp.tc.0.init.disable-sur-eval=false
+gp.tc.0.init.interim-magnitude=10
+
+
+# ==============================
+# Kknowledge-Enabled Mutation
+# ==============================
+state=tl.gphhucarp.dms.DMSSavingGPHHState
+pop.subpop.0.species.pipe.source.1 = tl.gp.KTMutationPipeline
+pop.subpop.0.species.pipe.source.1.from-generation = 49
+pop.subpop.0.species.pipe.source.1.to-generation = 49
+pop.subpop.0.species.pipe.source.1.knowledge-path=./KnowledgeSource/gdb1.vs5-gen_50/3/TestedPopulation
+pop.subpop.0.species.pipe.source.1.knowledge-extraction = all
+pop.subpop.0.species.pipe.source.1.knowledge-log-file=./stats/target-wk/SurEvalFullTree/SurEvalInit
+pop.subpop.0.species.pipe.source.1.extract-percent = 0.5
+pop.subpop.0.species.pipe.source.1.simplify=true
+pop.subpop.0.species.pipe.source.1.prob=0.3
+pop.subpop.0.species.pipe.source.1.niche-radius=0
+pop.subpop.0.species.pipe.source.1.niche-capacity=1
+pop.subpop.0.species.pipe.source.1.distance-metric=hamming
+pop.subpop.0.species.pipe.source.1.dms-size=20
+pop.subpop.0.species.pipe.source.0.prob=0.65
+pop.subpop.0.species.pipe.source.1.tournament-size=7
+# ==============================
+# BuggySurrogate-Evaluated FullTree
+# ==============================
+# gp.tc.0.init=tl.knowledge.surrogate.BuggySurEvalBuilder
+# gp.tc.0.init.surr-log-path=./stats/target-wk/BuggySurEvalFullTree/
+# gp.tc.0.init.knowledge-log-file=./stats/target-wk/BuggySurEvalFullTree/SurEvalInit
+# gp.tc.0.init.niche-radius=7
+
+
+# ==============================
+# Normalised Fitness
+# ==============================
+# eval.problem = tl.gphhucarp.NormalisedReactiveGPHHProblem
+# pop.subpop.0.species.fitness = tl.gp.fitness.NormalisedMultiObjectiveFitness
+
+
+# state = gphhucarp.gp.GPHHEvolutionState
+
+# state = tl.gp.PPTEvolutionState
+# ppt-state.lr=0.8
+# ppt-state.sample-size=100
+# ppt-state.tournament-size=20
+# ppt-state.ppt-stat-log=PPTStatLog
+# ppt-state.ppt-log=PPTLog
 
 # ==============================
 # The test set
 # ==============================
-# state = gphhucarp.gp.GPHHEvolutionState
-
-# state = tl.gp.PPTEvolutionState
-ppt-state.lr=0.8
-ppt-state.sample-size=100
-ppt-state.tournament-size=20
-ppt-state.ppt-stat-log=PPTStatLog
-ppt-state.ppt-log=PPTLog
-
-# eval = ec.simple.SimpleEvaluator
-# eval.problem = gphhucarp.gp.ReactiveGPHHProblem
-# eval.problem.pool-filter = gphhucarp.decisionprocess.poolfilter.ExpFeasiblePoolFilter
-# eval.problem.tie-breaker = gphhucarp.decisionprocess.tiebreaker.SimpleTieBreaker
-# eval.problem.data = gputils.DoubleData
+eval = ec.simple.SimpleEvaluator
+eval.problem.pool-filter = gphhucarp.decisionprocess.poolfilter.ExpFeasiblePoolFilter
+eval.problem.tie-breaker = gphhucarp.decisionprocess.tiebreaker.SimpleTieBreaker
+eval.problem.data = gputils.DoubleData
 # eval.problem.eval-model = gphhucarp.gp.evaluation.ReactiveEvaluationModel
-# eval.problem.eval-model.objectives = 1
-# eval.problem.eval-model.objectives.0 = total-cost
-# eval.problem.eval-model.instances = 1
-# eval.problem.eval-model.instances.0.file = gdb/gdb1.dat
-# eval.problem.eval-model.instances.0.samples = 500
-# eval.problem.eval-model.instances.0.vehicles = from-file
-# eval.problem.eval-model.instances.0.demand-uncertainty-level = 0.2
-# eval.problem.eval-model.instances.0.cost-uncertainty-level = 0.2
-# eval.problem.eval-model.seed = 25234
+eval.problem.eval-model.objectives = 1
+eval.problem.eval-model.objectives.0 = total-cost
+eval.problem.eval-model.instances = 1
+eval.problem.eval-model.instances.0.file = gdb/gdb1.dat
+eval.problem.eval-model.instances.0.samples = 5
+eval.problem.eval-model.instances.0.vehicles = 4
+eval.problem.eval-model.instances.0.demand-uncertainty-level = 0.2
+eval.problem.eval-model.instances.0.cost-uncertainty-level = 0.2
+eval.problem.eval-model.seed = 25234
 
 
 
