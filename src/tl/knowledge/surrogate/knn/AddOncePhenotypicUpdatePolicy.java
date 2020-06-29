@@ -6,6 +6,7 @@ import gphhucarp.decisionprocess.PoolFilter;
 import gphhucarp.decisionprocess.poolfilter.ExpFeasibleNoRefillPoolFilter;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import tl.gp.niching.SimpleNichingAlgorithm;
+import tl.gp.similarity.SituationBasedTreeSimilarityMetric;
 import tl.gp.similarity.TreeSimilarityMetric;
 
 import java.util.ArrayList;
@@ -19,6 +20,20 @@ import java.util.List;
  */
 public class AddOncePhenotypicUpdatePolicy implements KNNPoolUpdatePolicy
 {
+    double nicheradius = 0;
+
+    int nicheCapacity = 1;
+
+    public AddOncePhenotypicUpdatePolicy(double nicheradius, int nicheCapacity)
+    {
+        this.nicheradius = nicheradius;
+        this.nicheCapacity = nicheCapacity;
+    }
+
+    public AddOncePhenotypicUpdatePolicy()
+    {
+    }
+
     @Override
     public Collection<KNNPoolItem> update(Collection<KNNPoolItem> pool, Individual[] inds, String source, PoolFilter filter,
 										  TreeSimilarityMetric metric, List<ReactiveDecisionSituation> dps, Object... extra)
@@ -31,8 +46,7 @@ public class AddOncePhenotypicUpdatePolicy implements KNNPoolUpdatePolicy
 
         Arrays.sort(inds);
         List<Individual> sortedInds = Arrays.asList(inds);
-        SimpleNichingAlgorithm.clearPopulation(sortedInds, dps, 0, 1);
-
+        SimpleNichingAlgorithm.clearPopulation(sortedInds, filter, metric, nicheradius, nicheCapacity);
         final ArrayList<KNNPoolItem> retval = new ArrayList<>();
         for (Individual i : sortedInds)
         {

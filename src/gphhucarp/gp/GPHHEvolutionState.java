@@ -8,19 +8,16 @@ import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import ec.util.Checkpoint;
 import ec.util.Parameter;
-import gphhucarp.decisionprocess.DecisionSituation;
-import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import gputils.TerminalERCEvolutionState;
 import gputils.terminal.DoubleERC;
 import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 import tl.TLLogger;
-import tl.gp.niching.SimpleNichingAlgorithm;
+import tl.gp.fitness.NormalisedMultiObjectiveFitness;
 
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -38,6 +35,7 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 	 */
 	public static final String POP_PROG_SIZE = "pop-prog-size";
 	public static final String POP_FITNESS = "pop-fitness";
+	public static final String NORMALISED_POP_FITNESS = "normalised-pop-fitness";
 
 	/**
 	 * Read the file to specify the terminals.
@@ -93,6 +91,8 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 		try {
 			BufferedWriter writer = new BufferedWriter(new FileWriter(statFile));
 			writer.write("Gen,Time,ProgSizeMean,ProgSizeStd,FitMean,FitStd");
+			if(normalisedFitness)
+				writer.write(",NormFitMean,NormFitStd");
 			writer.newLine();
 			writer.close();
 		} catch (IOException e) {
@@ -111,29 +111,56 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 					"," + statisticsMap.get(POP_FITNESS).getMean() +
 					"," + statisticsMap.get(POP_FITNESS).getStandardDeviation()
 			);
+			if(normalisedFitness)
+				writer.write("," + statisticsMap.get(NORMALISED_POP_FITNESS).getMean() +
+						"," + statisticsMap.get(NORMALISED_POP_FITNESS).getStandardDeviation());
 			writer.newLine();
 			writer.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+	boolean normalisedFitness = false;
 
-	public void setupStatistics() {
+	public void setupStatistics()
+	{
 		statisticsMap = new HashMap<>();
 		statisticsMap.put(POP_PROG_SIZE, new DescriptiveStatistics());
 		statisticsMap.put(POP_FITNESS, new DescriptiveStatistics());
+
+		if(parameters.getString(new Parameter("pop.subpop.0.species.fitness"), null).equalsIgnoreCase("tl.gp.fitness.NormalisedMultiObjectiveFitness"))
+		{
+			normalisedFitness = true;
+			statisticsMap.put(NORMALISED_POP_FITNESS, new DescriptiveStatistics());
+		}
 	}
 
 	public void calcStatistics() {
 		statisticsMap.get(POP_PROG_SIZE).clear();
 		statisticsMap.get(POP_FITNESS).clear();
 
+		if(normalisedFitness)
+		{
+			statisticsMap.get(NORMALISED_POP_FITNESS).clear();
+		}
+
 		for (Individual indi : population.subpops[0].individuals) {
 			int progSize = ((GPIndividual)indi).trees[0].child.numNodes(GPNode.NODESEARCH_ALL);
 			statisticsMap.get(POP_PROG_SIZE).addValue(progSize);
-			double fitness = indi.fitness.fitness();
-			if(fitness != Double.POSITIVE_INFINITY && fitness != Double.NEGATIVE_INFINITY)
-				statisticsMap.get(POP_FITNESS).addValue(fitness);
+			if(normalisedFitness)
+			{
+				double originalFitness = ((NormalisedMultiObjectiveFitness) indi.fitness).originalFitness();
+				if (originalFitness == Double.POSITIVE_INFINITY || originalFitness == Double.NEGATIVE_INFINITY)
+					continue;
+				statisticsMap.get(POP_FITNESS).addValue(originalFitness);
+				statisticsMap.get(NORMALISED_POP_FITNESS).addValue(indi.fitness.fitness());
+			}
+			else
+			{
+				double fitness = indi.fitness.fitness();
+				if (fitness != Double.POSITIVE_INFINITY && fitness != Double.NEGATIVE_INFINITY)
+					statisticsMap.get(POP_FITNESS).addValue(fitness);
+			}
 		}
 	}
 
@@ -186,6 +213,8 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 	public void setup(EvolutionState state, Parameter base) {
 		super.setup(this, base);
 
+		parameters.list(state.output.getLog(0).writer);
+
 		Parameter p;
 
 		// get the job seed
@@ -232,11 +261,9 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 
 	protected void clear()
 	{
-		throw new RuntimeException("Not implemented for this class. If you are seeing this, you should use one of the subclasses instead.");
-//		if(!clear)
-//		{
-//			return;
-//		}
+		// TODO: Important: The experiments that just require clearing without PPT learning, won't work anymore and
+		// I should do something about them.
+		this.output.warning("Error: Not implemented for this class. If you are seeing this, you should use one of the subclasses instead.");
 	}
 
 
@@ -250,8 +277,8 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 			startFromCheckpoint();
         }
 
-		initStatFile();
 		setupStatistics();
+		initStatFile();
 
 		start = util.Timer.getCpuTime();
 

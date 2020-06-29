@@ -5,8 +5,8 @@ import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 import tl.gp.characterisation.TaskIndexCharacterisation;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.WeakHashMap;
 
 public class HammingPhenoTreeSimilarityMetric implements SituationBasedTreeSimilarityMetric {
 
@@ -32,7 +32,7 @@ public class HammingPhenoTreeSimilarityMetric implements SituationBasedTreeSimil
 		return distance;
 	}
 
-	private final WeakHashMap<GPTree, int[]> cache = new WeakHashMap<>();
+	private final HashMap<GPTree, int[]> cache = new HashMap<>();
 
 	public int[] characterise(GPRoutingPolicy tree)
 	{

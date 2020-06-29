@@ -9,8 +9,8 @@ import org.apache.commons.math3.stat.correlation.SpearmansCorrelation;
 import tl.gp.characterisation.TaskRankCharacterisation;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.WeakHashMap;
 
 public class CorrPhenoTreeSimilarityMetric implements SituationBasedTreeSimilarityMetric
 {
@@ -72,9 +72,9 @@ public class CorrPhenoTreeSimilarityMetric implements SituationBasedTreeSimilari
         }
     }
 
-    private final WeakHashMap<GPTree, List<double[]>> cache = new WeakHashMap<>();
+    private final HashMap<GPTree, List<double[]>> cache = new HashMap<>();
 
-    private final WeakHashMap<Pair<GPTree, GPTree>, Double> corrCache = new WeakHashMap<>();
+    private final HashMap<Pair<GPTree, GPTree>, Double> corrCache = new HashMap<>();
 
     private static double[] copyFromIntArray(int[] source) {
         double[] dest = new double[source.length];

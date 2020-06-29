@@ -100,3 +100,21 @@ Added the DBScan algorithm for entropy clustering. Added correlation phenotypic 
 
 07/05/20
 Added the implementation for the 'ClearedFullTree' method.
+
+16/05/20
+Added the feature to disable surrogate evaluation to SurEvalBuilder.
+
+21/05/20
+Debugged SurEvalBuilder. There was a bad bug in the method that made the effect of niching almost null.
+
+26/05/20
+Added normalised fitness.
+
+02/05/20
+Removed a bug in the BuggySurEval that used two pool filter methods during clearing and surrogate evaluation.
+
+11/06/20
+Finished debugging SurEvalBuilder.
+
+22/06/20
+Added the KTMutationPipeline.

@@ -36,7 +36,7 @@ breed = ec.simple.SimpleBreeder
 eval = ec.simple.SimpleEvaluator
 
 stat = tl.gp.FCFStatistics
-stat.save-pop = true
+stat.save-pop = false
 stat.save-tree = false
 #stat.num-children = 1
 #stat.child.0 = ec.gp.koza.KozaShortStatistics

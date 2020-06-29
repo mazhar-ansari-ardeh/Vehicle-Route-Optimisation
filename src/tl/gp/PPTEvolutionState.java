@@ -6,10 +6,14 @@ import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import ec.util.Checkpoint;
 import ec.util.Parameter;
+import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import gphhucarp.gp.ReactiveGPHHProblem;
+import org.apache.commons.lang3.text.StrBuilder;
 import org.apache.commons.math3.stat.descriptive.SummaryStatistics;
 import tl.TLLogger;
+import tl.gp.niching.SimpleNichingAlgorithm;
 import tl.gphhucarp.UCARPUtils;
+import tl.gphhucarp.dms.DMSSaver;
 import tl.gphhucarp.dms.DMSSavingGPHHState;
 import tl.knowledge.ppt.gp.PPTBreedingPipeline;
 import tl.knowledge.ppt.pipe.FrequencyLearner;
@@ -62,9 +66,9 @@ public class PPTEvolutionState extends DMSSavingGPHHState implements TLLogger<GP
         String[] functions = UCARPUtils.getFunctionSet();
         learner = FrequencyLearner.newFrequencyLearner(state, pptBase, functions, terminals);
 
-        pptStatLogID = setupLogger(state, pptBase, P_PPT_STAT_LOG);
+        pptStatLogID = setupLogger(state, pptBase, P_PPT_STAT_LOG, false);
         log(this, pptStatLogID, "Generation, PPT Ind Count, average, std, min, max, CompPPT Ind Count, average, std, min, max, Non-PPT Ind Count, average, std, min, max\n");
-        pptLogID = setupLogger(state, pptBase, P_PPT_LOG);
+        pptLogID = setupLogger(state, pptBase, P_PPT_LOG, false);
     }
 
 //    void logPPTStat2()
@@ -311,5 +315,28 @@ public class PPTEvolutionState extends DMSSavingGPHHState implements TLLogger<GP
         }
 
         return R_NOTDONE;
+    }
+
+    protected void clear()
+    {
+//        StrBuilder seenSituations = get;
+        if(!clear || seenSituations.size() == 0)
+		{
+			seenSituations.clear();
+			return;
+		}
+
+		int numDecisionSituations = 30;
+		long shuffleSeed = 8295342;
+
+		List<ReactiveDecisionSituation> allSeenSituations = getAllSeenSituations();
+		Collections.shuffle(allSeenSituations, new Random(shuffleSeed));
+		allSeenSituations = allSeenSituations.subList(0, numDecisionSituations);
+
+		SimpleNichingAlgorithm.clearPopulation(this, allSeenSituations, 0, 1);
+		allSeenSituations.clear();
+
+		// Clear the list so that new situations do not pile on the old ones. Don't know if this is a good idea.
+		seenSituations.clear();
     }
 }

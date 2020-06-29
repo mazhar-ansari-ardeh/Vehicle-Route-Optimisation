@@ -7,10 +7,9 @@ import gphhucarp.decisionprocess.poolfilter.IdentityPoolFilter;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 import tl.gp.characterisation.RefRuleCharacterisation;
-import tl.gp.characterisation.TaskIndexCharacterisation;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.WeakHashMap;
 
 public class RefRulePhenoTreeSimilarityMetric implements SituationBasedTreeSimilarityMetric
 {
@@ -59,7 +58,7 @@ public class RefRulePhenoTreeSimilarityMetric implements SituationBasedTreeSimil
 		return Math.sqrt(distance);
 	}
 
-	private final WeakHashMap<GPTree, int[]> cache = new WeakHashMap<>();
+	private final HashMap<GPTree, int[]> cache = new HashMap<>();
 
 	public int[] characterise(GPRoutingPolicy tree)
 	{

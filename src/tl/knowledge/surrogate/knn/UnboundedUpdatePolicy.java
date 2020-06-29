@@ -17,6 +17,9 @@ public class UnboundedUpdatePolicy implements KNNPoolUpdatePolicy
     public Collection<KNNPoolItem> update(Collection<KNNPoolItem> pool, Individual[] inds, String source, PoolFilter filter,
 										  TreeSimilarityMetric metric, List<ReactiveDecisionSituation> dps, Object ... extra)
     {
+        if(pool == null)
+            throw new IllegalArgumentException("Given pool of individuals is not allowed to be null");
+
         Arrays.stream(inds).map(i -> new KNNPoolItem(((GPIndividual)i), filter, source)).forEach(pool::add);
         return pool;
     }

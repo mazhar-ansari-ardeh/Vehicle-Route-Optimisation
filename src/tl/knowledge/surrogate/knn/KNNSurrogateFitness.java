@@ -39,7 +39,6 @@ public class KNNSurrogateFitness
 
     public KNNSurrogateFitness()
     {
-
     }
 
     public String logSurrogatePool()
