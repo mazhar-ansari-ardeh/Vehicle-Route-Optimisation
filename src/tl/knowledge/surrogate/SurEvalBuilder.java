@@ -197,6 +197,9 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 		interimMagnitude = state.parameters.getInt(base.push(P_INTERIM_MAGNITUDE), null);
 		log(state, knowledgeSuccessLogID, true, "Interim magnitude: " + interimMagnitude + "\n");
 
+		Parameter p = new Parameter("eval.problem.pool-filter");
+		filter = (PoolFilter)(state.parameters.getInstanceForParameter(p, null, PoolFilter.class));
+
 		this.disableSurEval = state.parameters.getBoolean(base.push(P_DISABLE_SUR_EVAL), null, false);
 		log(state, knowledgeSuccessLogID, true, "disableSurEval: " + disableSurEval + "\n");
 		if(disableSurEval)
@@ -237,9 +240,6 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 		surFitness.setMetric(metrics);
 		surFitness.setSituations(sstate.getInitialSituations().subList(0,
 				Math.min(sstate.getInitialSituations().size(), dmsSize)));
-
-		Parameter p = new Parameter("eval.problem.pool-filter");
-		filter = (PoolFilter)(state.parameters.getInstanceForParameter(p, null, PoolFilter.class));
 
 		List<Individual> inds;
 		try
