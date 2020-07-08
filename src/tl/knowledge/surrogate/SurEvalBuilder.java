@@ -194,6 +194,9 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 				Math.min(sstate.getInitialSituations().size(), dmsSize)));
 		sstate.setDMSSavingEnabled(false);
 
+		interimMagnitude = state.parameters.getInt(base.push(P_INTERIM_MAGNITUDE), null);
+		log(state, knowledgeSuccessLogID, true, "Interim magnitude: " + interimMagnitude + "\n");
+
 		this.disableSurEval = state.parameters.getBoolean(base.push(P_DISABLE_SUR_EVAL), null, false);
 		log(state, knowledgeSuccessLogID, true, "disableSurEval: " + disableSurEval + "\n");
 		if(disableSurEval)
@@ -205,9 +208,7 @@ public class SurEvalBuilder extends HalfBuilder implements TLLogger<GPNode>
 			state.output.fatal("Knowledge path cannot be null");
 			return;
 		}
-
-		interimMagnitude = state.parameters.getInt(base.push(P_INTERIM_MAGNITUDE), null);
-		log(state, knowledgeSuccessLogID, true, "Interim magnitude: " + interimMagnitude + "\n");
+		log(state, knowledgeSuccessLogID, true, "Knowledge path: " + knowledgePath + "\n");
 
 		setupSurrogate(state, base, knowledgePath, surLogPath);
 	}
