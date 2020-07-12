@@ -134,6 +134,25 @@ public interface TLLogger<T>
 		state.output.flush();
 	}
 
+	/**
+	 * Logs the message to the log file and also to the fatal writer. As a result, the program will terminate after this
+	 * method.
+	 * @param state The evolutionary state governing the process.
+	 * @param logID The ID of the logger to write to.
+	 * @param messages The message to write to.
+	 */
+	default void logFatal(EvolutionState state, int logID, String... messages)
+	{
+		StringBuilder message = new StringBuilder();
+		for (String s : messages)
+		{
+			message.append(s);
+		}
+		state.output.print(message.toString(), logID);
+		state.output.flush();
+		state.output.fatal(message.toString());
+	}
+
 	@Deprecated
 	default void log(EvolutionState state, KnowledgeItem<T> it, int cfCounter, int logID)
 	{
