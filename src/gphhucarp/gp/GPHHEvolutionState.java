@@ -259,12 +259,12 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 //		seenSituations = new HashMap<>();
 	}
 
-	protected void clear()
-	{
-		// TODO: Important: The experiments that just require clearing without PPT learning, won't work anymore and
-		// I should do something about them.
-		this.output.warning("Error: Not implemented for this class. If you are seeing this, you should use one of the subclasses instead.");
-	}
+//	protected void clear()
+//	{
+//		// TODO: Important: The experiments that just require clearing without PPT learning, won't work anymore and
+//		// I should do something about them.
+//		this.output.warning("Error: Not implemented for this class. If you are seeing this, you should use one of the subclasses instead.");
+//	}
 
 
 
@@ -299,7 +299,7 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 	    // EVALUATION
 	    statistics.preEvaluationStatistics(this);
 	    evaluator.evaluatePopulation(this);
-	    clear();
+//	    clear();
 		statistics.postEvaluationStatistics(this);
 
 		finish = util.Timer.getCpuTime();
