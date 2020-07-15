@@ -280,6 +280,36 @@ function do_knowledge_experiment() {
   printf "$(date)\t $SGE_TASK_ID \n" >>$SAVE_TO/Finished$L_EXPERIMENT_NAME.txt
 }
 
+
+# This class implements the idea of hyper-mutation. In this idea, the scenario change is treated as an environment
+# change. A typical approach in the literature is to handle the environment change with an increased mutation rate.
+# In this implementation, it is assumed that the mutation rate is initially set to a large rate and the algorithm
+# will decrease it gradually over the course of the evolution until it reaches a threshold mutation rate after which
+# it will remain fixed. The initial mutation rate is set with the utilised mutation pipeline and is not set with class.
+# This class should be used alongside an initializer that transfers knowledge such as the FullTree method.
+# This function has the following parameters:
+# 1. initial mutation rate
+# 2. adaptation rate
+# 3. minimum threshold for mutation probability
+hypermutation()
+{
+  L_EXP_NAME="hypermutation:inimutprob_$1:adaptrate_$2:minthresh_$3:initiliser_fulltree100"
+  L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
+
+    do_knowledge_experiment "$L_EXP_NAME" \
+      -p pop.subpop.0.species.pipe=tl.gp.HyperMutationMultiBreedingPipeline \
+      -p pop.subpop.0.species.pipe.adapt-rate=$2 \
+      -p pop.subpop.0.species.pipe.knowledge-log-file="$L_EXPERIMENT_DIR/hypermutation" \
+      -p pop.subpop.0.species.pipe.min-threshold=$3 \
+      -p pop.subpop.0.species.pipe.source.1.prob=$1 \
+      -p pop.subpop.0.species.pipe.source.0.prob=$(echo 0.95 - $1 | bc) \
+      -p gp.tc.0.init=tl.gp.SimpleCodeFragmentBuilder \
+      -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS - 1)).bin \
+      -p gp.tc.0.init.transfer-percent=100 \
+      -p gp.tc.0.init.allow-duplicates=true \
+      -p gp.tc.0.init.knowledge-extraction=root
+}
+
 # This function performs the knowledge-guided mutation experiment. In this experiment, the mutation operator is modified
 # The mutation operator provides a natural mean for inserting the transferred genetic materials into the population pool.
 # Accordingly, this algorithm is proposed to enhance GP mutation with transferred knowledge. In this algorithm, first
@@ -311,8 +341,10 @@ function do_knowledge_experiment() {
 #	  - corrphenotypic
 #	  - hamphenotypic
 # 11. Size of the decistion making situations that are used for comparing similarities of GP individuals.
+# 12. Clear the loaded population before extraction or not.
+# 13. Use an adaptive mutation rate or not.
 KTMutation() {
-  L_EXP_NAME="ktmutation:gen_$1_$2:extract_$3:extperc_$4:simplify_$5:mut_$6:tournsize_$7:nrad_$8:ncap_$9:metric_${10}:dms_${11}"
+  L_EXP_NAME="ktmutation:gen_$1_$2:extract_$3:extperc_$4:simplify_$5:mut_$6:tournsize_$7:nrad_$8:ncap_$9:metric_${10}:dms_${11}:clear_${12}:adaptive_${13}"
   L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
   do_knowledge_experiment "$L_EXP_NAME" \
     -p state=tl.gphhucarp.dms.DMSSavingGPHHState \
@@ -329,6 +361,8 @@ KTMutation() {
     -p pop.subpop.0.species.pipe.source.1.niche-capacity=$9 \
     -p pop.subpop.0.species.pipe.source.1.distance-metric=${10} \
     -p pop.subpop.0.species.pipe.source.1.dms-size=${11} \
+    -p pop.subpop.0.species.pipe.source.1.clear=${12} \
+    -p pop.subpop.0.species.pipe.source.1.adaptive-mut=${13} \
     -p pop.subpop.0.species.pipe.source.0.prob=$(echo 0.95 - $6 | bc) \
     -p pop.subpop.0.species.pipe.source.1.tournament-size=$7
 }
@@ -433,23 +467,23 @@ function RandPoolFullTree() {
 #       2.3. hamming
 # 3. Niche radius
 # 4. Niche capacity
-function RandPoolFullTree() {
-  local L_EXP_NAME="RandPoolFullTree:tp_$1:metric_$2:nrad_$3:ncap_$4:dms_20"
-  local L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
-  do_knowledge_experiment "$L_EXP_NAME" \
-    -p state=tl.gphhucarp.dms.DMSSavingGPHHState \
-    -p gp.tc.0.init=tl.knowledge.surrogate.SurEvalBuilder \
-    -p gp.tc.0.init.knowledge-path=$KNOWLEDGE_SOURCE_DIR/ \
-    -p gp.tc.0.init.num-generations=$GENERATIONS \
-    -p gp.tc.0.init.surr-log-path=$L_EXPERIMENT_DIR/ \
-    -p gp.tc.0.init.transfer-percent=$1 \
-    -p gp.tc.0.init.distance-metric=$2 \
-    -p gp.tc.0.init.disable-sur-eval=true \
-    -p gp.tc.0.init.niche-radius=$3 \
-    -p gp.tc.0.init.niche-capacity=$4
-
-  #gp.tc.0.init.surr-log-path=./stats/target-wk/SurEvalFullTree/
-}
+#function RandPoolFullTree() {
+#  local L_EXP_NAME="RandPoolFullTree:tp_$1:metric_$2:nrad_$3:ncap_$4:dms_20"
+#  local L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
+#  do_knowledge_experiment "$L_EXP_NAME" \
+#    -p state=tl.gphhucarp.dms.DMSSavingGPHHState \
+#    -p gp.tc.0.init=tl.knowledge.surrogate.SurEvalBuilder \
+#    -p gp.tc.0.init.knowledge-path=$KNOWLEDGE_SOURCE_DIR/ \
+#    -p gp.tc.0.init.num-generations=$GENERATIONS \
+#    -p gp.tc.0.init.surr-log-path=$L_EXPERIMENT_DIR/ \
+#    -p gp.tc.0.init.transfer-percent=$1 \
+#    -p gp.tc.0.init.distance-metric=$2 \
+#    -p gp.tc.0.init.disable-sur-eval=true \
+#    -p gp.tc.0.init.niche-radius=$3 \
+#    -p gp.tc.0.init.niche-capacity=$4
+#
+#  #gp.tc.0.init.surr-log-path=./stats/target-wk/SurEvalFullTree/
+#}
 
 # This function performs the cleared fulltree experiment. This method gets a path to a directory or file that contains
 # knowledge, loads the population from it, performs a clearing on it and forms a pool from the cleared population to
