@@ -14,11 +14,18 @@ public class DMSSavingGPHHState extends GPHHEvolutionState implements DMSSaver
 	protected TreeMap<Individual, List<DecisionSituation>> seenSituations = new TreeMap<>();
 
 	private List<ReactiveDecisionSituation> initialSituations = new ArrayList<>();
+
+	/**
+	 * If {@code true}, the seen decision situations will be saved.
+	 */
+	public final String P_SAVE_DMS = "save-dms";
 	private boolean saveDMS = true;
 
 	@Override
 	public void setup(EvolutionState state, Parameter base)
 	{
+		Parameter p = new Parameter(P_SAVE_DMS);
+		saveDMS = parameters.getBoolean(p, null,true);
 		super.setup(state, base);
 	}
 
