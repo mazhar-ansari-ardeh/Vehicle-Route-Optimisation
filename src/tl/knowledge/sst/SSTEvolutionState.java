@@ -37,18 +37,6 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 	public static final String P_DISTANCE_METRIC = "distance-metric";
 
 	/**
-	 * The individuals that are transferred from the source domain. This list is loaded once and is not updated
-	 * afterwards.
-	 */
-	private List<GPRoutingPolicy> transferredInds = new ArrayList<>();
-
-	/**
-	 * The individuals that are discovered in the target domain during the GP evolution in the target domain. This list
-	 * is updated after each generation.
-	 */
-	private ArrayList<GPRoutingPolicy> discoveredInds = new ArrayList<>();
-
-	/**
 	 * The flag parameter to enable or disable the act of knowledge transfer from a source domain.
 	 */
 	public static final String P_ENABLE_TRANSFER = "enable-transfer";
@@ -89,13 +77,29 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 	 */
 	public final String P_DMS_SIZE = "dms-size";
 
+	/**
+	 * The individuals that are transferred from the source domain. This list is loaded once and is not updated
+	 * afterwards.
+	 */
+	private List<GPRoutingPolicy> transferredInds = new ArrayList<>();
+
+	/**
+	 * The individuals that are discovered in the target domain during the GP evolution in the target domain. This list
+	 * is updated after each generation.
+	 */
+	private ArrayList<GPRoutingPolicy> discoveredInds = new ArrayList<>();
+
+	/**
+	 * This is a temporary archive that will hold the individuals that are seen during genetic operators. For example,
+	 * if crossover creates a new individual, this new individual will be stored here temporarily so that later
+	 * crossover and mutation operations within the same generation can see it. This is approach is taken because the
+	 * archive of seen individuals is updated at the beginning of each generation to record their fitness value and
+	 * therefore, any individuals created within the generation will not be seen.
+	 */
+	private ArrayList<GPRoutingPolicy> tempInds = new ArrayList<>();
+
 	PoolFilter filter;
 	private int knowledgeSuccessLogID;
-
-//	public boolean isTransferEnabled()
-//	{
-//		return enableTransfer;
-//	}
 
 	/**
 	 * Gets the individuals that were loaded/transferred from the source domain. This function returns the exact
@@ -154,8 +158,10 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 
 		metrics.setSituations(getInitialSituations().subList(0,	Math.min(getInitialSituations().size(), dmsSize)));
 
-		if(!parameters.containsKey(P_ENABLE_TRANSFER))
-			logFatal(this,knowledgeSuccessLogID,"The parameter " + P_ENABLE_TRANSFER + " not found");
+		setDMSSavingEnabled(false);
+
+//		if(!parameters.containsKey(base.push(P_ENABLE_TRANSFER)))
+//			logFatal(this,knowledgeSuccessLogID,"The parameter " + P_ENABLE_TRANSFER + " not found");
 		boolean enableTransfer = parameters.getBoolean(base.push(P_ENABLE_TRANSFER), null, true);
 		log(this, knowledgeSuccessLogID, true, "Enable transfer: " + enableTransfer + "\n");
 		if(!enableTransfer)
@@ -180,8 +186,8 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 		{
 			// I like a large and diverse KNN pool so I set the niche radius to zero so that policies that are very
 			// similar and are potentially duplicate are discarded without being too strict about it.
-			inds = PopulationUtils.loadPopulations(state, knowledgePath, 0, 49, filter, metrics,
-					clearRadius,	clearCapacity, this, knowledgeSuccessLogID, true);
+			inds = PopulationUtils.loadPopulations(state, knowledgePath, 48, 49, filter, metrics,
+					clearRadius, clearCapacity, this, knowledgeSuccessLogID, true);
 			if(inds == null || inds.isEmpty())
 				throw new RuntimeException("Could not load the saved populations");
 
@@ -196,16 +202,25 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 		}
 	}
 
-	boolean isNew(Individual i, double nicheRadius)
+	boolean isNew(Individual i, double similarityThreshold)
 	{
 		if(i == null)
 			throw new RuntimeException("The individual cannot be null.");
-		if(isSeenIn(i,transferredInds, nicheRadius))
-		{
+		if(isSeenIn(i,tempInds,similarityThreshold))
 			return false;
+		if(isSeenIn(i,transferredInds, similarityThreshold))
+			return false;
+		boolean isSeen = isSeenIn(i, discoveredInds, similarityThreshold);
+		if(!isSeen)
+		{
+
+			GPIndividual j = (GPIndividual) i.clone();
+			// GP builders do not create individuals but GP nodes. As a result, cloning their product will not matter
+			// because they their fitness will not be updated after evaluation.
+			tempInds.add(new GPRoutingPolicy(filter, j.trees[0]));
 		}
 
-		return !isSeenIn(i, discoveredInds, nicheRadius);
+		return !isSeen;
 	}
 
 	private boolean isSeenIn(Individual i, List<GPRoutingPolicy> pool, double similarityThreshold)
@@ -239,6 +254,16 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 		if (generation > 0)
 			output.message("Generation " + generation);
 
+		// EVALUATION
+		statistics.preEvaluationStatistics(this);
+		evaluator.evaluatePopulation(this);
+		statistics.postEvaluationStatistics(this);
+
+		/* Newly discovered individuals are inside the population so there is no need to for them any more. Also, since
+		* the updateHistory method uses the isSeen method, which in turn reviews the tempInds, this archive should be
+		* emptied.
+		*/
+		tempInds.clear();
 		/*
 		There is a minor issue to consider here. Because the initializer is based on building GP trees, rather than GP
 		individuals, there is no way to discriminate between transferred and discovered individuals. As a result, this
@@ -246,11 +271,6 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 		big issue because it just adds one minor duplicity but will not affect the original idea.
 		*/
 		updateSearchHistory(population.subpops[0].individuals);
-
-		// EVALUATION
-		statistics.preEvaluationStatistics(this);
-		evaluator.evaluatePopulation(this);
-		statistics.postEvaluationStatistics(this);
 
 		finish = util.Timer.getCpuTime();
 		duration = 1.0 * (finish - start) / 1000000000;
@@ -289,20 +309,21 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 
 	private void updateSearchHistory(Individual[] inds)
 	{
-		List<Individual> individuals = Arrays.stream(inds)
-				.sorted(Comparator.comparingDouble(i -> i.fitness.fitness())).collect(Collectors.toList());
-		SimpleNichingAlgorithm.clearPopulation(individuals, filter, metrics, 0, 1);
-		List<GPIndividual> gpIndividuals = individuals.stream()
-				.filter(i -> i.fitness.fitness() != Double.POSITIVE_INFINITY).map(i -> (GPIndividual) i)
-				.collect(Collectors.toList());
-
-		for (GPIndividual ind : gpIndividuals)
+		for (Individual ind : inds)
 		{
-			if(isNew(ind, historySimThreshold))
-				discoveredInds.add(new GPRoutingPolicy(filter, ind.trees[0]));
-			else
-				log(this, knowledgeSuccessLogID, "The individual is seen before: "
-				 + ind.trees[0].child.makeLispTree() + "\n");
+			SSTIndividual i = (SSTIndividual) ind;
+			if (isSeenIn(ind, transferredInds, historySimThreshold))
+			{
+				i.setOrigin(IndividualOrigin.InitTransfer);
+				continue;
+			}
+			if (isSeenIn(i, discoveredInds, historySimThreshold))
+			{
+				continue;
+			}
+			if(i.getOrigin() == null) // The origin could be crossover, mutation, ....
+				i.setOrigin(IndividualOrigin.InitRandom);
+			discoveredInds.add(new GPRoutingPolicy(filter, i.trees[0]));
 		}
 	}
 

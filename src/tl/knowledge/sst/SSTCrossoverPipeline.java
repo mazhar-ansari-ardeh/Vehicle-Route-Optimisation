@@ -10,6 +10,8 @@ import ec.gp.koza.CrossoverPipeline;
 import ec.util.Parameter;
 import tl.TLLogger;
 
+import java.util.ArrayList;
+
 public class SSTCrossoverPipeline extends CrossoverPipeline implements TLLogger<GPNode>
 {
 	public static String P_SIMILARITY_THRESHOLD = "similarity-thresh";
@@ -141,7 +143,7 @@ public class SSTCrossoverPipeline extends CrossoverPipeline implements TLLogger<
 		GPIndividual j2 = null;
 
 		boolean foundUnseen = false;
-
+		ArrayList<GPIndividual> newInds = new ArrayList<>();
 		for (int tries = 0; tries < numSSTTries; tries++)
 		{
 			boolean res1 = false;
@@ -172,8 +174,13 @@ public class SSTCrossoverPipeline extends CrossoverPipeline implements TLLogger<
 			}
 
 			j1 = parents[0].lightClone();
+			((SSTIndividual)j1).setOrigin(IndividualOrigin.CrossOverUnseen);
 			j2 = null;
-			if (n - (q - start) >= 2 && !tossSecondParent) j2 = parents[1].lightClone();
+			if (n - (q - start) >= 2 && !tossSecondParent)
+			{
+				j2 = parents[1].lightClone();
+				((SSTIndividual)j2).setOrigin(IndividualOrigin.CrossOverUnseen);
+			}
 
 			// Fill in various tree information that didn't get filled in there
 			j1.trees = new GPTree[parents[0].trees.length];
@@ -228,31 +235,41 @@ public class SSTCrossoverPipeline extends CrossoverPipeline implements TLLogger<
 					}
 				}
 			}
-			if (sstate.isNew(j1, similarityThreshold) && j2 != null && sstate.isNew(j2, similarityThreshold))
+			boolean isJ1New = sstate.isNew(j1, similarityThreshold);
+			if(isJ1New)
 			{
-				foundUnseen = true;
-				if(j1 instanceof SSTIndividual)
-					((SSTIndividual)j1).setOrigin(IndividualOrigin.CrossOverUnseen);
-				if(j2 instanceof SSTIndividual)
-					((SSTIndividual)j2).setOrigin(IndividualOrigin.CrossOverUnseen);
-				break;
+				((SSTIndividual)j1).setOrigin(IndividualOrigin.CrossOverUnseen);
+				newInds.add(j1);
+				log(state, knowledgeSuccessLogID, "Unseen: " + j1.trees[0].child.makeLispTree() + "\n");
 			}
 			else
 			{
 				log(state, knowledgeSuccessLogID, "Seen: " + j1.trees[0].child.makeLispTree() + "\n");
-				if(j2 != null)
-					log(state, knowledgeSuccessLogID, "Seen: " + j2.trees[0].child.makeLispTree() + "\n");
+			}
+			foundUnseen = newInds.size() >= 2;
+			if(foundUnseen)
+				break;
+
+			boolean isJ2New = j2 != null && sstate.isNew(j2, similarityThreshold);
+			if(isJ2New)
+			{
+				if(j2 instanceof SSTIndividual)
+					((SSTIndividual)j2).setOrigin(IndividualOrigin.CrossOverUnseen);
+				log(state, knowledgeSuccessLogID, "Unseen: " + j2.trees[0].child.makeLispTree() + "\n");
+				newInds.add(j2);
+			}
+			else if(j2 != null)
+				log(state, knowledgeSuccessLogID, "Seen: " + j2.trees[0].child.makeLispTree() + "\n");
+
+			foundUnseen = newInds.size() >= 2;
+
+			if ( foundUnseen )
+			{
+				break;
 			}
 		} // for(int tries ...)
 
-		if(!foundUnseen)
-		{
-			if(j1 instanceof SSTIndividual)
-				((SSTIndividual)j1).setOrigin(IndividualOrigin.CrossOverSeen);
-			if(j2 instanceof SSTIndividual)
-				((SSTIndividual)j2).setOrigin(IndividualOrigin.CrossOverSeen);
-		}
-		retvals[0] = j1;
-		retvals[1] = j2;
+		retvals[0] = newInds.size() >= 1 ? newInds.remove(0) : j1;
+		retvals[1] = newInds.size() >= 1 ? newInds.remove(0) : j2;
 	}
 }

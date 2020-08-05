@@ -1,6 +1,5 @@
 package tl.knowledge.sst;
 
-import ec.Individual;
 import tl.gp.TLGPIndividual;
 
 public class SSTIndividual extends TLGPIndividual
@@ -10,6 +9,8 @@ public class SSTIndividual extends TLGPIndividual
 	@Override
 	public String getOrigin()
 	{
+		if(origin == null)
+			return null;
 		return origin.toString();
 	}
 

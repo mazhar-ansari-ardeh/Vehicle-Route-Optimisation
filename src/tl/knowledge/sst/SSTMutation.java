@@ -27,33 +27,8 @@ public class SSTMutation extends MutationPipeline implements TLLogger<GPNode>
 	 * Similarity threshold. All items within this similarity threshold will be considered as seen. This threshold is
 	 * used for determining if a mutated individual is seen before or not.
 	 */
-	public static final String P_SIMILARITY_THRESHOLD = "similarity-threshold";
+	public static final String P_SIMILARITY_THRESHOLD = "similarity-thresh";
 	double similarityThreshold;
-
-//	/**
-//	 * The capacity of each niche that is used for clearing. This parameter is only used for clearing of the loaded
-//	 * population.
-//	 */
-//	public static final String P_NICHE_CAPACITY = "niche-capacity";
-//	int nicheCapacity;
-
-//	/**
-//	 * The distance metric that the clearing procedure uses. Acceptable values are (case insensitive):
-//	 *  - phenotypic
-//	 *  - corrphenotypic
-//	 *  - hamphenotypic
-//	 */
-//	private static final String P_DISTANCE_METRIC = "distance-metric";
-
-//	/**
-//	 * Size of the decision-making situations.
-//	 */
-//	public static final String P_DMS_SIZE = "dms-size";
-
-	/**
-	 * The path to the file or directory that contains GP populations.
-	 */
-	public static final String P_KNOWLEDGE_PATH = "knowledge-path";
 
 	/**
 	 * Number of times that the mutation operator will try to find an individual that is not seen before. If the operator
@@ -74,9 +49,6 @@ public class SSTMutation extends MutationPipeline implements TLLogger<GPNode>
 		similarityThreshold = state.parameters.getDouble(base.push(P_SIMILARITY_THRESHOLD), null);
 		log(state, knowledgeSuccessLogID, true, "Niche radius " + similarityThreshold + "\n");
 
-//		nicheCapacity = state.parameters.getInt(base.push(P_NICHE_CAPACITY), null);
-//		log(state, knowledgeSuccessLogID, true, "Niche capacity " + nicheCapacity + "\n");
-
 		numSSTTries = state.parameters.getInt(base.push(P_NUM_TRIES), null);
 		if(numSSTTries <= 0)
 			logFatal(state,knowledgeSuccessLogID, "Invalid number of tries: " + numSSTTries + "\n");
@@ -95,13 +67,6 @@ public class SSTMutation extends MutationPipeline implements TLLogger<GPNode>
 			String message = "Evolution state must be of type DMSaver for this builder\n";
 			log(state, knowledgeSuccessLogID, message);
 			state.output.fatal(message);
-			return;
-		}
-
-		String kbFile = state.parameters.getString(base.push(P_KNOWLEDGE_PATH), null);
-		if (kbFile == null)
-		{
-			state.output.fatal("Knowledge path cannot be null");
 		}
 	}
 
@@ -111,6 +76,7 @@ public class SSTMutation extends MutationPipeline implements TLLogger<GPNode>
 		// grab individuals from our source and stick 'em right into inds.
 		// we'll modify them from there
 		int n = sources[0].produce(min,max,start,subpopulation,inds,state,thread);
+		SSTEvolutionState sstate = (SSTEvolutionState) state;
 
 		// should we bother?
 		if (!state.random[thread].nextBoolean(likelihood))
@@ -137,7 +103,7 @@ public class SSTMutation extends MutationPipeline implements TLLogger<GPNode>
 			for (int tries = 0; tries < numSSTTries; tries++)
 			{
 				mutated = mutate(i,subpopulation, state, thread, initializer, t);
-				if(isNew(state, mutated))
+				if(sstate.isNew(mutated, similarityThreshold))
 				{
 					j = mutated;
 					j.setOrigin(IndividualOrigin.MutationUnseen);
@@ -170,6 +136,7 @@ public class SSTMutation extends MutationPipeline implements TLLogger<GPNode>
 	private SSTIndividual newRandInd(EvolutionState state, int thread, SSTIndividual i, int t)
 	{
 		int size = GPNodeBuilder.NOSIZEGIVEN;
+		SSTEvolutionState sstate = (SSTEvolutionState) state;
 		if (equalSize) size = i.trees[t].child.numNodes(GPNode.NODESEARCH_ALL);
 		GPInitializer initializer = ((GPInitializer)state.initializer);
 		for (int tries = 0; tries < numSSTTries; tries++)
@@ -183,7 +150,7 @@ public class SSTMutation extends MutationPipeline implements TLLogger<GPNode>
 					0,
 					size);
 
-			if(isNew(state, i))
+			if(sstate.isNew(i, similarityThreshold))
 				return i;
 		}
 
@@ -197,13 +164,6 @@ public class SSTMutation extends MutationPipeline implements TLLogger<GPNode>
 				size);
 
 		return i;
-	}
-
-	private boolean isNew(EvolutionState state, Individual i)
-	{
-		SSTEvolutionState sstate = (SSTEvolutionState)state;
-
-		return sstate.isNew(i, similarityThreshold);
 	}
 
 	SSTIndividual mutate(SSTIndividual i, int subpopulation,

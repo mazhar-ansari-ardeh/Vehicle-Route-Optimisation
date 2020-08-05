@@ -39,11 +39,13 @@ public class SSTBuilder extends HalfBuilder implements TLLogger<GPNode>
 		knowledgeSuccessLogID = setupLogger(state, base, true);
 		if (!(state instanceof SSTEvolutionState))
 		{
-			logFatal(state,knowledgeSuccessLogID,"The state is not of type SSTEvolutionState\n");
+			logFatal(state, knowledgeSuccessLogID, "The state is not of type SSTEvolutionState\n");
 			return;
 		}
 
 		transferPercent = state.parameters.getDouble(base.push(P_TRANSFER_PERCENT), null);
+		if(transferPercent < 0 || transferPercent > 1)
+			logFatal(state, knowledgeSuccessLogID, "Invalid transfer percent: " + transferPercent + "\n");
 		log(state, knowledgeSuccessLogID, true, "SSTBuilder: Transfer percent: " + transferPercent + "\n");
 
 		similarityThreshold = state.parameters.getInt(base.push(P_SIMILARITY_THRESHOLD), null);
@@ -92,7 +94,11 @@ public class SSTBuilder extends HalfBuilder implements TLLogger<GPNode>
 			root = super.newRootedTree(state, type, thread, parent, set, argposition, requestedSize);
 
 			tlgpIndividual = GPIndividualUtils.asGPIndividual(root);
-		}while(sstate.isNew(tlgpIndividual, similarityThreshold));
+		}while(!sstate.isNew(tlgpIndividual, similarityThreshold));
+
+		root.parent = parent;
+		root.argposition = (byte) argposition;
+		tlgpIndividual.trees[0].child = null;
 
 		log(state, knowledgeSuccessLogID, "Unseen random: " + root.makeLispTree() + "\n\n");
 		return root;
