@@ -118,3 +118,16 @@ Finished debugging SurEvalBuilder.
 
 22/06/20
 Added the KTMutationPipeline.
+
+30/06/20
+Added the clearing of loaded population to KTMutationPipeline.
+
+06/07/20
+Added the adaptive KT mutation probability to KTMutation.
+Added the ability to disable the clearing for KTMutation.
+
+15/07/20
+Implemented the idea of hyper mutation.
+
+07/08/20
+Implemented the idea of search space transfer.

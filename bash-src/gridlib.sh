@@ -240,6 +240,48 @@ function do_non_knowledge_experiment() {
   printf "Finished running tests on target without knowledge\n\n\n"
 }
 
+# This is done on the target domain. This experiment does not use transfer learning.
+# This experiment changes the tournament size of GP from the default of 7 to the value
+# given to it as its first argument.
+function do_non_knowledge_experiment_tour()
+{
+    echo "Running experiment on target problem without knowledge $CLEAR"
+    if [ "$CLEAR" == "true" ]; then
+        L_EXP_NAME="WithoutKnowledge:tourn_$1:clear_$CLEAR"
+    else
+        L_EXP_NAME="WithoutKnowledge:tourn_$1"
+    fi
+    WITHOUT_KNOW_STAT_DIR="./$L_EXP_NAME/$SGE_TASK_ID"
+    java -cp .:tl.jar ec.Evolve        -file carp_param_base.param \
+                                    -p stat.file="\$$WITHOUT_KNOW_STAT_DIR/job.0.out.stat" \
+                                    -p stat.gen-pop-file="$WITHOUT_KNOW_STAT_DIR/population.gen" \
+                                    -p eval.problem.eval-model.instances.0.file=$DATASET_FILE_TARGET \
+                                    -p generations=$GENERATIONS_ON_TARGET \
+                                    -p eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_TARGET \
+                                    -p clear=$CLEAR \
+                                    -p seed.0=$SGE_TASK_ID \
+                                    -p select.tournament.size=$1
+
+    echo "Finished running experiment on target $L_EXP_NAME"
+
+    echo "Running tests on target problem $L_EXP_NAME"
+    java -cp .:tl.jar gphhucarp.gp.GPTest -file carp_param_base.param \
+                                        -p train-path=$WITHOUT_KNOW_STAT_DIR/ \
+                                        -p eval.problem.eval-model.instances.0.file=$DATASET_FILE_TARGET \
+                                        -p eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_TARGET \
+                                        -p eval.problem.eval-model.instances.0.samples=500 \
+                                        -p generations=$GENERATIONS_ON_TARGET \
+                                        -p select.tournament.size=$1 \
+                                        -p seed.0=$TEST_SEED
+
+    SAVE_TO=/vol/grid-solar/sgeusers/mazhar/$DATASET_SOURCE.vs$NUM_VEHICLES_SOURCE.$DATASET_TARGET.vt$NUM_VEHICLES_TARGET:gen_$GENERATIONS/"$L_EXP_NAME"
+    mkdir -p $SAVE_TO
+    cp -r -v $WITHOUT_KNOW_STAT_DIR/ $SAVE_TO/
+    printf "$(date)\t $SGE_TASK_ID \n" >> $SAVE_TO/Finished"$L_EXP_NAME".txt
+
+    printf "Finished running tests on target without knowledge\n\n\n"
+}
+
 # This is done on the target domain. This experiment uses transfer learning.
 # This function requires one argument: the name of the experiment.
 # The function defines a global variable: SAVE_TO which is the name of the directory that it saved the results to.
@@ -280,6 +322,56 @@ function do_knowledge_experiment() {
   printf "$(date)\t $SGE_TASK_ID \n" >>$SAVE_TO/Finished$L_EXPERIMENT_NAME.txt
 }
 
+# This function performs the Search-Space Transfer experiment. This experiment has the following parameters:
+# 1. Enable transfer: if true, the search space of the source domain will be transferred.
+# 2. Update the search history in the target domain. If false, GP will not remember the search space of the target domain.
+# 3. The radius for performing the clearing algorithm on the transferred individuals.
+# 4. The capacity for performing the clearing algorithm on the transferred individuals.
+# 5. Similarity threshold for updating the search history with new discoverred individuals.
+# 6. The similarity metric. Acceptable values are:
+#    - phenotypic
+#	   - corrphenotypic
+#	   - hamphenotypic
+# 7. DMS size
+# 8. Transfer percent: the amount of the initial population that is transferred from the source domain.
+# 9. The similarity used by the initialiser
+# 10. The similarity used by the crossover
+# 11. Number of tries of the crossover
+# 12. The similarity used by the mutation
+# 13. Number of tries of the mutation operator
+# 14. The probability of accepting a previously-seen individual
+sstsearch()
+{
+  L_EXP_NAME="sstsearch:tl_$1:histup_$2:tclrrad_$3:tclrcap_$4:histsimthresh_$5:metric_$6:dms_$7:tp_$8:bldsim_$9:xosim_${10}:xotry_${11}:mutsim_${12}:muttry_${13}:mutprb_${14}"
+  L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
+  do_knowledge_experiment "$L_EXP_NAME" \
+    -p state=tl.knowledge.sst.SSTEvolutionState \
+    -p sst-state.enable-transfer=$1 \
+    -p sst-state.enable-evo-hist-update=$2 \
+    -p sst-state.knowledge-path=$KNOWLEDGE_SOURCE_DIR/ \
+    -p sst-state.transfer-clear-radius=$3 \
+    -p sst-state.transfer-clear-capacity=$4 \
+    -p sst-state.history-sim-threshold=$5 \
+    -p sst-state.distance-metric=$6 \
+    -p sst-state.dms-size=$7 \
+    -p sst-state.knowledge-log-file="$L_EXPERIMENT_DIR/State/" \
+    -p sst-state.pop-log-path="$L_EXPERIMENT_DIR/State/pop" \
+    -p pop.subpop.0.species.ind = tl.knowledge.sst.SSTIndividual \
+    -p gp.tc.0.init=tl.knowledge.sst.SSTBuilder \
+    -p gp.tc.0.init.transfer-percent=$8 \
+    -p gp.tc.0.init.similarity-thresh=$9 \
+    -p gp.tc.0.init.knowledge-log-file="$L_EXPERIMENT_DIR/Builder" \
+    -p pop.subpop.0.species.pipe.source.0=tl.knowledge.sst.SSTCrossoverPipeline \
+    -p pop.subpop.0.species.pipe.source.0.similarity-thresh=${10} \
+    -p pop.subpop.0.species.pipe.source.0.sst-num-tries=${11} \
+    -p pop.subpop.0.species.pipe.source.0.knowledge-log-file="$L_EXPERIMENT_DIR/Crossover" \
+    -p pop.subpop.0.species.pipe.source.1=tl.knowledge.sst.SSTMutation \
+    -p pop.subpop.0.species.pipe.source.1.similarity-thresh=${12} \
+    -p pop.subpop.0.species.pipe.source.1.sst-num-tries=${13} \
+    -p pop.subpop.0.species.pipe.source.1.prob-accept-seen=${14} \
+    -p pop.subpop.0.species.pipe.source.1.knowledge-log-file="$L_EXPERIMENT_DIR/Mutation"
+}
+
 
 # This class implements the idea of hyper-mutation. In this idea, the scenario change is treated as an environment
 # change. A typical approach in the literature is to handle the environment change with an increased mutation rate.
@@ -308,6 +400,90 @@ hypermutation()
       -p gp.tc.0.init.transfer-percent=100 \
       -p gp.tc.0.init.allow-duplicates=true \
       -p gp.tc.0.init.knowledge-extraction=root
+}
+
+# This class implements the idea of hyper-mutation. In this idea, the scenario change is treated as an environment
+# change. A typical approach in the literature is to handle the environment change with an increased mutation rate.
+# In this implementation, it is assumed that the mutation rate is initially set to a large rate and the algorithm
+# will decrease it gradually over the course of the evolution until it reaches a threshold mutation rate after which
+# it will remain fixed. The initial mutation rate is set with the utilised mutation pipeline and is not set with class.
+# This class should be used alongside an initializer that transfers knowledge such as the FullTree method.
+# This function has the following parameters:
+# 1. initial mutation rate
+# 2. adaptation rate
+# 3. minimum threshold for mutation probability
+hypermutation_random()
+{
+  L_EXP_NAME="hypermutation:inimutprob_$1:adaptrate_$2:minthresh_$3:initiliser_random"
+  L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
+
+    do_knowledge_experiment "$L_EXP_NAME" \
+      -p pop.subpop.0.species.pipe=tl.gp.HyperMutationMultiBreedingPipeline \
+      -p pop.subpop.0.species.pipe.adapt-rate=$2 \
+      -p pop.subpop.0.species.pipe.knowledge-log-file="$L_EXPERIMENT_DIR/hypermutation" \
+      -p pop.subpop.0.species.pipe.min-threshold=$3 \
+      -p pop.subpop.0.species.pipe.source.1.prob=$1 \
+      -p pop.subpop.0.species.pipe.source.0.prob=$(echo 0.95 - $1 | bc)
+}
+
+# This function performs a modified version of transfer learning experiment 'FullTree' that allows modifying the
+# mutation rate. This function is a part of the hypermutation experiment and is meant to measure the effect of
+# transferring trees plus high mutation rate.
+# This function takes two input parameters:
+#   1. the transfer percent (in the range [0, 100])
+#   2. allow duplicates.
+#   3. Mutation rate.
+function HiMutFullTreeExp()
+{
+do_knowledge_experiment FullTree:tp_$1:dup_$2:mutrate_$3:clear_$CLEAR \
+                        -p gp.tc.0.init=tl.gp.SimpleCodeFragmentBuilder \
+                        -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin \
+                        -p gp.tc.0.init.transfer-percent=$1 \
+                        -p gp.tc.0.init.allow-duplicates=$2 \
+                        -p gp.tc.0.init.knowledge-extraction=root \
+                        -p pop.subpop.0.species.pipe.source.1.prob=$3 \
+                        -p pop.subpop.0.species.pipe.source.0.prob=$(echo 0.95 - $3 | bc)
+}
+
+# This is done on the target domain. This experiment does not use transfer learning. This function allows
+# setting different mutation rates. This is a part of the hypermutation experiment.
+function do_non_knowledge_experiment_mutrate()
+{
+    echo "Running experiment on target problem without knowledge $CLEAR"
+    if [ "$CLEAR" == "true" ]; then
+        L_EXP_NAME="WithoutKnowledge:mutrate_$1:clear_$CLEAR"
+    else
+        L_EXP_NAME="WithoutKnowledge:mutrate_$1"
+    fi
+    WITHOUT_KNOW_STAT_DIR="./$L_EXP_NAME/$SGE_TASK_ID"
+    java -cp .:tl.jar ec.Evolve     -file carp_param_base.param \
+                                    -p stat.file="\$$WITHOUT_KNOW_STAT_DIR/job.0.out.stat" \
+                                    -p stat.gen-pop-file="$WITHOUT_KNOW_STAT_DIR/population.gen" \
+                                    -p eval.problem.eval-model.instances.0.file=$DATASET_FILE_TARGET \
+                                    -p generations=$GENERATIONS_ON_TARGET \
+                                    -p eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_TARGET \
+                                    -p clear=$CLEAR \
+                                    -p pop.subpop.0.species.pipe.source.1.prob=$1 \
+                                    -p pop.subpop.0.species.pipe.source.0.prob=$(echo 0.95 - $1 | bc) \
+                                    -p seed.0=$SGE_TASK_ID
+
+    echo "Finished running experiment on target $L_EXP_NAME"
+
+    echo "Running tests on target problem $L_EXP_NAME"
+    java -cp .:tl.jar gphhucarp.gp.GPTest -file carp_param_base.param \
+                                        -p train-path=$WITHOUT_KNOW_STAT_DIR/ \
+                                        -p eval.problem.eval-model.instances.0.file=$DATASET_FILE_TARGET \
+                                        -p eval.problem.eval-model.instances.0.vehicles=$NUM_VEHICLES_TARGET \
+                                        -p eval.problem.eval-model.instances.0.samples=500 \
+                                        -p generations=$GENERATIONS_ON_TARGET \
+                                        -p seed.0=$TEST_SEED
+
+    SAVE_TO=/vol/grid-solar/sgeusers/mazhar/$DATASET_SOURCE.vs$NUM_VEHICLES_SOURCE.$DATASET_TARGET.vt$NUM_VEHICLES_TARGET:gen_$GENERATIONS/"$L_EXP_NAME"
+    mkdir -p $SAVE_TO
+    cp -r -v $WITHOUT_KNOW_STAT_DIR/ $SAVE_TO/
+    printf "$(date)\t $SGE_TASK_ID \n" >> $SAVE_TO/Finished"$L_EXP_NAME".txt
+
+    printf "Finished running tests on target without knowledge\n\n\n"
 }
 
 # This function performs the knowledge-guided mutation experiment. In this experiment, the mutation operator is modified
@@ -724,6 +900,24 @@ function FullTreeExp() {
     -p gp.tc.0.init.allow-duplicates=$2 \
     -p gp.tc.0.init.knowledge-extraction=root
 }
+
+# This function performs the transfer learning experiment 'FullTree' but it increases the tournament size from 7 to the
+# third value given to it.
+# This function takes three input parameters:
+#   1. the transfer percent (in the range [0, 100])
+#   2. allow duplicates.
+#   3. GP's tournament size
+function FullTreeExpTour()
+{
+do_knowledge_experiment FullTree:tp_$1:dup_$2:clear_$CLEAR:tour_$3 \
+                        -p gp.tc.0.init=tl.gp.SimpleCodeFragmentBuilder \
+                        -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS-1)).bin \
+                        -p gp.tc.0.init.transfer-percent=$1 \
+                        -p gp.tc.0.init.allow-duplicates=$2 \
+                        -p gp.tc.0.init.knowledge-extraction=root \
+                        -p select.tournament.size=$3
+}
+
 
 # This function performs the transfer learning experiment 'BestGen'.
 # This function takes one input parameter: the number of individuals to take from the population of each generation.

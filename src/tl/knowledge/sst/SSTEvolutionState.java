@@ -42,6 +42,17 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 	public static final String P_ENABLE_TRANSFER = "enable-transfer";
 
 	/**
+	 * If {@code true}, GP will update the history of individuals that are discovered during the GP run.
+	 * When this parameter is set to {@code false} but the {@code P_ENABLE_TRANSFER} parameter is set to {@code true},
+	 * GP then will only rely on the transferred knowledge and not the knowledge that it gains during the GP run. The
+	 * purpose of this parameter is measure the effect of the transferred knowledge and find out if any achieved
+	 * improvements are from the transferred knowledge or the discovered knowledge. The default value of this parameter
+	 * is {@code true}.
+	 */
+	public static final String P_ENABLE_EVO_HIST_UPDATE = "enable-evo-hist-update";
+	private boolean enableEvoHistUpdate;
+
+	/**
 	 * The path to the file or directory that contains GP populations.
 	 */
 	public static final String P_KNOWLEDGE_PATH = "knowledge-path";
@@ -160,6 +171,9 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 
 		setDMSSavingEnabled(false);
 
+		enableEvoHistUpdate = parameters.getBoolean(base.push(P_ENABLE_EVO_HIST_UPDATE), null, true);
+		log(state, knowledgeSuccessLogID, true, "Enable evolutionary history update: " + enableEvoHistUpdate + "\n");
+
 //		if(!parameters.containsKey(base.push(P_ENABLE_TRANSFER)))
 //			logFatal(this,knowledgeSuccessLogID,"The parameter " + P_ENABLE_TRANSFER + " not found");
 		boolean enableTransfer = parameters.getBoolean(base.push(P_ENABLE_TRANSFER), null, true);
@@ -186,7 +200,7 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 		{
 			// I like a large and diverse KNN pool so I set the niche radius to zero so that policies that are very
 			// similar and are potentially duplicate are discarded without being too strict about it.
-			inds = PopulationUtils.loadPopulations(state, knowledgePath, 48, 49, filter, metrics,
+			inds = PopulationUtils.loadPopulations(state, knowledgePath, 0, 49, filter, metrics,
 					clearRadius, clearCapacity, this, knowledgeSuccessLogID, true);
 			if(inds == null || inds.isEmpty())
 				throw new RuntimeException("Could not load the saved populations");
@@ -210,14 +224,17 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 			return false;
 		if(isSeenIn(i,transferredInds, similarityThreshold))
 			return false;
-		boolean isSeen = isSeenIn(i, discoveredInds, similarityThreshold);
-		if(!isSeen)
+		boolean isSeen = false;
+		if(enableEvoHistUpdate)
 		{
-
-			GPIndividual j = (GPIndividual) i.clone();
-			// GP builders do not create individuals but GP nodes. As a result, cloning their product will not matter
-			// because they their fitness will not be updated after evaluation.
-			tempInds.add(new GPRoutingPolicy(filter, j.trees[0]));
+			isSeen = isSeenIn(i, discoveredInds, similarityThreshold);
+			if (!isSeen)
+			{
+				GPIndividual j = (GPIndividual) i.clone();
+				// GP builders do not create individuals but GP nodes. As a result, cloning their product will not matter
+				// because they their fitness will not be updated after evaluation.
+				tempInds.add(new GPRoutingPolicy(filter, j.trees[0]));
+			}
 		}
 
 		return !isSeen;
