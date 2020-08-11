@@ -8,7 +8,6 @@ import ec.util.Parameter;
 import gphhucarp.decisionprocess.PoolFilter;
 import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 import tl.gp.PopulationUtils;
-import tl.gp.niching.SimpleNichingAlgorithm;
 import tl.gp.similarity.CorrPhenoTreeSimilarityMetric;
 import tl.gp.similarity.HammingPhenoTreeSimilarityMetric;
 import tl.gp.similarity.PhenotypicTreeSimilarityMetric;
@@ -19,7 +18,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,7 +48,7 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 	 * is {@code true}.
 	 */
 	public static final String P_ENABLE_EVO_HIST_UPDATE = "enable-evo-hist-update";
-	private boolean enableEvoHistUpdate;
+	protected boolean enableEvoHistUpdate;
 
 	/**
 	 * The path to the file or directory that contains GP populations.
@@ -75,7 +73,7 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 	 * search process.
 	 */
 	public static final String P_HISTORY_SIM_THRESHOLD = "history-sim-threshold";
-	private double historySimThreshold;
+	protected double historySimThreshold;
 
 	/**
 	 * The directory to which the population is logged at the end of each generation.
@@ -92,25 +90,26 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 	 * The individuals that are transferred from the source domain. This list is loaded once and is not updated
 	 * afterwards.
 	 */
-	private List<GPRoutingPolicy> transferredInds = new ArrayList<>();
+	protected List<GPRoutingPolicy> transferredInds = new ArrayList<>();
 
 	/**
 	 * The individuals that are discovered in the target domain during the GP evolution in the target domain. This list
 	 * is updated after each generation.
 	 */
-	private ArrayList<GPRoutingPolicy> discoveredInds = new ArrayList<>();
+	protected ArrayList<GPRoutingPolicy> discoveredInds = new ArrayList<>();
 
 	/**
 	 * This is a temporary archive that will hold the individuals that are seen during genetic operators. For example,
 	 * if crossover creates a new individual, this new individual will be stored here temporarily so that later
-	 * crossover and mutation operations within the same generation can see it. This is approach is taken because the
+	 * crossover and mutation operations within the same generation can see it. This approach is taken because the
 	 * archive of seen individuals is updated at the beginning of each generation to record their fitness value and
 	 * therefore, any individuals created within the generation will not be seen.
 	 */
-	private ArrayList<GPRoutingPolicy> tempInds = new ArrayList<>();
+	protected ArrayList<GPRoutingPolicy> tempInds = new ArrayList<>();
 
 	PoolFilter filter;
 	private int knowledgeSuccessLogID;
+	protected int dmsSize;
 
 	/**
 	 * Gets the individuals that were loaded/transferred from the source domain. This function returns the exact
@@ -159,7 +158,7 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 			return;
 		}
 
-		int dmsSize = state.parameters.getInt(base.push(P_DMS_SIZE), null);
+		dmsSize = state.parameters.getInt(base.push(P_DMS_SIZE), null);
 		log(state, knowledgeSuccessLogID, true, "DMS size: " + dmsSize + "\n");
 
 		historySimThreshold = state.parameters.getDouble(base.push(P_HISTORY_SIM_THRESHOLD), null);
@@ -324,8 +323,10 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 		return R_NOTDONE;
 	}
 
-	private void updateSearchHistory(Individual[] inds)
+	protected void updateSearchHistory(Individual[] inds)
 	{
+		if(!enableEvoHistUpdate)
+			return;
 		for (Individual ind : inds)
 		{
 			SSTIndividual i = (SSTIndividual) ind;
