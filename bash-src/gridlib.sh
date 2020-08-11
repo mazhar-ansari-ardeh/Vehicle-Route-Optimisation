@@ -354,7 +354,7 @@ sstsearch()
     -p sst-state.history-sim-threshold=$5 \
     -p sst-state.distance-metric=$6 \
     -p sst-state.dms-size=$7 \
-    -p sst-state.knowledge-log-file="$L_EXPERIMENT_DIR/State/" \
+    -p sst-state.knowledge-log-file="$L_EXPERIMENT_DIR/State/State" \
     -p sst-state.pop-log-path="$L_EXPERIMENT_DIR/State/pop" \
     -p pop.subpop.0.species.ind = tl.knowledge.sst.SSTIndividual \
     -p gp.tc.0.init=tl.knowledge.sst.SSTBuilder \
@@ -383,9 +383,14 @@ sstsearch()
 # 1. initial mutation rate
 # 2. adaptation rate
 # 3. minimum threshold for mutation probability
+# 4. adaptation strategy. The acceptable values are:
+#   - sin
+#   - cos
+#   - exp
+#   - pow
 hypermutation()
 {
-  L_EXP_NAME="hypermutation:inimutprob_$1:adaptrate_$2:minthresh_$3:initiliser_fulltree100"
+  L_EXP_NAME="hypermutation:inimutprob_$1:adaptrate_$2:minthresh_$3:adaptstrat_$4:initiliser_fulltree100"
   L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
 
     do_knowledge_experiment "$L_EXP_NAME" \
@@ -393,6 +398,7 @@ hypermutation()
       -p pop.subpop.0.species.pipe.adapt-rate=$2 \
       -p pop.subpop.0.species.pipe.knowledge-log-file="$L_EXPERIMENT_DIR/hypermutation" \
       -p pop.subpop.0.species.pipe.min-threshold=$3 \
+      -p pop.subpop.0.species.pipe.adapt-strategy=$4 \
       -p pop.subpop.0.species.pipe.source.1.prob=$1 \
       -p pop.subpop.0.species.pipe.source.0.prob=$(echo 0.95 - $1 | bc) \
       -p gp.tc.0.init=tl.gp.SimpleCodeFragmentBuilder \
@@ -414,7 +420,7 @@ hypermutation()
 # 3. minimum threshold for mutation probability
 hypermutation_random()
 {
-  L_EXP_NAME="hypermutation:inimutprob_$1:adaptrate_$2:minthresh_$3:initiliser_random"
+  L_EXP_NAME="hypermutation:inimutprob_$1:adaptrate_$2:minthresh_$3:adaptstrat_$4:initiliser_random"
   L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
 
     do_knowledge_experiment "$L_EXP_NAME" \
@@ -422,6 +428,7 @@ hypermutation_random()
       -p pop.subpop.0.species.pipe.adapt-rate=$2 \
       -p pop.subpop.0.species.pipe.knowledge-log-file="$L_EXPERIMENT_DIR/hypermutation" \
       -p pop.subpop.0.species.pipe.min-threshold=$3 \
+      -p pop.subpop.0.species.pipe.adapt-strategy=$4 \
       -p pop.subpop.0.species.pipe.source.1.prob=$1 \
       -p pop.subpop.0.species.pipe.source.0.prob=$(echo 0.95 - $1 | bc)
 }

@@ -40,7 +40,18 @@ public class HyperMutationMultiBreedingPipeline extends BreedingPipeline impleme
 	public final String P_ADAPT_RATE = "adapt-rate";
 	private double adaptRate;
 
+	/**
+	 * The strategy for updating the mutation rate. Acceptable values are:
+	 *  - exp: this maps to the expUpdate method
+	 *  - sin: this maps to the sinUpdate method
+	 *  - cos: this maps to the cosUpdate method
+	 *  - pow: this maps to the powUpdate method
+	 */
+	public final String P_ADAPT_STRATEGY = "adapt-strategy";
+	ProbabilityUpdateStrategy probabilityUpdate = this::expUpdate;
+
 	private double[] actualProbabilities;
+	private double initialProb;
 
 	public static final String P_GEN_MAX = "generate-max";
 	public static final String P_MULTIBREED = "multibreed";
@@ -67,6 +78,33 @@ public class HyperMutationMultiBreedingPipeline extends BreedingPipeline impleme
 		Parameter def = defaultBase();
 
 		knowledgeSuccessLogID = setupLogger(state, base, true);
+
+		String strategy = state.parameters.getString(base.push(P_ADAPT_STRATEGY), null);
+		if(strategy == null)
+		{
+			// Backward compatibility
+			strategy = "exp";
+			log(state, knowledgeSuccessLogID, true, "Mutation probability update strategy not given. Default selected: "
+					+ strategy);
+		}
+		switch (strategy.toLowerCase())
+		{
+			case "pow":
+				probabilityUpdate = this::powerUpdate;
+				break;
+			case "exp":
+				probabilityUpdate = this::expUpdate;
+				break;
+			case "cos":
+				probabilityUpdate = this::cosUpdate;
+				break;
+			case "sin":
+				probabilityUpdate = this::sinUpdate;
+				break;
+			default:
+				logFatal(state, knowledgeSuccessLogID, "Unknown mutation probability update strategy: ", strategy, "\n");
+		}
+		log(state, knowledgeSuccessLogID, true, "Mutation probability update strategy: " + strategy);
 
 		adaptRate = state.parameters.getDouble(base.push(P_ADAPT_RATE), null);
 		if(adaptRate <= 0 || adaptRate > 1)
@@ -105,12 +143,14 @@ public class HyperMutationMultiBreedingPipeline extends BreedingPipeline impleme
 
 			actualProbabilities[x] = sources[x].probability;
 		}
+		initialProb = actualProbabilities[mutationPipelineIndex];
 
 		state.output.exitIfErrors();
 
 		// Now check for nonzero probability (we know it's positive)
 		if (total == 0.0)
-			state.output.warning("MultiBreedingPipeline's children have all zero probabilities -- this will be treated as a uniform distribution.  This could be an error.", base);
+			state.output.warning("MultiBreedingPipeline's children have all zero probabilities -- " +
+					"this will be treated as a uniform distribution.  This could be an error.", base);
 
 		// allow all zero probabilities
 		BreedingSource.setupProbabilities(sources);
@@ -134,6 +174,40 @@ public class HyperMutationMultiBreedingPipeline extends BreedingPipeline impleme
 		return maxGeneratable;
 	}
 
+	@FunctionalInterface
+	private interface ProbabilityUpdateStrategy
+	{
+		double newProb(EvolutionState state);
+	}
+
+	private double expUpdate(EvolutionState state)
+	{ // p(t+1) = p(t) * (ad_rate ^ t)
+		double newProb = actualProbabilities[mutationPipelineIndex] * Math.pow(adaptRate, state.generation);
+		return newProb;
+	}
+
+	private double powerUpdate(EvolutionState state)
+	{ // p(t) = p(0) / (1 + t/s)^c
+		int t = state.generation;
+		double newProb = initialProb / Math.pow(1 + t, adaptRate);
+		return newProb;
+	}
+
+	private double cosUpdate(EvolutionState state)
+	{ // p(t) = p(0) * cos((pi*t) / 50)
+		int t = state.generation;
+		double cos = Math.cos((Math.PI * t) / 50);
+		double newProb = initialProb * Math.pow(cos, 2);
+		return newProb;
+	}
+
+	private double sinUpdate(EvolutionState state)
+	{ // p(t) = p(0) * sin((pi*t) / 50)
+		int t = state.generation;
+		double sin = Math.sin((Math.PI * t) / 50);
+		double newProb = initialProb * Math.pow(sin, 2);
+		return newProb;
+	}
 
 	public int produce(final int min,
 					   final int max,
@@ -144,14 +218,14 @@ public class HyperMutationMultiBreedingPipeline extends BreedingPipeline impleme
 					   final int thread)
 
 	{
-		if(lastGenProbUpdated != state.generation && actualProbabilities[mutationPipelineIndex] > minThreshold)
+		if(lastGenProbUpdated != state.generation)
 		{
 			log(state, knowledgeSuccessLogID, false, "Adapting the probability. Generation: " + state.generation + "\n");
 			log(state, knowledgeSuccessLogID, false, "Before adaptation: " + Arrays.toString(actualProbabilities) + "\n");
 			lastGenProbUpdated = state.generation;
-			double gap = actualProbabilities[mutationPipelineIndex]
-					     - actualProbabilities[mutationPipelineIndex] * Math.pow(adaptRate, state.generation);
-			if(actualProbabilities[mutationPipelineIndex] - gap <= minThreshold)
+			double newProb = probabilityUpdate.newProb(state);
+			double gap = actualProbabilities[mutationPipelineIndex] - newProb;
+			if(newProb <= minThreshold)
 			{
 				gap = actualProbabilities[mutationPipelineIndex] - minThreshold;
 				log(state,knowledgeSuccessLogID,"Threshold reached. The mutation probability will be "
