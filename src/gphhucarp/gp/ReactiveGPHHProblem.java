@@ -118,7 +118,8 @@ public class ReactiveGPHHProblem extends GPProblem implements SimpleProblemForm 
 //            if(rds.getState().getRemainingTasks().size() > 0)
 //                continue;
 //
-//            if(i != seenDecicionSituations.size() - 1 && ((ReactiveDecisionSituation)seenDecicionSituations.get(i+1)).getState().getRemainingTasks().size() != 0)
+//            if(i != seenDecicionSituations.size() - 1 &&
+//                  ((ReactiveDecisionSituation)seenDecicionSituations.get(i+1)).getState().getRemainingTasks().size() != 0)
 //            System.out.println(rds.getState().getSolution().toString());
 //        }
 //        final int numSeenSituations = seenDecicionSituations.size();

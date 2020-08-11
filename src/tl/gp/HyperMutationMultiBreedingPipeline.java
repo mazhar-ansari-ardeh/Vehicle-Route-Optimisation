@@ -232,8 +232,14 @@ public class HyperMutationMultiBreedingPipeline extends BreedingPipeline impleme
 						+ (actualProbabilities[mutationPipelineIndex] - gap) + "from now on.\n" );
 			}
 
+			final double maxProb = 0.95; // The reproduction probability is always set to 0.05.
 			actualProbabilities[xoverPipelineIndex] += gap;
+			actualProbabilities[xoverPipelineIndex] = Math.max(0, actualProbabilities[xoverPipelineIndex]); // Protect against negative values
+			actualProbabilities[xoverPipelineIndex] = Math.min(maxProb, actualProbabilities[xoverPipelineIndex]); // Protect against values larger than 1
+
 			actualProbabilities[mutationPipelineIndex] -= gap;
+			actualProbabilities[mutationPipelineIndex] = Math.max(0, actualProbabilities[mutationPipelineIndex]);
+			actualProbabilities[mutationPipelineIndex] = Math.min(maxProb, actualProbabilities[mutationPipelineIndex]);
 
 			for (int x = 0; x < sources.length; x++)
 			{

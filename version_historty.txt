@@ -131,3 +131,9 @@ Implemented the idea of hyper mutation.
 
 07/08/20
 Implemented the idea of search space transfer.
+
+11/08/20
+Added different mutation update strategies for hypermutations.
+
+11/08/20
+Added the ability of LSH-based search for SST evolution.
