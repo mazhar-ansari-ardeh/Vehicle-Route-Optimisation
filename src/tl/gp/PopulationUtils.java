@@ -267,9 +267,12 @@ public class PopulationUtils
 		if(logPopulation && logger != null)
 		{
 			logger.log(state, logID, "pool size: " + pool.size() + "\n");
-			pool.forEach(i ->
-					logger.log(state, logID, false, i.fitness.fitness() + ", "
-											+ ((GPIndividual) i).trees[0].child.makeLispTree() + "\n"));
+			for (int i1 = 0; i1 < pool.size(); i1++)
+			{
+				Individual i = pool.get(i1);
+				logger.log(state, logID, false, i1 + ": " + i.fitness.fitness() + ", "
+						+ ((GPIndividual) i).trees[0].child.makeLispTree() + "\n");
+			}
 		}
 		return pool;
 	}

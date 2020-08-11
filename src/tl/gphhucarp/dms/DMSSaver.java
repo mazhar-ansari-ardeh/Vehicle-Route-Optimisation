@@ -3,14 +3,12 @@ package tl.gphhucarp.dms;
 import ec.Individual;
 import gphhucarp.decisionprocess.DecisionSituation;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
-import gphhucarp.gp.GPHHEvolutionState;
-import tl.gp.niching.SimpleNichingAlgorithm;
 
-import java.util.*;
+import java.util.List;
 
 public interface DMSSaver
 {
-	void resetSeenSituations();
+//	void resetSeenSituations();
 
 	void updateSeenSituations(Individual ind, List<DecisionSituation> situations);
 
@@ -19,4 +17,8 @@ public interface DMSSaver
 	List<ReactiveDecisionSituation> getInitialSituations();
 
 	void addToInitialSituations(DecisionSituation initialSituation);
+
+	void setDMSSavingEnabled(boolean enabled);
+
+	boolean isDMSSavingEnabled();
 }
