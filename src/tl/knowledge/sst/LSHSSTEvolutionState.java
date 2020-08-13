@@ -11,7 +11,6 @@ import tl.knowledge.sst.lsh.Vector;
 import tl.knowledge.sst.lsh.families.EuclidianHashFamily;
 import tl.knowledge.sst.lsh.families.HashFamily;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,7 +37,7 @@ public class LSHSSTEvolutionState extends SSTEvolutionState
 //	 */
 //	private ArrayList<GPRoutingPolicy> tempInds = new ArrayList<>();
 
-	private LSH tempLSH;
+//	private LSH tempLSH;
 
 	TaskIndexCharacterisation trc;
 
@@ -59,7 +58,7 @@ public class LSHSSTEvolutionState extends SSTEvolutionState
 		transferredLHS = setUpLSH((int) historySimThreshold, dmsSize, NUM_HASHES, NUM_HASH_TABLES);
 		updateLSH(transferredLHS, transferredInds);
 
-		tempLSH = setUpLSH((int) historySimThreshold, dmsSize, NUM_HASHES, NUM_HASH_TABLES);
+//		tempLSH = setUpLSH((int) historySimThreshold, dmsSize, NUM_HASHES, NUM_HASH_TABLES);
 	}
 
 	@Override
@@ -146,7 +145,7 @@ public class LSHSSTEvolutionState extends SSTEvolutionState
 		int w = W * radius;
 		w = w == 0 ? 1 : w;
 		HashFamily family = new EuclidianHashFamily(w, dimensions);
-		LSH lsh = new LSH(new ArrayList<>(), family);
+		LSH lsh = new LSH(family);
 		lsh.buildIndex(numberOfHashes, numberOfHashTables, this.random[0]);
 
 		return lsh;

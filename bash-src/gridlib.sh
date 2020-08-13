@@ -340,12 +340,12 @@ function do_knowledge_experiment() {
 # 12. The similarity used by the mutation
 # 13. Number of tries of the mutation operator
 # 14. The probability of accepting a previously-seen individual
-sstsearch()
+sstransfer()
 {
-  L_EXP_NAME="sstsearch:tl_$1:histup_$2:tclrrad_$3:tclrcap_$4:histsimthresh_$5:metric_$6:dms_$7:tp_$8:bldsim_$9:xosim_${10}:xotry_${11}:mutsim_${12}:muttry_${13}:mutprb_${14}"
+  L_EXP_NAME="sstransfer:tl_$1:histup_$2:tclrrad_$3:tclrcap_$4:histsimthresh_$5:metric_$6:dms_$7:tp_$8:bldsim_$9:xosim_${10}:xotry_${11}:mutsim_${12}:muttry_${13}:mutprb_${14}"
   L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
   do_knowledge_experiment "$L_EXP_NAME" \
-    -p state=tl.knowledge.sst.SSTEvolutionState \
+    -p state=tl.knowledge.sst.LSHSSTEvolutionState \
     -p sst-state.enable-transfer=$1 \
     -p sst-state.enable-evo-hist-update=$2 \
     -p sst-state.knowledge-path=$KNOWLEDGE_SOURCE_DIR/ \
