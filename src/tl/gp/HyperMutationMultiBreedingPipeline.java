@@ -46,6 +46,8 @@ public class HyperMutationMultiBreedingPipeline extends BreedingPipeline impleme
 	 *  - sin: this maps to the sinUpdate method
 	 *  - cos: this maps to the cosUpdate method
 	 *  - pow: this maps to the powUpdate method
+	 *  - sqrt: this maps to the sqrtUpdate method
+	 *  - para: this maps to the parabolicUpdate method
 	 */
 	public final String P_ADAPT_STRATEGY = "adapt-strategy";
 	ProbabilityUpdateStrategy probabilityUpdate = this::expUpdate;
@@ -100,6 +102,12 @@ public class HyperMutationMultiBreedingPipeline extends BreedingPipeline impleme
 				break;
 			case "sin":
 				probabilityUpdate = this::sinUpdate;
+				break;
+			case "sqrt":
+				probabilityUpdate = this::sqrtUpdate;
+				break;
+			case "para":
+				probabilityUpdate = this::parabolicUpdate;
 				break;
 			default:
 				logFatal(state, knowledgeSuccessLogID, "Unknown mutation probability update strategy: ", strategy, "\n");
@@ -206,6 +214,20 @@ public class HyperMutationMultiBreedingPipeline extends BreedingPipeline impleme
 		int t = state.generation;
 		double sin = Math.sin((Math.PI * t) / 50);
 		double newProb = initialProb * Math.pow(sin, 2);
+		return newProb;
+	}
+
+	private double parabolicUpdate(EvolutionState state)
+	{
+		int t = state.generation;
+		double newProb = initialProb + Math.pow(t / 50.0, 2);
+		return newProb;
+	}
+
+	private double sqrtUpdate(EvolutionState state)
+	{
+		int t = state.generation;
+		double newProb = initialProb + Math.sqrt(t / 50.0);
 		return newProb;
 	}
 
