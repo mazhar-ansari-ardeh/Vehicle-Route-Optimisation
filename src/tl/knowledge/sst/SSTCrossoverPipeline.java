@@ -142,6 +142,8 @@ public class SSTCrossoverPipeline extends CrossoverPipeline implements TLLogger<
 		GPIndividual j1 = null;
 		GPIndividual j2 = null;
 
+		log(state, knowledgeSuccessLogID, "Crossing:\n" + parents[0].trees[0].child.makeLispTree() + "\nwith:\n" + parents[1].trees[0].child.makeLispTree() + "\n");
+
 		boolean foundUnseen = false;
 		ArrayList<GPIndividual> newInds = new ArrayList<>();
 		for (int tries = 0; tries < numSSTTries; tries++)
@@ -244,6 +246,7 @@ public class SSTCrossoverPipeline extends CrossoverPipeline implements TLLogger<
 			}
 			else
 			{
+				((SSTIndividual)j1).setOrigin(IndividualOrigin.CrossOverSeen);
 				log(state, knowledgeSuccessLogID, "Seen: " + j1.trees[0].child.makeLispTree() + "\n");
 			}
 			foundUnseen = newInds.size() >= 2;
@@ -259,8 +262,11 @@ public class SSTCrossoverPipeline extends CrossoverPipeline implements TLLogger<
 				newInds.add(j2);
 			}
 			else if(j2 != null)
+			{
+				if(j2 instanceof SSTIndividual)
+					((SSTIndividual)j2).setOrigin(IndividualOrigin.CrossOverSeen);
 				log(state, knowledgeSuccessLogID, "Seen: " + j2.trees[0].child.makeLispTree() + "\n");
-
+			}
 			foundUnseen = newInds.size() >= 2;
 
 			if ( foundUnseen )

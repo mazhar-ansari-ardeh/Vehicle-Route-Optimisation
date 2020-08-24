@@ -99,18 +99,21 @@ public class SSTMutation extends MutationPipeline implements TLLogger<GPNode>
 
 			SSTIndividual j = null;
 
+			log(state, knowledgeSuccessLogID, "Mutating:\n" + i.trees[0].child.makeLispTree() + "\n");
+
 			SSTIndividual mutated = null;
 			for (int tries = 0; tries < numSSTTries; tries++)
 			{
-				mutated = mutate(i,subpopulation, state, thread, initializer, t);
+				mutated = mutate(i, subpopulation, state, thread, initializer, t);
 				if(sstate.isNew(mutated, similarityThreshold))
 				{
 					j = mutated;
 					j.setOrigin(IndividualOrigin.MutationUnseen);
+					log(state, knowledgeSuccessLogID, false, "Unseen:\n" + mutated.trees[0].child.makeLispTree() + "\n");
 					break;
 				}
 				else
-					log(state, knowledgeSuccessLogID, false, "Mutated ind is seen. Ignoring it:\n"
+					log(state, knowledgeSuccessLogID, false, "Seen:\n"
 							+ mutated.trees[0].child.makeLispTree() + "\n");
 			}
 			assert mutated != null;
@@ -120,10 +123,12 @@ public class SSTMutation extends MutationPipeline implements TLLogger<GPNode>
 				{
 					j = mutated;
 					j.setOrigin(IndividualOrigin.MutationSeen);
+					log(state, knowledgeSuccessLogID, false, "Accepting a seen:\n" + j.trees[0].child.makeLispTree() + "\n");
 				} else
 				{
 					j = newRandInd(state, thread, i, t);
 					j.setOrigin(IndividualOrigin.MutationRandom);
+					log(state, knowledgeSuccessLogID, false, "Accepting a random:\n" + j.trees[0].child.makeLispTree() + "\n");
 				}
 			}
 
