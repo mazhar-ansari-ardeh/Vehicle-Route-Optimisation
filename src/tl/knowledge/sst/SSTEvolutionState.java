@@ -8,6 +8,7 @@ import ec.util.Parameter;
 import gphhucarp.decisionprocess.PoolFilter;
 import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 import tl.gp.PopulationUtils;
+import tl.gp.niching.SimpleNichingAlgorithm;
 import tl.gp.similarity.CorrPhenoTreeSimilarityMetric;
 import tl.gp.similarity.HammingPhenoTreeSimilarityMetric;
 import tl.gp.similarity.PhenotypicTreeSimilarityMetric;
@@ -18,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -80,6 +82,15 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 	 */
 	public static final String P_POP_LOG_PATH = "pop-log-path";
 	private String popLogPath;
+
+	/**
+	 * A boolean parameter that specifies if the class load transferred individuals or create a random pool of
+	 * individuals and use them as the transferred items. The main goal of this parameter is to act as a control
+	 * experiment to verify the effect of the transferred knowledge. This parameter is read only if the
+	 * {@code P_ENABLE_TRANSFER} parameter is {@code true}. The value of the parameter is {@code false} to be
+	 * backward-compatible.
+	 */
+	public static final String P_RAND_TRANSFER = "rand-transfer";
 
 	/**
 	 * Size of the decision-making situations.
@@ -180,48 +191,74 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 		if(!enableTransfer)
 			return;
 
-		String knowledgePath = state.parameters.getString(base.push(P_KNOWLEDGE_PATH), null);
-		if (knowledgePath == null)
-		{
-			state.output.fatal("Knowledge path cannot be null");
-			return;
-		}
-		log(state, knowledgeSuccessLogID, true, "Knowledge path: " + knowledgePath + "\n");
+		loadTransferredInds(state, base);
+	}
 
+	private void loadTransferredInds(EvolutionState state, Parameter base)
+	{
 		double clearRadius = state.parameters.getDouble(base.push(P_TRANSFER_RADIUS), null);
 		log(state, knowledgeSuccessLogID, true, "Clearing radius of transferred knowledge: " + clearRadius + "\n");
 
 		int clearCapacity = state.parameters.getInt(base.push(P_TRANSFER_CAPACITY), null);
 		log(state, knowledgeSuccessLogID, true, "Clearing capacity of transferred knowledge:" + clearCapacity + "\n");
 
-		List<Individual> inds;
-		try
-		{
-			// I like a large and diverse KNN pool so I set the niche radius to zero so that policies that are very
-			// similar and are potentially duplicate are discarded without being too strict about it.
-			inds = PopulationUtils.loadPopulations(state, knowledgePath, 0, 49, filter, metrics,
-					clearRadius, clearCapacity, this, knowledgeSuccessLogID, true);
-			if(inds == null || inds.isEmpty())
-				throw new RuntimeException("Could not load the saved populations");
+		boolean randTransfer = state.parameters.getBoolean(base.push(P_RAND_TRANSFER), null, false);
+		log(state, knowledgeSuccessLogID, true, "Rand transfer: " + randTransfer + "\n");
 
-			transferredInds.addAll(
-				inds.stream().map(
-						i -> new GPRoutingPolicy(filter, ((GPIndividual)i).trees[0])).collect(Collectors.toList())
-			);
-		} catch (IOException | ClassNotFoundException e)
+		List<Individual> inds;
+
+		if(randTransfer)
 		{
-			e.printStackTrace();
-			state.output.fatal("Failed to load the population from: " + knowledgePath);
+			inds = loadRandInds(clearRadius, clearCapacity);
 		}
+		else
+		{
+			String knowledgePath = state.parameters.getString(base.push(P_KNOWLEDGE_PATH), null);
+			if (knowledgePath == null)
+			{
+				state.output.fatal("Knowledge path cannot be null");
+				return;
+			}
+			log(state, knowledgeSuccessLogID, true, "Knowledge path: " + knowledgePath + "\n");
+
+			try
+			{
+				inds = PopulationUtils.loadPopulations(state, knowledgePath, 0, 49, filter, metrics,
+						clearRadius, clearCapacity, this, knowledgeSuccessLogID, true);
+				if(inds == null || inds.isEmpty())
+					throw new RuntimeException("Could not load the saved populations");
+			} catch (IOException | ClassNotFoundException e)
+			{
+				e.printStackTrace();
+				state.output.fatal("Failed to load the population from: " + knowledgePath);
+				return;
+			}
+		}
+
+		transferredInds.addAll(
+				inds.stream().map(
+						i -> new GPRoutingPolicy(filter, ((GPIndividual)i).trees[0])).collect(Collectors.toList()));
+	}
+
+	private List<Individual> loadRandInds(double radius, int capacity)
+	{
+		List<Individual> inds = new ArrayList<>();
+		for(int i = 0; i < 50 * 1024; i++)
+			inds.add(this.population.subpops[0].species.newIndividual(this, 0));
+
+		SimpleNichingAlgorithm.clearPopulation(inds, filter, metrics, radius, capacity);
+		inds = inds.stream().filter(i -> i.fitness.fitness() != Double.POSITIVE_INFINITY).collect(Collectors.toList());
+
+		return inds;
 	}
 
 	boolean isNew(Individual i, double similarityThreshold)
 	{
 		if(i == null)
 			throw new RuntimeException("The individual cannot be null.");
-		if(isSeenIn(i,tempInds,similarityThreshold))
+		if(isSeenIn(i, tempInds,similarityThreshold))
 			return false;
-		if(isSeenIn(i,transferredInds, similarityThreshold))
+		if(isSeenIn(i, transferredInds, similarityThreshold))
 			return false;
 		boolean isSeen = false;
 		if(enableEvoHistUpdate)
@@ -353,7 +390,7 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 
 		int popLogID = setupLogger(this, new File(popLogPath, "pop/Pop." + generation + ".csv").getAbsolutePath());
 		log(this, popLogID, "Origin,Fitness,Tree\n");
-		Arrays.stream(pop).map(i -> (SSTIndividual)i).forEach(
+		Arrays.stream(pop).map(i -> (SSTIndividual)i).sorted(Comparator.comparingDouble(j -> j.fitness.fitness())).forEach(
 				i -> log(this, popLogID,
 						i.getOrigin() + "," + i.fitness.fitness() + "," + i.trees[0].child.makeLispTree() + "\n")
 		);
