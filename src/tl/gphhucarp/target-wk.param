@@ -124,7 +124,7 @@ train-path = /Users/mzhr/MyPhD/SourceCodes/gpucarp/stats/target-wk/
 solution-type = simple-solution
 fitness-type = simple-fitness
 num-trains = 1
-generations=10
+generations=50
 
 
 # ==============================
@@ -277,9 +277,12 @@ generations=10
 # Hyper Mutation
 # ==============================
 # pop.subpop.0.species.pipe=tl.gp.HyperMutationMultiBreedingPipeline
-# pop.subpop.0.species.pipe.adapt-rate=0.8
+# pop.subpop.0.species.pipe.adapt-rate=0.5
+# pop.subpop.0.species.pipe.adapt-strategy=pow
 # pop.subpop.0.species.pipe.knowledge-log-file=./stats/target-wk/HyperMutation/SurEvalInit
-# pop.subpop.0.species.pipe.min-threshold = 0.25
+# pop.subpop.0.species.pipe.min-threshold=0.15
+# pop.subpop.0.species.pipe.source.0.prob = 0
+# pop.subpop.0.species.pipe.source.1.prob = 0.95
 
 # ==============================
 # Normalised Fitness
@@ -291,6 +294,8 @@ generations=10
 # SSTState
 # ==============================
 state=tl.knowledge.sst.SSTEvolutionState
+state=tl.knowledge.sst.LSHSSTEvolutionState
+sst-state.rand-transfer=false
 sst-state.distance-metric=hamming
 sst-state.enable-transfer=true
 sst-state.knowledge-path=./KnowledgeSource/gdb1.vs5-gen_50/3/TestedPopulation
@@ -300,6 +305,7 @@ sst-state.history-sim-threshold=0
 sst-state.dms-size=20
 sst-state.knowledge-log-file=./stats/target-wk/SSTState/SSTState
 sst-state.pop-log-path=./stats/target-wk/SSTState/pop
+sst-state.enable-evo-hist-update=true
 pop.subpop.0.species.ind = tl.knowledge.sst.SSTIndividual
 # Builder
 gp.tc.0.init=tl.knowledge.sst.SSTBuilder

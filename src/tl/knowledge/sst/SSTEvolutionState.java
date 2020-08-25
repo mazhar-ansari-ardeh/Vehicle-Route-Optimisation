@@ -3,7 +3,8 @@ package tl.knowledge.sst;
 import ec.EvolutionState;
 import ec.Individual;
 import ec.Population;
-import ec.gp.GPIndividual;
+import ec.gp.*;
+import ec.gp.koza.HalfBuilder;
 import ec.util.Parameter;
 import gphhucarp.decisionprocess.PoolFilter;
 import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
@@ -223,7 +224,7 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 
 			try
 			{
-				inds = PopulationUtils.loadPopulations(state, knowledgePath, 0, 49, filter, metrics,
+				inds = PopulationUtils.loadPopulations(state, knowledgePath, 49, 49, filter, metrics,
 						clearRadius, clearCapacity, this, knowledgeSuccessLogID, true);
 				if(inds == null || inds.isEmpty())
 					throw new RuntimeException("Could not load the saved populations");
@@ -240,14 +241,27 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 						i -> new GPRoutingPolicy(filter, ((GPIndividual)i).trees[0])).collect(Collectors.toList()));
 	}
 
+	private boolean randInd = false;
+
+	boolean createRandInd()
+	{
+		return randInd;
+	}
+
 	private List<Individual> loadRandInds(double radius, int capacity)
 	{
+		randInd = true;
 		List<Individual> inds = new ArrayList<>();
-		for(int i = 0; i < 50 * 1024; i++)
-			inds.add(this.population.subpops[0].species.newIndividual(this, 0));
 
-		SimpleNichingAlgorithm.clearPopulation(inds, filter, metrics, radius, capacity);
-		inds = inds.stream().filter(i -> i.fitness.fitness() != Double.POSITIVE_INFINITY).collect(Collectors.toList());
+		for(int i = 0; i < 50; i++)
+		{
+			Population pop = initializer.initialPopulation(this, 0);
+			inds.addAll(Arrays.asList(pop.subpops[0].individuals));
+			SimpleNichingAlgorithm.clearPopulation(inds, filter, metrics, radius, capacity);
+			inds = inds.stream().filter(j -> j.fitness.fitness() != Double.POSITIVE_INFINITY).collect(Collectors.toList());
+		}
+
+		randInd = false;
 
 		return inds;
 	}

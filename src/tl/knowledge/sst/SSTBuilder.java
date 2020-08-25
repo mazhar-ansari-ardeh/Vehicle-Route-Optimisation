@@ -63,6 +63,10 @@ public class SSTBuilder extends HalfBuilder implements TLLogger<GPNode>
 								int argposition, int requestedSize)
 	{
 		SSTEvolutionState sstate = (SSTEvolutionState) state;
+		if(sstate.createRandInd())
+		{
+			return super.newRootedTree(state, type, thread, parent, set, argposition, requestedSize);
+		}
 
 		if(pop == null)
 		{
