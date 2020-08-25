@@ -229,14 +229,15 @@ public class SimpleNichingAlgorithm implements NicheAlgorithm
      *                           based on their fitness value.
      * @param metric the metric to measure distance of individuals. This object must be configured before being passed
      *               to this method.
-     * @param radius Niche radius. This parameter must be greater than or equal to zero.
+     * @param radius Niche radius. This parameter must be greater than or equal to zero. However, a negative value of
+     *               this parameter will effectively disable the clearing process.
      * @param capacity Capacity of each niche. This parameter must be greater than zero.
      */
     public static void clearPopulation(List<Individual> sortedIindividuals, PoolFilter filter,
                                        TreeSimilarityMetric metric, double radius, int capacity)
     {
-        if (radius < 0)
-            throw new IllegalArgumentException("Niche radius must be greater than or equal to zero.");
+//        if (radius < 0)
+//            throw new IllegalArgumentException("Niche radius must be greater than or equal to zero.");
         if(capacity <= 0)
             throw new IllegalArgumentException("Niche capacity must be greater than zero.");
 
