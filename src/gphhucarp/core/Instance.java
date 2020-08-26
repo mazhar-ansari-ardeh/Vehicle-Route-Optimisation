@@ -694,6 +694,7 @@ public class Instance implements Serializable {
         String str = graph.toString();
         str = str + "depot = " + depot + " \n";
         str = str + "capacity = " + capacity + " \n";
+        str+= "num tasks: " + tasks.size() + "\n";
 
         return str;
     }

@@ -224,7 +224,7 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 
 			try
 			{
-				inds = PopulationUtils.loadPopulations(state, knowledgePath, 49, 49, filter, metrics,
+				inds = PopulationUtils.loadPopulations(state, knowledgePath, 0, 49, filter, metrics,
 						clearRadius, clearCapacity, this, knowledgeSuccessLogID, true);
 				if(inds == null || inds.isEmpty())
 					throw new RuntimeException("Could not load the saved populations");
