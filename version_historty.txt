@@ -137,3 +137,10 @@ Added different mutation update strategies for hypermutations.
 
 11/08/20
 Added the ability of LSH-based search for SST evolution.
+
+14/08/20
+Optimised LSH a little.
+
+25/08/20
+Added the ability to transfer random individuals for SSTEvolutionState
+Added the parabolic and square-root probability update strategies to HyperMutation experiments.

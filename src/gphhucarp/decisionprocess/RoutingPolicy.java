@@ -98,12 +98,15 @@ public abstract class RoutingPolicy implements Cloneable {
 
         Arc next = filteredPool.get(0);
         next.setPriority(priority(next, route, state));
-//        System.out.println(next.toString() + ": " + next.getPriority());
+//        boolean log = false;
+//        if(log)
+//            System.out.println(next.toString() + ": " + next.getPriority());
 
         for (int i = 1; i < filteredPool.size(); i++) {
             Arc tmp = filteredPool.get(i);
             tmp.setPriority(priority(tmp, route, state));
-//            System.out.println(tmp.toString() + ": " + tmp.getPriority());
+//            if(log)
+//                System.out.println(tmp.toString() + ": " + tmp.getPriority());
 
             if (Double.compare(tmp.getPriority(), next.getPriority()) < 0 ||
                     (Double.compare(tmp.getPriority(), next.getPriority()) == 0 &&
