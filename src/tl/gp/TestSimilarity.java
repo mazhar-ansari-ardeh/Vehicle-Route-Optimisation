@@ -28,7 +28,7 @@ import tl.knowledge.surrogate.knn.KNNSurrogateFitness;
  * This program is designed to read a population file, evaluate its members on test domain and test the similarity
  * between file on a new path given through commandline.
  *
- * This program does not introduce any new following ECJ parameters. <p>
+ * This program does not introduce any new ECJ parameters. <p>
  * @author mazhar
  *
  */
@@ -60,7 +60,7 @@ public class TestSimilarity
 	{
 		if(args.length < 3 )
 		{
-			System.err.println("Invalid number of arguments. Usage: EvaluateOnTest "
+			System.err.println("Invalid number of arguments. Usage: TestSimilarity "
 					+ " <test param file> <input population file> <output file>"
 					+ " [<EJC params>...]");
 			// The reason that I am not using a parameter file instead of command line arguments is

@@ -6,7 +6,9 @@ import ec.Population;
 import ec.gp.*;
 import ec.gp.koza.HalfBuilder;
 import ec.util.Parameter;
+import gphhucarp.decisionprocess.PoolFilter;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
+import gphhucarp.gp.ReactiveGPHHProblem;
 import gphhucarp.gp.SurrogatedGPHHEState;
 import tl.TLLogger;
 import tl.gp.niching.SimpleNichingAlgorithm;
@@ -57,7 +59,6 @@ public class ClearedFullTreeBuilder extends HalfBuilder implements TLLogger<GPNo
 	 * Total number of generations on the source domain. This parameter is counted from 1.
 	 */
 	public final String P_NUM_GENERATIONS = "num-generations";
-	private int numGenerations = -1;
 
 	/**
 	 * When the knowledge source is a directory, this parameter specifies from which generation on
@@ -84,8 +85,8 @@ public class ClearedFullTreeBuilder extends HalfBuilder implements TLLogger<GPNo
 	private int populationSize;
 
 	private List<Individual> loadPopulations(EvolutionState state, String inputFileNamePath,
-														 SituationBasedTreeSimilarityMetric metrics,
-														 int logID) throws IOException, ClassNotFoundException
+											 PoolFilter filter, SituationBasedTreeSimilarityMetric metrics,
+											 int logID) throws IOException, ClassNotFoundException
 	{
 		File f = new File(inputFileNamePath);
 
@@ -110,12 +111,20 @@ public class ClearedFullTreeBuilder extends HalfBuilder implements TLLogger<GPNo
 				Population p = PopulationUtils.loadPopulation(file);
 				PopulationUtils.sort(p);
 				pool.addAll(Arrays.asList(p.subpops[0].individuals));
-				SimpleNichingAlgorithm.clearPopulation(pool, metrics, nicheRadius, 1);
+				SimpleNichingAlgorithm.clearPopulation(pool, filter, metrics, nicheRadius, 1);
 				pool = pool.stream().filter(ind -> ind.fitness.fitness() != Double.POSITIVE_INFINITY).collect(Collectors.toList());
 			}
 		}
+		else if (f.isFile())
+		{
+			Population p = PopulationUtils.loadPopulation(f);
+			PopulationUtils.sort(p);
+			pool.addAll(Arrays.asList(p.subpops[0].individuals));
+			SimpleNichingAlgorithm.clearPopulation(pool, filter, metrics, nicheRadius, 1);
+			pool = pool.stream().filter(ind -> ind.fitness.fitness() != Double.POSITIVE_INFINITY).collect(Collectors.toList());
+		}
 
-		log(state, logID, "pool size: " + pool.size() + "\n");
+		log(state, logID, true, "pool size: " + pool.size() + "\n");
 		pool.forEach(i ->
 				log(state, logID, i.fitness.fitness() + ", " + ((GPIndividual)i).trees[0].child.makeLispTree() + "\n"));
 
@@ -146,7 +155,7 @@ public class ClearedFullTreeBuilder extends HalfBuilder implements TLLogger<GPNo
 		toGeneration = state.parameters.getIntWithDefault(base.push(P_GENERATION_TO), null, -1);
 		state.output.warning("To generation: " + toGeneration);
 
-		numGenerations = state.parameters.getInt(base.push(P_NUM_GENERATIONS), null);
+		int numGenerations = state.parameters.getInt(base.push(P_NUM_GENERATIONS), null);
 		state.output.warning("Number of generations on source domain: " + numGenerations);
 
 		String fileName = state.parameters.getString(base.push(P_KNOWLEDGE_PATH), null);
@@ -186,9 +195,11 @@ public class ClearedFullTreeBuilder extends HalfBuilder implements TLLogger<GPNo
 		else
 			state.output.fatal("Initial DMS is null");
 
+		Parameter p = new Parameter("eval.problem.pool-filter");
+		PoolFilter filter = (PoolFilter)(state.parameters.getInstanceForParameter(p, null, PoolFilter.class));
 		try
 		{
-			pool = loadPopulations(state, fileName, metrics, knowledgeSuccessLogID);
+			pool = loadPopulations(state, fileName, filter, metrics, knowledgeSuccessLogID);
 		} catch (IOException | ClassNotFoundException e)
 		{
 			e.printStackTrace();

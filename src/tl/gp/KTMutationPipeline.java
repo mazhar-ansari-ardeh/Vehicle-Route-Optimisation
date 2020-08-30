@@ -87,19 +87,12 @@ public class KTMutationPipeline extends MutationPipeline implements TLLogger<GPN
 	 */
 	public final String P_DMS_SIZE = "dms-size";
 
-//	/**
-//	 * Niche radius. All items within this radius of a niche center will be cleared. The niche radius is used only for
-//	 * clearing the newly-created intermediate pool.
-//	 */
-//	public final String P_NICHE_RADIUS = "interim-niche-radius";
-//	double nicheRadius;
-//
-//	/**
-//	 * The capacity of each niche that is used for clearing. This parameter is only used during the clearing process of
-//	 * the intermediate population.
-//	 */
-//	public final String P_NICHE_CAPACITY = "interim-niche-capacity";
-//	int nicheCapacity;
+	/**
+	 * Specifies if the probability of using the transferred knowledge should be adaptive. If {@code true}, then the
+	 * probability of using the transferred knowledge will be (0.5 * (1.013^generation)).
+	 */
+	public final String P_ADAPTIVE_MUT = "adaptive-mut";
+	private boolean adaptive;
 
 	/**
 	 * The path to the file or directory that contains GP populations.
@@ -111,6 +104,18 @@ public class KTMutationPipeline extends MutationPipeline implements TLLogger<GPN
 	 * {@code KnowledgeExtractionMethod.RootSubtree} and {@code KnowledgeExtractionMethod.Root}.
 	 */
 	public static final String P_KNOWLEDGE_EXTRACTION = "knowledge-extraction";
+//
+//	/**
+//	 * Specifies the range of fitness values to GP individuals to consider for extraction. A negative value indicates
+//	 * everything. The range is measured from the best performing individual.
+//	 */
+//	public static final String P_FITNESS_RANGE = "fitness-range";
+
+	/**
+	 * A boolean parameter that indicates if the loaded population should be cleared before being considered for
+	 * subtree extraction.
+	 */
+	public static final String P_CLEAR = "clear";
 
 	private int knowledgeSuccessLogID;
 
@@ -196,25 +201,48 @@ public class KTMutationPipeline extends MutationPipeline implements TLLogger<GPN
 				Math.min(sstate.getInitialSituations().size(), dmsSize)));
 		sstate.setDMSSavingEnabled(false);
 
+		if(!state.parameters.exists(base.push(P_CLEAR), null))
+		{
+			state.output.fatal("Clearing parameter is not specified.\n");
+		}
+		boolean clear = state.parameters.getBoolean(base.push(P_CLEAR), null,true);
+		log(state, knowledgeSuccessLogID, true, "Clear: " + clear + "\n");
+
 		List<Individual> inds;
 		try
 		{
-			// I like a large and diverse KNN pool so I set the niche radius to zero so that policies that are very
-			// similar and are potentially duplicate are discarded without being too strict about it.
-			inds = PopulationUtils.loadPopulations(state, kbFile, fromGeneration, toGeneration, filter, metrics,
-					nicheRadius, nicheCapacity, this, knowledgeSuccessLogID, true);
+			if(clear)
+				inds = PopulationUtils.loadPopulations(state, kbFile, fromGeneration, toGeneration, filter, metrics,
+						nicheRadius, nicheCapacity, this, knowledgeSuccessLogID, true);
+			else
+				inds = PopulationUtils.loadPopulations(state, kbFile, fromGeneration, toGeneration, this,
+						knowledgeSuccessLogID, true);
 			if(inds == null || inds.isEmpty())
 				throw new RuntimeException("Could not load the saved populations");
 
+//			inds.sort(Comparator.comparingDouble(i -> i.fitness.fitness()));
+//			double worstFit = inds.get(inds.size() - 1).fitness.fitness();
+//			// worstFit >= bestFit
+//			double fitRange = (worstFit - bestFit) * extractPercent;
+//			log(state, knowledgeSuccessLogID, true, "Best fitness: " + bestFit +
+//												  ", worst fitness: " + worstFit + ", fitness range: " + fitRange + "\n");
+//			inds = inds.stream().filter(i -> (i.fitness.fitness() - bestFit) <= fitRange).collect(Collectors.toList());
 		} catch (IOException | ClassNotFoundException e)
 		{
 			e.printStackTrace();
 			state.output.fatal("Failed to load the population from: " + kbFile);
 			return;
 		}
+//		int fitnessRange = state.parameters.getInt(base.push(P_FITNESS_RANGE), null);
+//		log(state, knowledgeSuccessLogID, true, "Fitness range: " + fitnessRange + "\n");
+//
+//		inds.sort(Comparator.comparingDouble(i -> i.fitness.fitness()));
+//		double bestFit = inds.get(0).fitness.fitness();
+//		if(fitnessRange > 0)
+//			inds = inds.stream().filter(i -> i.fitness.fitness() - bestFit <= fitnessRange).collect(Collectors.toList());
 
 		simplify = state.parameters.getBoolean(base.push(P_SIMPLIFY), null, true);
-		log(state, knowledgeSuccessLogID, true, "Simplify: " + simplify);
+		log(state, knowledgeSuccessLogID, true, "Simplify: " + simplify + "\n");
 
 		tournamentSize = state.parameters.getInt(base.push(P_TOURNAMENT_SIZE), null);
 		if(tournamentSize <= 0)
@@ -223,6 +251,13 @@ public class KTMutationPipeline extends MutationPipeline implements TLLogger<GPN
 			throw new RuntimeException("Tournament size must be a positive value: " + tournamentSize + "\n");
 		}
 		log(state, knowledgeSuccessLogID, true, "Tournament size: " + tournamentSize + "\n");
+
+		if(!state.parameters.exists(base.push(P_ADAPTIVE_MUT), null))
+		{
+			state.output.fatal("The parameter " + P_ADAPTIVE_MUT + " does not exist.");
+		}
+		adaptive = state.parameters.getBoolean(base.push(P_ADAPTIVE_MUT), null,false);
+		log(state, knowledgeSuccessLogID, true, "Adaptive: " + adaptive);
 
 		int populationSize = state.parameters.getInt(new Parameter("pop.subpop.0.size"), null);
 		log(state, knowledgeSuccessLogID, true, "Population size: " + populationSize + "\n");
@@ -240,12 +275,13 @@ public class KTMutationPipeline extends MutationPipeline implements TLLogger<GPN
 		VectorialAlgebraicHashCalculator hc = new VectorialAlgebraicHashCalculator(state, 0, 100, 100000);
 		AlgebraicTreeSimplifier ts = new AlgebraicTreeSimplifier(hc);
 
-		for(GPIndividual i : ginds)
+		for (int i1 = 0; i1 < ginds.size(); i1++)
 		{
+			GPIndividual i = ginds.get(i1);
+			log(state, knowledgeSuccessLogID, false, "Loaded tree: \n");
+			log(state, knowledgeSuccessLogID, false, i1 + ": " + i.fitness.fitness() + ", " + i.trees[0].child.makeLispTree() + "\n");
 			if(simplify)
 			{
-				log(state, knowledgeSuccessLogID, false, "Loaded tree before simplification: \n");
-				log(state, knowledgeSuccessLogID, false, i.trees[0].child.makeLispTree() + "\n");
 				ts.simplifyTree(state, i);
 				log(state, knowledgeSuccessLogID, false, "Loaded tree after simplification: \n");
 				log(state, knowledgeSuccessLogID, false, i.trees[0].child.makeLispTree() + "\n\n");
@@ -266,7 +302,7 @@ public class KTMutationPipeline extends MutationPipeline implements TLLogger<GPN
 					break;
 			}
 
-			for(GPNode node : allNodes)
+			for (GPNode node : allNodes)
 			{
 				int hashCode = node.rootedTreeHashCode();
 				Pair<GPNode, Integer> pair = repository.get(hashCode);
@@ -331,17 +367,19 @@ public class KTMutationPipeline extends MutationPipeline implements TLLogger<GPN
 		return (GPNode) subtrees.get(i).getKey().clone();
 	}
 
-	public int produce(final int min,
-					   final int max,
-					   final int start,
-					   final int subpopulation,
-					   final Individual[] inds,
-					   final EvolutionState state,
-					   final int thread)
+	public int produce(final int min, final int max, final int start, final int subpopulation, final Individual[] inds,
+					   final EvolutionState state, final int thread)
 	{
 		double rnd = state.random[thread].nextDouble();
-		if(rnd < 0.5)
+		final double ADAPT_RATE = 1.013;
+		double prob = 0.5;
+		if(adaptive)
+			prob = 0.5 * Math.pow(ADAPT_RATE, state.generation);
+		if(rnd < prob)
+		{
+			log(state, knowledgeSuccessLogID, false, "Rand mutation\n");
 			return super.produce(min,max, start, subpopulation,inds,state, thread);
+		}
 
 		// grab individuals from our source and stick 'em right into inds.
 		// we'll modify them from there

@@ -346,6 +346,7 @@ sstransfer()
   L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
   do_knowledge_experiment "$L_EXP_NAME" \
     -p state=tl.knowledge.sst.LSHSSTEvolutionState \
+    -p pop.subpop.0.species.ind=tl.knowledge.sst.SSTIndividual \
     -p sst-state.enable-transfer=$1 \
     -p sst-state.enable-evo-hist-update=$2 \
     -p sst-state.knowledge-path=$KNOWLEDGE_SOURCE_DIR/ \
@@ -356,7 +357,6 @@ sstransfer()
     -p sst-state.dms-size=$7 \
     -p sst-state.knowledge-log-file="$L_EXPERIMENT_DIR/State/State" \
     -p sst-state.pop-log-path="$L_EXPERIMENT_DIR/State/pop" \
-    -p pop.subpop.0.species.ind = tl.knowledge.sst.SSTIndividual \
     -p gp.tc.0.init=tl.knowledge.sst.SSTBuilder \
     -p gp.tc.0.init.transfer-percent=$8 \
     -p gp.tc.0.init.similarity-thresh=$9 \
