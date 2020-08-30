@@ -388,6 +388,8 @@ sstransfer()
 #   - cos
 #   - exp
 #   - pow
+#   - para
+#   - sqrt
 hypermutation()
 {
   L_EXP_NAME="hypermutation:inimutprob_$1:adaptrate_$2:minthresh_$3:adaptstrat_$4:initiliser_fulltree100"
