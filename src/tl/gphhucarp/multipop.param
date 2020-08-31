@@ -1,0 +1,374 @@
+# ==============================
+# The problem: UCARP
+# ==============================
+
+eval.problem = tl.gphhucarp.ReactiveGPHHProblem
+eval.problem.pool-filter = gphhucarp.decisionprocess.poolfilter.ExpFeasibleNoRefillPoolFilter
+eval.problem.tie-breaker = gphhucarp.decisionprocess.tiebreaker.SimpleTieBreaker
+eval.problem.data = gputils.DoubleData
+eval.problem.eval-model = gphhucarp.gp.evaluation.ReactiveEvaluationModel
+eval.problem.eval-model.objectives = 1
+eval.problem.eval-model.objectives.0 = total-cost
+eval.problem.eval-model.instances = 1
+eval.problem.eval-model.instances.0.samples = 5
+eval.problem.eval-model.instances.0.demand-uncertainty-level = 0.2
+eval.problem.eval-model.instances.0.cost-uncertainty-level = 0.2
+
+
+# ==============================
+# The problem: Regression
+# ==============================
+
+# eval.problem.data = tl.problems.regression.VectorData
+
+# eval.problem.range_min = -1
+# eval.problem.range_max = +1
+# eval.problem.number-of-tests = 100
+
+# ==============================
+# Basic evolution parameters
+# ==============================
+# state = ec.simple.SimpleEvolutionState
+state = gphhucarp.gp.GPHHEvolutionState
+finish = ec.simple.SimpleFinisher
+exch = ec.simple.SimpleExchanger
+breed = ec.simple.SimpleBreeder
+eval = ec.simple.SimpleEvaluator
+
+stat = tl.gp.FCFStatistics
+stat.save-pop = true
+stat.save-tree = false
+#stat.num-children = 1
+#stat.child.0 = ec.gp.koza.KozaShortStatistics
+#stat.child.0.file = $outtabular.stat
+
+# generation should be set inside the grid script.
+# generations = 100
+quit-on-run-complete = true
+
+stat.file=$./stats/job.0.out.stat
+stat.gen-pop-file=./stats/population.gen
+# seed.0 = time
+erc.min = -2
+erc.max = +2
+
+
+# ==============================
+# The multi-population
+# ==============================
+pop = ec.Population
+pop.subpops = 2
+pop.subpop.0 = ec.Subpopulation
+pop.subpop.0.size = 100
+
+pop.subpop.1 = ec.Subpopulation
+pop.subpop.1.size = 100
+
+breed.elite.0 = 10
+
+
+
+# ==============================
+# The GPHH evolution state parameters
+# ==============================
+terminals-from = extended
+include-erc = true
+rotate-eval-model = true
+
+#print-unaccessed-params = true
+#print-used-params = true
+
+# ==============================
+# Administrative parameters
+# ==============================
+evalthreads = 1
+breedthreads = 1
+# seed.0 = time
+checkpoint = false
+checkpoint-modulo = 1
+checkpoint-prefix = ec
+
+# ==============================
+# GP general parameters
+# ==============================
+
+# GP population parameters
+pop.subpop.0.species = ec.gp.GPSpecies
+pop.subpop.1.species = ec.gp.GPSpecies
+# pop.subpop.0.species.ind = ec.gp.GPIndividual
+pop.subpop.0.species.ind = tl.gp.TLGPIndividual
+pop.subpop.1.species.ind = tl.gp.TLGPIndividual
+
+pop.subpop.0.species.ind.numtrees = 1
+pop.subpop.0.species.ind.tree.0 = ec.gp.GPTree
+pop.subpop.0.species.ind.tree.0.tc = tc0
+
+pop.subpop.1.species.ind.numtrees = 1
+pop.subpop.1.species.ind.tree.0 = ec.gp.GPTree
+pop.subpop.1.species.ind.tree.0.tc = tc1
+
+# pop.subpop.0.species.fitness = ec.gp.koza.KozaFitness
+pop.subpop.0.species.fitness = ec.multiobjective.MultiObjectiveFitness
+pop.subpop.0.species.fitness.num-objectives = 1
+pop.subpop.0.species.fitness.maximize = false
+pop.subpop.0.duplicate-retries = 100
+
+pop.subpop.1.species.fitness = ec.multiobjective.MultiObjectiveFitness
+pop.subpop.1.species.fitness.num-objectives = 1
+pop.subpop.1.species.fitness.maximize = false
+pop.subpop.1.duplicate-retries = 100
+
+# GP initializer
+init = ec.gp.GPInitializer
+
+# GP breeding pipeline
+pop.subpop.0.species.pipe = ec.breed.MultiBreedingPipeline
+pop.subpop.0.species.pipe.generate-max = false
+pop.subpop.0.species.pipe.num-sources = 3
+pop.subpop.0.species.pipe.source.0 = ec.gp.koza.CrossoverPipeline
+pop.subpop.0.species.pipe.source.0.prob = 0.8
+pop.subpop.0.species.pipe.source.1 = ec.gp.koza.MutationPipeline
+pop.subpop.0.species.pipe.source.1.prob = 0.15
+pop.subpop.0.species.pipe.source.2 = ec.breed.ReproductionPipeline
+pop.subpop.0.species.pipe.source.2.prob = 0.05
+
+pop.subpop.1.species.pipe = ec.breed.MultiBreedingPipeline
+pop.subpop.1.species.pipe.generate-max = false
+pop.subpop.1.species.pipe.num-sources = 3
+pop.subpop.1.species.pipe.source.0 = ec.gp.koza.CrossoverPipeline
+pop.subpop.1.species.pipe.source.0.prob = 0.8
+pop.subpop.1.species.pipe.source.1 = ec.gp.koza.MutationPipeline
+pop.subpop.1.species.pipe.source.1.prob = 0.15
+pop.subpop.1.species.pipe.source.2 = ec.breed.ReproductionPipeline
+pop.subpop.1.species.pipe.source.2.prob = 0.05
+
+# pop.subpop.0.species.pipe.source.0.prob = 0.80
+# pop.subpop.0.species.pipe.source.1 = ec.gp.koza.MutationPipeline
+# pop.subpop.0.species.pipe.source.1.prob = 0.15
+# pop.subpop.0.species.pipe.source.2 = ec.breed.ReproductionPipeline
+# pop.subpop.0.species.pipe.source.2.prob = 0.05
+
+#### PPTMutIndBreedingPipeline ########################
+# pop.subpop.0.species.pipe.source.3 = tl.knowledge.ppt.gp.PPTMutIndBreedingPipeline
+# pop.subpop.0.species.pipe.source.3.prob = 0.4
+# pop.subpop.0.species.pipe.source.3.mut-builder=ec.gp.koza.GrowBuilder
+# pop.subpop.0.species.pipe.source.3.mut-selector=ec.gp.koza.KozaNodeSelector
+# pop.subpop.0.species.pipe.source.3.knowledge-log-file = PPTBreedLog
+# pop.subpop.0.species.pipe.source.3.mutation-probability=0.1
+# pop.subpop.0.species.pipe.source.3.complement-probability = 0.2
+# pop.subpop.0.species.pipe.source.3.mut-builder=ec.gp.koza.GrowBuilder
+#################################################
+
+
+#### PPTBreedingPipeline ########################
+pop.subpop.0.species.pipe.source.3 = tl.knowledge.ppt.gp.PPTBreedingPipeline
+pop.subpop.0.species.pipe.source.3.prob = 0.4
+pop.subpop.0.species.pipe.source.3.knowledge-log-file = PPTBreedLog
+pop.subpop.0.species.pipe.source.3.complement-probability = 0.2
+pop.subpop.0.species.pipe.source.3.mut-builder=ec.gp.koza.GrowBuilder
+#################################################
+
+
+# Selection for reproduction
+breed.reproduce.source.0 = ec.select.TournamentSelection
+
+# Koza crossover parameters
+gp.koza.xover.source.0 = ec.select.TournamentSelection
+gp.koza.xover.source.1 = same
+gp.koza.xover.ns.0 = ec.gp.koza.KozaNodeSelector
+gp.koza.xover.ns.1 = same
+gp.koza.xover.maxdepth = 8
+gp.koza.xover.tries = 1
+
+# Koza mutation parameters
+gp.koza.mutate.source.0 = ec.select.TournamentSelection
+gp.koza.mutate.ns.0 = ec.gp.koza.KozaNodeSelector
+gp.koza.mutate.build.0 = ec.gp.koza.GrowBuilder
+gp.koza.mutate.maxdepth = 8
+gp.koza.mutate.tries = 1
+
+# Tournament selection, for reproduction, crossover and mutation
+select.tournament.size = 7
+
+# Koza grow parameters, for mutation
+gp.koza.grow.min-depth = 4
+gp.koza.grow.max-depth = 4
+
+# Koza node selector, for crossover and mutation
+gp.koza.ns.terminals = 0.1
+gp.koza.ns.nonterminals = 0.9
+gp.koza.ns.root = 0.0
+
+# GP atomic (a) and set (s) type parameters
+gp.type.a.size = 1
+gp.type.a.0.name = nil
+gp.type.s.size = 0
+
+# GP tree constraints
+gp.tc.size = 2
+gp.tc.0 = ec.gp.GPTreeConstraints
+gp.tc.0.name = tc0
+gp.tc.0.fset = f0
+gp.tc.0.returns = nil
+gp.tc.0.init = ec.gp.koza.HalfBuilder
+
+gp.tc.1 = ec.gp.GPTreeConstraints
+gp.tc.1.name = tc1
+gp.tc.1.fset = f0
+gp.tc.1.returns = nil
+gp.tc.1.init = ec.gp.koza.HalfBuilder
+
+# Koza half-ramp-and-ramp parameters, for gp.tc.0.init
+gp.koza.half.min-depth = 2
+gp.koza.half.max-depth = 6
+gp.koza.half.growp = 0.5
+
+# GP node constraints (nc[k] means the node takes k children), no other constraint
+gp.nc.size = 7
+
+gp.nc.0 = ec.gp.GPNodeConstraints
+gp.nc.0.name = nc0
+gp.nc.0.returns = nil
+gp.nc.0.size = 0
+
+gp.nc.1 = ec.gp.GPNodeConstraints
+gp.nc.1.name = nc1
+gp.nc.1.returns = nil
+gp.nc.1.size = 1
+gp.nc.1.child.0 = nil
+
+gp.nc.2 = ec.gp.GPNodeConstraints
+gp.nc.2.name = nc2
+gp.nc.2.returns = nil
+gp.nc.2.size = 2
+gp.nc.2.child.0 = nil
+gp.nc.2.child.1 = nil
+
+gp.nc.3 = ec.gp.GPNodeConstraints
+gp.nc.3.name = nc3
+gp.nc.3.returns = nil
+gp.nc.3.size = 3
+gp.nc.3.child.0 = nil
+gp.nc.3.child.1 = nil
+gp.nc.3.child.2 = nil
+
+gp.nc.4 = ec.gp.GPNodeConstraints
+gp.nc.4.name = nc4
+gp.nc.4.returns = nil
+gp.nc.4.size = 4
+gp.nc.4.child.0 = nil
+gp.nc.4.child.1 = nil
+gp.nc.4.child.2 = nil
+gp.nc.4.child.3 = nil
+
+gp.nc.5 = ec.gp.GPNodeConstraints
+gp.nc.5.name = nc5
+gp.nc.5.returns = nil
+gp.nc.5.size = 5
+gp.nc.5.child.0 = nil
+gp.nc.5.child.1 = nil
+gp.nc.5.child.2 = nil
+gp.nc.5.child.3 = nil
+gp.nc.5.child.4 = nil
+
+gp.nc.6 = ec.gp.GPNodeConstraints
+gp.nc.6.name = nc6
+gp.nc.6.returns = nil
+gp.nc.6.size = 6
+gp.nc.6.child.0 = nil
+gp.nc.6.child.1 = nil
+gp.nc.6.child.2 = nil
+gp.nc.6.child.3 = nil
+gp.nc.6.child.4 = nil
+gp.nc.6.child.5 = nil
+
+# GP ADF parameters
+gp.problem.stack = ec.gp.ADFStack
+gp.adf-stack.context = ec.gp.ADFContext
+
+# ==============================
+# GP problem specific parameters
+# ==============================
+
+# GP function set parameters
+gp.fs.size = 1
+gp.fs.0.name = f0
+gp.fs.0.size = 7
+gp.fs.0.func.0 = gputils.terminal.TerminalERCUniform
+gp.fs.0.func.0.nc = nc0
+gp.fs.0.func.1 = gputils.function.Add
+gp.fs.0.func.1.nc = nc2
+gp.fs.0.func.2 = gputils.function.Sub
+gp.fs.0.func.2.nc = nc2
+gp.fs.0.func.3 = gputils.function.Mul
+gp.fs.0.func.3.nc = nc2
+gp.fs.0.func.4 = gputils.function.Div
+gp.fs.0.func.4.nc = nc2
+gp.fs.0.func.5 = gputils.function.Max
+gp.fs.0.func.5.nc = nc2
+gp.fs.0.func.6 = gputils.function.Min
+gp.fs.0.func.6.nc = nc2
+gp.fs.0.func.7 = gputils.function.If
+gp.fs.0.func.7.nc = nc3
+
+
+
+
+# ==============================
+# Knowledge Extraction parameters
+# ==============================
+# The parameters in this group are used by the Knowledge Extraction class 'CFExtrat'
+
+cfextract.max-size = -1
+
+
+# ==============================
+# Test-specific parameters
+# ==============================
+# This value is only used during the testing
+
+num-trains = 1
+policy-type = gp-evolved
+solution-type = simple-solution
+fitness-type = simple-fitness
+
+stat.file=$./stats/target-wk/job.0.out.stat
+stat.gen-pop-file=./stats/target-wk/population.gen
+eval.problem.eval-model.instances.0.file=gdb/gdb8.dat
+eval.problem.eval-model.instances.0.vehicles=11
+seed.0=19
+generations=50
+
+
+# ==============================
+# The Ensemble Surrogate
+# ==============================
+state = gphhucarp.gp.EnsembleSurrogatedGPHHState
+ensemble-surrogate-state.surr-log-path=./stats/target-wk/
+ensemble-surrogate-state.eval-surpool-on-init=true
+gp.tc.0.init=tl.gp.EnsembleSurrogateBuilder
+gp.tc.0.init.knowledge-file=population.gen.49.bin
+gp.tc.0.init.knowledge-log-file=./stats/target-wk/SurrogateBuilderLog
+gp.tc.0.init.init-surrogate-pool=true
+gp.tc.0.init.transfer-percent=0.2
+# ensemble-surrogate-state.surrogate-average-dup-fitness=true
+ensemble-surrogate-state.knn-distance-metric=corrphenotypic
+
+# gp.tc.1.init=tl.gp.EnsembleSurrogateBuilder
+# gp.tc.1.init.knowledge-file=population.gen.49.bin
+# gp.tc.1.init.knowledge-log-file=./stats/target-wk/SurrogateBuilderLog
+# gp.tc.1.init.init-surrogate-pool=true
+# gp.tc.1.init.transfer-percent=0.2
+
+
+gp.tc.1.init=tl.gp.MutatingSubtreeBuilder
+gp.tc.1.init.knowledge-file=population.gen.49.bin
+gp.tc.1.init.knowledge-log-file=./stats/target-wk/MutatingFullTreeLog
+gp.tc.1.init.transfer-percent=50
+gp.tc.1.init.knowledge-extraction=root
+gp.tc.1.init.ns.0 = ec.gp.koza.KozaNodeSelector
+gp.tc.1.init.num-mutated=2
+gp.tc.1.init.simplify=true
+gp.tc.1.init.target-percent=0.5
+gp.tc.1.init.niche-capacity=2
+gp.tc.1.init.niche-radius=0.1
