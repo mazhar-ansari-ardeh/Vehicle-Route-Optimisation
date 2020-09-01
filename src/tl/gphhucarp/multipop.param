@@ -2,19 +2,29 @@
 # The problem: UCARP
 # ==============================
 
-eval.problem = tl.gphhucarp.ReactiveGPHHProblem
+eval.problem=tl.knowledge.multipop.ReactiveGPHHProblem
 eval.problem.pool-filter = gphhucarp.decisionprocess.poolfilter.ExpFeasibleNoRefillPoolFilter
 eval.problem.tie-breaker = gphhucarp.decisionprocess.tiebreaker.SimpleTieBreaker
 eval.problem.data = gputils.DoubleData
-eval.problem.eval-model = gphhucarp.gp.evaluation.ReactiveEvaluationModel
-eval.problem.eval-model.objectives = 1
-eval.problem.eval-model.objectives.0 = total-cost
-eval.problem.eval-model.instances = 1
-eval.problem.eval-model.instances.0.samples = 5
-eval.problem.eval-model.instances.0.demand-uncertainty-level = 0.2
-eval.problem.eval-model.instances.0.cost-uncertainty-level = 0.2
+eval.problem.subpop.0.eval-model = gphhucarp.gp.evaluation.ReactiveEvaluationModel
+eval.problem.subpop.0.eval-model.objectives = 1
+eval.problem.subpop.0.eval-model.objectives.0 = total-cost
+eval.problem.subpop.0.eval-model.instances = 1
+eval.problem.subpop.0.eval-model.instances.0.samples = 5
+eval.problem.subpop.0.eval-model.instances.0.demand-uncertainty-level = 0.2
+eval.problem.subpop.0.eval-model.instances.0.cost-uncertainty-level = 0.2
+eval.problem.subpop.0.eval-model.instances.0.file=gdb/gdb1.dat
+eval.problem.subpop.0.eval-model.instances.0.vehicles=5
 
-
+eval.problem.subpop.1.eval-model = gphhucarp.gp.evaluation.ReactiveEvaluationModel
+eval.problem.subpop.1.eval-model.objectives = 1
+eval.problem.subpop.1.eval-model.objectives.0 = total-cost
+eval.problem.subpop.1.eval-model.instances = 1
+eval.problem.subpop.1.eval-model.instances.0.samples = 5
+eval.problem.subpop.1.eval-model.instances.0.demand-uncertainty-level = 0.2
+eval.problem.subpop.1.eval-model.instances.0.cost-uncertainty-level = 0.2
+eval.problem.subpop.1.eval-model.instances.0.file=gdb/gdb1.dat
+eval.problem.subpop.1.eval-model.instances.0.vehicles=6
 # ==============================
 # The problem: Regression
 # ==============================
@@ -334,8 +344,7 @@ fitness-type = simple-fitness
 
 stat.file=$./stats/target-wk/job.0.out.stat
 stat.gen-pop-file=./stats/target-wk/population.gen
-eval.problem.eval-model.instances.0.file=gdb/gdb8.dat
-eval.problem.eval-model.instances.0.vehicles=11
+
 seed.0=19
 generations=50
 
@@ -343,26 +352,26 @@ generations=50
 # ==============================
 # The Ensemble Surrogate
 # ==============================
-state = gphhucarp.gp.EnsembleSurrogatedGPHHState
+state = tl.gphhucarp.dms.DMSSavingGPHHState
 ensemble-surrogate-state.surr-log-path=./stats/target-wk/
 ensemble-surrogate-state.eval-surpool-on-init=true
-gp.tc.0.init=tl.gp.EnsembleSurrogateBuilder
-gp.tc.0.init.knowledge-file=population.gen.49.bin
+gp.tc.0.init=ec.gp.koza.HalfBuilder
+gp.tc.0.init.knowledge-file=./KnowledgeSource/gdb1.vs5-gen_50/3/TestedPopulation/population.gen.49.bin
 gp.tc.0.init.knowledge-log-file=./stats/target-wk/SurrogateBuilderLog
 gp.tc.0.init.init-surrogate-pool=true
 gp.tc.0.init.transfer-percent=0.2
 # ensemble-surrogate-state.surrogate-average-dup-fitness=true
 ensemble-surrogate-state.knn-distance-metric=corrphenotypic
 
-# gp.tc.1.init=tl.gp.EnsembleSurrogateBuilder
-# gp.tc.1.init.knowledge-file=population.gen.49.bin
+# gp.tc.1.init=ec.gp.koza.HalfBuilder
+# gp.tc.1.init.knowledge-file=./KnowledgeSource/gdb1.vs5-gen_50/3/TestedPopulation/population.gen.49.bin
 # gp.tc.1.init.knowledge-log-file=./stats/target-wk/SurrogateBuilderLog
 # gp.tc.1.init.init-surrogate-pool=true
 # gp.tc.1.init.transfer-percent=0.2
 
 
 gp.tc.1.init=tl.gp.MutatingSubtreeBuilder
-gp.tc.1.init.knowledge-file=population.gen.49.bin
+gp.tc.1.init.knowledge-file=./KnowledgeSource/gdb1.vs5-gen_50/3/TestedPopulation/population.gen.49.bin
 gp.tc.1.init.knowledge-log-file=./stats/target-wk/MutatingFullTreeLog
 gp.tc.1.init.transfer-percent=50
 gp.tc.1.init.knowledge-extraction=root
