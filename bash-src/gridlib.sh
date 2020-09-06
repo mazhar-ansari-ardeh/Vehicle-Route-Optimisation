@@ -372,6 +372,55 @@ sstransfer()
     -p pop.subpop.0.species.pipe.source.1.knowledge-log-file="$L_EXPERIMENT_DIR/Mutation"
 }
 
+# This function performs the control experiment for the Search-Space Transfer experiment. This experiment has the
+# following parameters:
+# 1. Update the search history in the target domain. If false, GP will not remember the search space of the target domain.
+# 2. The radius for performing the clearing algorithm on the transferred individuals.
+# 3. The capacity for performing the clearing algorithm on the transferred individuals.
+# 4. Similarity threshold for updating the search history with new discoverred individuals.
+# 5. The similarity metric. Acceptable values are:
+#    - phenotypic
+#	   - corrphenotypic
+#	   - hamphenotypic
+# 6. DMS size
+# 7. Transfer percent: the amount of the initial population that is transferred from the source domain.
+# 8. The similarity used by the initialiser
+# 9. The similarity used by the crossover
+# 10. Number of tries of the crossover
+# 11. The similarity used by the mutation
+# 12. Number of tries of the mutation operator
+# 13. The probability of accepting a previously-seen individual
+random_sstransfer()
+{
+  L_EXP_NAME="random_sstransfer:tl_true:histup_$1:tclrrad_$2:tclrcap_$3:histsimthresh_$4:metric_$5:dms_$6:tp_$7:bldsim_$8:xosim_${9}:xotry_${10}:mutsim_${11}:muttry_${12}:mutprb_${13}"
+  L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
+  do_knowledge_experiment "$L_EXP_NAME" \
+    -p state=tl.knowledge.sst.LSHSSTEvolutionState \
+    -p pop.subpop.0.species.ind=tl.knowledge.sst.SSTIndividual \
+    -p sst-state.enable-transfer=true \
+    -p sst-state.rand-transfer=true \
+    -p sst-state.enable-evo-hist-update=$1 \
+    -p sst-state.transfer-clear-radius=$2 \
+    -p sst-state.transfer-clear-capacity=$3 \
+    -p sst-state.history-sim-threshold=$4 \
+    -p sst-state.distance-metric=$5 \
+    -p sst-state.dms-size=$6 \
+    -p sst-state.pop-log-path="$L_EXPERIMENT_DIR/State/pop" \
+    -p sst-state.knowledge-log-file="$L_EXPERIMENT_DIR/State/State" \
+    -p gp.tc.0.init=tl.knowledge.sst.SSTBuilder \
+    -p gp.tc.0.init.transfer-percent=$7 \
+    -p gp.tc.0.init.similarity-thresh=$8 \
+    -p gp.tc.0.init.knowledge-log-file="$L_EXPERIMENT_DIR/Builder" \
+    -p pop.subpop.0.species.pipe.source.0=tl.knowledge.sst.SSTCrossoverPipeline \
+    -p pop.subpop.0.species.pipe.source.0.similarity-thresh=${9} \
+    -p pop.subpop.0.species.pipe.source.0.sst-num-tries=${10} \
+    -p pop.subpop.0.species.pipe.source.0.knowledge-log-file="$L_EXPERIMENT_DIR/Crossover" \
+    -p pop.subpop.0.species.pipe.source.1=tl.knowledge.sst.SSTMutation \
+    -p pop.subpop.0.species.pipe.source.1.similarity-thresh=${11} \
+    -p pop.subpop.0.species.pipe.source.1.sst-num-tries=${12} \
+    -p pop.subpop.0.species.pipe.source.1.prob-accept-seen=${13} \
+    -p pop.subpop.0.species.pipe.source.1.knowledge-log-file="$L_EXPERIMENT_DIR/Mutation"
+}
 
 # This class implements the idea of hyper-mutation. In this idea, the scenario change is treated as an environment
 # change. A typical approach in the literature is to handle the environment change with an increased mutation rate.

@@ -151,9 +151,12 @@ def summary(dirbase, experiments, inclusion_filter, exclusion_filter, rename_map
                 if len(list(test_fitness[baseline_alg][gen].values())) != len(list(test_fitness[alg][gen].values())):
                     alg_len = len(list(test_fitness[alg][gen].values()))
                     print("Warning: Len of ", alg, "(", alg_len, ") is not 30. Test is done for this length.")
-                    pval_wo_wil = stats.wilcoxon(list(test_fitness[baseline_alg][gen].values())[:alg_len], list(test_fitness[alg][gen].values()))[1]
-                    pval_wo_t = stats.ttest_rel(list(test_fitness[baseline_alg][gen].values())[:alg_len], list(test_fitness[alg][gen].values()))[1]
-                    # pval_wo_t = -1
+                    try:
+                        pval_wo_wil = stats.wilcoxon(list(test_fitness[baseline_alg][gen].values())[:alg_len], list(test_fitness[alg][gen].values()))[1]
+                        pval_wo_t = stats.ttest_rel(list(test_fitness[baseline_alg][gen].values())[:alg_len], list(test_fitness[alg][gen].values()))[1]
+                    except ValueError:
+                        pval_wo_t = -1
+                        pval_wo_wil = -1
                 else:
                     pval_wo_wil = stats.wilcoxon(list(test_fitness[baseline_alg][gen].values()), list(test_fitness[alg][gen].values()))[1]
                     pval_wo_t   = stats.ttest_rel(list(test_fitness[baseline_alg][gen].values()), list(test_fitness[alg][gen].values()))[1]
@@ -200,7 +203,8 @@ def save_summary(summary_table, output_folder, rename_map):
             pval_wo_t = summary_table[exp][alg]['pval_wo_t'] 
             pval_wo_wil = summary_table[exp][alg]['pval_wo_wil'] 
 
-            csv_line += f'{mean} + {std} + {pval_wo_t},'
+            # csv_line += f'"({mini}, {maxi}, {mean}, {std}, {pval_wo_t})",'
+            csv_line += f'"{mean}({std}, {pval_wo_wil})",'
             if isinstance(pval_wo_wil, float) and  pval_wo_wil < 0.05: 
                 latex_line += r'\textbf{' + f'{mean}' + r'$\pm$' + f'{std}' + '} &' 
             else: 
@@ -336,10 +340,10 @@ def improvements(test_fitnesses, rename_map, num_generations = 50, dump_file=Pat
     imp_perc_table = {}
     imp_table = {}
     for exp in test_fitnesses:
-        print('\n', exp)
+        # print('\n', exp)
         test_fitness = test_fitnesses[exp]
         imps = find_improvement(test_fitness, base_line=base_line)
-        print(imps)
+        # print(imps)
         update_improvement_percentage(imps, imp_perc_table, imp_table)
     
     retval = {}

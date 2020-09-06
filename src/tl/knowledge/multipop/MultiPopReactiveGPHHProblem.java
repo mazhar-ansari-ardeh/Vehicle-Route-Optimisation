@@ -11,11 +11,11 @@ import gphhucarp.decisionprocess.PoolFilter;
 import gphhucarp.decisionprocess.TieBreaker;
 import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 import gphhucarp.gp.evaluation.EvaluationModel;
-import tl.gphhucarp.dms.DMSSaver;
+import tl.gp.KnowledgeableProblemForm;
 
 import java.util.ArrayList;
 
-public class ReactiveGPHHProblem extends GPProblem implements SimpleProblemForm
+public class MultiPopReactiveGPHHProblem extends GPProblem implements SimpleProblemForm, KnowledgeableProblemForm
 {
 	public static final String P_EVAL_MODEL = "eval-model";
 	public static final String P_POOL_FILTER = "pool-filter";
@@ -32,6 +32,12 @@ public class ReactiveGPHHProblem extends GPProblem implements SimpleProblemForm
 	 * line in the parameter file.
 	 */
 	private static int evalCount = 0;
+
+	public void rotateEvaluationModel()
+	{
+		for(EvaluationModel model : evaluationModel)
+			model.rotateSeeds();
+	}
 
 	@Override
 	public void setup(final EvolutionState state, final Parameter base) {
@@ -60,10 +66,8 @@ public class ReactiveGPHHProblem extends GPProblem implements SimpleProblemForm
 	}
 
 	@Override
-	public void evaluate(EvolutionState state,
-						 Individual indi,
-						 int subpopulation,
-						 int threadnum) {
+	public void evaluate(EvolutionState state, Individual indi, int subpopulation, int threadnum)
+	{
 		GPRoutingPolicy policy =
 				new GPRoutingPolicy(poolFilter, ((GPIndividual)indi).trees[0]);
 
@@ -71,18 +75,23 @@ public class ReactiveGPHHProblem extends GPProblem implements SimpleProblemForm
 		evaluationModel[subpopulation].evaluate(policy, null, indi.fitness, state);
 		ArrayList<DecisionSituation> seenDecicionSituations = evaluationModel[subpopulation].getSeenDecicionSituations();
 
-		if(state instanceof DMSSaver)
+		if(state instanceof MultiPopDMSSaver)
 		{
-			DMSSaver gstate = (DMSSaver) state;
+			MultiPopDMSSaver gstate = (MultiPopDMSSaver) state;
 			boolean saveDMS = gstate.isDMSSavingEnabled();
 			evaluationModel[subpopulation].setSaveDMSEnabled(saveDMS);
 
 			if(saveDMS)
-				gstate.updateSeenSituations(indi, seenDecicionSituations);
+				gstate.updateSeenSituations(subpopulation, indi, seenDecicionSituations);
 		}
 		this.evaluationModel[subpopulation].resetSeenSituations();
 
 		indi.evaluated = true;
 		evalCount++;
+	}
+
+	@Override
+	public int getEvalCount() {
+		return evalCount;
 	}
 }

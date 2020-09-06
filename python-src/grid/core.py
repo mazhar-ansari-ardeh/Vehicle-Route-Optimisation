@@ -32,10 +32,9 @@ def sort_algorithms(algorithm, *, base_line='WithoutKnowledge'):
     return algorithm
 
 def rename_alg(algorithm, name_map):
-    algorithm = name_map.get(algorithm, algorithm)
-    # for name_from, name_to in name_map.items():
-    #     if algorithm == name_from:
-    #         algorithm = name_to
+    # algorithm = name_map.get(algorithm, algorithm)
+    for name_from, name_to in name_map.items():
+        algorithm = algorithm.replace(name_from, name_to)
     return algorithm
 
 def rename_alg_zzz(algorithm):

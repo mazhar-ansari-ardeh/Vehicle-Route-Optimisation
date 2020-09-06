@@ -295,7 +295,7 @@ generations=50
 # ==============================
 state=tl.knowledge.sst.SSTEvolutionState
 state=tl.knowledge.sst.LSHSSTEvolutionState
-# sst-state.rand-transfer=false
+sst-state.rand-transfer=true
 sst-state.distance-metric=hamming
 sst-state.enable-transfer=true
 sst-state.knowledge-path=./KnowledgeSource/gdb1.vs5-gen_50/3/TestedPopulation

@@ -1,6 +1,7 @@
 package tl.gp;
 
 import ec.gp.GPIndividual;
+import ec.gp.GPTree;
 
 public class TLGPIndividual extends GPIndividual
 {
@@ -25,6 +26,25 @@ public class TLGPIndividual extends GPIndividual
 	public String getOrigin()
 	{
 		return origin;
+	}
+
+	@Override
+	public String toString()
+	{
+		StringBuilder retval = new StringBuilder();
+		if(evaluated)
+			retval.append(fitness.fitness()).append(",");
+		if(origin != null && !origin.isEmpty())
+			retval.append(origin).append(",");
+		for (int i = 0; i < trees.length; i++)
+		{
+			GPTree tree = trees[i];
+			retval.append(tree.child.makeLispTree());
+			if(i != trees.length - 1)
+				retval.append(",");
+		}
+
+		return retval.toString();
 	}
 
 	/**

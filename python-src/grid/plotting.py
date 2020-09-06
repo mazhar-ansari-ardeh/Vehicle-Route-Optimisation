@@ -11,6 +11,7 @@ from pathlib import Path
 def plot_grid_output(test_fitness, exp_name, inclusion_filter, exclusion_filter, output_folder,
                      rename_map, base_line='WithoutKnowledge', boxplots=False, lcols=2, lfontsize=95, linewidth=19):
 
+    print("Plotting", exp_name)
     markers = ["", ',', 'o', 'v', '^', '<', '>', 's', 'p', '*', 'h', 'H', '+', 'x', 'D', 'd', '|', '_']
     line_styles = ['--', '-.', ':']
     sc = 0 # line style counter
@@ -67,7 +68,7 @@ def plot_grid_output(test_fitness, exp_name, inclusion_filter, exclusion_filter,
 
         label = rename_alg(algorithm, rename_map)
         if algorithm == base_line:
-            ax_all.plot(range(1, len(mean_data) + 1), mean_data, linewidth=linewidth,  markersize=15, label="Without Transfer", color='k')
+            ax_all.plot(range(1, len(mean_data) + 1), mean_data, linewidth=linewidth,  markersize=15, label="No Transfer", color='k')
         else:
             sc += 1 
             sc %= len(line_styles) 

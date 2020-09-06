@@ -68,7 +68,11 @@ def delete_alg(*, experiments, algorithm_to_delete, dirbase='/home/mazhar/grid/'
     """
     dirbase = Path(dirbase)
     for exp in experiments:
-        (_, algorithms, _) = next(os.walk(dirbase / exp))
+        try: 
+            (_, algorithms, _) = next(os.walk(dirbase / exp))
+        except StopIteration:
+            print("Could not walk", dirbase / exp)
+            continue
         for algorithm in algorithms:
             if (not re.search(algorithm_to_delete, algorithm)): # and (not re.search(r'PPTPipe', algorithm)):
                 continue
@@ -86,6 +90,10 @@ def delete_alg(*, experiments, algorithm_to_delete, dirbase='/home/mazhar/grid/'
             print(dirbase / exp / algorithm, 'deleted.')
 
 def unarchive(experiments, algorithm, dir_from, dir_to):
+    """
+    Unarchives algoritms. 
+    Usage: unarchive(experiments, 'KnowledgeSource:mutra_0.3', '/local/scratch', '/home/mazhar/grid')
+    """
     for exp in experiments:
         alg_dir = Path(dir_from) / exp / algorithm
         print(alg_dir)
@@ -103,28 +111,29 @@ def unarchive(experiments, algorithm, dir_from, dir_to):
             shutil.unpack_archive(alg_dir / file, save_to)
             print('Unpacked', alg_dir / file, 'to', save_to)
 
-def delete_alg_files(experiment_path, alg, file_name, runs_to_exclude=range(1, 5)):
+def delete_alg_files(experiments, alg, file_name, *, dirbase=Path('/home/mazhar/grid/'), runs_to_exclude=range(1, 5)):
     """
     Deletes specified files in given experiments to save space. 
     This function does not create any backups of the files. 
     """
-    alg = alg.lower()
-    file_name = file_name.lower()
-    experiment_path = Path(experiment_path)
-    (_, algorithms, _) = next(os.walk(experiment_path))
-    for algorithm in algorithms:
-        if not re.search(alg, algorithm.lower()):
-            continue
-        (_, runs, _) = next(os.walk(experiment_path / algorithm))
-        for run in runs:
-            if int(run) in runs_to_exclude:
+    # alg = alg.lower()
+    # file_name = file_name.lower()
+    for exp in experiments:
+        experiment_path = dirbase / exp
+        (_, algorithms, _) = next(os.walk(experiment_path))
+        for algorithm in algorithms:
+            if not re.search(alg, algorithm):
                 continue
-            run_path = Path((experiment_path / algorithm) / run)
-            (_, _, files) = next(os.walk(run_path))
-            for file in files:
-                if re.search(file_name, file.lower()):
-                    print(run_path / file)
-                    os.remove(run_path / file)
+            (_, runs, _) = next(os.walk(experiment_path / algorithm))
+            for run in runs:
+                if int(run) in runs_to_exclude:
+                    continue
+                run_path = Path((experiment_path / algorithm) / run)
+                (_, _, files) = next(os.walk(run_path))
+                for file in files:
+                    if re.search(file_name, file):
+                        print(run_path / file)
+                        os.remove(run_path / file)
 
 def rename_alg_folder(*, experiments, dirbase, rename_from, rename_to):
     for exp in experiments:
