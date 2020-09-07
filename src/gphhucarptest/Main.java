@@ -1,6 +1,10 @@
 package gphhucarptest;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
+
 import org.apache.commons.math3.random.RandomDataGenerator;
 
 import gphhucarp.core.Arc;
@@ -8,8 +12,31 @@ import gphhucarp.representation.route.NodeSeqRoute;
 
 public class Main
 {
+
+	public static void partition(List<Integer> pool, BiFunction<Integer, Integer, Double> dist)
+	{
+
+//		ArrayList<Integer> cPool = new ArrayList<>(pool);
+		Queue<Integer> cPool = new ConcurrentLinkedQueue<Integer>(pool);
+
+		ArrayList<List<Integer>> partitions = new ArrayList<>();
+
+		for (Integer p : cPool)
+		{
+			List<Integer> part = cPool.stream().filter(in -> dist.apply(in, p) <= 1).collect(Collectors.toList());
+			cPool.removeAll(part);
+			if(!part.isEmpty())
+				partitions.add(part);
+		}
+
+		partitions.forEach(i -> System.out.println(i.toString()));
+	}
+
 	public static void main(String[] args)
 	{
+		List<Integer> pool = new LinkedList<>(Arrays.asList(1, 2, 3, 4, 6, 8, 12, 1, 3, 4, 9, -1, 0));
+		partition(pool, (i1, i2) -> (double) Math.abs(Math.abs(i2) - Math.abs(i1)));
+
 		Arc arc = new Arc(0, 1, 5, 6, 4, null, 0.2, 0.3);
 		System.out.println("Expected demand: " + arc.getExpectedDemand());
 		System.out.println("Expected deadheading cost: " + arc.getExpectedDeadheadingCost());

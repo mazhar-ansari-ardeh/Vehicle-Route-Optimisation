@@ -56,7 +56,7 @@ public class SSTBuilder extends HalfBuilder implements TLLogger<GPNode>
 		populationSize = state.parameters.getInt(new Parameter("pop.subpop.0.size"), null);
 	}
 
-	private ArrayList<GPRoutingPolicy> pop = null;
+	private ArrayList<GPRoutingPolicy> transferredPop = null;
 
 	@Override
 	public GPNode newRootedTree(EvolutionState state, GPType type, int thread, GPNodeParent parent, GPFunctionSet set,
@@ -68,15 +68,15 @@ public class SSTBuilder extends HalfBuilder implements TLLogger<GPNode>
 			return super.newRootedTree(state, type, thread, parent, set, argposition, requestedSize);
 		}
 
-		if(pop == null)
+		if(transferredPop == null)
 		{
-			pop = new ArrayList<>(sstate.getTransferredIndividuals());
-			pop.sort(Comparator.comparingDouble(i -> i.getGPTree().owner.fitness.fitness()));
+			transferredPop = new ArrayList<>(sstate.getTransferredIndividuals());
+			transferredPop.sort(Comparator.comparingDouble(i -> i.getGPTree().owner.fitness.fitness()));
 		}
 
-		if(cfCounter < populationSize * transferPercent && !pop.isEmpty())
+		if(cfCounter < populationSize * transferPercent && !transferredPop.isEmpty())
 		{
-			GPIndividual ind = pop.remove(0).getGPTree().owner;
+			GPIndividual ind = transferredPop.remove(0).getGPTree().owner;
 			ind = (GPIndividual) ind.clone();
 
 			GPNode root = GPIndividualUtils.stripRoots(ind).get(0);

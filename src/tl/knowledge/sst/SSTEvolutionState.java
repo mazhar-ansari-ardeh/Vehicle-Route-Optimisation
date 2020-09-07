@@ -88,7 +88,7 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 	 * A boolean parameter that specifies if the class load transferred individuals or create a random pool of
 	 * individuals and use them as the transferred items. The main goal of this parameter is to act as a control
 	 * experiment to verify the effect of the transferred knowledge. This parameter is read only if the
-	 * {@code P_ENABLE_TRANSFER} parameter is {@code true}. The value of the parameter is {@code false} to be
+	 * {@code P_ENABLE_TRANSFER} parameter is {@code true}. The default value of the parameter is {@code false} to be
 	 * backward-compatible.
 	 */
 	public static final String P_RAND_TRANSFER = "rand-transfer";
@@ -241,7 +241,7 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 						i -> new GPRoutingPolicy(filter, ((GPIndividual)i).trees[0])).collect(Collectors.toList()));
 	}
 
-	private boolean randInd = false;
+	protected boolean randInd = false;
 
 	boolean createRandInd()
 	{
@@ -257,8 +257,11 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 		{
 			Population pop = initializer.initialPopulation(this, 0);
 			inds.addAll(Arrays.asList(pop.subpops[0].individuals));
-			SimpleNichingAlgorithm.clearPopulation(inds, filter, metrics, radius, capacity);
-			inds = inds.stream().filter(j -> j.fitness.fitness() != Double.POSITIVE_INFINITY).collect(Collectors.toList());
+//			if(i % 3 == 0)
+//			{
+//				SimpleNichingAlgorithm.clearPopulation(inds, filter, metrics, radius, capacity);
+//				inds = inds.stream().filter(j -> j.fitness.fitness() != Double.POSITIVE_INFINITY).collect(Collectors.toList());
+//			}
 		}
 
 		randInd = false;
