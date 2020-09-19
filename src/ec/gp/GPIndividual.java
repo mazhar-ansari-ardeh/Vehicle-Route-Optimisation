@@ -125,7 +125,12 @@ public class GPIndividual extends Individual
         return hash;
         }
 
-    /** Sets up a prototypical GPIndividual with those features which it
+        @Override
+        public String toString() {
+            return super.toString();
+        }
+
+        /** Sets up a prototypical GPIndividual with those features which it
         shares with other GPIndividuals in its species, and nothing more. */
 
     public void setup(final EvolutionState state, final Parameter base)
