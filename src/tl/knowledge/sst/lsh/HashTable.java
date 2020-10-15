@@ -21,6 +21,9 @@
 package tl.knowledge.sst.lsh;
 
 import ec.util.MersenneTwisterFast;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.apache.commons.lang3.tuple.Pair;
+import tl.knowledge.sst.lsh.families.EuclideanDistance;
 import tl.knowledge.sst.lsh.families.HashFamily;
 import tl.knowledge.sst.lsh.families.HashFunction;
 
@@ -86,6 +89,39 @@ class HashTable implements Serializable {
 			return new ArrayList<>();
 	}
 
+	private static int[] str2ia(String str)
+	{
+		str = str.replace('[', ' ').replace(']', ' ').trim();
+		String[] ints = str.split(",");
+		int[] retval = new int[ints.length];
+		for(int i = 0; i < ints.length; i++)
+			retval[i] = Integer.parseInt(ints[i].trim());
+
+		return retval;
+	}
+
+	public Pair<Double, List<Vector>> iQuery(Vector query) {
+		EuclideanDistance d = new EuclideanDistance();
+		int[] combinedHash = str2ia(hash(query));
+		double minDist = Double.MAX_VALUE;
+		ArrayList<Vector> queries = new ArrayList<>();
+		for (String hash: hashTable.keySet())
+		{
+			int[] intHash = str2ia(hash);
+
+			double distance = d.distance(new Vector(intHash), new Vector(combinedHash));
+			if(distance < minDist)
+			{
+				minDist = distance;
+				queries.clear();
+				queries.addAll(hashTable.get(hash));
+			} else if(distance == minDist)
+				queries.addAll(hashTable.get(hash));
+		}
+
+		return new ImmutablePair<>(minDist, queries);
+	}
+
 	/**
 	 * Add a vector to the index.
 	 * @param vector the vector to add.
@@ -101,10 +137,10 @@ class HashTable implements Serializable {
 	/**
 	 * Calculate the combined hash for a vector.
 	 * @param vector The vector to calculate the combined hash for.
-	 * @return An integer representing a combined hash.
+	 * @return An string representing a combined hash.
 	 */
 	private String hash(Vector vector){
-		int hashes[] = new int[hashFunctions.length];
+		int[] hashes = new int[hashFunctions.length];
 		for(int i = 0 ; i < hashFunctions.length ; i++){
 			hashes[i] = hashFunctions[i].hash(vector);
 		}

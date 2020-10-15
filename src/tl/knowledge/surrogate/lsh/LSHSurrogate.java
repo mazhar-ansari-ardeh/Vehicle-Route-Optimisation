@@ -61,7 +61,9 @@ public class LSHSurrogate implements Surrogate
         int[] characterise = trc.characterise(policy);
 
         double retval = 0;
-        List<Vector> query = lsh.query(new Vector(characterise), neighboursSize);
+        List<Vector> query = lsh.queryNearest(new Vector(characterise));
+        if(query.size() == 0)
+            throw new RuntimeException("The query did not return anything.");
         for (Vector vector : query)
         {
             retval += ((FittedVector) vector).getFitness();

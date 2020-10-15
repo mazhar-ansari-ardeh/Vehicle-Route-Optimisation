@@ -145,8 +145,31 @@ public class LSH {
 	 *         list length contains the maximum number of elements, or less.
 	 *         Zero elements are possible.
 	 */
-	public List<Vector> query(final Vector query,int neighboursSize){
-		return index.query(query,neighboursSize);
+	public List<Vector> query(final Vector query, int neighboursSize){
+		return index.query(query, neighboursSize);
+	}
+
+//	public List<Vector> query(final Vector query){
+//		return index.query(query);
+//	}
+
+	/**
+	 * Find the nearest neighbours for a query in the index.
+	 *
+	 * @param query
+	 *            The query vector.
+	 * @return A list of nearest neigbours, according to the index. The returned
+	 *         list length contains the maximum number of elements, or less.
+	 *         Zero elements are possible.
+	 */
+	public List<Vector> query(final Vector query, double radius)
+	{
+		return index.query(radius, query);
+	}
+
+	public List<Vector> queryNearest(final Vector query)
+	{
+		return index.queryNearest(query);
 	}
 
 	/**

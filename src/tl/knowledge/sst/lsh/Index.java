@@ -21,6 +21,7 @@
 package tl.knowledge.sst.lsh;
 
 import ec.util.MersenneTwisterFast;
+import org.apache.commons.lang3.tuple.Pair;
 import tl.knowledge.sst.lsh.families.DistanceComparator;
 import tl.knowledge.sst.lsh.families.DistanceMeasure;
 import tl.knowledge.sst.lsh.families.HashFamily;
@@ -128,6 +129,50 @@ public class Index implements Serializable{
 		if(candidates.size() > maxSize){
 			candidates = candidates.subList(0, maxSize);
 		}
+		return candidates;
+	}
+
+	public List<Vector> query(double radius, final Vector query)
+	{
+		Set<Vector> candidateSet = new HashSet<>();
+		for(HashTable table : hashTable){
+			List<Vector> v = table.query(query);
+			candidateSet.addAll(v);
+		}
+		List<Vector>candidates = new ArrayList<>(candidateSet);
+		evaluated += candidates.size();
+		DistanceMeasure measure = family.createDistanceMeasure();
+		candidates.removeIf(c -> measure.distance(c, query) > radius);
+		return candidates;
+	}
+
+	public List<Vector> queryNearest(final Vector query)
+	{
+		List<Vector> candidates = query(0f, query);
+		if(candidates.size() > 0)
+			return candidates;
+
+		Set<Vector> candidateSet = new HashSet<>();
+		double minDest = Double.MAX_VALUE;
+		for(HashTable table : hashTable){
+			Pair<Double, List<Vector>> v = table.iQuery(query);
+			if(v.getLeft() < minDest)
+			{
+				minDest = v.getLeft();
+				candidateSet.clear();
+				candidateSet.addAll(v.getRight());
+			}
+			else if (v.getLeft() == minDest)
+				candidateSet.addAll(v.getRight());
+		}
+		candidates = new ArrayList<>(candidateSet);
+		evaluated += candidates.size();
+
+		DistanceMeasure measure = family.createDistanceMeasure();
+		DistanceComparator dc = new DistanceComparator(query, measure);
+		candidates.sort(dc);
+		double dist = measure.distance(candidates.get(0), query);
+		candidates.removeIf(c -> measure.distance(c, query) > dist);
 		return candidates;
 	}
 	
