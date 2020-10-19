@@ -3,6 +3,7 @@ import json
 import csv
 from pathlib import Path
 
+from promise.utils import deprecated
 from scipy import stats
 
 from .core import should_process, rename_exp
@@ -143,7 +144,7 @@ def wdl2(experiment_data, rename_map, *, base_line='WithoutKnowledge', num_gener
 import pandas as pd
 
 
-def friedman_test2(test_fitness, ignore_list = []):
+def friedman_test2(test_fitness, ignore_list=[]):
     if len(test_fitness) < 3:
         return -1, [], []
     data = []
@@ -179,30 +180,30 @@ def summary(dirbase, experiments, inclusion_filter, exclusion_filter, rename_map
 
         return mini, maxi, mean, std, median
 
-    def pval(test_fitness, alg, gen):
+    def pval(fitness, alg, generation):
         if not baseline_alg or alg == baseline_alg:
             pval_wo_wil = '--'
             pval_wo_t = '--'
         else:
-            if len(list(test_fitness[baseline_alg][gen].values())) != len(list(test_fitness[alg][gen].values())):
-                alg_len = len(list(test_fitness[alg][gen].values()))
+            if len(list(fitness[baseline_alg][generation].values())) != len(list(fitness[alg][generation].values())):
+                alg_len = len(list(fitness[alg][generation].values()))
                 print("Warning: Len of ", alg, "(", alg_len, ") is not 30. Test is done for this length.")
                 try:
-                    pval_wo_wil = stats.wilcoxon(list(test_fitness[baseline_alg][gen].values())[:alg_len],
-                                                 list(test_fitness[alg][gen].values()))[1]
-                    pval_wo_t = stats.ttest_rel(list(test_fitness[baseline_alg][gen].values())[:alg_len],
-                                                list(test_fitness[alg][gen].values()))[1]
+                    pval_wo_wil = stats.wilcoxon(list(fitness[baseline_alg][generation].values())[:alg_len],
+                                                 list(fitness[alg][generation].values()))[1]
+                    pval_wo_t = stats.ttest_rel(list(fitness[baseline_alg][generation].values())[:alg_len],
+                                                list(fitness[alg][generation].values()))[1]
                 except ValueError:
                     pval_wo_t = -1
                     pval_wo_wil = -1
             else:
                 pval_wo_wil = \
-                    stats.wilcoxon(list(test_fitness[baseline_alg][gen].values()),
-                                   list(test_fitness[alg][gen].values()))[1]
+                    stats.wilcoxon(list(fitness[baseline_alg][generation].values()),
+                                   list(fitness[alg][generation].values()))[1]
                 pval_wo_wil = round(pval_wo_wil, 2)
                 pval_wo_t = \
-                    stats.ttest_rel(list(test_fitness[baseline_alg][gen].values()),
-                                    list(test_fitness[alg][gen].values()))[
+                    stats.ttest_rel(list(fitness[baseline_alg][generation].values()),
+                                    list(fitness[alg][generation].values()))[
                         1]
                 pval_wo_t = round(pval_wo_t, 2)
 
@@ -234,45 +235,108 @@ def summary(dirbase, experiments, inclusion_filter, exclusion_filter, rename_map
 
         return p, list(zip(alg_names, rank)), list(zip(names, adjusted_pval))
 
-    summary_table = {}
+    test_summary_table = {}
+    best_summary_table = {}
     test_data_table = {}
-    fried_table = {}
+    best_data_table = {}
+    test_fri_table = {}
+    best_fri_table = {}
     gen = 49
+
+    def do_summary(fitness, generation):
+        smmry_table = {}
+        fri_table = friedman_test(fitness, generation)
+        for algo in best_fitness:
+            mini, maxi, mean, std, median = summarise(fitness[algo][generation])
+
+            pval_wo_wil, pval_wo_t = pval(fitness, algo, generation)
+
+            if algo not in smmry_table:
+                smmry_table[algo] = {}
+            smmry_table[algo]['Average'] = mean
+            smmry_table[algo]['Stdev'] = std
+            smmry_table[algo]['min'] = mini
+            smmry_table[algo]['max'] = maxi
+            smmry_table[algo]['median'] = median
+            smmry_table[algo]['pval_wo_t'] = pval_wo_t
+            smmry_table[algo]['pval_wo_wil'] = pval_wo_wil
+        return smmry_table, fri_table
+
     for exp in experiments:
         print('Summary: processing', dirbase / exp)
-        test_fitness = get_test_fitness(dirbase / exp, inclusion_filter, exclusion_filter,
-                                        num_generations=num_generations)
+        test_fitness, best_fitness = get_test_fitness(dirbase / exp, inclusion_filter, exclusion_filter,
+                                                      num_generations=num_generations)
         test_data_table[exp] = test_fitness
+        best_data_table[exp] = best_fitness
+        test_summary_table[exp], test_fri_table[exp] = do_summary(test_fitness, gen)
+        best_summary_table[exp], best_fri_table[exp] = do_summary(best_fitness, -1)
 
-        fried_table[exp] = friedman_test(test_fitness, gen)
-        if exp not in summary_table:
-            summary_table[exp] = {}
-        for alg in test_fitness:
-            mini, maxi, mean, std, median = summarise(test_fitness[alg][gen])
-
-            pval_wo_wil, pval_wo_t = pval(test_fitness, alg, gen)
-
-            if not alg in summary_table[exp]:
-                summary_table[exp][alg] = {}
-            summary_table[exp][alg]['Average'] = mean
-            summary_table[exp][alg]['Stdev'] = std
-            summary_table[exp][alg]['min'] = mini
-            summary_table[exp][alg]['max'] = maxi
-            summary_table[exp][alg]['median'] = median
-            summary_table[exp][alg]['pval_wo_t'] = pval_wo_t
-            summary_table[exp][alg]['pval_wo_wil'] = pval_wo_wil
-
-    return summary_table, test_data_table, fried_table
+    return test_summary_table, test_data_table, test_fri_table, best_summary_table, best_data_table, best_fri_table
 
 
-def save_stat2(summary_table, output_folder, rename_map, fried_table, baseline='WithoutKnowledge'):
+def save_stat2(summary_table, output_folder, rename_map, fried_table):
+    def calc_wdl(fried, base):
+        win, draw, loss = {}, {}, {}
+        for xp in fried:
+            # if fried[xp][0] >= 0.05:
+            #     d = d + 1
+            #     continue
+            for comparison in fried[xp][2]:
+                if base not in comparison[0]:
+                    continue
+                print(comparison)
+                pval = comparison[1]
+                vs = comparison[0].replace(base, '').replace(' vs ', '')
+                ren_vs = rename_alg(vs, rename_map)
+                if pval >= 0.05:
+                    draw[ren_vs] = draw.get(ren_vs, 0) + 1
+                    continue
+                if summary_table[xp][base]['Average'] <= summary_table[xp][vs]['Average']:
+                    win[ren_vs] = win.get(ren_vs, 0) + 1
+                else:
+                    loss[ren_vs] = loss.get(ren_vs, 0) + 1
+
+        return win, draw, loss
+
+    def calc_wdl2(fried, alg1, alg2):
+        """
+        Compares alg1 against alg2
+        :param fried: the friedman table
+        :param alg1: the baseline algorithm
+        :param alg2: the algorithm that alg1 is compared against.
+        :return: (wins, draws, losses) of alg1 against alg2
+        """
+        win, draw, loss = 0, 0, 0
+        for xp in fried:
+            # if fried[xp][0] >= 0.05:
+            #     d = d + 1
+            #     continue
+            for comparison in fried[xp][2]:
+                if alg1 not in comparison[0]:
+                    continue
+                if alg2 not in comparison[0]:
+                    continue
+                pval = comparison[1]
+                # ren_alg1 = rename_alg(alg1, rename_map)
+                # ren_alg2 = rename_alg(alg2, rename_map)
+                if pval >= 0.05:
+                    draw = draw + 1
+                    continue
+                if summary_table[xp][alg1]['Average'] <= summary_table[xp][alg2]['Average']:
+                    win = win + 1
+                else:
+                    loss = loss + 1
+
+        return win, draw, loss
+
     output_folder = Path(output_folder)
     if not output_folder.exists():
         output_folder.mkdir(parents=True)
+
     all_averages = None
     all_pvals = None
     all_stds = None
-
+    all_ranks = pd.DataFrame()
     for exp in summary_table:
         exp_summary = {rename_alg(alg, rename_map): summary_table[exp][alg] for alg in
                        sort_algorithms(summary_table[exp])}
@@ -286,6 +350,7 @@ def save_stat2(summary_table, output_folder, rename_map, fried_table, baseline='
         ranks = fried_table[exp][1]
         rnks = {rename_alg(rank[0], rename_map): rank[1] for rank in ranks}
         df["Rank"] = pd.Series(rnks)
+        all_ranks[rename_exp(exp)] = pd.Series(rnks)
         df.to_csv(save_path / f'{ren_exp}_summary.csv')
         df.to_latex(save_path / f'{ren_exp}_summary.tex')
 
@@ -304,32 +369,55 @@ def save_stat2(summary_table, output_folder, rename_map, fried_table, baseline='
             all_pvals[ren_exp] = df.pval_wo_wil.to_frame(ren_exp)
             all_stds[ren_exp] = df.Stdev.to_frame(ren_exp)
 
-    averages = all_averages.T.to_dict('list')
-    fried_average = friedman_test2(averages, [])
-    all_averages['Rank'] = pd.Series({alg[0]: alg[1] for alg in fried_average[1]})
+    # averages = all_averages.T.to_dict('list')
+    # fried_average = friedman_test2(averages, [])
+    all_averages['AverageRank'] = all_ranks.T.mean()
+    all_ranks['AverageRank'] = all_ranks.T.mean()
 
-    # latex_df = all_averages.astype(str) + r"$\pm$" + all_stds.astype(str)
+    algs = set()
+    for exp in summary_table:
+        for alg in summary_table[exp]:
+            algs.add(alg)
+    algs = list(algs)
+    wdl_matrix = {}
+    for i in range(len(algs)):
+        for j in range(i + 1, len(algs)):
+            w, d, l = calc_wdl2(fried_table, algs[i], algs[j])
+            algi = rename_alg(algs[i], rename_map)
+            algj = rename_alg(algs[j], rename_map)
+            if algi not in wdl_matrix:
+                wdl_matrix[algi] = {}
+            wdl_matrix[algi][algj] = (w, d, l)
+    wdl_df = pd.DataFrame(wdl_matrix).fillna('--').T # Row is compared agaist column
+    wdl_df.to_csv(output_folder / 'fried_wdl.csv')
+    wdl_df.to_latex(output_folder / 'fried_wdl.tex')
+
+    # if baseline:
+    #     wins, draws, losses = calc_wdl(fried_table, baseline)
+    #     wdl_df = pd.DataFrame({'W': wins, 'D': draws, 'L': losses, 'AverageRank': all_ranks.T.mean()}).fillna(0)
+    #     wdl_df.to_csv(output_folder / 'fried_wdl.csv')
+    #     wdl_df.to_latex(output_folder / 'fried_wdl.tex')
+
     latex_df = all_averages.astype(str).add(r"$\pm$" + all_stds.astype(str), fill_value="")
-    for i in all_pvals.index:
-        if i == baseline:
-            continue
-        for j in all_pvals.loc[i].index:
-            if all_pvals.loc[i][j] == '--' or all_pvals.loc[i][j] >= 0.05:
-                continue
-            if all_averages.loc[i][j] < all_averages.loc[baseline][j]:
-                latex_df.loc[i][j] = r'\textbf{' + latex_df.loc[i][j] + '}'
-            else:
-                latex_df.loc[i][j] = r'\underline{\textit{' + latex_df.loc[i][j] + '}}'
+    # for i in all_pvals.index:
+    #     if i == baseline:
+    #         continue
+    #     for j in all_pvals.loc[i].index:
+    #         if all_pvals.loc[i][j] == '--' or all_pvals.loc[i][j] >= 0.05:
+    #             continue
+    #         if all_averages.loc[i][j] < all_averages.loc[baseline][j]:
+    #             latex_df.loc[i][j] = r'\textbf{' + latex_df.loc[i][j] + '}'
+    #         else:
+    #             latex_df.loc[i][j] = r'\underline{\textit{' + latex_df.loc[i][j] + '}}'
     latex_df.T.to_latex(output_folder / 'sum.tex', escape=False)
-    csv_df = all_averages.astype(str).add(r"(" + all_stds.astype(str) + ", " + all_pvals.astype(str) + r")", fill_value="")
+    csv_df = all_averages.astype(str).add(r"(" + all_stds.astype(str) + ", " + all_pvals.astype(str) + r")",
+                                          fill_value="")
     csv_df.T.to_csv(output_folder / "sum.csv")
-
-    posthoc_pvals = pd.DataFrame({'P-Value': dict(fried_average[2] + [('Friedman', fried_average[0])])})
-    posthoc_pvals.to_csv(output_folder / "post_hoc.csv")
-    posthoc_pvals.to_latex(output_folder / "post_hoc.tex")
-    print(fried_average)
+    all_ranks.to_latex(output_folder / 'ranks.tex')
+    all_ranks.to_csv(output_folder / 'ranks.csv')
 
 
+@deprecated('save_summary is deprecated in favor of save_stat2')
 def save_summary(summary_table, output_folder, rename_map):
     output_folder = Path(output_folder)
     if not output_folder.exists():
@@ -383,6 +471,7 @@ def save_summary(summary_table, output_folder, rename_map):
                      + r'\end{table}')
     latex_file.close()
 
+
 def save_stats(test_fitness, exp_name, output_folder, *, rename_map, gen=49, round_results=True,
                baseline_alg='WithoutKnowledge'):
     if not Path(output_folder / exp_name).exists():
@@ -408,7 +497,7 @@ def save_stats(test_fitness, exp_name, output_folder, *, rename_map, gen=49, rou
         std = statistics.stdev(list(test_fitness[alg][gen].values()))
         median = statistics.median(list(test_fitness[alg][gen].values()))
 
-        if alg == baseline_alg:
+        if not baseline_alg or alg == baseline_alg:
             pval_wo_wil = '--'
             pval_wo_t = '--'
         else:
@@ -456,6 +545,10 @@ def improvements(test_fitnesses, rename_map, num_generations=50, dump_file=Path(
     """
     Calculates the improvement in training time achieved over baseline algorithm.
     """
+
+    if not base_line:
+        print("Improvement: Warning: The baseline algorithm is not specified. Returning an empty result")
+        return {}
 
     def find_improvement(fitness, *, base_line='WithoutKnowledge', generations=num_generations):
         retval = {}
