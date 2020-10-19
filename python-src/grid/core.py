@@ -110,15 +110,22 @@ def get_test_fitness(experiment_path, inclusion_filter, exclusion_filter, *, num
     # test_fitness['FrequentSub'][1][2] will return the test fitness on run=2 of gen=1 of the algorithm='FreqSub'
     # The data is read from the first CSV file that is found in the 'test' directory. 
     test_fitness = {}
+    best_fitness = {}
 
     def update_test_fitness(file, algorithm, run):
         nonlocal test_fitness
+        nonlocal best_fitness
+
         try:
             csv = pd.read_csv(file)
-            if not algorithm in test_fitness:
+            if algorithm not in test_fitness:
                 test_fitness[algorithm] = {}
+            if algorithm not in best_fitness:
+                best_fitness[algorithm] = {}
+                best_fitness[algorithm][-1] = {}
+            best_fitness[algorithm][-1][run] = csv.TestFitness.min()
             for gen in range(num_generations):
-                if not gen in test_fitness[algorithm]:
+                if gen not in test_fitness[algorithm]:
                     test_fitness[algorithm][gen] = {}
                 if csv.shape[0] - 1 <= gen:  # -1 is for the header
                     print("Warning: The csv file does not contain generation:", gen)
@@ -158,7 +165,7 @@ def get_test_fitness(experiment_path, inclusion_filter, exclusion_filter, *, num
                     print("Warning: Something is wrong with the test file: ", test_dir)
                     # continue
 
-    return test_fitness
+    return test_fitness, best_fitness
 
 
 def get_train_stat(experiment_path, inclusion_filter, exclusion_filter, *, num_generations=50) -> dict:
@@ -351,3 +358,18 @@ def find_all_failed(basedir, experiments, inclusion_filter, exclusion_filter, nu
                 if not csv_found:
                     print(exp, algorithm, str(i), 'test file does not contain any CSVs')
                     continue
+
+def ListAlgorithms(basedir, experiments, alg_base, rename_map): 
+    retval = {}
+    for exp in experiments:
+        (_, algorithms, _) = next(os.walk(basedir / exp))
+        for algorithm in algorithms:
+            if alg_base not in algorithm:
+                continue
+
+            ren_alg = rename_alg(algorithm, rename_map)
+            if ren_alg not in retval:
+                retval[ren_alg] = []
+            retval[ren_alg].append(rename_exp(exp))
+    return sorted(retval)
+            
