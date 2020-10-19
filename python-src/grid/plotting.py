@@ -5,28 +5,108 @@ from .core import sort_algorithms
 import statistics
 import matplotlib.pyplot as plt
 import pandas as pd
-
+import numpy as np
 from pathlib import Path
+import seaborn as sns
+
+
+def violin_plot(data_table, gen, rename_map, output_folder):
+    # plt.style.use('seaborn-muted')
+    # plt.style.use('fast')
+    plt.style.use('bmh')
+    plt.rcParams['figure.figsize'] = [16, 9]
+    plt.rcParams['figure.dpi'] = 300
+
+    df = pd.DataFrame(columns=["Fitness", "Algorithm", 'Run'])
+    for alg in data_table:
+        for run in data_table[alg][-1]:
+            pdf = pd.DataFrame(
+                {"Algorithm": rename_alg(alg, rename_map), 'Run': run, 'Fitness': data_table[alg][-1][run]},
+                index=range(1, 2))
+            df = df.append(pdf, sort=False)
+
+    algs = []
+    data = []
+    for alg in data_table:
+        algs.append(rename_alg(alg, rename_map))
+        data.append(list(data_table[alg][gen].values()))
+
+    fig, ax = plt.subplots(1, 1)
+    sns.violinplot(data=df, ax=ax, x='Algorithm', y="Fitness")
+    ax.tick_params(axis='both', which='major', labelsize=25)
+    ax.set_xlabel('Algorithm', fontdict={'fontsize': 30})
+    ax.set_ylabel('Fitness', fontdict={'fontsize': 30})
+    fig.savefig(output_folder / 'violin.png', bbox_inches='tight', pad_inches=0)
+    plt.close(fig)
+    # def set_axis_style(ax, labels):
+    #     ax.get_xaxis().set_tick_params(direction='out')
+    #     ax.xaxis.set_ticks_position('bottom')
+    #     ax.set_xticks(range(1, len(labels) + 1))
+    #     ax.set_xticklabels(labels)
+    #     ax.set_xlim(0.25, len(labels) + 0.75)
+    #     ax.set_xlabel('Algorithm', fontdict={'fontsize': 120})
+    #     ax.set_ylabel('Fitness', fontdict={'fontsize': 120})
+    #     ax.tick_params(axis='both', which='major', labelsize=45)
+    #
+    # def adjacent_values(vals, q1, q3):
+    #     upper_adjacent_value = q3 + (q3 - q1) * 1.5
+    #     upper_adjacent_value = np.clip(upper_adjacent_value, q3, vals[-1])
+    #
+    #     lower_adjacent_value = q1 - (q3 - q1) * 1.5
+    #     lower_adjacent_value = np.clip(lower_adjacent_value, vals[0], q1)
+    #     return lower_adjacent_value, upper_adjacent_value
+    #
+    #
+    # fig = plt.figure(figsize=(60, 32))
+    # ax = fig.add_subplot(111)
+    # parts = ax.violinplot(data, showmeans=True, showmedians=True)
+    #
+    # for pc in parts['bodies']:
+    #     # pc.set_facecolor('#D43F3A')
+    #     # pc.set_edgecolor('black')
+    #     pc.set_alpha(1)
+    #
+    # # flierprops = dict(marker='o', markerfacecolor='r', markersize=30, linestyle='none')
+    # # boxprops = dict(linestyle='-', linewidth=6, color='black')
+    # # whiskerprops = dict(linewidth=6)
+    # # medianprops = dict(linewidth=6)
+    # #
+    # # ax.boxplot(data, flierprops=flierprops, boxprops=boxprops, whiskerprops=whiskerprops,
+    # #                medianprops=medianprops)
+    #
+    # # quartile1, medians, quartile3 = np.percentile(data, [25, 50, 75], axis=1)
+    # # whiskers = np.array([
+    # #     adjacent_values(sorted_array, q1, q3)
+    # #     for sorted_array, q1, q3 in zip(data, quartile1, quartile3)])
+    # # whiskers_min, whiskers_max = whiskers[:, 0], whiskers[:, 1]
+    # # inds = np.arange(1, len(medians) + 1)
+    # # ax.scatter(inds, medians, marker='o', color='white', s=30, zorder=3)
+    # # ax.vlines(inds, quartile1, quartile3, color='k', linestyle='-', lw=5)
+    # # ax.vlines(inds, whiskers_min, whiskers_max, color='k', linestyle='-', lw=11)
+    #
+    # set_axis_style(ax, algs)
+    # plt.show()
+    pass
+
 
 def plot_grid_output(test_fitness, exp_name, inclusion_filter, exclusion_filter, output_folder,
                      rename_map, base_line='WithoutKnowledge', boxplots=False, lcols=2, lfontsize=95, linewidth=19):
-
     print("Plotting", exp_name)
+    plt.style.use('default')
     markers = ["", ',', 'o', 'v', '^', '<', '>', 's', 'p', '*', 'h', 'H', '+', 'x', 'D', 'd', '|', '_']
     line_styles = ['--', '-.', ':']
-    sc = 0 # line style counter
-    mc = 0 # marker counter
-    
+    sc = 0  # line style counter
+    mc = 0  # marker counter
+
     fig_all = plt.figure(figsize=(60, 32))
     ax_all = fig_all.add_subplot(111)
-    ax_all.set_xlabel('Generation', fontdict={'fontsize':120 })
-    ax_all.set_ylabel('Fitness', fontdict={'fontsize':120 })
+    ax_all.set_xlabel('Generation', fontdict={'fontsize': 120})
+    ax_all.set_ylabel('Fitness', fontdict={'fontsize': 120})
     ax_all.tick_params(axis='both', which='major', labelsize=100)
 
     # Algorithms in this list will be ignored and filtered out
-    
+
     for algorithm in sort_algorithms(test_fitness):
-    # for algorithm in (test_fitness):
         if not should_process(algorithm, inclusion_filter, exclusion_filter):
             continue
 
@@ -42,25 +122,25 @@ def plot_grid_output(test_fitness, exp_name, inclusion_filter, exclusion_filter,
             # maax.append(max((list(test_fitness[algorithm][gen].values()))))
             # yerr.append(statistics.stdev(list(test_fitness[algorithm][gen].values())))
 
-
-        if not Path(output_folder / exp_name).exists(): 
+        if not Path(output_folder / exp_name).exists():
             Path(output_folder / exp_name).mkdir(parents=True)
 
         if boxplots:
-            box_fig = plt.figure(figsize=(60,32))
+            box_fig = plt.figure(figsize=(60, 32))
             box_ax = box_fig.add_subplot(111)
-            box_ax.set_title(rename_alg(algorithm, rename_map), fontdict={'fontsize':100 })
-            box_ax.set_xlabel('Generation', fontdict={'fontsize':120 })
-            box_ax.set_ylabel('Fitness', fontdict={'fontsize':120 })
+            box_ax.set_title(rename_alg(algorithm, rename_map), fontdict={'fontsize': 100})
+            box_ax.set_xlabel('Generation', fontdict={'fontsize': 120})
+            box_ax.set_ylabel('Fitness', fontdict={'fontsize': 120})
 
             flierprops = dict(marker='o', markerfacecolor='r', markersize=30, linestyle='none')
             boxprops = dict(linestyle='-', linewidth=6, color='black')
             whiskerprops = dict(linewidth=6)
             medianprops = dict(linewidth=6)
 
-            box_ax.boxplot(box_data, flierprops=flierprops, boxprops=boxprops, whiskerprops=whiskerprops,medianprops=medianprops)
+            box_ax.boxplot(box_data, flierprops=flierprops, boxprops=boxprops, whiskerprops=whiskerprops,
+                           medianprops=medianprops)
             box_ax.tick_params(axis='both', which='major', labelsize=45)
-            box_ax.plot(range(1, len(mean_data) + 1), mean_data, linewidth=linewidth/4, label=exp_name)
+            box_ax.plot(range(1, len(mean_data) + 1), mean_data, linewidth=linewidth / 4, label=exp_name)
             box_ax.legend(fontsize=lfontsize, ncol=lcols, markerscale=1)
             box_fig.savefig(output_folder / f'{exp_name + "/" + algorithm}.jpg', bbox_inches='tight', pad_inches=0)
             plt.close(box_fig)
@@ -68,35 +148,36 @@ def plot_grid_output(test_fitness, exp_name, inclusion_filter, exclusion_filter,
 
         label = rename_alg(algorithm, rename_map)
         if algorithm == base_line:
-            ax_all.plot(range(1, len(mean_data) + 1), mean_data, linewidth=linewidth,  markersize=15, label="No Transfer", color='k')
+            ax_all.plot(range(1, len(mean_data) + 1), mean_data, linewidth=linewidth, markersize=15,
+                        label="No Transfer", color='k')
         else:
-            sc += 1 
-            sc %= len(line_styles) 
+            sc += 1
+            sc %= len(line_styles)
             mc += 1
             mc %= len(markers)
 
             # Uncomment this to make it draw error bars. 
             # ax_all.errorbar(range(1, len(mean_data) + 1), mean_data, label=label, linewidth = linewidth
             #                     , linestyle=line_styles[sc], marker=markers[mc], markersize=30, yerr = yerr)
-            ax_all.plot(range(1, len(mean_data) + 1), mean_data, label=label, linewidth = linewidth
-                                , linestyle=line_styles[sc], marker=markers[mc], markersize=30)
+            ax_all.plot(range(1, len(mean_data) + 1), mean_data, label=label, linewidth=linewidth
+                        , linestyle=line_styles[sc], marker=markers[mc], markersize=30)
 
     leg = ax_all.legend(fontsize=lfontsize, ncol=lcols, markerscale=1)
     for line in leg.get_lines():
         line.set_linewidth(20)
-    
+
     fig_all.savefig(output_folder / exp_name / f'{exp_name}-all.jpg', bbox_inches='tight', pad_inches=0)
     plt.close(fig_all)
 
+
 # Warning: This is not finished.
 def plot_surr(dirbase, exp, algorithms, output_folder, GENERATIONS=50):
-
-    fontsize=50
-    ncol=2
-    markerscale=1
-    markersize=12
-    labelsize=30
-    linewidth=15
+    fontsize = 50
+    ncol = 2
+    markerscale = 1
+    markersize = 12
+    labelsize = 30
+    linewidth = 15
 
     # exp = 'gdb2.vs6.gdb2.vt5:gen_50'
     # algs = ['Surrogate:initsurpool_true:tp_0:surupol_Reset', 'Surrogate:initsurpool_true:tp_0:surupol_FIFONoDupPhenotypic', 
@@ -108,14 +189,14 @@ def plot_surr(dirbase, exp, algorithms, output_folder, GENERATIONS=50):
         surrMean = {}
         fitMean = {}
         corr = {}
-        fig = plt.figure(figsize=(60,32))
+        fig = plt.figure(figsize=(60, 32))
         ax_fit = fig.add_subplot(211)
-        ax_fit.set_xlabel('Generation', fontdict={'fontsize':120 })
-        ax_fit.set_ylabel('Fitness', fontdict={'fontsize':120 })
+        ax_fit.set_xlabel('Generation', fontdict={'fontsize': 120})
+        ax_fit.set_ylabel('Fitness', fontdict={'fontsize': 120})
 
         ax_cor = fig.add_subplot(212)
-        ax_cor.set_xlabel('Generation', fontdict={'fontsize':120 })
-        ax_cor.set_ylabel('Corelation', fontdict={'fontsize':120 })
+        ax_cor.set_xlabel('Generation', fontdict={'fontsize': 120})
+        ax_cor.set_ylabel('Corelation', fontdict={'fontsize': 120})
         for alg in algorithms:
             for i in range(GENERATIONS):
                 file_name = f'Pop.{i}.csv.gz'
@@ -128,10 +209,13 @@ def plot_surr(dirbase, exp, algorithms, output_folder, GENERATIONS=50):
                 surrMean[i] = csv['SurrogateFitness'].mean()
                 fitMean[i] = csv['Fitness'].mean()
                 corr[i] = csv['SurrogateFitness'].corr(csv['Fitness'])
-            ax_fit.plot(range(1, len(surrMean) + 1), list(surrMean.values()), linewidth=linewidth, label=alg.split('_')[-1]+'Surrogate')
-            ax_fit.plot(range(1, len(fitMean) + 1), list(fitMean.values()), linewidth=linewidth, label=alg.split('_')[-1]+'Fitness')
-            ax_cor.plot(range(1, len(corr) + 1), list(corr.values()), linewidth=linewidth, label=alg.split('_')[-1]+'')
-        
+            ax_fit.plot(range(1, len(surrMean) + 1), list(surrMean.values()), linewidth=linewidth,
+                        label=alg.split('_')[-1] + 'Surrogate')
+            ax_fit.plot(range(1, len(fitMean) + 1), list(fitMean.values()), linewidth=linewidth,
+                        label=alg.split('_')[-1] + 'Fitness')
+            ax_cor.plot(range(1, len(corr) + 1), list(corr.values()), linewidth=linewidth,
+                        label=alg.split('_')[-1] + '')
+
         leg = ax_fit.legend(fontsize=fontsize, ncol=ncol, markerscale=markerscale)
         ax_fit.tick_params(axis='both', which='major', labelsize=labelsize)
         for line in leg.get_lines():
@@ -143,11 +227,10 @@ def plot_surr(dirbase, exp, algorithms, output_folder, GENERATIONS=50):
 
         # ax.set_xlabel('Train Fitness')
         # ax.set_ylabel('Test Fitness')
-        if not Path(output_folder / exp / 'surr').exists(): 
-                Path(output_folder / exp / 'surr').mkdir(parents=True)
+        if not Path(output_folder / exp / 'surr').exists():
+            Path(output_folder / exp / 'surr').mkdir(parents=True)
         fig.savefig(output_folder / exp / 'surr' / f'surr.{run}.jpg')
         plt.show()
-
 
 # def test_train_scatter(algorithm=[
 #     'PPTBreeding:ppt_0.1:cmpppt_0:xover_0.7:mut_0.15:repro_0.05:lr_0.2:ss_100:ts:_7:initperc_0.1:igen_49_49:inrad_-1:incap_1:mnThr_0:clear_true',
@@ -262,7 +345,7 @@ def plot_surr(dirbase, exp, algorithms, output_folder, GENERATIONS=50):
 #     ax.tick_params(axis='both', which='major', labelsize=labelsize)
 #     for line in leg.get_lines():
 #         line.set_linewidth(25)
-        
+
 #     exp = experiments[2]
 #     print('\n', exp)
 #     test_fitness = get_test_fitness(dirbase / exp)
