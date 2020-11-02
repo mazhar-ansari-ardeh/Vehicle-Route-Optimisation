@@ -146,6 +146,12 @@ public class Index implements Serializable{
 		return candidates;
 	}
 
+	/**
+	 * Searches the database for the given query. If any exact matches are found, then these matches are returned.
+	 * Otherwise, the items in the dataset that are closest to the query will be returned.
+	 * @param query a vector to search for in the dataset.
+	 * @return query results. The returned value can be empty.
+	 */
 	public List<Vector> queryNearest(final Vector query)
 	{
 		List<Vector> candidates = query(0f, query);
