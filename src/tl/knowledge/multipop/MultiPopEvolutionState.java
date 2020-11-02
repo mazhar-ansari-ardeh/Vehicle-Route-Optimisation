@@ -6,6 +6,7 @@ import ec.util.Parameter;
 import gphhucarp.decisionprocess.DecisionSituation;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import gphhucarp.gp.GPHHEvolutionState;
+import tl.knowledge.sst.lsh.LSH;
 
 import java.util.*;
 

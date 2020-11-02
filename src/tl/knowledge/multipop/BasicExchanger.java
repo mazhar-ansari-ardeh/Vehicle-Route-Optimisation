@@ -190,6 +190,9 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
         // how many individuals (maximally) would each of the mailboxes have to hold
         int[] incoming = new int[ numsubpops ];
 
+        if(!(state instanceof HistoricMultiPopEvolutionState))
+            throw new RuntimeException("The evolution state does not support history search.");
+
         // allocate some of the arrays
         exchangeInformation = new IPEInformation[ numsubpops ];
         for( int i = 0 ; i < numsubpops ; i++ )
@@ -315,7 +318,7 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
                     int destination = exchangeInformation[i].destinations[x];
                     log(state, logID, false, "Sending immigrants from subpop " + i + " to subpop " + destination+"\n");
 
-                    selectImmigrants(state, i, destination);
+                    selectToImmigrate(state, i, destination);
                 }
             }
         }
@@ -326,7 +329,7 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
     }
 
     // This method updates the 'immigrants' field.
-    protected void selectImmigrants(EvolutionState state, int from, int destination)
+    protected void selectToImmigrate(EvolutionState state, int from, int destination)
     {
         // select "size" individuals and send then to the destination as emigrants
         exchangeInformation[from].immigrantsSelectionMethod.prepareToProduce( state, from, 0 );
@@ -337,7 +340,7 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
             Individual immigrant = (Individual) state.population.subpops[from].individuals[index].clone();
             log(state, logID, false, immigrant.toString() + "\n");
             if(immigrant instanceof TLGPIndividual)
-                ((TLGPIndividual)immigrant).setOrigin("subpop" + from);
+                ((TLGPIndividual)immigrant).setOrigin("subpop." + from);
             immigrants[destination][nImmigrants[destination]] =
                     process(state, 0, null, destination, immigrant);
             nImmigrants[destination]++;
@@ -369,37 +372,45 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
         // receiving individuals from other islands
         // same situation here of course.
 
-        for( int x = 0 ; x < nImmigrants.length ; x++ )
+        for( int subTo = 0 ; subTo < nImmigrants.length ; subTo++ )
         {
 
-            if( nImmigrants[x] > 0 && chatty )
+            if( nImmigrants[subTo] > 0 && chatty )
             {
-                log(state, logID, "Immigrating " +  nImmigrants[x] + " individuals from mailbox for subpopulation " + x + "\n");
+                log(state, logID, "Immigrating " +  nImmigrants[subTo] + " individuals from mailbox for subpopulation " + subTo + "\n");
             }
 
-            int len = state.population.subpops[x].individuals.length;
+            int len = state.population.subpops[subTo].individuals.length;
             // double check that we won't go into an infinite loop!
-            if ( nImmigrants[x] >= state.population.subpops[x].individuals.length )
-                state.output.fatal("Number of immigrants ("+nImmigrants[x] +
-                        ") is larger than subpopulation #" + x + "'s size (" +
+            if ( nImmigrants[subTo] >= state.population.subpops[subTo].individuals.length )
+                state.output.fatal("Number of immigrants ("+nImmigrants[subTo] +
+                        ") is larger than subpopulation #" + subTo + "'s size (" +
                         len +").  This would cause an infinite loop in the selection-to-die procedure.");
 
-            int[] indices = selectToDie(state, x); // new int[ nImmigrants[x] ];
+            int[] indices = selectToDie(state, subTo); // new int[ nImmigrants[subTo] ];
 
-            for( int y = 0 ; y < nImmigrants[x] ; y++ )
+            HistoricMultiPopEvolutionState hstate = (HistoricMultiPopEvolutionState) state;
+            for( int y = 0 ; y < nImmigrants[subTo] ; y++ )
             {
-                log(state, logID,
-                    state.population.subpops[x].individuals[ indices[y] ].toString() + "\n");
-                // read the individual
-                state.population.subpops[x].individuals[ indices[y] ] = immigrants[x][y];
+                log(state, logID, immigrants[subTo][y].toString() + " ");
 
-                // reset the evaluated flag (the individuals are not evaluated in the current island */
-                state.population.subpops[x].individuals[ indices[y] ].evaluated = false;
+                if(hstate.isSeenIn(subTo, immigrants[subTo][y]) <= 0)
+                {
+                    log(state, logID, "replaced " +
+                            state.population.subpops[subTo].individuals[ indices[y] ].toString() + "\n");
+                    // read the individual
+                    state.population.subpops[subTo].individuals[indices[y]] = immigrants[subTo][y];
+
+                    // reset the evaluated flag (the individuals are not evaluated in the current island */
+                    state.population.subpops[subTo].individuals[indices[y]].evaluated = false;
+                }
+                else
+                    log(state, logID, "is seen." + "\n");
             }
 
             // reset the number of immigrants in the mailbox for the current subpopulation
             // this doesn't need another synchronization, because the thread is already synchronized
-            nImmigrants[x] = 0;
+            nImmigrants[subTo] = 0;
         }
 
         return state.population;

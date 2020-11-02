@@ -38,8 +38,14 @@ eval.problem.subpop.1.eval-model.instances.0.vehicles=6
 # ==============================
 # Basic evolution parameters
 # ==============================
-# state = ec.simple.SimpleEvolutionState
-state = tl.knowledge.multipop.MultiPopEvolutionState
+# state=ec.simple.SimpleEvolutionState
+# state=tl.knowledge.multipop.MultiPopEvolutionState
+state=tl.knowledge.multipop.HistoricMultiPopEvolutionState
+# sst-state.knowledge-path=./KnowledgeSource/gdb1.vs5-gen_50/3/TestedPopulation
+hmt-state.dms-size=20
+hmt-state.knowledge-log-file=./stats/target-wk/multipop/SSTState
+hmt-state.pop-log-path=./stats/target-wk/multipop/pop
+
 finish = ec.simple.SimpleFinisher
 exch = ec.simple.SimpleExchanger
 breed = ec.simple.SimpleBreeder
@@ -164,8 +170,11 @@ exch = tl.knowledge.multipop.BasicExchanger
 exch.knowledge-log-file=./stats/target-wk/MultiPop/exchanger
 exch.subpop.0.select = ec.select.TournamentSelection
 exch.subpop.1.select = ec.select.TournamentSelection
-exch.subpop.0.select-to-die = ec.select.RandomSelection
-exch.subpop.1.select-to-die = ec.select.RandomSelection
+# exch.subpop.0.select-to-die = ec.select.RandomSelection
+# exch.subpop.1.select-to-die = ec.select.RandomSelection
+
+exch.subpop.0.select-to-die = tl.knowledge.multipop.DuplicateSelection
+exch.subpop.1.select-to-die = tl.knowledge.multipop.DuplicateSelection
 
 exch.subpop.0.select.size=7
 exch.subpop.1.select.size=7
@@ -174,8 +183,8 @@ exch.subpop.0.size = 5
 exch.subpop.1.size = 5
 exch.subpop.0.start = 1
 exch.subpop.1.start = 1
-exch.subpop.0.mod = 5
-exch.subpop.1.mod = 5
+exch.subpop.0.mod = 1
+exch.subpop.1.mod = 1
 
 exch.subpop.0.num-dest = 1
 exch.subpop.0.dest.0 = 1
@@ -350,7 +359,7 @@ stat.file=$./stats/target-wk/job.0.out.stat
 stat.gen-pop-file=./stats/target-wk/population.gen
 
 seed.0=19
-generations=2
+generations=20
 
 
 # ==============================
