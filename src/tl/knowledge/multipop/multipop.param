@@ -192,6 +192,15 @@ exch.subpop.1.num-dest = 1
 exch.subpop.1.dest.0 = 0
 
 exch.chatty = true
+
+## Exchange.Mutator ########################
+exch.mutator.ns = ec.gp.koza.KozaNodeSelector
+exch.mutator.build = ec.gp.koza.GrowBuilder
+exch.mutator.maxdepth = 8
+exch.mutator.tries = 1
+
+exch.num-mutation=3
+
 #################################################
 
 

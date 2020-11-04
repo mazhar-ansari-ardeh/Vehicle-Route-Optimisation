@@ -1,7 +1,9 @@
 package tl.knowledge.multipop;
 
 import ec.*;
+import ec.gp.GPIndividual;
 import ec.gp.GPNode;
+import ec.gp.koza.MutationPipeline;
 import ec.util.Parameter;
 import tl.TLLogger;
 import tl.gp.TLGPIndividual;
@@ -94,15 +96,15 @@ import java.io.Serializable;
  </td></tr>
  </table>
 
- <p><b>Parameter bases</b><br>
- <table>
- <tr><td valign=top><tt><i>base</i>.subpop.<i>n</i>.select</tt><br>
- <td>selection method for subpopulation #n's migrants</td></tr>
- </table>
  */
 public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
 {
     private static final long serialVersionUID = 1;
+
+    /**
+     * The base for parameters of the mutator.
+     */
+    private static final String P_MUTATOR_BASE = "mutator";
 
     // static inner classes don't need SerialVersionUIDs
     static class IPEInformation implements Serializable
@@ -131,8 +133,18 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
 
     private int logID;
 
+    Mutator mutator = new Mutator();
+
     /** The subpopulation delimiter */
     public static final String P_SUBPOP = "subpop";
+
+    /**
+     * The number of mutations to perform on an individual if it is seen in the target sub-population. A value of zero
+     * means that no mutation should be performed even if the candidate individual is seen. This value cannot be
+     * negative.
+     */
+    public  static final String P_NUM_MUTATIONS = "num-mutation";
+    private int numMutations;
 
     /** The parameter for the modulo (how many generations should pass between consecutive sendings of individuals */
     public static final String P_MODULO = "mod";
@@ -271,6 +283,14 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
         immigrants = new Individual[ numsubpops ][ max ];
 
         logID = setupLogger(state, base);
+
+        mutator.setup(state, base.push(P_MUTATOR_BASE));
+
+        numMutations = state.parameters.getInt(base.push(P_NUM_MUTATIONS), null);
+        if(numMutations < 0)
+            logFatal(state, logID, "Number of mutations for the exchanger cannot be negative.");
+        else
+            log(state, logID, true, "Number of mutations for the exchanger: " + numMutations + ".\n");
     }
 
 
@@ -290,8 +310,6 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
     public void reinitializeContacts(EvolutionState state)
     {
     }
-
-
 
     public Population preBreedingExchangePopulation(EvolutionState state)
     {
@@ -392,20 +410,55 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
             HistoricMultiPopEvolutionState hstate = (HistoricMultiPopEvolutionState) state;
             for( int y = 0 ; y < nImmigrants[subTo] ; y++ )
             {
-                log(state, logID, immigrants[subTo][y].toString() + " ");
+                Individual mutated = immigrants[subTo][y];
+                log(state, logID, mutated.toString() + ",");
 
-                if(hstate.isSeenIn(subTo, immigrants[subTo][y]) <= 0)
+                for(int i=0; i < numMutations + 1; i++)
                 {
-                    log(state, logID, "replaced " +
-                            state.population.subpops[subTo].individuals[ indices[y] ].toString() + "\n");
-                    // read the individual
-                    state.population.subpops[subTo].individuals[indices[y]] = immigrants[subTo][y];
+                    if(hstate.isSeenIn(subTo, mutated) <= 0)
+                    {
+                        log(state, logID, "new," + i + "," );
+                        log(state, logID, state.population.subpops[subTo].individuals[ indices[y] ].toString() + "\n");
+                        // read the individual
+                        state.population.subpops[subTo].individuals[indices[y]] = mutated;
 
-                    // reset the evaluated flag (the individuals are not evaluated in the current island */
-                    state.population.subpops[subTo].individuals[indices[y]].evaluated = false;
+                        // reset the evaluated flag (the individuals are not evaluated in the current island */
+                        state.population.subpops[subTo].individuals[indices[y]].evaluated = false;
+                        break;
+                    }
+                    log(state, logID, "seen," + i + ",");
+                    mutated = mutator.mutate(subTo, (GPIndividual) immigrants[subTo][y], state, 0);
+                    log(state, logID, mutated.toString() + "\n");
                 }
-                else
-                    log(state, logID, "is seen." + "\n");
+
+//                if(hstate.isSeenIn(subTo, immigrants[subTo][y]) <= 0)
+//                {
+//                    log(state, logID, "replaced " +
+//                            state.population.subpops[subTo].individuals[ indices[y] ].toString() + "\n");
+//                    // read the individual
+//                    state.population.subpops[subTo].individuals[indices[y]] = immigrants[subTo][y];
+//
+//                    // reset the evaluated flag (the individuals are not evaluated in the current island */
+//                    state.population.subpops[subTo].individuals[indices[y]].evaluated = false;
+//                }
+//                else
+//                {
+//                    log(state, logID, "is seen." + "\n");
+//                    for(int i=0; i < numMutations; i++)
+//                    {
+//                        Individual mutated = mutator.mutate(subTo, (GPIndividual) immigrants[subTo][y], state, 0);
+//                        if(hstate.isSeenIn(subTo, mutated) <= 0)
+//                        {
+//                            log(state, logID, "replaced " +
+//                                    state.population.subpops[subTo].individuals[ indices[y] ].toString() + "\n");
+//                            // read the individual
+//                            state.population.subpops[subTo].individuals[indices[y]] = mutated;
+//
+//                            // reset the evaluated flag (the individuals are not evaluated in the current island */
+//                            state.population.subpops[subTo].individuals[indices[y]].evaluated = false;
+//                        }
+//                    }
+//                }
             }
 
             // reset the number of immigrants in the mailbox for the current subpopulation
