@@ -1,16 +1,20 @@
 from .core import rename_alg
 from .core import should_process
 from .core import sort_algorithms
+from .core import get_test_fitness
+from .core import get_train_fitness
+from .core import natural_keys
 
 import statistics
 import matplotlib.pyplot as plt
 import pandas as pd
-import numpy as np
 from pathlib import Path
 import seaborn as sns
+import numpy as np
+import re
 
 
-def violin_plot(data_table, gen, rename_map, output_folder):
+def violin_plot(data_table, gen, rename_map, output_folder, alg_order):
     # plt.style.use('seaborn-muted')
     # plt.style.use('fast')
     plt.style.use('bmh')
@@ -32,11 +36,13 @@ def violin_plot(data_table, gen, rename_map, output_folder):
         data.append(list(data_table[alg][gen].values()))
 
     fig, ax = plt.subplots(1, 1)
-    sns.violinplot(data=df, ax=ax, x='Algorithm', y="Fitness")
-    ax.tick_params(axis='both', which='major', labelsize=25)
-    ax.set_xlabel('Algorithm', fontdict={'fontsize': 30})
-    ax.set_ylabel('Fitness', fontdict={'fontsize': 30})
-    fig.savefig(output_folder / 'violin.png', bbox_inches='tight', pad_inches=0)
+    sns.violinplot(data=df, ax=ax, x='Algorithm', y="Fitness", order=alg_order)
+    ax.tick_params(axis='both', which='major', labelsize=30)
+    ax.set_xlabel('Algorithm', fontdict={'fontsize': 35})
+    ax.set_ylabel('Fitness', fontdict={'fontsize': 35})
+    for label in ax.get_xticklabels():
+        label.set_rotation(90)
+    fig.savefig(output_folder / 'violin.jpg', bbox_inches='tight', pad_inches=0)
     plt.close(fig)
     # def set_axis_style(ax, labels):
     #     ax.get_xaxis().set_tick_params(direction='out')
@@ -90,7 +96,8 @@ def violin_plot(data_table, gen, rename_map, output_folder):
 
 
 def plot_grid_output(test_fitness, exp_name, inclusion_filter, exclusion_filter, output_folder,
-                     rename_map, base_line='WithoutKnowledge', boxplots=False, lcols=2, lfontsize=95, linewidth=19):
+                     rename_map, base_line='WithoutKnowledge', boxplots=False, markersize=15, linewidth=19, lcols=2,
+                     lfontsize=95, lmarkerscale=1.2, llinewidth=20):
     print("Plotting", exp_name)
     plt.style.use('default')
     markers = ["", ',', 'o', 'v', '^', '<', '>', 's', 'p', '*', 'h', 'H', '+', 'x', 'D', 'd', '|', '_']
@@ -114,13 +121,13 @@ def plot_grid_output(test_fitness, exp_name, inclusion_filter, exclusion_filter,
         mean_data = []
         # miin = []
         # maax = []
-        # yerr = []
+        yerr = []
         for gen in test_fitness[algorithm]:
             box_data.append((list(test_fitness[algorithm][gen].values())))
             mean_data.append(statistics.mean(list(test_fitness[algorithm][gen].values())))
             # miin.append(min((list(test_fitness[algorithm][gen].values()))))
             # maax.append(max((list(test_fitness[algorithm][gen].values()))))
-            # yerr.append(statistics.stdev(list(test_fitness[algorithm][gen].values())))
+            yerr.append(statistics.stdev(list(test_fitness[algorithm][gen].values())))
 
         if not Path(output_folder / exp_name).exists():
             Path(output_folder / exp_name).mkdir(parents=True)
@@ -141,14 +148,14 @@ def plot_grid_output(test_fitness, exp_name, inclusion_filter, exclusion_filter,
                            medianprops=medianprops)
             box_ax.tick_params(axis='both', which='major', labelsize=45)
             box_ax.plot(range(1, len(mean_data) + 1), mean_data, linewidth=linewidth / 4, label=exp_name)
-            box_ax.legend(fontsize=lfontsize, ncol=lcols, markerscale=1)
+            box_ax.legend(fontsize=lfontsize, ncol=lcols, markerscale=lmarkerscale)
             box_fig.savefig(output_folder / f'{exp_name + "/" + algorithm}.jpg', bbox_inches='tight', pad_inches=0)
             plt.close(box_fig)
             # print('Saved', output_folder / f'{exp_name + "/" + algorithm}.jpg')
 
         label = rename_alg(algorithm, rename_map)
         if algorithm == base_line:
-            ax_all.plot(range(1, len(mean_data) + 1), mean_data, linewidth=linewidth, markersize=15,
+            ax_all.plot(range(1, len(mean_data) + 1), mean_data, linewidth=linewidth, markersize=markersize,
                         label="No Transfer", color='k')
         else:
             sc += 1
@@ -157,17 +164,64 @@ def plot_grid_output(test_fitness, exp_name, inclusion_filter, exclusion_filter,
             mc %= len(markers)
 
             # Uncomment this to make it draw error bars. 
-            # ax_all.errorbar(range(1, len(mean_data) + 1), mean_data, label=label, linewidth = linewidth
-            #                     , linestyle=line_styles[sc], marker=markers[mc], markersize=30, yerr = yerr)
+            # ax_all.errorbar(range(1, len(mean_data) + 1), mean_data, label=label, linewidth=linewidth
+            #                     , linestyle=line_styles[sc], marker=markers[mc], markersize=30, yerr=yerr)
             ax_all.plot(range(1, len(mean_data) + 1), mean_data, label=label, linewidth=linewidth
-                        , linestyle=line_styles[sc], marker=markers[mc], markersize=30)
+                        , linestyle=line_styles[sc], marker=markers[mc], markersize=markersize)
 
-    leg = ax_all.legend(fontsize=lfontsize, ncol=lcols, markerscale=1)
+    leg = ax_all.legend(fontsize=lfontsize, ncol=lcols, markerscale=lmarkerscale)
     for line in leg.get_lines():
-        line.set_linewidth(20)
+        line.set_linewidth(llinewidth)
 
     fig_all.savefig(output_folder / exp_name / f'{exp_name}-all.jpg', bbox_inches='tight', pad_inches=0)
     plt.close(fig_all)
+
+
+# def atof(text):
+#     try:
+#         retval = float(text)
+#     except ValueError:
+#         retval = text
+#     return retval
+
+
+# def natural_keys(text):
+#     """
+#     alist.sort(key=natural_keys) sorts in human order
+#     http://nedbatchelder.com/blog/200712/human_sorting.html
+#     (See Toothy's implementation in the comments)
+#     float regex comes from https://stackoverflow.com/a/12643073/190597
+#     """
+#     return [atof(c) for c in re.split(r'[+-]?([0-9]+(?:[.][0-9]*)?|[.][0-9]+)', text)]
+
+
+def plot_twinx(df, save_file, markersize=60, linewidth=6, lcols=2,
+               lfontsize=95, lmarkerscale=1.2, llinewidth=15):
+    df = df.reindex(sorted(df.index, key=natural_keys), axis=0)
+    fig = plt.figure(figsize=(60, 30))
+    ax1 = fig.add_subplot(111)
+    ax1.set_xlabel('Algorithm', fontdict={'fontsize': 125})
+    ax1.set_ylabel(df.columns[0], fontdict={'fontsize': 120})
+    # ax1.set_xticks(np.arange(len(df.index)), minor=True)
+    # ax1.set_xticklabels(df.index)
+    ax1.set_xticks(np.arange(len(df.index)))
+    ax1.tick_params(axis='both', labelsize=80)
+    df.iloc[:, 0].plot(ax=ax1, style='r*:', label=df.columns[0], linewidth=linewidth, markersize=markersize+5)
+    for label in ax1.get_xticklabels():
+        label.set_rotation(90)
+    leg = ax1.legend(fontsize=lfontsize, ncol=1, markerscale=lmarkerscale+0.1, loc='upper left')
+    for line in leg.get_lines():
+        line.set_linewidth(llinewidth)
+
+    ax2 = ax1.twinx()
+    ax2.set_ylabel(df.columns[1], fontdict={'fontsize': 120})
+    ax2.tick_params(axis='y', labelsize=80)
+    df.iloc[:, 1].plot(ax=ax2, style='go:', label=df.columns[1], linewidth=linewidth, markersize=markersize)
+    leg = ax2.legend(fontsize=lfontsize, ncol=1, markerscale=lmarkerscale, loc='upper right')
+    for line in leg.get_lines():
+        line.set_linewidth(llinewidth)
+
+    fig.savefig(save_file, bbox_inches='tight', pad_inches=0)
 
 
 # Warning: This is not finished.
@@ -232,58 +286,12 @@ def plot_surr(dirbase, exp, algorithms, output_folder, GENERATIONS=50):
         fig.savefig(output_folder / exp / 'surr' / f'surr.{run}.jpg')
         plt.show()
 
-# def test_train_scatter(algorithm=[
-#     'PPTBreeding:ppt_0.1:cmpppt_0:xover_0.7:mut_0.15:repro_0.05:lr_0.2:ss_100:ts:_7:initperc_0.1:igen_49_49:inrad_-1:incap_1:mnThr_0:clear_true',
-#     'PPTBreeding:ppt_0.1:cmpppt_0:xover_0.7:mut_0.15:repro_0.05:lr_0.2:ss_100:ts:_7:initperc_0.1:igen_49_49:inrad_-1:incap_1:mnThr_0:clear_false',
-#     # 'PPTBreeding:ppt_0.1:cmpppt_0:xover_0.7:mut_0.15:repro_0.05:lr_0.2:ss_100:ts:_7:initperc_0.5:igen_49_49:inrad_-1:incap_1:mnThr_0:clear_true',
-#     # 'FullTree:tp_10:dup_true:clear_true',
-#     'FullTree:tp_50:dup_false:clear_true',
-#     # 'Subtree:perc_10:clear_true',
-#     'Subtree:perc_50:clear_true',
-#     ],
-#     base_line='WithoutKnowledge:clear_true'):
-#
-#     fig = plt.figure(figsize=(20, 14))
-#     markers = ['o', 'v', '^', 's', 'p', '*', 'h', '+', 'x', 'D', 'd', '|', '_']
-#     cnt = 0
-#
-#     experiments = [
-#                             'gdb1.vs5.gdb1.vt4:gen_50',
-#                             # 'gdb1.vs5.gdb1.vt6:gen_50',
-#                             # 'gdb2.vs6.gdb2.vt5:gen_50',
-#                             # 'gdb2.vs6.gdb2.vt7:gen_50',
-#                             # 'gdb3.vs5.gdb3.vt4:gen_50',
-#                             'gdb3.vs5.gdb3.vt6:gen_50',
-#                             # 'gdb4.vs4.gdb4.vt3:gen_50',
-#                             # 'gdb4.vs4.gdb4.vt5:gen_50',
-#                             # 'gdb5.vs6.gdb5.vt5:gen_50',
-#                             # 'gdb5.vs6.gdb5.vt7:gen_50',
-#                             # 'gdb6.vs5.gdb6.vt4:gen_50',
-#                             # 'gdb6.vs5.gdb6.vt6:gen_50',
-#                             'gdb7.vs5.gdb7.vt4:gen_50',
-#                             # 'gdb7.vs5.gdb7.vt6:gen_50',
-#                             # 'gdb12.vs7.gdb12.vt6:gen_50',
-#                             # 'gdb12.vs7.gdb12.vt8:gen_50',
-#                             # 'gdb13.vs6.gdb13.vt5:gen_50',
-#                             # 'gdb13.vs6.gdb13.vt7:gen_50',
-#                             # 'gdb14.vs5.gdb14.vt4:gen_50',
-#                             # 'gdb14.vs5.gdb14.vt6:gen_50',
-#                             # 'gdb15.vs4.gdb15.vt3:gen_50',
-#                             # 'gdb15.vs4.gdb15.vt5:gen_50', 
-#                             # 'gdb16.vs5.gdb16.vt4:gen_50',
-#                             # 'gdb16.vs5.gdb16.vt6:gen_50',
-#                             # 'gdb17.vs5.gdb17.vt4:gen_50',
-#                             # 'gdb17.vs5.gdb17.vt6:gen_50',
-#                             'gdb19.vs3.gdb19.vt2:gen_50',
-#                             # 'gdb19.vs3.gdb19.vt4:gen_50',
-#                             # 'gdb20.vs4.gdb20.vt3:gen_50',
-#                             # 'gdb20.vs4.gdb20.vt5:gen_50',
-#                             # 'gdb18.vs5.gdb18.vt4:gen_50',
-#                             # 'gdb18.vs5.gdb18.vt6:gen_50',
-#                             # 'gdb21.vs6.gdb21.vt5:gen_50',
-#                             # 'gdb21.vs6.gdb21.vt7:gen_50',
-# ]
 
+def test_train_scatter(inclusion, exclusion, experiments, dirbase, base_line='WithoutKnowledge'):
+#
+    fig = plt.figure(figsize=(20, 14))
+    markers = ['o', 'v', '^', 's', 'p', '*', 'h', '+', 'x', 'D', 'd', '|', '_']
+    cnt = 0
 
 #     fontsize=18
 #     ncol=1
@@ -291,14 +299,15 @@ def plot_surr(dirbase, exp, algorithms, output_folder, GENERATIONS=50):
 #     markersize=12
 #     labelsize=30
 
-#     exp = experiments[0]
-#     print('\n', exp)
-#     test_fitness = get_test_fitness(dirbase / exp)
-#     train_fitness = get_train_mean(dirbase / exp)
-#     cnt = 0
-#     for alg in [*algorithm, base_line]:
-#         x = []
-#         y = []
+    exp = experiments[0]
+    print('\n', exp)
+    test_fitness = get_test_fitness(dirbase / exp, inclusion, exclusion)
+    train_fitness = get_train_fitness(dirbase / exp, inclusion, exclusion)
+    cnt = 0
+    for alg in test_fitness:
+        if should_process(alg, inclusion, exclusion):
+            x = []
+            y = []
 #         for run in range(1, 31):
 #             x.append(train_fitness[alg][49][run])
 #             y.append(test_fitness[alg][49][run])

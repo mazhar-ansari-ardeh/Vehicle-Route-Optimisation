@@ -11,6 +11,8 @@ from .core import get_test_fitness
 from .core import sort_algorithms
 from .core import rename_alg
 
+from .plotting import plot_twinx
+
 import stac
 
 import scipy.stats as ss
@@ -164,9 +166,9 @@ def friedman_test2(test_fitness, ignore_list=[]):
         post[alg] = (pivot[ctr])
         ctr = ctr + 1
 
-    names, _, _, adjusted_pval = stac.nonparametric_tests.nemenyi_multitest(post)
+    names, z_values, p_values, adjusted_pval = stac.nonparametric_tests.nemenyi_multitest(post)
 
-    return p, list(zip(alg_names, rank)), list(zip(names, adjusted_pval))
+    return p, list(zip(alg_names, rank)), list(zip(names, adjusted_pval)), list(zip(alg_names, z_values)), list(zip(alg_names, p_values))
 
 
 def summary(dirbase, experiments, inclusion_filter, exclusion_filter, rename_map,
@@ -329,6 +331,31 @@ def save_stat2(summary_table, output_folder, rename_map, fried_table):
 
         return win, draw, loss
 
+    def fried_on_average(ave_df):
+        pval, ranks, posthoc, z_values, p_values = friedman_test2(ave_df.T.to_dict('list'))
+        ranks = {rename_alg(rank[0], rename_map): round(rank[1], 2) for rank in ranks}
+        z_values = {rename_alg(z[0], rename_map): z[1] for z in z_values}
+        p_values = {rename_alg(p[0], rename_map): p[1] for p in p_values}
+        ranks['p-val'] = pval
+        pd.Series(ranks).to_csv(output_folder / 'mean_table_ranks.csv')
+        pd.Series(ranks).to_latex(output_folder / 'mean_table_ranks.tex')
+
+        pd.Series(z_values).to_csv(output_folder / 'mean_table_z_values.csv')
+        pd.Series(z_values).to_latex(output_folder / 'mean_table_z_values.tex')
+
+        pd.Series(p_values).to_csv(output_folder / 'mean_table_unadj_p_values.csv')
+        pd.Series(p_values).to_latex(output_folder / 'mean_table_unadj_p_values.tex')
+
+        dc = {}
+        for s in posthoc:
+            s1, s2 = s[0].split(' vs ')
+            if s1 not in dc:
+                dc[s1] = {}
+            dc[s1][s2] = round(float(s[1]), 5)
+        df = pd.DataFrame(dc).fillna('--')
+        df.to_latex(output_folder / 'mean_table_ph.tex')
+        df.to_csv(output_folder / 'mean_table_ph.csv')
+
     output_folder = Path(output_folder)
     if not output_folder.exists():
         output_folder.mkdir(parents=True)
@@ -337,12 +364,16 @@ def save_stat2(summary_table, output_folder, rename_map, fried_table):
     all_pvals = None
     all_stds = None
     all_ranks = pd.DataFrame()
+    scenario = 1
+    scenario_series = pd.Series(dtype='Int64')
     for exp in summary_table:
+
         exp_summary = {rename_alg(alg, rename_map): summary_table[exp][alg] for alg in
                        sort_algorithms(summary_table[exp])}
         df = pd.DataFrame(exp_summary)
 
         ren_exp = rename_exp(exp)
+        scenario_series[ren_exp] = scenario
         save_path = output_folder / ren_exp
         if not save_path.exists():
             save_path.mkdir(parents=True)
@@ -368,11 +399,17 @@ def save_stat2(summary_table, output_folder, rename_map, fried_table):
             all_averages[ren_exp] = df.Average.to_frame(ren_exp)
             all_pvals[ren_exp] = df.pval_wo_wil.to_frame(ren_exp)
             all_stds[ren_exp] = df.Stdev.to_frame(ren_exp)
+        scenario += 1
 
     # averages = all_averages.T.to_dict('list')
     # fried_average = friedman_test2(averages, [])
-    all_averages['AverageRank'] = all_ranks.T.mean()
-    all_ranks['AverageRank'] = all_ranks.T.mean()
+    fried_on_average(all_averages)
+    all_averages['AverageRank'] = round(all_ranks.T.mean(), 1)
+    all_ranks['AverageRank'] = round(all_ranks.T.mean(), 1)
+
+    dff = pd.DataFrame(all_ranks.T.mean(), columns=['Rank'])
+    dff['Fitness'] = all_averages.T.mean()
+    plot_twinx(dff, output_folder / 'RankFitness.jpg')
 
     algs = set()
     for exp in summary_table:
@@ -392,27 +429,32 @@ def save_stat2(summary_table, output_folder, rename_map, fried_table):
     wdl_df.to_csv(output_folder / 'fried_wdl.csv')
     wdl_df.to_latex(output_folder / 'fried_wdl.tex')
 
-    # if baseline:
-    #     wins, draws, losses = calc_wdl(fried_table, baseline)
-    #     wdl_df = pd.DataFrame({'W': wins, 'D': draws, 'L': losses, 'AverageRank': all_ranks.T.mean()}).fillna(0)
-    #     wdl_df.to_csv(output_folder / 'fried_wdl.csv')
-    #     wdl_df.to_latex(output_folder / 'fried_wdl.tex')
-
     latex_df = all_averages.astype(str).add(r"$\pm$" + all_stds.astype(str), fill_value="")
-    # for i in all_pvals.index:
-    #     if i == baseline:
-    #         continue
-    #     for j in all_pvals.loc[i].index:
-    #         if all_pvals.loc[i][j] == '--' or all_pvals.loc[i][j] >= 0.05:
-    #             continue
-    #         if all_averages.loc[i][j] < all_averages.loc[baseline][j]:
-    #             latex_df.loc[i][j] = r'\textbf{' + latex_df.loc[i][j] + '}'
-    #         else:
-    #             latex_df.loc[i][j] = r'\underline{\textit{' + latex_df.loc[i][j] + '}}'
-    latex_df.T.to_latex(output_folder / 'sum.tex', escape=False)
+    for i in all_pvals.index:
+        if i == 'GPHH':
+            continue
+        for j in all_pvals.loc[i].index:
+            if all_pvals.loc[i][j] == '--' or all_pvals.loc[i][j] >= 0.05:
+                continue
+            if all_averages.loc[i][j] < all_averages.loc['GPHH'][j]:
+                latex_df.loc[i][j] = r'\textbf{' + latex_df.loc[i][j] + '}'
+            else:
+                latex_df.loc[i][j] = r'\underline{\textit{' + latex_df.loc[i][j] + '}}'
+    latex_df = latex_df.T
+    latex_df.insert(loc=0, column='Scenario', value=scenario_series, )
+    latex_df.sort_values(by=['Scenario'], axis=0, inplace=True)
+    # latex_df['Scenario'] = scenario_series
+    latex_df.to_latex(output_folder / 'sum.tex', escape=False)
     csv_df = all_averages.astype(str).add(r"(" + all_stds.astype(str) + ", " + all_pvals.astype(str) + r")",
-                                          fill_value="")
-    csv_df.T.to_csv(output_folder / "sum.csv")
+                                          fill_value="").T
+
+    csv_df.insert(loc=0, column='Scenario', value=scenario_series)
+    csv_df.sort_values(by=['Scenario'], axis=0, inplace=True)
+    csv_df.to_csv(output_folder / "sum.csv")
+
+    all_ranks = all_ranks.T
+    all_ranks.insert(loc=0, column='Scenario', value=scenario_series, )
+    all_ranks.sort_values(by=['Scenario'], axis=0, inplace=True)
     all_ranks.to_latex(output_folder / 'ranks.tex')
     all_ranks.to_csv(output_folder / 'ranks.csv')
 

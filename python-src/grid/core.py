@@ -42,12 +42,33 @@ def rename_alg(algorithm, name_map):
 
 
 def rename_exp(exp):
-    exp = re.sub('gdb', 'GDB', exp)
-    exp = re.sub(r'\.vs', '-', exp)
-    exp = re.sub(r'\.GDB\d+', '', exp)
-    exp = re.sub(r':gen_50', '', exp)
-    exp = re.sub(r'\.vt', '', exp)
+    # exp = re.sub('gdb', 'GDB', exp)
+    # exp = re.sub(r'\.vs', '-', exp)
+    # exp = re.sub(r'\.GDB\d+', '', exp)
+    # exp = re.sub(r':gen_50', '', exp)
+    # exp = re.sub(r'\.vt', '', exp)
     return exp
+
+
+def atof(text):
+    try:
+        retval = float(text)
+    except ValueError:
+        retval = text
+    return retval
+
+
+def natural_keys(text):
+    """
+    alist.sort(key=natural_keys) sorts in human order
+    http://nedbatchelder.com/blog/200712/human_sorting.html
+    (See Toothy's implementation in the comments)
+    float regex comes from https://stackoverflow.com/a/12643073/190597
+    """
+    return [atof(c) for c in re.split(r'[+-]?([0-9]+(?:[.][0-9]*)?|[.][0-9]+)', text)]
+
+def natural_sort(iterable):
+    return sorted(iterable, key=natural_keys)
 
 
 def rename_alg_zzz(algorithm):
@@ -359,6 +380,7 @@ def find_all_failed(basedir, experiments, inclusion_filter, exclusion_filter, nu
                     print(exp, algorithm, str(i), 'test file does not contain any CSVs')
                     continue
 
+
 def ListAlgorithms(basedir, experiments, alg_base, rename_map): 
     retval = {}
     for exp in experiments:
@@ -372,4 +394,3 @@ def ListAlgorithms(basedir, experiments, alg_base, rename_map):
                 retval[ren_alg] = []
             retval[ren_alg].append(rename_exp(exp))
     return sorted(retval)
-            

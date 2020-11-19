@@ -48,15 +48,16 @@ def archive_alg(*, experiments, algorithm_to_archive, dirbase='/home/mazhar/grid
     for exp in experiments:
         (_, algorithms, _) = next(os.walk(dirbase / exp))
         for algorithm in algorithms:
-            if (not re.search(algorithm_to_archive, algorithm)): # and (not re.search(r'PPTPipe', algorithm)):
+            if not re.search(algorithm_to_archive, algorithm):  # and (not re.search(r'PPTPipe', algorithm)):
                 continue
             (_, runs, _) = next(os.walk(dirbase / exp / algorithm))
-            for run in runs: 
-                if (not (Path(save_to) / exp / algorithm / (run + ".tar.bz2")).is_file()):
+            for run in sorted(runs):
+                if not (Path(save_to) / exp / algorithm / (run + ".tar.bz2")).is_file():
                     print(dirbase / exp / algorithm / run, ' is not backed up. Backing it up now.')
                     shutil.make_archive(Path(save_to) / exp / algorithm / run, 'bztar', dirbase / exp / algorithm / run)
                     print(dirbase / exp / algorithm / run, ' backed up.')
             print(dirbase / exp / algorithm, 'archived.')
+
 
 def delete_alg(*, experiments, algorithm_to_delete, dirbase='/home/mazhar/grid/', save_to='/local/scratch/'):
     """
@@ -78,7 +79,7 @@ def delete_alg(*, experiments, algorithm_to_delete, dirbase='/home/mazhar/grid/'
                 continue
             if save_to:
                 (_, runs, _) = next(os.walk(dirbase / exp / algorithm))
-                for run in runs: 
+                for run in sorted(runs):
                     if (not (Path(save_to) / exp / algorithm / (run + ".tar.bz2")).is_file()):
                         print(dirbase / exp / algorithm / run, ' is not backed up. Backing it up now.')
                         shutil.make_archive(Path(save_to) / exp / algorithm / run, 'bztar', dirbase / exp / algorithm / run)
