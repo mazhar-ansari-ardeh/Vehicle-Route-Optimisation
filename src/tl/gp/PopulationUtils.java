@@ -83,8 +83,30 @@ public class PopulationUtils
 		return Arrays.stream(pop).map(i -> (GPIndividual)i).filter(filter).toArray(GPIndividual[]::new);
 	}
 
+	public static void savePopulation(List<Individual> pop, String fileName)
+			throws IOException
+	{
+		File file = new File(fileName);
+		if(file.exists())
+		{
+			if(!file.delete())
+				throw new RuntimeException("Failed to delete the existing file: " + file.getAbsolutePath());
+		}
+		try(ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(file)))
+		{
+			int nSubPops = 1;
+			oos.writeInt(nSubPops);
+			int nInds = pop.size();
+			oos.writeInt(nInds);
+			for(Individual ind : pop)
+			{
+				oos.writeObject(ind);
+			}
+		}
+	}
+
 	public static void savePopulation(Population pop, String fileName)
-			throws FileNotFoundException, IOException
+			throws IOException
 	{
 		File file = new File(fileName);
 		if(file.exists())
@@ -136,8 +158,8 @@ public class PopulationUtils
 	}
 
 	/**
-	 * Loads GP population from a file or a set of files in a directory. The method performs a clearning operation on
-	 * the loaded pool to remove duplicated.
+	 * Loads GP population from a file or a set of files in a directory. The method does not perform any clearing
+	 * operation on the loaded pool to remove duplicated.
 	 * @param state The evolutionary state that governs this process.
 	 * @param inputPath The path to the knowledge file or directory.
 	 * @param fromGeneration If the path is to a directory, the generation to start loading populations; otherwise, it
@@ -177,16 +199,16 @@ public class PopulationUtils
 				}
 				Population p = PopulationUtils.loadPopulation(file);
 				pool.addAll(Arrays.asList(p.subpops[0].individuals));
-				pool.sort(Comparator.comparingDouble(ind -> ind.fitness.fitness()));
-				pool = pool.stream().filter(ind -> ind.fitness.fitness() != Double.POSITIVE_INFINITY).collect(Collectors.toList());
+//				pool.sort(Comparator.comparingDouble(ind -> ind.fitness.fitness()));
+//				pool = pool.stream().filter(ind -> ind.fitness.fitness() != Double.POSITIVE_INFINITY).collect(Collectors.toList());
 			}
 		}
 		else if (f.isFile())
 		{
 			Population p = PopulationUtils.loadPopulation(f);
-			PopulationUtils.sort(p);
+//			PopulationUtils.sort(p);
 			pool.addAll(Arrays.asList(p.subpops[0].individuals));
-			pool = pool.stream().filter(ind -> ind.fitness.fitness() != Double.POSITIVE_INFINITY).collect(Collectors.toList());
+//			pool = pool.stream().filter(ind -> ind.fitness.fitness() != Double.POSITIVE_INFINITY).collect(Collectors.toList());
 		}
 
 		if(logPopulation && logger != null)
@@ -200,7 +222,7 @@ public class PopulationUtils
 	}
 
 	/**
-	 * Loads GP population from a file or a set of files in a directory. The method performs a clearning operation on
+	 * Loads GP population from a file or a set of files in a directory. The method performs a clearing operation on
 	 * the loaded pool to remove duplicated.
 	 * @param state The evolutionary state that governs this process.
 	 * @param inputPath The path to the knowledge file or directory.
