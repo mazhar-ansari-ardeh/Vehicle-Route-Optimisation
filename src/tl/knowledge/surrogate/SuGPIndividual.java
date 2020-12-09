@@ -1,5 +1,6 @@
 package tl.knowledge.surrogate;
 
+import ec.gp.GPIndividual;
 import ec.gp.GPNode;
 import ec.gp.GPTree;
 import ec.multiobjective.MultiObjectiveFitness;
@@ -12,7 +13,7 @@ public class SuGPIndividual extends TLGPIndividual
 		return surFit;
 	}
 
-	public static SuGPIndividual asGPIndividual(GPNode root, double fitness)
+	public static SuGPIndividual asGPIndividual(GPNode root, double fitness, boolean evaluated)
 	{
 		SuGPIndividual retval = new SuGPIndividual();
 		retval.trees = new GPTree[1];
@@ -30,8 +31,20 @@ public class SuGPIndividual extends TLGPIndividual
 		aFitness.objectives = new double[]{fitness};
 		aFitness.maximize = new boolean[]{false};
 		retval.fitness = aFitness;
-		retval.evaluated = false;
+		retval.evaluated = evaluated;
 		return retval;
+	}
+
+	public static SuGPIndividual asGPIndividual(GPNode root, double fitness)
+	{
+		return asGPIndividual(root, fitness, false);
+	}
+
+	public static SuGPIndividual asGPIndividual(GPIndividual ind, int tree, boolean evaluated)
+	{
+		GPNode root = ind.trees[tree].child;
+		double fitness = ind.fitness.fitness();
+		return asGPIndividual(root, fitness, evaluated);
 	}
 
 	public void setSurFit(double surFit)
