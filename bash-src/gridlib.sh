@@ -1,4 +1,4 @@
-#!/bin/sh
+ #!/bin/sh
 
 # Setting variables that config the experiment.
 
@@ -360,6 +360,60 @@ sstransfer()
     -p gp.tc.0.init=tl.knowledge.sst.SSTBuilder \
     -p gp.tc.0.init.transfer-percent=$8 \
     -p gp.tc.0.init.similarity-thresh=$9 \
+    -p gp.tc.0.init.knowledge-log-file="$L_EXPERIMENT_DIR/Builder" \
+    -p pop.subpop.0.species.pipe.source.0=tl.knowledge.sst.SSTCrossoverPipeline \
+    -p pop.subpop.0.species.pipe.source.0.similarity-thresh=${10} \
+    -p pop.subpop.0.species.pipe.source.0.sst-num-tries=${11} \
+    -p pop.subpop.0.species.pipe.source.0.knowledge-log-file="$L_EXPERIMENT_DIR/Crossover" \
+    -p pop.subpop.0.species.pipe.source.1=tl.knowledge.sst.SSTMutation \
+    -p pop.subpop.0.species.pipe.source.1.similarity-thresh=${12} \
+    -p pop.subpop.0.species.pipe.source.1.sst-num-tries=${13} \
+    -p pop.subpop.0.species.pipe.source.1.prob-accept-seen=${14} \
+    -p pop.subpop.0.species.pipe.source.1.knowledge-log-file="$L_EXPERIMENT_DIR/Mutation"
+}
+
+# This function performs the Search-Space Transfer experiment without duplicate removal. Instead, this experiment
+# utilises a simple full tree transfer for initialising GP. This experiment has the following parameters:
+# 1. Enable transfer: if true, the search space of the source domain will be transferred.
+# 2. Update the search history in the target domain. If false, GP will not remember the search space of the target domain.
+# 3. The radius for performing the clearing algorithm on the transferred individuals.
+# 4. The capacity for performing the clearing algorithm on the transferred individuals.
+# 5. Similarity threshold for updating the search history with new discoverred individuals.
+# 6. The similarity metric. Acceptable values are:
+#    - phenotypic
+#	   - corrphenotypic
+#	   - hamphenotypic
+# 7. DMS size
+# 8. Transfer percent: the amount of the initial population that is transferred from the source domain.
+# 9. Allow duplicates
+# 10. The similarity used by the crossover
+# 11. Number of tries of the crossover
+# 12. The similarity used by the mutation
+# 13. Number of tries of the mutation operator
+# 14. The probability of accepting a previously-seen individual
+fullsstransfer()
+{
+  L_EXP_NAME="fullsstransfer:tl_$1:histup_$2:tclrrad_$3:tclrcap_$4:histsimthresh_$5:metric_$6:dms_$7:tp_$8:alldup_$9:xosim_${10}:xotry_${11}:mutsim_${12}:muttry_${13}:mutprb_${14}"
+  L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
+  do_knowledge_experiment "$L_EXP_NAME" \
+    -p state=tl.knowledge.sst.LSHSSTEvolutionState \
+    -p pop.subpop.0.species.ind=tl.knowledge.sst.SSTIndividual \
+    -p sst-state.enable-transfer="$1" \
+    -p sst-state.enable-evo-hist-update="$2" \
+    -p sst-state.knowledge-path="$KNOWLEDGE_SOURCE_DIR"/ \
+    -p sst-state.transfer-clear-radius="$3" \
+    -p sst-state.transfer-clear-capacity="$4" \
+    -p sst-state.history-sim-threshold="$5" \
+    -p sst-state.distance-metric=$6 \
+    -p sst-state.dms-size=$7 \
+    -p sst-state.knowledge-log-file="$L_EXPERIMENT_DIR/State/State" \
+    -p sst-state.pop-log-path="$L_EXPERIMENT_DIR/State/pop" \
+    -p gp.tc.0.init=tl.gp.SimpleCodeFragmentBuilder \
+    -p gp.tc.0.init.knowledge-file="$KNOWLEDGE_SOURCE_DIR"/population.gen.49.bin \
+    -p gp.tc.0.init.transfer-percent="$8" \
+    -p gp.tc.0.init.knowledge-extraction=root \
+    -p gp.tc.0.init.knowledge-log-file="$L_EXPERIMENT_DIR"/FullTreeLog \
+    -p gp.tc.0.init.allow-duplicates=$9 \
     -p gp.tc.0.init.knowledge-log-file="$L_EXPERIMENT_DIR/Builder" \
     -p pop.subpop.0.species.pipe.source.0=tl.knowledge.sst.SSTCrossoverPipeline \
     -p pop.subpop.0.species.pipe.source.0.similarity-thresh=${10} \
@@ -944,6 +998,35 @@ function SubTree() {
     -p gp.tc.0.init.knowledge-file=$KNOWLEDGE_SOURCE_DIR/population.gen.$(($GENERATIONS - 1)).bin \
     -p gp.tc.0.init.transfer-percent=$1 \
     -p gp.tc.0.init.knowledge-extraction=rootsubtree
+}
+
+function SAMUFullTree() {
+    L_EXP_NAME="samufulltree:fitthr_$1:igi_$2:tp_$3:ensur_$4:intrmag_$5:intfrmut_$6"
+    L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
+    do_knowledge_experiment $L_EXP_NAME \
+    -p state=tl.gphhucarp.dms.ucarp.KTEvolutionState \
+    -p kt-state.knowledge-path=$KNOWLEDGE_SOURCE_DIR/ \
+    -p kt-state.distance-metric=hamming \
+    -p kt-state.from-gen=0 \
+    -p kt-state.to-gen=49 \
+    -p kt-state.transfer-clear-radius=0 \
+    -p kt-state.transfer-clear-capacity=1 \
+    -p kt-state.dms-size=20 \
+    -p kt-state.knowledge-log-file=$L_EXPERIMENT_DIR/ktstate \
+    -p gp.tc.0.init=tl.knowledge.SAMUFullTree \
+    -p gp.tc.0.init.knowledge-log-file=$L_EXPERIMENT_DIR/SAMUFullTree \
+    -p gp.tc.0.init.fit-thresh=$1 \
+    -p gp.tc.0.init.incl-good-inds=$2 \
+    -p gp.tc.0.init.transfer-percent=$3 \
+    -p gp.tc.0.init.enable-surr=$4 \
+    -p gp.tc.0.init.interim-magnitude=$5 \
+    -p gp.tc.0.init.interim-from-mutation=$6 \
+    -p gp.tc.0.init.surr-log-path=./stats/target-wk/SAMUFullTree/sur \
+    -p gp.tc.0.init.clear-state=true \
+    -p gp.tc.0.init.mutator.ns=ec.gp.koza.KozaNodeSelector \
+    -p gp.tc.0.init.mutator.build=ec.gp.koza.GrowBuilder \
+    -p gp.tc.0.init.mutator.maxdepth=8 \
+    -p gp.tc.0.init.mutator.tries=5
 }
 
 # This function performs the transfer learning experiment 'FullTree'.
