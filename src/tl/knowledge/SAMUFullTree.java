@@ -46,8 +46,6 @@ public class SAMUFullTree extends HalfBuilder implements TLLogger<GPNode>
     public static final String P_TRANSFER_PERCENT = "transfer-percent";
     private double transferPercent;
 
-//    public static final String P_NUM_MUTATIONS = "num-mutations";
-
     /**
      * If true, the class will clear the list of transferred individuals in the state object.
      */
@@ -76,6 +74,14 @@ public class SAMUFullTree extends HalfBuilder implements TLLogger<GPNode>
 
     public static final String P_INTERIM_FROM_MUTATION = "interim-from-mutation";
     private int interimFromMutation;
+
+    /**
+     * Boolean parameter that if set to true, the mutated individuals will be evaluated with a surrogate model.
+     * Otherwise, the mutated individuals are given a very large fitness value. In this case, only the mutation operator
+     * makes any contributions to the effectiveness of the algorithm.
+     */
+    public static final String P_ENABLE_SURROGATE = "enable-surr";
+    private boolean enableSurrogate = true;
 
     /**
      * Number of individuals that are transferred, including the mutated ones.
@@ -129,6 +135,9 @@ public class SAMUFullTree extends HalfBuilder implements TLLogger<GPNode>
 
         includeGoodInds = ktstate.parameters.getBoolean(base.push(P_INCLUDE_GOOD_INDS), null, true);
         log(ktstate, knowledgeSuccessLogID, "Include good individuals: " + includeGoodInds + "\n");
+
+        enableSurrogate = ktstate.parameters.getBoolean(base.push(P_ENABLE_SURROGATE), null, true);
+        log(ktstate, knowledgeSuccessLogID, true, "Enable surrogate: " + enableSurrogate + "\n");
 
         surLogPath = state.parameters.getString(base.push(P_SURR_LOG_PATH), null);
         if(surLogPath == null)
@@ -200,6 +209,8 @@ public class SAMUFullTree extends HalfBuilder implements TLLogger<GPNode>
         KTEvolutionState ktstate = (KTEvolutionState) state;
         int k = 1;
         List<Individual> toMutate = goodInds;
+        if(includeGoodInds)
+            mutatedInds.addAll(goodInds.stream().map(i -> SuGPIndividual.asGPIndividual((GPIndividual) i, 0, true)).collect(Collectors.toList()));
         while(mutatedInds.size() < interimMagnitude * populationSize)
         {
             if(mutatedInds.size() > (interimMagnitude - interimFromMutation) * populationSize)
@@ -213,7 +224,10 @@ public class SAMUFullTree extends HalfBuilder implements TLLogger<GPNode>
                 ind = (TLGPIndividual) mutator.mutate(0, ind, ktstate, 0);
 
                 SuGPIndividual suInd = SuGPIndividual.asGPIndividual(ind, 0, false);
-                ((MultiObjectiveFitness) suInd.fitness).objectives[0] = surFitness.fitness(ind);
+                if(enableSurrogate)
+                    ((MultiObjectiveFitness) suInd.fitness).objectives[0] = surFitness.fitness(ind);
+                else
+                    ((MultiObjectiveFitness) suInd.fitness).objectives[0] = 2 * goodInds.get(goodInds.size() - 1).fitness.fitness();
                 suInd.setSurFit(ind.fitness.fitness());
 
                 tempPop.add(suInd);
@@ -225,15 +239,14 @@ public class SAMUFullTree extends HalfBuilder implements TLLogger<GPNode>
             SimpleNichingAlgorithm.clearPopulation(mutatedInds, ktstate.getFilter(), ktstate.getSimilarityMetric(), 0, 1);
             log(state, interimPopLogID, ",,Iteration " + k++ + " finished.\n\n");
 
-            mutatedInds = mutatedInds.stream().filter(i -> (i.fitness.fitness() != Double.POSITIVE_INFINITY) && i.fitness.fitness() != Double.NEGATIVE_INFINITY)
+            mutatedInds = mutatedInds.stream().filter(
+                    i -> (i.fitness.fitness() != Double.POSITIVE_INFINITY) && i.fitness.fitness() != Double.NEGATIVE_INFINITY)
                     .collect(Collectors.toList());
         }
         mutatedInds.forEach(ind -> log(state, interimPopLogID, ((SuGPIndividual)ind).getSurFit() + "," + ind.fitness.fitness()
                 + "," + ((GPIndividual)ind).trees[0].child.makeLispTree() + "\n"));
         closeLogger(state, interimPopLogID);
 
-        if(includeGoodInds)
-            mutatedInds.addAll(goodInds.stream().map(i -> SuGPIndividual.asGPIndividual((GPIndividual) i, 0, true)).collect(Collectors.toList()));
         mutatedInds.sort((o1, o2) -> {
             int cmp = Double.compare(o1.fitness.fitness(), o2.fitness.fitness());
             if(cmp != 0)
@@ -247,10 +260,12 @@ public class SAMUFullTree extends HalfBuilder implements TLLogger<GPNode>
             return 0;
         });
         mutatedInds = mutatedInds.subList(0, ((int) (transferPercent * populationSize)) + 1); // + 1 is used just in case so that there is always enough
+        goodInds.clear();
     }
 
     @Override
-    public GPNode newRootedTree(EvolutionState state, GPType type, int thread, GPNodeParent parent, GPFunctionSet set, int argposition, int requestedSize)
+    public GPNode newRootedTree(EvolutionState state, GPType type, int thread, GPNodeParent parent, GPFunctionSet set,
+                                int argposition, int requestedSize)
     {
         if(goodInds == null)
         {
