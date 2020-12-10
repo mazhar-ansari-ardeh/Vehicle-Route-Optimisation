@@ -180,4 +180,19 @@ public class KTEvolutionState extends DMSSavingGPHHState
             transferredInds = null;
         }
     }
+
+    public SituationBasedTreeSimilarityMetric getSimilarityMetric()
+    {
+        return metrics;
+    }
+
+    public PoolFilter getFilter()
+    {
+        return filter;
+    }
+
+    public int getDMSSize()
+    {
+        return dmsSize;
+    }
 }
