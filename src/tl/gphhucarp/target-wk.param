@@ -274,6 +274,58 @@ generations=50
 
 
 # ==============================
+# Mutating UniqueFullTree
+# ==============================
+state=tl.gphhucarp.dms.ucarp.KTEvolutionState
+kt-state.knowledge-path=./KnowledgeSource/gdb1.vs5-gen_50/3/TestedPopulation
+kt-state.distance-metric=hamming
+kt-state.from-gen=49
+kt-state.to-gen=49
+kt-state.transfer-clear-radius=0
+kt-state.transfer-clear-capacity=1
+kt-state.dms-size=20
+kt-state.knowledge-log-file=./stats/target-wk/MutatingUnigeFullTree/ktstate
+gp.tc.0.init=tl.knowledge.MutatingUniqueFullTree
+gp.tc.0.init.knowledge-log-file=./stats/target-wk/MutatingUnigeFullTree/ktstate
+gp.tc.0.init.fit-thresh=0.9
+gp.tc.0.init.transfer-percent=1
+gp.tc.0.init.num-mutations=3
+gp.tc.0.init.clear-state=true
+gp.tc.0.init.mutator.ns=ec.gp.koza.KozaNodeSelector
+gp.tc.0.init.mutator.build=ec.gp.koza.GrowBuilder
+gp.tc.0.init.mutator.maxdepth=8
+gp.tc.0.init.mutator.tries=5
+# pop.subpop.0.species.ind=tl.knowledge.surrogate.SuGPIndividual
+
+# ==============================
+# SAMUUFullTree
+# ==============================
+# state=tl.gphhucarp.dms.ucarp.KTEvolutionState
+# kt-state.knowledge-path=./KnowledgeSource/gdb1.vs5-gen_50/3/TestedPopulation
+# kt-state.distance-metric=hamming
+# kt-state.from-gen=0
+# kt-state.to-gen=49
+# kt-state.transfer-clear-radius=0
+# kt-state.transfer-clear-capacity=1
+# kt-state.dms-size=20
+# kt-state.knowledge-log-file=./stats/target-wk/MutatingUnigeFullTree/ktstate
+# gp.tc.0.init=tl.knowledge.SAMUFullTree
+# gp.tc.0.init.knowledge-log-file=./stats/target-wk/SAMUFullTree/ktstate
+# gp.tc.0.init.fit-thresh=0.9
+# gp.tc.0.init.incl-good-inds=true
+# gp.tc.0.init.transfer-percent=1
+# gp.tc.0.init.enable-surr=false
+# gp.tc.0.init.interim-magnitude=10
+# gp.tc.0.init.interim-from-mutation=0
+# gp.tc.0.init.num-mutations=3
+# gp.tc.0.init.surr-log-path=./stats/target-wk/SAMUFullTree/sur
+# gp.tc.0.init.clear-state=true
+# gp.tc.0.init.mutator.ns=ec.gp.koza.KozaNodeSelector
+# gp.tc.0.init.mutator.build=ec.gp.koza.GrowBuilder
+# gp.tc.0.init.mutator.maxdepth=8
+# gp.tc.0.init.mutator.tries=5
+
+# ==============================
 # Hyper Mutation
 # ==============================
 # pop.subpop.0.species.pipe=tl.gp.HyperMutationMultiBreedingPipeline
@@ -293,36 +345,44 @@ generations=50
 # ==============================
 # SSTState
 # ==============================
-state=tl.knowledge.sst.SSTEvolutionState
-state=tl.knowledge.sst.LSHSSTEvolutionState
-sst-state.rand-transfer=true
-sst-state.distance-metric=hamming
-sst-state.enable-transfer=true
-sst-state.knowledge-path=./KnowledgeSource/gdb1.vs5-gen_50/3/TestedPopulation
-sst-state.transfer-clear-radius=0
-sst-state.transfer-clear-capacity=1
-sst-state.history-sim-threshold=0
-sst-state.dms-size=20
-sst-state.knowledge-log-file=./stats/target-wk/SSTState/SSTState
-sst-state.pop-log-path=./stats/target-wk/SSTState/pop
-sst-state.enable-evo-hist-update=true
-pop.subpop.0.species.ind=tl.knowledge.sst.SSTIndividual
+# state=tl.knowledge.sst.SSTEvolutionState
+# state=tl.knowledge.sst.LSHSSTEvolutionState
+# sst-state.rand-transfer=true
+# sst-state.distance-metric=hamming
+# sst-state.enable-transfer=true
+# sst-state.knowledge-path=./KnowledgeSource/gdb1.vs5-gen_50/3/TestedPopulation
+# sst-state.transfer-clear-radius=0
+# sst-state.transfer-clear-capacity=1
+# sst-state.history-sim-threshold=0
+# sst-state.dms-size=20
+# sst-state.knowledge-log-file=./stats/target-wk/SSTState/SSTState
+# sst-state.pop-log-path=./stats/target-wk/SSTState/pop
+# sst-state.enable-evo-hist-update=true
+# pop.subpop.0.species.ind=tl.knowledge.sst.SSTIndividual
 # Builder
-gp.tc.0.init=tl.knowledge.sst.SSTBuilder
-gp.tc.0.init.transfer-percent=0.5
-gp.tc.0.init.similarity-thresh=0
-gp.tc.0.init.knowledge-log-file=./stats/target-wk/SSTState/Builder
+# gp.tc.0.init=tl.knowledge.sst.SSTBuilder
+# gp.tc.0.init.transfer-percent=0.5
+# gp.tc.0.init.similarity-thresh=0
+# gp.tc.0.init.knowledge-log-file=./stats/target-wk/SSTState/Builder
+
+# gp.tc.0.init=tl.gp.SimpleCodeFragmentBuilder
+# gp.tc.0.init.knowledge-file=/home/mazhar/grid/gdb1.vs5:gen_50/KnowledgeSource/3/TestedPopulation/population.gen.49.bin
+# gp.tc.0.init.transfer-percent=100
+# gp.tc.0.init.knowledge-extraction=root
+# gp.tc.0.init.knowledge-log-file=./stats/target-wk/FullTreeLog
+# gp.tc.0.init.allow-duplicates=false
+
 # XOver
-pop.subpop.0.species.pipe.source.0=tl.knowledge.sst.SSTCrossoverPipeline
-pop.subpop.0.species.pipe.source.0.similarity-thresh=0
-pop.subpop.0.species.pipe.source.0.sst-num-tries=10
-pop.subpop.0.species.pipe.source.0.knowledge-log-file=./stats/target-wk/SSTState/Crossover
+# pop.subpop.0.species.pipe.source.0=tl.knowledge.sst.SSTCrossoverPipeline
+# pop.subpop.0.species.pipe.source.0.similarity-thresh=0
+# pop.subpop.0.species.pipe.source.0.sst-num-tries=10
+# pop.subpop.0.species.pipe.source.0.knowledge-log-file=./stats/target-wk/SSTState/Crossover
 # Mutation
-pop.subpop.0.species.pipe.source.1=tl.knowledge.sst.SSTMutation
-pop.subpop.0.species.pipe.source.1.prob-accept-seen=0.5
-pop.subpop.0.species.pipe.source.1.similarity-thresh=0
-pop.subpop.0.species.pipe.source.1.sst-num-tries=10
-pop.subpop.0.species.pipe.source.1.knowledge-log-file=./stats/target-wk/SSTState/Mutation
+# pop.subpop.0.species.pipe.source.1=tl.knowledge.sst.SSTMutation
+# pop.subpop.0.species.pipe.source.1.prob-accept-seen=1.0
+# pop.subpop.0.species.pipe.source.1.similarity-thresh=0
+# pop.subpop.0.species.pipe.source.1.sst-num-tries=1
+# pop.subpop.0.species.pipe.source.1.knowledge-log-file=./stats/target-wk/SSTState/Mutation
 # ==============================
 
 # state = tl.gp.PPTEvolutionState

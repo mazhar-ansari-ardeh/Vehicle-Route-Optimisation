@@ -1000,6 +1000,35 @@ function SubTree() {
     -p gp.tc.0.init.knowledge-extraction=rootsubtree
 }
 
+# This function performs the MutatingUniqueFullTree experiment. The function has the following parameters:
+# 1. Fitness threshold
+# 2. Transfer percent
+# 3. Number of mutations before moving to the next good individual.
+function MutatingUniqueFullTree() {
+    L_EXP_NAME="mutuniquefulltree:fitthr_$1:tp_$2:nmut_$3"
+    L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"
+    do_knowledge_experiment "$L_EXP_NAME" \
+    -p state=tl.gphhucarp.dms.ucarp.KTEvolutionState \
+    -p kt-state.knowledge-path="$KNOWLEDGE_SOURCE_DIR"/ \
+    -p kt-state.distance-metric=hamming \
+    -p kt-state.from-gen=0 \
+    -p kt-state.to-gen=49 \
+    -p kt-state.transfer-clear-radius=0 \
+    -p kt-state.transfer-clear-capacity=1 \
+    -p kt-state.dms-size=20 \
+    -p kt-state.knowledge-log-file="$L_EXPERIMENT_DIR"/ktstate \
+    -p gp.tc.0.init=tl.knowledge.MutatingUniqueFullTree \
+    -p gp.tc.0.init.knowledge-log-file="$L_EXPERIMENT_DIR"/MutatingUniqueFullTree \
+    -p gp.tc.0.init.fit-thresh="$1" \
+    -p gp.tc.0.init.transfer-percent="$2" \
+    -p gp.tc.0.init.num-mutations=$3 \
+    -p gp.tc.0.init.clear-state=true \
+    -p gp.tc.0.init.mutator.ns=ec.gp.koza.KozaNodeSelector \
+    -p gp.tc.0.init.mutator.build=ec.gp.koza.GrowBuilder \
+    -p gp.tc.0.init.mutator.maxdepth=8 \
+    -p gp.tc.0.init.mutator.tries=5
+}
+
 function SAMUFullTree() {
     L_EXP_NAME="samufulltree:fitthr_$1:igi_$2:tp_$3:ensur_$4:intrmag_$5:intfrmut_$6"
     L_EXPERIMENT_DIR="$L_EXP_NAME/$SGE_TASK_ID"

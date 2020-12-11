@@ -210,7 +210,8 @@ public class SAMUFullTree extends HalfBuilder implements TLLogger<GPNode>
         int k = 1;
         List<Individual> toMutate = goodInds;
         if(includeGoodInds)
-            mutatedInds.addAll(goodInds.stream().map(i -> SuGPIndividual.asGPIndividual((GPIndividual) i, 0, true)).collect(Collectors.toList()));
+            mutatedInds.addAll(goodInds.stream().map(
+                    i -> SuGPIndividual.asGPIndividual((GPIndividual) i, 0, true)).collect(Collectors.toList()));
         while(mutatedInds.size() < interimMagnitude * populationSize)
         {
             if(mutatedInds.size() > (interimMagnitude - interimFromMutation) * populationSize)
@@ -243,9 +244,6 @@ public class SAMUFullTree extends HalfBuilder implements TLLogger<GPNode>
                     i -> (i.fitness.fitness() != Double.POSITIVE_INFINITY) && i.fitness.fitness() != Double.NEGATIVE_INFINITY)
                     .collect(Collectors.toList());
         }
-        mutatedInds.forEach(ind -> log(state, interimPopLogID, ((SuGPIndividual)ind).getSurFit() + "," + ind.fitness.fitness()
-                + "," + ((GPIndividual)ind).trees[0].child.makeLispTree() + "\n"));
-        closeLogger(state, interimPopLogID);
 
         mutatedInds.sort((o1, o2) -> {
             int cmp = Double.compare(o1.fitness.fitness(), o2.fitness.fitness());
@@ -259,6 +257,11 @@ public class SAMUFullTree extends HalfBuilder implements TLLogger<GPNode>
                 return 1;
             return 0;
         });
+
+        mutatedInds.forEach(ind -> log(state, interimPopLogID, ((SuGPIndividual)ind).getSurFit() + "," + ind.fitness.fitness()
+                + "," + ((GPIndividual)ind).trees[0].child.makeLispTree() + "\n"));
+        closeLogger(state, interimPopLogID);
+
         mutatedInds = mutatedInds.subList(0, ((int) (transferPercent * populationSize)) + 1); // + 1 is used just in case so that there is always enough
         goodInds.clear();
     }
