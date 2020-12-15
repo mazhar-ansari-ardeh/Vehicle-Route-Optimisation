@@ -3,9 +3,11 @@ package tl.gphhucarp.dms.ucarp;
 import ec.EvolutionState;
 import ec.Individual;
 import ec.gp.GPIndividual;
+import ec.gp.GPNode;
 import ec.util.Parameter;
 import gphhucarp.decisionprocess.PoolFilter;
 import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
+import tl.TLLogger;
 import tl.gp.PopulationUtils;
 import tl.gp.similarity.CorrPhenoTreeSimilarityMetric;
 import tl.gp.similarity.HammingPhenoTreeSimilarityMetric;
@@ -13,9 +15,9 @@ import tl.gp.similarity.PhenotypicTreeSimilarityMetric;
 import tl.gp.similarity.SituationBasedTreeSimilarityMetric;
 import tl.gphhucarp.dms.DMSSavingGPHHState;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.nio.file.Paths;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -157,8 +159,8 @@ public class KTEvolutionState extends DMSSavingGPHHState
             if(clearRadius < 0)
                 inds = PopulationUtils.loadPopulations(state, knowledgePath, fromGen, toGen, this, knowledgeSuccessLogID, true);
             else
-                inds = PopulationUtils.loadPopulations(state, knowledgePath, fromGen, toGen, filter, metrics,
-                    clearRadius, clearCapacity, this, knowledgeSuccessLogID, true);
+                inds = loadPopulations(knowledgePath, fromGen, toGen,
+                        this, knowledgeSuccessLogID, true);
             if(inds == null || inds.isEmpty())
                 throw new RuntimeException("Could not load the saved populations");
         } catch (IOException | ClassNotFoundException e)
@@ -171,6 +173,82 @@ public class KTEvolutionState extends DMSSavingGPHHState
         transferredInds.addAll(
                 inds.stream().map(
                         i -> new GPRoutingPolicy(filter, ((GPIndividual)i).trees[0])).collect(Collectors.toList()));
+    }
+
+    public List<Individual> loadPopulations(String inputPath,
+                                            int fromGeneration, int toGeneration,
+                                            TLLogger<GPNode> logger,
+                                            int logID,
+                                            boolean logPopulation) throws IOException, ClassNotFoundException
+    {
+        File f = new File(inputPath);
+        HashMap<Integer, Individual> hashInds = new HashMap<>();
+
+        if (f.isDirectory())
+        {
+            if (fromGeneration <= -1 || toGeneration <= -1)
+            {
+                if(logger != null)
+                    logger.log(this, logID, true, "Generation range is invalid: " + fromGeneration
+                            + " to " + toGeneration + "\n");
+                this.output.fatal("Generation range is invalid: " + fromGeneration + " to "
+                        + toGeneration);
+            }
+            for (int i = toGeneration; i >= fromGeneration; i--)
+            {
+                File file = Paths.get(inputPath, "population.gen." + i + ".bin").toFile();
+                if(!file.exists())
+                {
+                    if(logger != null)
+                        logger.log(this, logID, true, "The file " + file.toString() + " does not exist. Ignoring.\n");
+                    continue;
+                }
+                loadPopulation(hashInds, file);
+            }
+        }
+        else if (f.isFile())
+        {
+            loadPopulation(hashInds, f);
+        }
+
+        if(logPopulation && logger != null)
+        {
+            logger.log(this, logID, "pool size: " + hashInds.size() + "\n");
+            int i1 = 0;
+            for (Individual i : hashInds.values())
+            {
+                logger.log(this, logID, false, i1++ + ": " + i.fitness.fitness() + ", "
+                        + ((GPIndividual) i).trees[0].child.makeLispTree() + "\n");
+            }
+        }
+        return new ArrayList<>(hashInds.values());
+    }
+
+    public void loadPopulation(HashMap<Integer, Individual> hashInds, File file)
+            throws IOException, ClassNotFoundException
+    {
+        HammingPhenoTreeSimilarityMetric metric = (HammingPhenoTreeSimilarityMetric) getSimilarityMetric();
+        try(ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file)))
+        {
+            int numSub = ois.readInt();
+            for(int subpop = 0; subpop < numSub; subpop++)
+            {
+                int numInd = ois.readInt();
+                for(int indIndex = 0; indIndex < numInd; indIndex++)
+                {
+                    Object ind = ois.readObject();
+                    if(!(ind instanceof Individual))
+                        throw new InvalidObjectException("The file contains an object that is not "
+                                + "instance of Individual: " + ind.getClass().toString());
+                    int[] ch = metric.characterise((GPIndividual) ind, 0, getFilter());
+                    int hash = Arrays.hashCode(ch);
+                    if(!hashInds.containsKey(hash))
+                        hashInds.put(hash, (Individual) ind);
+                }
+            }
+        }
+
+//        return retval;
     }
 
     public void clearTransferredKnowledge()

@@ -10,7 +10,7 @@ import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 import tl.TLLogger;
 import tl.gp.GPIndividualUtils;
 import tl.gp.TLGPIndividual;
-import tl.gp.niching.SimpleNichingAlgorithm;
+import tl.gp.similarity.HammingPhenoTreeSimilarityMetric;
 import tl.gphhucarp.dms.ucarp.KTEvolutionState;
 import tl.knowledge.multipop.Mutator;
 import tl.knowledge.surrogate.SuGPIndividual;
@@ -18,10 +18,7 @@ import tl.knowledge.surrogate.knn.KNNSurrogateFitness;
 import tl.knowledge.surrogate.knn.UnboundedUpdatePolicy;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 
 public class SAMUFullTree extends HalfBuilder implements TLLogger<GPNode>
 {
@@ -123,18 +120,18 @@ public class SAMUFullTree extends HalfBuilder implements TLLogger<GPNode>
         if(interimMagnitude < 0)
             logFatal(state, knowledgeSuccessLogID,
                     "Interim magnitude cannot be negative: " + interimMagnitude + "\n");
-        log(state, knowledgeSuccessLogID, "Interim Magnitude: " + interimMagnitude + "\n");
+        log(state, knowledgeSuccessLogID, true, "Interim Magnitude: " + interimMagnitude + "\n");
 
         interimFromMutation = state.parameters.getInt(base.push(P_INTERIM_FROM_MUTATION), null);
         if(interimFromMutation < 0 || interimFromMutation >= interimMagnitude)
             logFatal(state, knowledgeSuccessLogID,
                     "Invalid interim from mutation value: " + interimFromMutation + "\n");
-        log(state, knowledgeSuccessLogID, "Interim from mutation: " + interimFromMutation + "\n");
+        log(state, knowledgeSuccessLogID, true, "Interim from mutation: " + interimFromMutation + "\n");
 
         clear = ktstate.parameters.getBoolean(base.push(P_CLEAR_STATE), null, true);
 
         includeGoodInds = ktstate.parameters.getBoolean(base.push(P_INCLUDE_GOOD_INDS), null, true);
-        log(ktstate, knowledgeSuccessLogID, "Include good individuals: " + includeGoodInds + "\n");
+        log(ktstate, knowledgeSuccessLogID, true, "Include good individuals: " + includeGoodInds + "\n");
 
         enableSurrogate = ktstate.parameters.getBoolean(base.push(P_ENABLE_SURROGATE), null, true);
         log(ktstate, knowledgeSuccessLogID, true, "Enable surrogate: " + enableSurrogate + "\n");
@@ -203,46 +200,85 @@ public class SAMUFullTree extends HalfBuilder implements TLLogger<GPNode>
             ktstate.clearTransferredKnowledge();
     }
 
-    void createInitPop(final EvolutionState state)
+    private void updateHashedMI(KTEvolutionState ktsate, HashMap<Integer, Individual> hashedMI, List<? extends Individual> toAdd)
     {
+        HammingPhenoTreeSimilarityMetric metric = (HammingPhenoTreeSimilarityMetric) ktsate.getSimilarityMetric();
+        for(Individual ind : toAdd)
+        {
+            int[] ch = metric.characterise((GPIndividual) ind, 0, ktsate.getFilter());
+            int hash = Arrays.hashCode(ch);
+            if(!hashedMI.containsKey(hash))
+            {
+                if(ind instanceof SuGPIndividual)
+                    hashedMI.put(hash, ind);
+                else
+                    hashedMI.put(hash, SuGPIndividual.asGPIndividual((GPIndividual) ind, 0, true));
+            }
+        }
+    }
+
+    private SuGPIndividual mutate(KTEvolutionState ktstate, TLGPIndividual ind)
+    {
+        ind = (TLGPIndividual) mutator.mutate(0, ind, ktstate, 0);
+
+        return SuGPIndividual.asGPIndividual(ind, 0, false);
+    }
+
+    void createInitPop(EvolutionState state)
+    {
+        HashMap<Integer, Individual> hashedMI = new HashMap<>(); // Hashed Mutated Individuals
         mutatedInds = new ArrayList<>(populationSize);
         KTEvolutionState ktstate = (KTEvolutionState) state;
         int k = 1;
         List<Individual> toMutate = goodInds;
         if(includeGoodInds)
-            mutatedInds.addAll(goodInds.stream().map(
-                    i -> SuGPIndividual.asGPIndividual((GPIndividual) i, 0, true)).collect(Collectors.toList()));
-        while(mutatedInds.size() < interimMagnitude * populationSize)
         {
-            if(mutatedInds.size() > (interimMagnitude - interimFromMutation) * populationSize)
+            updateHashedMI(ktstate, hashedMI, goodInds);
+        }
+
+        while(hashedMI.size() < interimMagnitude * populationSize)
+        {
+            if(hashedMI.size() > (interimMagnitude - interimFromMutation) * populationSize)
             {
-                toMutate = mutatedInds;
+                toMutate = new ArrayList<>(hashedMI.values());
             }
             ArrayList<SuGPIndividual> tempPop = new ArrayList<>();
             for (int i = 0; i < toMutate.size(); i++)
             {
-                TLGPIndividual ind = (TLGPIndividual) toMutate.get(0).clone();
-                ind = (TLGPIndividual) mutator.mutate(0, ind, ktstate, 0);
-
-                SuGPIndividual suInd = SuGPIndividual.asGPIndividual(ind, 0, false);
-                if(enableSurrogate)
-                    ((MultiObjectiveFitness) suInd.fitness).objectives[0] = surFitness.fitness(ind);
-                else
-                    ((MultiObjectiveFitness) suInd.fitness).objectives[0] = 2 * goodInds.get(goodInds.size() - 1).fitness.fitness();
-                suInd.setSurFit(ind.fitness.fitness());
-
+                TLGPIndividual ind = (TLGPIndividual) toMutate.get(i).clone();
+                SuGPIndividual suInd = mutate(ktstate, ind);
+                log(state, interimPopLogID, "Mutated," + ind.toString() + "," + suInd.toString() + "\n");
                 tempPop.add(suInd);
             }
-            tempPop.forEach(ind -> log(state, interimPopLogID, ind.getSurFit() + "," + ind.fitness.fitness()
-                    + "," + ind.trees[0].child.makeLispTree() + "\n"));
-            mutatedInds.addAll(tempPop);
-            mutatedInds.sort(Comparator.comparingDouble(i -> i.fitness.fitness()));
-            SimpleNichingAlgorithm.clearPopulation(mutatedInds, ktstate.getFilter(), ktstate.getSimilarityMetric(), 0, 1);
-            log(state, interimPopLogID, ",,Iteration " + k++ + " finished.\n\n");
 
-            mutatedInds = mutatedInds.stream().filter(
-                    i -> (i.fitness.fitness() != Double.POSITIVE_INFINITY) && i.fitness.fitness() != Double.NEGATIVE_INFINITY)
-                    .collect(Collectors.toList());
+            updateHashedMI(ktstate, hashedMI, tempPop);
+            log(state, interimPopLogID, true, ",,Iteration " + k++ + " finished.\n\n");
+        }
+
+        mutatedInds = new ArrayList<>(hashedMI.values());
+        hashedMI.clear();
+
+        evaluateMutatedInds();
+
+        mutatedInds.forEach(ind -> log(state, interimPopLogID, ((SuGPIndividual)ind).getSurFit() + "," + ind.fitness.fitness()
+                + "," + ((GPIndividual)ind).trees[0].child.makeLispTree() + "\n"));
+        closeLogger(state, interimPopLogID);
+
+        mutatedInds = mutatedInds.subList(0, ((int) (transferPercent * populationSize)) + 1); // + 1 is used just in case so that there is always enough
+        goodInds.clear();
+        surFitness = null;
+    }
+
+    private void evaluateMutatedInds()
+    {
+        for(int i = 0; i < mutatedInds.size(); i++)
+        {
+            SuGPIndividual suInd = (SuGPIndividual) mutatedInds.get(i);
+            if(!suInd.evaluated)
+            {
+                ((MultiObjectiveFitness) suInd.fitness).objectives[0] = enableSurrogate ? surFitness.fitness(suInd) : Double.POSITIVE_INFINITY;
+                suInd.setSurFit(suInd.fitness.fitness());
+            }
         }
 
         mutatedInds.sort((o1, o2) -> {
@@ -257,13 +293,6 @@ public class SAMUFullTree extends HalfBuilder implements TLLogger<GPNode>
                 return 1;
             return 0;
         });
-
-        mutatedInds.forEach(ind -> log(state, interimPopLogID, ((SuGPIndividual)ind).getSurFit() + "," + ind.fitness.fitness()
-                + "," + ((GPIndividual)ind).trees[0].child.makeLispTree() + "\n"));
-        closeLogger(state, interimPopLogID);
-
-        mutatedInds = mutatedInds.subList(0, ((int) (transferPercent * populationSize)) + 1); // + 1 is used just in case so that there is always enough
-        goodInds.clear();
     }
 
     @Override
