@@ -318,6 +318,7 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 	    // SHOULD WE QUIT?
 	    if (generation == numGenerations-1) return R_FAILURE;
 
+	    // PRE-BREEDING EXCHANGE
 		if (exchangePopulationPreBreeding()) return R_SUCCESS;
 
 	    // BREEDING
