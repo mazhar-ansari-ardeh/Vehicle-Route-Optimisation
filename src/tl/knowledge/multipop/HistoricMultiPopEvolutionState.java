@@ -108,11 +108,6 @@ public class HistoricMultiPopEvolutionState extends MultiPopEvolutionState
         evaluator.evaluatePopulation(this);
         statistics.postEvaluationStatistics(this);
 
-//        /* Newly discovered individuals are inside the population so there is no need to for them any more. Also, since
-//         * the updateHistory method uses the isSeen method, which in turn reviews the tempInds, this archive should be
-//         * emptied.
-//         */
-//        tempInds.clear();
 		/*
 		There is a minor issue to consider here. Because the initializer is based on building GP trees, rather than GP
 		individuals, there is no way to discriminate between transferred and discovered individuals. As a result, this
@@ -144,6 +139,8 @@ public class HistoricMultiPopEvolutionState extends MultiPopEvolutionState
         breed();
 
         // POST-BREEDING EXCHANGING
+        // This is where the selected immigrants from a source population will replace a set of individuals to die in
+        // the target population.
         exchangePopulationPostBreeding();
 
         // Generate new instances if needed
@@ -174,7 +171,7 @@ public class HistoricMultiPopEvolutionState extends MultiPopEvolutionState
         GPRoutingPolicy policy = new GPRoutingPolicy(filter, ((GPIndividual)i).trees[0]);
         int[] characterise = trc.characterise(policy);
 
-        List<Vector> query = database.query(new Vector(characterise), 10);
+        List<Vector> query = database.query(new Vector(characterise), 0.0);
         return query.size();
     }
 

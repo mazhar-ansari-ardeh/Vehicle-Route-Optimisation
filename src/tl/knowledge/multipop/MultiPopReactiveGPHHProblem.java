@@ -45,15 +45,6 @@ public class MultiPopReactiveGPHHProblem extends GPProblem implements SimpleProb
 
 		int nSubPop = state.parameters.getInt(new Parameter("pop.subpops"), null);
 		evaluationModel = new EvaluationModel[nSubPop];
-		for (int subpop = 0; subpop < nSubPop; subpop++)
-		{
-			Parameter p = base.push("subpop").push("" + subpop).push(P_EVAL_MODEL);
-			evaluationModel[subpop] = (EvaluationModel)(
-					state.parameters.getInstanceForParameter(
-							p, null, EvaluationModel.class));
-			evaluationModel[subpop].setup(state, p);
-		}
-
 		Parameter p = base.push(P_POOL_FILTER);
 		poolFilter = (PoolFilter)(
 				state.parameters.getInstanceForParameter(
@@ -63,6 +54,15 @@ public class MultiPopReactiveGPHHProblem extends GPProblem implements SimpleProb
 		tieBreaker = (TieBreaker)(
 				state.parameters.getInstanceForParameter(
 						p, null, TieBreaker.class));
+
+		for (int subpop = 0; subpop < nSubPop; subpop++)
+		{
+			p = base.push("subpop").push("" + subpop).push(P_EVAL_MODEL);
+			evaluationModel[subpop] = (EvaluationModel)(
+					state.parameters.getInstanceForParameter(
+							p, null, EvaluationModel.class));
+			evaluationModel[subpop].setup(state, p);
+		}
 	}
 
 	@Override
@@ -88,6 +88,11 @@ public class MultiPopReactiveGPHHProblem extends GPProblem implements SimpleProb
 
 		indi.evaluated = true;
 		evalCount++;
+	}
+
+	public PoolFilter getPoolFilter()
+	{
+		return poolFilter;
 	}
 
 	@Override

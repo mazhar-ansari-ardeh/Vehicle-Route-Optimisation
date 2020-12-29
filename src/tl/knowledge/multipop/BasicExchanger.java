@@ -282,7 +282,7 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
         // set up the mailboxes
         immigrants = new Individual[ numsubpops ][ max ];
 
-        logID = setupLogger(state, base);
+        logID = setupLogger(state, base, true);
 
         mutator.setup(state, base.push(P_MUTATOR_BASE));
 
@@ -388,7 +388,9 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
     public Population postBreedingExchangePopulation(EvolutionState state)
     {
         // receiving individuals from other islands
-        // same situation here of course.
+        // This is where the immigrants are inserted into the target population.
+
+        log(state, logID, String.format("Gen: %d\n", state.generation));
 
         for( int subTo = 0 ; subTo < nImmigrants.length ; subTo++ )
         {
@@ -411,14 +413,14 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
             for( int y = 0 ; y < nImmigrants[subTo] ; y++ )
             {
                 Individual mutated = immigrants[subTo][y];
-                log(state, logID, mutated.toString() + ",");
+                log(state, logID, "Sending " + mutated.toString() + " to " + subTo + "\n");
 
-                for(int i=0; i < numMutations + 1; i++)
+                for(int i=0; i < numMutations; i++)
                 {
                     if(hstate.isSeenIn(subTo, mutated) <= 0)
                     {
-                        log(state, logID, "new," + i + "," );
-                        log(state, logID, state.population.subpops[subTo].individuals[ indices[y] ].toString() + "\n");
+                        log(state, logID, "new," + i + "\n" );
+                        log(state, logID, "replacing," + state.population.subpops[subTo].individuals[ indices[y] ].toString() + "\n\n");
                         // read the individual
                         state.population.subpops[subTo].individuals[indices[y]] = mutated;
 
@@ -428,37 +430,9 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
                     }
                     log(state, logID, "seen," + i + ",");
                     mutated = mutator.mutate(subTo, (GPIndividual) immigrants[subTo][y], state, 0);
-                    log(state, logID, mutated.toString() + "\n");
+                    log(state, logID, "mutated," + mutated.toString() + "\n");
                 }
-
-//                if(hstate.isSeenIn(subTo, immigrants[subTo][y]) <= 0)
-//                {
-//                    log(state, logID, "replaced " +
-//                            state.population.subpops[subTo].individuals[ indices[y] ].toString() + "\n");
-//                    // read the individual
-//                    state.population.subpops[subTo].individuals[indices[y]] = immigrants[subTo][y];
-//
-//                    // reset the evaluated flag (the individuals are not evaluated in the current island */
-//                    state.population.subpops[subTo].individuals[indices[y]].evaluated = false;
-//                }
-//                else
-//                {
-//                    log(state, logID, "is seen." + "\n");
-//                    for(int i=0; i < numMutations; i++)
-//                    {
-//                        Individual mutated = mutator.mutate(subTo, (GPIndividual) immigrants[subTo][y], state, 0);
-//                        if(hstate.isSeenIn(subTo, mutated) <= 0)
-//                        {
-//                            log(state, logID, "replaced " +
-//                                    state.population.subpops[subTo].individuals[ indices[y] ].toString() + "\n");
-//                            // read the individual
-//                            state.population.subpops[subTo].individuals[indices[y]] = mutated;
-//
-//                            // reset the evaluated flag (the individuals are not evaluated in the current island */
-//                            state.population.subpops[subTo].individuals[indices[y]].evaluated = false;
-//                        }
-//                    }
-//                }
+                log(state, logID, "\n\n");
             }
 
             // reset the number of immigrants in the mailbox for the current subpopulation

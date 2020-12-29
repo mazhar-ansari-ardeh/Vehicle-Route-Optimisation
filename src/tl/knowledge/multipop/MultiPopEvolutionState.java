@@ -2,12 +2,19 @@ package tl.knowledge.multipop;
 
 import ec.EvolutionState;
 import ec.Individual;
+import ec.gp.GPIndividual;
+import ec.gp.GPNode;
 import ec.util.Parameter;
 import gphhucarp.decisionprocess.DecisionSituation;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import gphhucarp.gp.GPHHEvolutionState;
-import tl.knowledge.sst.lsh.LSH;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
+import tl.gp.fitness.NormalisedMultiObjectiveFitness;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 public class MultiPopEvolutionState extends GPHHEvolutionState implements MultiPopDMSSaver
@@ -33,6 +40,89 @@ public class MultiPopEvolutionState extends GPHHEvolutionState implements MultiP
         for(int i = 0; i < numSubpop; i++)
         {
             seenSituations.add(new TreeMap<>());
+        }
+    }
+
+    @Override
+    public void initStatFile() {
+//		statFile = new File(statDir == null ? "." : statDir, "job." + jobSeed + ".stat.csv");
+        // Originally, the following line was the line above.
+        for(int i = 0; i < this.population.subpops.length; i++)
+        {
+            Parameter p = new Parameter("stat.subpop." + i +".file");
+            File evoStatFile = this.parameters.getFile(p, null);
+            File evoStatDir = evoStatFile.getParentFile();
+            File statFile = new File(evoStatDir, evoStatFile.getName().replaceAll("\\.out", "")+".csv");
+            boolean mkdirs = statFile.getParentFile().mkdirs();
+            if(!mkdirs)
+                System.out.println("Failed to create the statistics directory. Does it exist?");
+            if (statFile.exists()) {
+                statFile.delete();
+            }
+
+            writeStatFileTitle(statFile);
+            statFiles.add(statFile);
+        }
+    }
+
+    List<File> statFiles = new ArrayList<>();
+
+    public void writeStatFileTitle(File statFile) {
+        try {
+            BufferedWriter writer = new BufferedWriter(new FileWriter(statFile));
+            writer.write("Gen,Time,ProgSizeMean,ProgSizeStd,FitMean,FitStd");
+            writer.newLine();
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    List<Map<String, DescriptiveStatistics>> statisticsMp;
+    public void setupStatistics()
+    {
+        statisticsMp = new ArrayList<>();
+        for (int i = 0; i < this.population.subpops.length; i++) {
+            Map<String, DescriptiveStatistics> statisticsMap = new HashMap<>();
+            statisticsMap.put(POP_PROG_SIZE, new DescriptiveStatistics());
+            statisticsMap.put(POP_FITNESS, new DescriptiveStatistics());
+            statisticsMp.add(statisticsMap);
+        }
+    }
+
+    public void calcStatistics(Map<String, DescriptiveStatistics> statisticsMap) {
+        statisticsMap.get(POP_PROG_SIZE).clear();
+        statisticsMap.get(POP_FITNESS).clear();
+
+        for (Individual indi : population.subpops[0].individuals) {
+            int progSize = ((GPIndividual)indi).trees[0].child.numNodes(GPNode.NODESEARCH_ALL);
+            statisticsMap.get(POP_PROG_SIZE).addValue(progSize);
+            double fitness = indi.fitness.fitness();
+            if (fitness != Double.POSITIVE_INFINITY && fitness != Double.NEGATIVE_INFINITY)
+                statisticsMap.get(POP_FITNESS).addValue(fitness);
+        }
+    }
+
+    public void writeToStatFile()
+    {
+        for(int i = 0; i < this.population.subpops.length; i++)
+        {
+            Map<String, DescriptiveStatistics> statMap = statisticsMp.get(i);
+            calcStatistics(statisticsMp.get(i));
+
+            try {
+                BufferedWriter writer = new BufferedWriter(new FileWriter(statFiles.get(i), true));
+                writer.write(generation + "," + duration +
+                        "," + statMap.get(POP_PROG_SIZE).getMean() +
+                        "," + statMap.get(POP_PROG_SIZE).getStandardDeviation() +
+                        "," + statMap.get(POP_FITNESS).getMean() +
+                        "," + statMap.get(POP_FITNESS).getStandardDeviation()
+                );
+                writer.newLine();
+                writer.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
