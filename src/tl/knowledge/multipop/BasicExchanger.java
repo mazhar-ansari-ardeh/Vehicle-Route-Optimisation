@@ -168,6 +168,14 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
     /** The selection method for deciding individuals to be replaced by immigrants */
     public static final String P_SELECT_TO_DIE_METHOD = "select-to-die";
 
+    /**
+     * If true, then this exchanger will ask the target population to search its entire history to find a duplicate.
+     * Otherwise, the target population will search its current population. The default value of this parameter is
+     * {@code true}.
+     */
+    public static final String P_ENABLE_HISTORY_SEARCH = "enable-history";
+    private boolean enableHistory = true;
+
     /** Whether or not we're chatty */
     public static final String P_CHATTY = "chatty";
 
@@ -291,6 +299,9 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
             logFatal(state, logID, "Number of mutations for the exchanger cannot be negative.");
         else
             log(state, logID, true, "Number of mutations for the exchanger: " + numMutations + ".\n");
+
+        enableHistory = state.parameters.getBoolean(base.push(P_ENABLE_HISTORY_SEARCH), null, true);
+        log(state, logID, true, String.format("Enable history search: %b\n", enableHistory));
     }
 
 
@@ -417,7 +428,13 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
 
                 for(int i=0; i < numMutations; i++)
                 {
-                    if(hstate.isSeenIn(subTo, mutated) <= 0)
+                    boolean isNew;
+                    if (!enableHistory)
+                        isNew = !hstate.IsSeenInCurrentPop(subTo, mutated);
+                    else
+                        isNew = hstate.isSeenIn(subTo, mutated) <= 0;
+
+                    if(isNew)
                     {
                         log(state, logID, "new," + i + "\n" );
                         log(state, logID, "replacing," + state.population.subpops[subTo].individuals[ indices[y] ].toString() + "\n\n");
