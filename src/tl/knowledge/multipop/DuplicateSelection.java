@@ -8,7 +8,6 @@ import ec.select.TournamentSelection;
 import ec.util.Parameter;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.commons.math3.util.MathArrays;
 import tl.TLLogger;
 
 import java.util.*;
