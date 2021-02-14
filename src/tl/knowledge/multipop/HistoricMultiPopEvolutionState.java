@@ -9,6 +9,7 @@ import gphhucarp.decisionprocess.PoolFilter;
 import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 import tl.gp.TLGPIndividual;
 import tl.gp.characterisation.TaskIndexCharacterisation;
+import tl.gp.entropy.Entropy;
 import tl.knowledge.sst.lsh.LSH;
 import tl.knowledge.sst.lsh.Vector;
 import tl.knowledge.sst.lsh.families.EuclidianHashFamily;
@@ -16,10 +17,7 @@ import tl.knowledge.sst.lsh.families.HashFamily;
 import tl.knowledge.surrogate.lsh.FittedVector;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 
 /**
@@ -40,12 +38,6 @@ public class HistoricMultiPopEvolutionState extends MultiPopEvolutionState
      */
     public final String P_DMS_SIZE = "dms-size";
 
-    /**
-     * The directory to which the population is logged at the end of each generation.
-     */
-    public static final String P_POP_LOG_PATH = "pop-log-path";
-    private String popLogPath;
-
     PoolFilter filter;
 
     TaskIndexCharacterisation trc;
@@ -55,8 +47,9 @@ public class HistoricMultiPopEvolutionState extends MultiPopEvolutionState
     @Override
     public void setup(EvolutionState state, Parameter base)
     {
+        if(base == null)
+            base = new Parameter(P_BASE);
         super.setup(state, base);
-        base = new Parameter(P_BASE);
 
         int knowledgeSuccessLogID = setupLogger(state, base, true);
 
@@ -68,14 +61,6 @@ public class HistoricMultiPopEvolutionState extends MultiPopEvolutionState
 
         trc = new TaskIndexCharacterisation(
                 getInitialSituations().subList(0, Math.min(dmsSize, getInitialSituations().size())));
-
-        popLogPath = state.parameters.getString(base.push(P_POP_LOG_PATH), null);
-        if(popLogPath == null)
-        {
-            state.output.fatal("Population log path cannot be null");
-            return;
-        }
-        state.output.warning("Population log path: " + popLogPath);
 
         int nSubPops = state.parameters.getInt(new Parameter("pop.subpops"), null);
         final int NUM_HASHES = 10;
@@ -121,9 +106,9 @@ public class HistoricMultiPopEvolutionState extends MultiPopEvolutionState
 
         writeToStatFile();
 
-        start = util.Timer.getCpuTime();
-
         logPopulation(population);
+
+        start = util.Timer.getCpuTime();
 
         // SHOULD WE QUIT?
         if (evaluator.runComplete(this) && quitOnRunComplete) {
@@ -133,6 +118,7 @@ public class HistoricMultiPopEvolutionState extends MultiPopEvolutionState
         // SHOULD WE QUIT?
         if (generation == numGenerations-1) return R_FAILURE;
 
+        // This is where the immigrants are selected to be transferred.
         if (exchangePopulationPreBreeding()) return R_SUCCESS;
 
         // BREEDING
@@ -175,6 +161,37 @@ public class HistoricMultiPopEvolutionState extends MultiPopEvolutionState
         return query.size();
     }
 
+    List<HashSet<Integer>> hashedInds = null;
+    int lastGenHSUpdated = -1;
+    public boolean IsSeenInCurrentPop(int subpop, Individual ind)
+    {
+        if(lastGenHSUpdated != generation)
+        {
+            hashedInds = new ArrayList<>();
+            for(int i = 0; i < population.subpops.length; i++)
+            {
+                HashSet<Integer> hs = new HashSet<>();
+                for(int j = 0; j < population.subpops[i].individuals.length; j++)
+                {
+                    GPIndividual gind = (GPIndividual)population.subpops[i].individuals[j];
+                    GPRoutingPolicy policy = new GPRoutingPolicy(filter, gind.trees[0]);
+                    int[] ch = trc.characterise(policy);
+                    int hcode = Arrays.hashCode(ch);
+                    hs.add(hcode);
+                }
+                hashedInds.add(hs);
+            }
+            lastGenHSUpdated = generation;
+        }
+
+        GPRoutingPolicy policy = new GPRoutingPolicy(filter, ((GPIndividual)ind).trees[0]);
+        int[] characterise = trc.characterise(policy);
+        int hcode = Arrays.hashCode(characterise);
+
+        return hashedInds.get(subpop).contains(hcode);
+    }
+
+
     public int[] characterise(Individual ind)
     {
         GPRoutingPolicy policy = new GPRoutingPolicy(filter, ((GPIndividual) ind).trees[0]);
@@ -187,20 +204,5 @@ public class HistoricMultiPopEvolutionState extends MultiPopEvolutionState
         int[] characterise = trc.characterise(policy);
 
         lsh.add(new FittedVector(characterise, ind.fitness.fitness()));
-    }
-
-    private void logPopulation(Population population)
-    {
-        assert population != null;
-        Individual[] pop = population.subpops[0].individuals;
-        assert pop != null;
-
-        int popLogID = setupLogger(this, new File(popLogPath, "pop/Pop." + generation + ".csv").getAbsolutePath());
-        log(this, popLogID, "Origin,Fitness,Tree\n");
-        Arrays.stream(pop).map(i -> (TLGPIndividual)i).sorted(Comparator.comparingDouble(j -> j.fitness.fitness())).forEach(
-                i -> log(this, popLogID,
-                        i.getOrigin() + "," + i.fitness.fitness() + "," + i.trees[0].child.makeLispTree() + "\n")
-        );
-        closeLogger(this, popLogID);
     }
 }
