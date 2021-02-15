@@ -131,7 +131,7 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
         int size;
     }
 
-    private int logID;
+    protected int logID;
 
     Mutator mutator = new Mutator();
 
@@ -144,7 +144,7 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
      * negative.
      */
     public  static final String P_NUM_MUTATIONS = "num-mutation";
-    private int numMutations;
+    protected int numMutations;
 
     /** The parameter for the modulo (how many generations should pass between consecutive sendings of individuals */
     public static final String P_MODULO = "mod";
@@ -174,7 +174,7 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
      * {@code true}.
      */
     public static final String P_ENABLE_HISTORY_SEARCH = "enable-history";
-    private boolean enableHistory = true;
+    protected boolean enableHistory = true;
 
     /** Whether or not we're chatty */
     public static final String P_CHATTY = "chatty";
@@ -337,7 +337,7 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
 
             // else, check whether the emigrants need to be sent
             if( ( state.generation >= exchangeInformation[i].offset ) && ( ( exchangeInformation[i].modulo == 0 ) ||
-                            ( ( ( state.generation - exchangeInformation[i].offset ) % exchangeInformation[i].modulo ) == 0 ) ) )
+                    ( ( ( state.generation - exchangeInformation[i].offset ) % exchangeInformation[i].modulo ) == 0 ) ) )
             {
                 // send the individuals!!!!
 
