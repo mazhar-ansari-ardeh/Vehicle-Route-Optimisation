@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
  */
 public class DuplicateSelection extends SelectionMethod implements TLLogger<GPNode>
 {
+    public static final String P_DEF_BASE = "duplicate-select";
     /**
      * A boolean parameter that if set to {@code true}, the duplicate selection mechanism will consider the history of
      * all the previously seen individuals throughout the entire evolution. Otherwise, only the current population will
@@ -119,7 +120,6 @@ public class DuplicateSelection extends SelectionMethod implements TLLogger<GPNo
             int counter = 1;
             while(selected.contains(retval) && counter <= 10)
             {
-                retval= tselect.produce(subpopulation, state, thread);
                 counter++;
             }
             selected.add(retval);
@@ -135,6 +135,6 @@ public class DuplicateSelection extends SelectionMethod implements TLLogger<GPNo
     @Override
     public Parameter defaultBase()
     {
-        return new Parameter("duplicate-select");
+        return new Parameter(P_DEF_BASE);
     }
 }
