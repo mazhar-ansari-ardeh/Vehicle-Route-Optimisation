@@ -1,11 +1,13 @@
 #!/bin/bash
 #SBATCH -a 1-30
 #SBATCH --cpus-per-task=1
-#SBATCH --mem-per-cpu=12G
+#SBATCH --mem-per-cpu=15G
 #SBATCH --partition=parallel
-#SBATCH --time=1-00:00:00
+#SBATCH --time=02-00:00:00
 #SBATCH --mail-type=FAIL
 #SBATCH --mail-user=mazhar@ecs.vuw.ac.nz
+#SBATCH -o /nfs/home/ansarima/out/%x-%A-%a.o.txt
+#SBATCH -e /nfs/home/ansarima/out/%x-%A-%a.e.txt
 
 # Setting variables that config the experiment.
 

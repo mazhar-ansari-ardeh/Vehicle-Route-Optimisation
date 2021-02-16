@@ -2,6 +2,9 @@
 # The problem: UCARP
 # ==============================
 
+# seed.0=19
+# generations=5
+
 eval.problem=tl.knowledge.multipop.MultiPopReactiveGPHHProblem
 eval.problem.pool-filter = gphhucarp.decisionprocess.poolfilter.ExpFeasibleNoRefillPoolFilter
 eval.problem.tie-breaker = gphhucarp.decisionprocess.tiebreaker.SimpleTieBreaker
@@ -13,29 +16,15 @@ eval.problem.subpop.0.eval-model.instances = 1
 eval.problem.subpop.0.eval-model.instances.0.samples = 5
 eval.problem.subpop.0.eval-model.instances.0.demand-uncertainty-level = 0.2
 eval.problem.subpop.0.eval-model.instances.0.cost-uncertainty-level = 0.2
-
-eval.problem.subpop.1.eval-model = gphhucarp.gp.evaluation.ReactiveEvaluationModel
-eval.problem.subpop.1.eval-model.objectives = 1
-eval.problem.subpop.1.eval-model.objectives.0 = total-cost
-eval.problem.subpop.1.eval-model.instances = 1
-eval.problem.subpop.1.eval-model.instances.0.samples = 5
-eval.problem.subpop.1.eval-model.instances.0.demand-uncertainty-level = 0.2
-eval.problem.subpop.1.eval-model.instances.0.cost-uncertainty-level = 0.2
-
-eval.problem.subpop.2.eval-model = gphhucarp.gp.evaluation.ReactiveEvaluationModel
-eval.problem.subpop.2.eval-model.objectives = 1
-eval.problem.subpop.2.eval-model.objectives.0 = total-cost
-eval.problem.subpop.2.eval-model.instances = 1
-eval.problem.subpop.2.eval-model.instances.0.samples = 5
-eval.problem.subpop.2.eval-model.instances.0.demand-uncertainty-level = 0.2
-eval.problem.subpop.2.eval-model.instances.0.cost-uncertainty-level = 0.2
-
+# eval.problem.subpop.0.eval-model.instances.0.file=gdb/gdb1.dat
+# eval.problem.subpop.0.eval-model.instances.0.vehicles=5
 
 # ==============================
 # Basic evolution parameters
 # ==============================
-state=tl.knowledge.multipop.HistoricMultiPopEvolutionState
-hmt-state.dms-size=20
+state=tl.knowledge.multipop.MultiPopEvolutionState
+multipop-state.dms-size=20
+multipop-state.pop-log-path=./stats/target-wk/multipop/pop
 
 finish = ec.simple.SimpleFinisher
 exch = ec.simple.SimpleExchanger
@@ -43,6 +32,7 @@ breed = ec.simple.SimpleBreeder
 eval = ec.simple.SimpleEvaluator
 
 stat = tl.knowledge.multipop.MultiPopStats
+stat.subpop.0.file=$./stats/job.0.out.stat
 
 # generation should be set inside the grid script.
 # generations = 100
@@ -57,19 +47,11 @@ erc.max = +2
 # The multi-population
 # ==============================
 pop = ec.Population
-pop.subpops = 3
+pop.subpops = 1
 pop.subpop.0 = ec.Subpopulation
 pop.subpop.0.size = 1024
 
-pop.subpop.1 = ec.Subpopulation
-pop.subpop.1.size = 1024
-
-pop.subpop.2 = ec.Subpopulation
-pop.subpop.2.size = 1024
-
 breed.elite.0 = 10
-breed.elite.1 = 10
-breed.elite.2 = 10
 
 
 
@@ -99,40 +81,18 @@ checkpoint-prefix = ec
 
 # GP population parameters
 pop.subpop.0.species = ec.gp.GPSpecies
-pop.subpop.1.species = ec.gp.GPSpecies
-pop.subpop.2.species = ec.gp.GPSpecies
-
+# pop.subpop.0.species.ind = ec.gp.GPIndividual
 pop.subpop.0.species.ind = tl.gp.TLGPIndividual
-pop.subpop.1.species.ind = tl.gp.TLGPIndividual
-pop.subpop.2.species.ind = tl.gp.TLGPIndividual
 
 pop.subpop.0.species.ind.numtrees = 1
 pop.subpop.0.species.ind.tree.0 = ec.gp.GPTree
 pop.subpop.0.species.ind.tree.0.tc = tc0
-
-pop.subpop.1.species.ind.numtrees = 1
-pop.subpop.1.species.ind.tree.0 = ec.gp.GPTree
-pop.subpop.1.species.ind.tree.0.tc = tc0
-
-pop.subpop.2.species.ind.numtrees = 1
-pop.subpop.2.species.ind.tree.0 = ec.gp.GPTree
-pop.subpop.2.species.ind.tree.0.tc = tc0
 
 # pop.subpop.0.species.fitness = ec.gp.koza.KozaFitness
 pop.subpop.0.species.fitness = ec.multiobjective.MultiObjectiveFitness
 pop.subpop.0.species.fitness.num-objectives = 1
 pop.subpop.0.species.fitness.maximize = false
 pop.subpop.0.duplicate-retries = 100
-
-pop.subpop.1.species.fitness = ec.multiobjective.MultiObjectiveFitness
-pop.subpop.1.species.fitness.num-objectives = 1
-pop.subpop.1.species.fitness.maximize = false
-pop.subpop.1.duplicate-retries = 100
-
-pop.subpop.2.species.fitness = ec.multiobjective.MultiObjectiveFitness
-pop.subpop.2.species.fitness.num-objectives = 1
-pop.subpop.2.species.fitness.maximize = false
-pop.subpop.2.duplicate-retries = 100
 
 # GP initializer
 init = ec.gp.GPInitializer
@@ -148,68 +108,10 @@ pop.subpop.0.species.pipe.source.1.prob = 0.15
 pop.subpop.0.species.pipe.source.2 = ec.breed.ReproductionPipeline
 pop.subpop.0.species.pipe.source.2.prob = 0.05
 
-pop.subpop.1.species.pipe = ec.breed.MultiBreedingPipeline
-pop.subpop.1.species.pipe.generate-max = false
-pop.subpop.1.species.pipe.num-sources = 3
-pop.subpop.1.species.pipe.source.0 = ec.gp.koza.CrossoverPipeline
-pop.subpop.1.species.pipe.source.0.prob = 0.8
-pop.subpop.1.species.pipe.source.1 = ec.gp.koza.MutationPipeline
-pop.subpop.1.species.pipe.source.1.prob = 0.15
-pop.subpop.1.species.pipe.source.2 = ec.breed.ReproductionPipeline
-pop.subpop.1.species.pipe.source.2.prob = 0.05
-
-pop.subpop.2.species.pipe = ec.breed.MultiBreedingPipeline
-pop.subpop.2.species.pipe.generate-max = false
-pop.subpop.2.species.pipe.num-sources = 3
-pop.subpop.2.species.pipe.source.0 = ec.gp.koza.CrossoverPipeline
-pop.subpop.2.species.pipe.source.0.prob = 0.8
-pop.subpop.2.species.pipe.source.1 = ec.gp.koza.MutationPipeline
-pop.subpop.2.species.pipe.source.1.prob = 0.15
-pop.subpop.2.species.pipe.source.2 = ec.breed.ReproductionPipeline
-pop.subpop.2.species.pipe.source.2.prob = 0.05
-
 #### Exchange #########################
-exch = tl.knowledge.multipop.BasicExchanger
-exch.subpop.0.select = ec.select.TournamentSelection
-exch.subpop.1.select = ec.select.TournamentSelection
-exch.subpop.2.select = ec.select.TournamentSelection
-
-exch.subpop.0.select-to-die = tl.knowledge.multipop.DuplicateSelection
-exch.subpop.1.select-to-die = tl.knowledge.multipop.DuplicateSelection
-exch.subpop.2.select-to-die = tl.knowledge.multipop.DuplicateSelection
-
-exch.subpop.0.select.size=7
-exch.subpop.1.select.size=7
-exch.subpop.2.select.size=7
-
-exch.subpop.0.start = 1
-exch.subpop.1.start = 1
-exch.subpop.2.start = 1
-
-exch.subpop.0.mod = 1
-exch.subpop.1.mod = 1
-exch.subpop.2.mod = 1
-
-exch.subpop.0.num-dest = 2
-exch.subpop.0.dest.0 = 1
-exch.subpop.0.dest.1 = 2
-
-exch.subpop.1.num-dest = 2
-exch.subpop.1.dest.0 = 0
-exch.subpop.1.dest.1 = 2
-
-exch.subpop.2.num-dest = 2
-exch.subpop.2.dest.0 = 0
-exch.subpop.2.dest.1 = 1
-
-
-exch.chatty = true
-exch.mutator.ns = ec.gp.koza.KozaNodeSelector
-exch.mutator.build = ec.gp.koza.GrowBuilder
-exch.mutator.maxdepth = 8
-exch.mutator.tries = 5
+exch = ec.simple.SimpleExchanger
+exch.knowledge-log-file=./stats/target-wk/MultiPop/exchanger
 #######################################
-
 # Selection for reproduction
 breed.reproduce.source.0 = ec.select.TournamentSelection
 
@@ -364,4 +266,3 @@ fitness-type = simple-fitness
 
 gp.tc.0.init=ec.gp.koza.HalfBuilder
 gp.tc.1.init=ec.gp.koza.HalfBuilder
- 
