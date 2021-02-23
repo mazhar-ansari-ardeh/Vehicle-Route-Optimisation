@@ -38,7 +38,7 @@ public class MultiPopEvolutionState extends GPHHEvolutionState implements MultiP
      * The directory to which the population is logged at the end of each generation.
      */
     public static final String P_POP_LOG_PATH = "pop-log-path";
-    private String popLogPath;
+    protected String popLogPath;
 
     protected PoolFilter filter;
 
