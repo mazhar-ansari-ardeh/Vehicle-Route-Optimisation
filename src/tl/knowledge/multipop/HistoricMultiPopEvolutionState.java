@@ -9,7 +9,6 @@ import gphhucarp.decisionprocess.PoolFilter;
 import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 import tl.gp.TLGPIndividual;
 import tl.gp.characterisation.TaskIndexCharacterisation;
-import tl.gp.entropy.Entropy;
 import tl.knowledge.sst.lsh.LSH;
 import tl.knowledge.sst.lsh.Vector;
 import tl.knowledge.sst.lsh.families.EuclidianHashFamily;
@@ -44,6 +43,8 @@ public class HistoricMultiPopEvolutionState extends MultiPopEvolutionState
 
     protected int dmsSize;
 
+    private int breedingEntropyLogID;
+
     @Override
     public void setup(EvolutionState state, Parameter base)
     {
@@ -67,6 +68,15 @@ public class HistoricMultiPopEvolutionState extends MultiPopEvolutionState
         final int NUM_HASH_TABLES = 100;
         for(int i = 0; i < nSubPops; i++)
             history.add(setUpLSH(0, dmsSize, NUM_HASHES, NUM_HASH_TABLES));
+
+        breedingEntropyLogID = setupLogger(this, new File(popLogPath, "pop/BreedingEntropy.csv").getAbsolutePath());
+        log(this, breedingEntropyLogID, "Phase,");
+        int i;
+        for (i = 0; i < nSubPops - 1; i++)
+        {
+            log(this, breedingEntropyLogID, "SubPop" + i + ",");
+        }
+        log(this, breedingEntropyLogID, "SubPop" + i + "\n");
     }
 
     private LSH setUpLSH(int radius, int dimensions, int numberOfHashes, int numberOfHashTables)
@@ -80,7 +90,6 @@ public class HistoricMultiPopEvolutionState extends MultiPopEvolutionState
 
         return lsh;
     }
-
 
     @Override
     public int evolve()
@@ -102,11 +111,15 @@ public class HistoricMultiPopEvolutionState extends MultiPopEvolutionState
         updateSearchHistory(population);
 
         finish = util.Timer.getCpuTime();
-        duration = 1.0 * (finish - start) / 1000000000;
+        duration += 1.0 * (finish - start) / 1000000000;
 
         writeToStatFile();
+        duration = 0;
 
         logPopulation(population);
+        resetOrigin(population);
+
+        logBreedingEntropy("before breeding");
 
         start = util.Timer.getCpuTime();
 
@@ -124,6 +137,13 @@ public class HistoricMultiPopEvolutionState extends MultiPopEvolutionState
         // BREEDING
         breed();
 
+        finish = util.Timer.getCpuTime();
+        duration = (1.0 * (finish - start) / 1000000000);
+
+        logBreedingEntropy("after breeding (before exchange)");
+
+        start = util.Timer.getCpuTime();
+
         // POST-BREEDING EXCHANGING
         // This is where the selected immigrants from a source population will replace a set of individuals to die in
         // the target population.
@@ -137,6 +157,30 @@ public class HistoricMultiPopEvolutionState extends MultiPopEvolutionState
         doCheckpoit();
 
         return R_NOTDONE;
+    }
+
+    private void logBreedingEntropy(String phase)
+    {
+        log(this, breedingEntropyLogID, phase + ",");
+        int i;
+        for (i = 0; i < this.population.subpops.length - 1; i++)
+        {
+            log(this, breedingEntropyLogID, entropy.entropy(population.subpops[i].individuals, 0, filter) + ",");
+        }
+        log(this, breedingEntropyLogID, entropy.entropy(population.subpops[i].individuals, 0, filter) + "\n");
+    }
+
+    private void resetOrigin(Population pop)
+    {
+        for (int i = 0; i < pop.subpops.length; i++) {
+            for (int j = 0; j < pop.subpops[i].individuals.length; j++) {
+                Individual ind = pop.subpops[i].individuals[j];
+                if(!(ind instanceof TLGPIndividual))
+                    continue;
+                TLGPIndividual tind = (TLGPIndividual)ind;
+                tind.setOrigin("");
+            }
+        }
     }
 
 
@@ -191,6 +235,38 @@ public class HistoricMultiPopEvolutionState extends MultiPopEvolutionState
         return hashedInds.get(subpop).contains(hcode);
     }
 
+    int lastGenHSImmUpdated = -1;
+    List<HashSet<Integer>> hashedImmigrants = null;
+    public boolean isSeenInTransferred(int subpop, Individual ind)
+    {
+        if(hashedImmigrants == null || hashedImmigrants.get(subpop) == null)
+            return false;
+        GPRoutingPolicy policy = new GPRoutingPolicy(filter, ((GPIndividual)ind).trees[0]);
+        int[] characterise = trc.characterise(policy);
+        int hcode = Arrays.hashCode(characterise);
+
+        return hashedImmigrants.get(subpop).contains(hcode);
+    }
+
+    public void receiveImmigrant(int subpop, Individual ind, int index)
+    {
+        population.subpops[subpop].individuals[index] = ind;
+        ind.evaluated = false;
+
+        if(lastGenHSImmUpdated != generation)
+        {
+            lastGenHSImmUpdated = generation;
+            hashedImmigrants = new ArrayList<>();
+            for(int i = 0; i < population.subpops.length; i++)
+                hashedImmigrants.add(new HashSet<>());
+        }
+
+        GPRoutingPolicy policy = new GPRoutingPolicy(filter, ((GPIndividual)ind).trees[0]);
+        int[] characterise = trc.characterise(policy);
+        int hcode = Arrays.hashCode(characterise);
+
+        hashedImmigrants.get(subpop).add(hcode);
+    }
 
     public int[] characterise(Individual ind)
     {
