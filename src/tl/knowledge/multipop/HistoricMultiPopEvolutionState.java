@@ -8,6 +8,7 @@ import ec.util.Parameter;
 import gphhucarp.decisionprocess.PoolFilter;
 import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 import tl.gp.TLGPIndividual;
+import tl.gp.characterisation.RuleCharacterisation;
 import tl.gp.characterisation.TaskIndexCharacterisation;
 import tl.knowledge.sst.lsh.LSH;
 import tl.knowledge.sst.lsh.Vector;
@@ -37,9 +38,9 @@ public class HistoricMultiPopEvolutionState extends MultiPopEvolutionState
      */
     public final String P_DMS_SIZE = "dms-size";
 
-    PoolFilter filter;
+    protected PoolFilter filter;
 
-    TaskIndexCharacterisation trc;
+    protected RuleCharacterisation<int[]> trc;
 
     protected int dmsSize;
 
