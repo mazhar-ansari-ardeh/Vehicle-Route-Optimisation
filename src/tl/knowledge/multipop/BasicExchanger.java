@@ -3,7 +3,6 @@ package tl.knowledge.multipop;
 import ec.*;
 import ec.gp.GPIndividual;
 import ec.gp.GPNode;
-import ec.gp.koza.MutationPipeline;
 import ec.util.Parameter;
 import tl.TLLogger;
 import tl.gp.TLGPIndividual;
@@ -107,10 +106,10 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
     private static final String P_MUTATOR_BASE = "mutator";
 
     // static inner classes don't need SerialVersionUIDs
-    static class IPEInformation implements Serializable
+    protected static class IPEInformation implements Serializable
     {
         // the selection method
-        SelectionMethod immigrantsSelectionMethod;
+        public SelectionMethod immigrantsSelectionMethod;
 
         // the selection method
         SelectionMethod indsToDieSelectionMethod;
@@ -128,7 +127,7 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
         int offset;
 
         // the size
-        int size;
+        public int size;
     }
 
     protected int logID;
@@ -184,15 +183,15 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
     // SERIALIZE
     public Parameter base;
 
-    IPEInformation[] exchangeInformation;
+    protected IPEInformation[] exchangeInformation;
 
     //  storage for the incoming immigrants: 2 sizes:
     //    the subpopulation and the index of the emigrant
     // this is virtually the array of mailboxes
-    Individual[][] immigrants;
+    public Individual[][] immigrants;
 
     // the number of immigrants in the storage for each of the subpopulations
-    int[] nImmigrants;
+    public int[] nImmigrants;
 
     public boolean chatty;
 
@@ -257,8 +256,8 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
 
             // get the size
             exchangeInformation[i].size = state.parameters.getInt( p.push( P_SIZE ), base.push( P_SIZE ), 1 );
-            if( exchangeInformation[i].size == 0 )
-                state.output.fatal( "Parameter not found, or it has an incorrect value.", p.push( P_SIZE ), base.push( P_SIZE ) );
+//            if( exchangeInformation[i].size == 0 )
+//                state.output.fatal( "Parameter not found, or it has an incorrect value.", p.push( P_SIZE ), base.push( P_SIZE ) );
 
             // get the number of destinations
             exchangeInformation[i].numDest = state.parameters.getInt( p.push( P_DEST_FOR_SUBPOP ), null, 0 );
@@ -369,7 +368,10 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
             Individual immigrant = (Individual) state.population.subpops[from].individuals[index].clone();
             log(state, logID, false, immigrant.toString() + "\n");
             if(immigrant instanceof TLGPIndividual)
-                ((TLGPIndividual)immigrant).setOrigin("subpop." + from);
+            {
+                double fitness = immigrant.fitness.fitness();
+                ((TLGPIndividual)immigrant).setOrigin(String.format("subpop.%d,%f", from, fitness));
+            }
             immigrants[destination][nImmigrants[destination]] =
                     process(state, 0, null, destination, immigrant);
             nImmigrants[destination]++;
