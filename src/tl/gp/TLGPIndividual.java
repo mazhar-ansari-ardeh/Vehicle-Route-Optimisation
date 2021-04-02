@@ -33,7 +33,10 @@ public class TLGPIndividual extends GPIndividual
 	{
 		StringBuilder retval = new StringBuilder();
 		if(evaluated)
-			retval.append(fitness.fitness()).append(",");
+			retval.append("E,");
+		else
+			retval.append("Ne,");
+		retval.append(fitness.fitness()).append(",");
 		if(origin != null && !origin.isEmpty())
 			retval.append(origin).append(",");
 		for (int i = 0; i < trees.length; i++)
