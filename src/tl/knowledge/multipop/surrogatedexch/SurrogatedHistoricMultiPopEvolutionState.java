@@ -3,13 +3,16 @@ package tl.knowledge.multipop.surrogatedexch;
 import ec.EvolutionState;
 import ec.Individual;
 import ec.util.Parameter;
+import gphhucarp.decisionprocess.PoolFilter;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import gphhucarp.decisionprocess.routingpolicy.PathScanning5Policy;
 import tl.gp.characterisation.RefRuleCharacterisation;
+import tl.gp.similarity.RefRulePhenoTreeSimilarityMetric;
+import tl.gphhucarp.dms.DMSSaver;
 import tl.knowledge.multipop.HistoricMultiPopEvolutionState;
-import tl.knowledge.sst.lsh.LSH;
 import tl.knowledge.surrogate.SuGPIndividual;
-import tl.knowledge.surrogate.lsh.LSHSurrogate;
+import tl.knowledge.surrogate.knn.FILOPhenotypicUpdatePolicy;
+import tl.knowledge.surrogate.knn.KNNSurrogateFitness;
 
 import java.util.List;
 
@@ -22,6 +25,9 @@ public class SurrogatedHistoricMultiPopEvolutionState extends HistoricMultiPopEv
     private int k;
 
     public static final String P_BASE = "shmt-state";
+    private int lastUpdateGen = -1;
+
+    private KNNSurrogateFitness[] surrogates;
 
     @Override
     public void setup(EvolutionState state, Parameter base)
@@ -41,29 +47,52 @@ public class SurrogatedHistoricMultiPopEvolutionState extends HistoricMultiPopEv
             k = parameters.getInt(base.push(P_K), null);
         if(k <= 0)
             output.fatal("K must be a positive integer: " + k + "\n");
+
+        int nSubpop = parameters.getInt(new Parameter("pop.subpops"), null);
+        surrogates = new KNNSurrogateFitness[nSubpop];
+        for(int i = 0; i < surrogates.length; i++)
+            surrogates[i] = setupKNNSurrogates(state, base);
     }
 
-//    public void surrogateEvaluate(int supPopToEval, int surrogateToUse)
-//    {
-//        LSH lsh = history.get(surrogateToUse);
-//        LSHSurrogate surrogate = new LSHSurrogate(lsh, filter, trc, k);
-//
-//        Individual[] subpop = this.population.subpops[supPopToEval].individuals;
-//        for(int i = 0; i < subpop.length; i++)
-//        {
-//            double surFitness = surrogate.fitness(subpop[i]);
-//            ((SuGPIndividual)subpop[i]).setSurFit(surFitness);
-//        }
-//    }
+    private KNNSurrogateFitness setupKNNSurrogates(EvolutionState state, Parameter base)
+    {
+        DMSSaver sstate = (DMSSaver) state;
+        KNNSurrogateFitness surrogate = new KNNSurrogateFitness();
+
+        RefRulePhenoTreeSimilarityMetric metric = new RefRulePhenoTreeSimilarityMetric();
+        surrogate.setMetric(metric);
+        surrogate.setSituations(sstate.getInitialSituations().subList(0,
+                Math.min(sstate.getInitialSituations().size(), dmsSize)));
+
+        int populationSize = state.parameters.getInt(new Parameter("pop.subpop.0.size"), null);
+        surrogate.setSurrogateUpdatePolicy(
+                new FILOPhenotypicUpdatePolicy(2 * populationSize, metric));
+
+        Parameter p = new Parameter("eval.problem.pool-filter");
+        PoolFilter filter = (PoolFilter) (state.parameters.getInstanceForParameter(p, null, PoolFilter.class));
+        surrogate.setFilter(filter);
+
+        return surrogate;
+    }
 
     public void surrogateEvaluate(Individual[] inds, int surrogateToUse)
     {
-        LSH lsh = history.get(surrogateToUse);
-        LSHSurrogate surrogate = new LSHSurrogate(lsh, filter, trc, k);
+        if(generation != lastUpdateGen)
+        {
+            lastUpdateGen = generation;
+            // Sub-population zero is always the main sub-population and it is always evaluated first.
+            // Cloning is important because some KNN pool update algorithms may modify the individuals.
+
+            for(int i = 0; i < surrogates.length; i++)
+            {
+                Individual[] individuals = population.subpops[i].individuals.clone();
+                surrogates[i].updateSurrogatePool(individuals, "");
+            }
+        }
 
         for(int i = 0; i < inds.length; i++)
         {
-            double surFitness = surrogate.fitness(inds[i]);
+            double surFitness = surrogates[surrogateToUse].fitness(inds[i]);
             ((SuGPIndividual) inds[i]).setSurFit(surFitness);
         }
     }
