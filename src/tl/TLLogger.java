@@ -35,6 +35,38 @@ public interface TLLogger<T>
 		return setupLogger(state, base, P_KNOWLEDGE_LOG_FILE_NAME, false);
 	}
 
+	default int setupLogger(EvolutionState state, Path pathToFile, boolean zip)
+	{
+		if(state == null || pathToFile == null)
+			throw new RuntimeException("Path to file and state cannot be null");
+		try
+		{
+			File file = pathToFile.toFile();
+			if (file.exists() && !file.delete())
+			{
+				throw new RuntimeException("The log file" + file.toString() + " already exists and failed to delete it");
+			}
+
+			Path pathToSuccDir = pathToFile.getParent();
+			if (pathToSuccDir != null)
+			{
+				File statDirFile = pathToSuccDir.toFile();
+				if (!statDirFile.exists() && !statDirFile.mkdirs())
+					state.output.fatal("Failed to create stat directory: "
+							+ pathToSuccDir.toString());
+			}
+
+			state.output.warning("Log file created: " + file.getAbsolutePath());
+
+			return state.output.addLog(file, false, zip);
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+			state.output.fatal("Failed to create knowledge log file");
+			return -1;
+		}
+	}
+
 	default int setupLogger(EvolutionState state, String fileName)
 	{
 		if(fileName == null || fileName.isEmpty())
