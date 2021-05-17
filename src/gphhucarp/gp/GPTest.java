@@ -18,6 +18,7 @@ import gphhucarp.gp.io.FitnessType;
 import gphhucarp.gp.io.GPResult;
 import gphhucarp.gp.io.SolutionType;
 import gputils.UniqueTerminalsGatherer;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -41,10 +42,27 @@ public class GPTest {
     public static final String P_FITNESS_TYPE = "fitness-type"; // fitness type, e.g. multiobjective fitness
     public static final String P_NUM_TRAINS = "num-trains"; // number of trains (out.stat files)
 
+    /**
+     * This is an optional parameter that specifies the a prefix for the name of the test file. This class has a pattern
+     * for generating the name of the test file and the value specified with this parameter will be added to the
+     * beginning of the generated file name.
+     */
+    public static final String P_TEST_FILE_PREFIX = "test-file-prefix";
+    private static String testFilePrefix;
+
+    /**
+     * This is an optional parameter that specifies the extension of the test file. If not specified, 'csv' will be
+     * used.
+     */
+    public static final String P_TEST_FILE_EXT = "test-file-ext";
+    private static String testFileExt = "csv";
+
     public static void main(String[] args) {
         ParameterDatabase parameters = Evolve.loadParameterDatabase(args);
 
         EvolutionState state = Evolve.initialize(parameters, 0);
+
+        parameters.list(state.output.getLog(0).writer);
 
         Parameter p;
 
@@ -57,17 +75,27 @@ public class GPTest {
         // read the path of the training out.stat files.
         p = new Parameter(P_TRAIN_PATH);
         String trainPath = parameters.getStringWithDefault(p, null, "");
+        System.out.println("Train path: " + trainPath + "\n");
         // read the solution type, e.g. a single routing policy or ensemble
         p = new Parameter(P_SOLUTION_TYPE);
         String stString = parameters.getStringWithDefault(p, null, "");
+        System.out.println("Solution type: " + stString + "\n");
         SolutionType solutionType = SolutionType.get(stString);
         // read the fitness type, e.g. a multiobjective fitness
         p = new Parameter(P_FITNESS_TYPE);
         String ftString = parameters.getStringWithDefault(p, null, "");
+        System.out.println("Fitness type: " + ftString + "\n");
         FitnessType fitnessType = FitnessType.get(ftString);
         // read the number of trains, i.e. the number of out.stat files
         p = new Parameter(P_NUM_TRAINS);
         int numTrains = parameters.getIntWithDefault(p, null, 1);
+        System.out.println("Number of trains: " + numTrains);
+
+        p = new Parameter(P_TEST_FILE_PREFIX);
+        testFilePrefix = parameters.getStringWithDefault(p, null, "");
+
+        p = new Parameter(P_TEST_FILE_EXT);
+        testFileExt = parameters.getStringWithDefault(p, null, "csv");
 
         // the fields for testing
         ReactiveGPHHProblem testProblem = (ReactiveGPHHProblem)state.evaluator.p_problem;
@@ -76,6 +104,7 @@ public class GPTest {
         // read the tested policy(ies)
         p = new Parameter(P_POLICY_TYPE);
         String policyType = parameters.getStringWithDefault(p, null, "");
+        System.out.println("Policy type: " + policyType + "\n");
 
         if (policyType.equals("gp-evolved")) {
             // read the results from the training files
@@ -99,10 +128,16 @@ public class GPTest {
                 // test the rules for each generation
                 long start = System.currentTimeMillis();
 
-                for (int j = 0; j < result.getSolutions().size(); j++) {
+                DescriptiveStatistics testTimeStats = new DescriptiveStatistics();
+                for (int j = 0; j < result.getSolutions().size(); j++)
+                {
+                    long startTest = System.currentTimeMillis();
                     testEvaluationModel.evaluateOriginal(result.getSolutionAtGen(j), null,
                             result.getTestFitnessAtGen(j), state);
 
+                    long endTest = System.currentTimeMillis();
+                    double testDuration = (endTest - startTest) / 1000f;
+                    testTimeStats.addValue( testDuration );
                     System.out.println("Generation " + j + ": test fitness = " +
                             result.getTestFitnessAtGen(j).fitness());
                 }
@@ -112,7 +147,7 @@ public class GPTest {
                         result.getBestTestFitness(), state);
                 System.out.println("Best indi: test fitness = " +
                         result.getBestTestFitness().fitness());
-
+                result.setTestTimeStat(testTimeStats);
                 long finish = System.currentTimeMillis();
                 long duration = finish - start;
                 System.out.println("Duration = " + duration + " ms.");
@@ -127,7 +162,7 @@ public class GPTest {
             }
 
             String writtenFileName = testFileName(testEvaluationModel);
-            File csvFile = new File(writtenPath + "/" + writtenFileName + ".csv");
+            File csvFile = new File(writtenPath + "/" + writtenFileName + "." + testFileExt);
 
             try {
                 BufferedWriter writer = new BufferedWriter(new FileWriter(csvFile.getAbsoluteFile()));
@@ -153,7 +188,7 @@ public class GPTest {
                                 writer.write(i + "," + j + ",0," +
                                         solution1.getGPTree().child.numNodes(GPNode.NODESEARCH_ALL) + "," +
                                         numUniqueTerminals + "," + fitnessString(result, j, fitnessType) +
-                                        result.getTimeAtGen(j));
+                                        result.getTimeAtGen(j) + "," + result.getTestTimeStatAtGen(j));
                                 writer.newLine();
                             }
                             // write the test results of the best individual, shown as gen = -1
@@ -164,7 +199,8 @@ public class GPTest {
                             writer.write(i + ",-1,0," +
                                     solution1.getGPTree().child.numNodes(GPNode.NODESEARCH_ALL) + "," +
                                     numUniqueTerminals + "," + fitnessString(result, -1, fitnessType) +
-                                    "0");
+                                    "0,0");
+
                             writer.newLine();
                             break;
                         case CC_SOLUTION:
@@ -224,7 +260,7 @@ public class GPTest {
         }
         else {
             String writtenFileName = testFileName(testEvaluationModel);
-            File csvFile = new File("manual-" + writtenFileName + ".csv");
+            File csvFile = new File("manual-" + writtenFileName + "." + testFileExt);
 
             Parameter b = new Parameter(P_MANUAL_POLICIES);
             int manualPolicies = parameters.getIntWithDefault(b, null, 0);
@@ -265,7 +301,7 @@ public class GPTest {
                 + instance.getDemandUncertaintyLevel() + "-"
                 + instance.getCostUncertaintyLevel();
 
-        return str;
+        return testFilePrefix + str;
     }
 
     private static String csvTitle(FitnessType fitnessType) {
@@ -274,7 +310,7 @@ public class GPTest {
         if (fitnessType == FitnessType.DIMENSION_AWARE_FITNESS)
             s += "DimensionGap,";
 
-        s += "Obj,TrainFitness,TestFitness,Time";
+        s += "Obj,TrainFitness,TestFitness,Time,TestTime";
 
         return s;
     }
