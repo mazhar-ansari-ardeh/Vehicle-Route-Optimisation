@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -299,6 +300,75 @@ public class PopulationUtils
 		return pool;
 	}
 
+	public static List<Individual> loadPopulations2(EvolutionState state, String inputPath,
+												   int fromGeneration, int toGeneration, PoolFilter filter,
+												   SituationBasedTreeSimilarityMetric metrics,
+												   double nicheRadius,
+												   int nicheCapacity,
+												   TLLogger<GPNode> logger,
+												   int logID,
+												   boolean logPopulation) throws IOException, ClassNotFoundException
+	{
+		File f = new File(inputPath);
+
+		List<Individual> pool = new ArrayList<>();
+		if (f.isDirectory())
+		{
+			if (fromGeneration <= -1 || toGeneration <= -1)
+			{
+				if(logger != null)
+					logger.log(state, logID, true, "Generation range is invalid: " + fromGeneration
+							+ " to " + toGeneration + "\n");
+				state.output.fatal("Generation range is invalid: " + fromGeneration + " to "
+						+ toGeneration);
+			}
+			for (int i = toGeneration; i >= fromGeneration; i--)
+			{
+				File file = Paths.get(inputPath, "population.gen." + i + ".bin").toFile();
+				if(!file.exists())
+				{
+					if(logger != null)
+						logger.log(state, logID, true, "The file " + file.toString() + " does not exist. Ignoring.\n");
+					continue;
+				}
+				Population p = PopulationUtils.loadPopulation(file);
+				List<Individual> loadedPop = Arrays.asList(p.subpops[0].individuals);
+				loadedPop.sort(Comparator.comparingDouble(ind -> ind.fitness.fitness()));
+				SimpleNichingAlgorithm.clearPopulation(loadedPop, filter, metrics, nicheRadius, nicheCapacity);
+				loadedPop = loadedPop.stream().filter(ind -> ind.fitness.fitness() != Double.POSITIVE_INFINITY).collect(Collectors.toList());
+
+				pool.addAll(loadedPop);
+//				pool.sort(Comparator.comparingDouble(ind -> ind.fitness.fitness()));
+//				SimpleNichingAlgorithm.clearPopulation(pool, filter, metrics, nicheRadius, nicheCapacity);
+//				pool = pool.stream().filter(ind -> ind.fitness.fitness() != Double.POSITIVE_INFINITY).collect(Collectors.toList());
+			}
+		}
+		else if (f.isFile())
+		{
+			Population p = PopulationUtils.loadPopulation(f);
+			PopulationUtils.sort(p);
+			pool.addAll(Arrays.asList(p.subpops[0].individuals));
+			SimpleNichingAlgorithm.clearPopulation(pool, filter, metrics, nicheRadius, 1);
+			pool = pool.stream().filter(ind -> ind.fitness.fitness() != Double.POSITIVE_INFINITY).collect(Collectors.toList());
+		}
+
+//		pool.sort(Comparator.comparingDouble(ind -> ind.fitness.fitness()));
+//		SimpleNichingAlgorithm.clearPopulation(pool, filter, metrics, nicheRadius, nicheCapacity);
+//		pool = pool.stream().filter(ind -> ind.fitness.fitness() != Double.POSITIVE_INFINITY).collect(Collectors.toList());
+
+		if(logPopulation && logger != null)
+		{
+			logger.log(state, logID, "pool size: " + pool.size() + "\n");
+			for (int i1 = 0; i1 < pool.size(); i1++)
+			{
+				Individual i = pool.get(i1);
+				logger.log(state, logID, false, i1 + ": " + i.fitness.fitness() + ", "
+						+ ((GPIndividual) i).trees[0].child.makeLispTree() + "\n");
+			}
+		}
+		return pool;
+	}
+
 	/**
 	 * Performs a tournament selection on the given individuals.
 	 * @param inds the set of individuals to select from. This set cannot be {@code null}.
@@ -321,6 +391,35 @@ public class PopulationUtils
 		{
 			int j = state.random[thread].nextInt(inds.length);
 			if (inds[j].fitness.betterThan(inds[best].fitness))  // j is better than best
+				best = j;
+		}
+
+		return best;
+	}
+
+	/**
+	 * Performs a tournament selection on the given individuals.
+	 * @param inds the set of individuals to select from. If this set is null or empty, -1 will be returned.
+	 * @param state the {@code EvolutionState} object that is governing the evolutionary process.
+	 * @param thread the number of the thread running the process.
+	 * @param size the tournament size. This parameter cannot be zero or negative.
+	 * @return the index of the selected individual.
+	 */
+	public static <T> int tournamentSelect(List<T> inds, Comparator<T> comparator, final EvolutionState state,
+										   final int thread, int size)
+	{
+		if(inds == null || inds.size() == 0)
+			return -1;
+
+		if(size <= 0)
+			throw new IllegalArgumentException("Tournament size needs to be a positive number: " + size);
+
+		int best = state.random[thread].nextInt(inds.size());
+
+		for (int x=1; x < size; x++)
+		{
+			int j = state.random[thread].nextInt(inds.size());
+			if(comparator.compare(inds.get(j), inds.get(best)) < 0)
 				best = j;
 		}
 

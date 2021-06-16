@@ -120,7 +120,7 @@ public class GPHHEvolutionState extends TerminalERCEvolutionState implements TLL
 			e.printStackTrace();
 		}
 	}
-	boolean normalisedFitness = false;
+	protected boolean normalisedFitness = false;
 
 	public void setupStatistics()
 	{
