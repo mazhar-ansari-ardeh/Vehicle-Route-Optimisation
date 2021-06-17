@@ -56,6 +56,12 @@ public class UniqueFullTreeBuilder extends HalfBuilder implements TLLogger<GPNod
      */
     private int numIndsCreated = 0;
 
+    /**
+     * If {@code true}, the rest of the population, beyond the transfer percent, is initialised randomly
+     */
+    public static final String P_INIT_REST_RANDOM = "init-rest-random";
+    private boolean initRandom = true;
+
     private int populationSize;
 
     RefRulePhenoTreeSimilarityMetric metric = new RefRulePhenoTreeSimilarityMetric();
