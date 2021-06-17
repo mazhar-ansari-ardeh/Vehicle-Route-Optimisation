@@ -3,7 +3,6 @@ package tl.gp.characterisation;
 import gphhucarp.core.Arc;
 import gphhucarp.decisionprocess.RoutingPolicy;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
-import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 
 import java.util.List;
 
@@ -13,10 +12,10 @@ import java.util.List;
 public class RefRuleCharacterisation implements RuleCharacterisation<int[]>
 {
 	private final List<ReactiveDecisionSituation> decisionSituations;
-	private RoutingPolicy referenceRule;
+	private final RoutingPolicy referenceRule;
 	private List<int[]> referenceRanks;
 
-	public RefRuleCharacterisation(final List<ReactiveDecisionSituation> dps, GPRoutingPolicy refRule)
+	public RefRuleCharacterisation(final List<ReactiveDecisionSituation> dps, RoutingPolicy refRule)
 	{
 		if(dps == null || dps.isEmpty())
 			throw new IllegalArgumentException("List of decision situations cannot be null or empty: " + dps);
@@ -29,7 +28,7 @@ public class RefRuleCharacterisation implements RuleCharacterisation<int[]>
 	}
 
 	@Override
-	public int[] characterise(GPRoutingPolicy policy)
+	public int[] characterise(RoutingPolicy policy)
 	{
 		final int[] charList = new int[this.decisionSituations.size()];
 		for (int i = 0; i < this.decisionSituations.size(); i++)
@@ -50,6 +49,6 @@ public class RefRuleCharacterisation implements RuleCharacterisation<int[]>
 	private void calcReferenceIndexes()
 	{
 		TaskRankCharacterisation ranker = new TaskRankCharacterisation(this.decisionSituations);
-		this.referenceRanks = ranker.characterise((GPRoutingPolicy) this.referenceRule);
+		this.referenceRanks = ranker.characterise(this.referenceRule);
 	}
 }

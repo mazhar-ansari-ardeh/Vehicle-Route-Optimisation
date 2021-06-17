@@ -1,6 +1,7 @@
 package tl.gp.characterisation;
 
 import gphhucarp.core.Arc;
+import gphhucarp.decisionprocess.RoutingPolicy;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -30,7 +31,7 @@ public class TaskRankCharacterisation implements RuleCharacterisation<List<int[]
 	}
 
 	@Override
-	public List<int[]> characterise(GPRoutingPolicy policy)
+	public List<int[]> characterise(RoutingPolicy policy)
 	{
 		List<int[]> retval = new ArrayList<>();
 		for (int i = 0; i < decisionSituations.size(); i++)
