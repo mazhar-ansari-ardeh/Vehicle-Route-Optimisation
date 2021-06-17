@@ -1,6 +1,8 @@
 package tl.gp.similarity;
 
+import ec.gp.GPIndividual;
 import ec.gp.GPTree;
+import gphhucarp.decisionprocess.PoolFilter;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
 import tl.gp.characterisation.TaskIndexCharacterisation;
@@ -42,6 +44,17 @@ public class HammingPhenoTreeSimilarityMetric implements SituationBasedTreeSimil
 			if(cache.size() > CACHE_SIZE)
 				cache.clear();
 			return cache.computeIfAbsent(tree.getGPTree(), t -> ch.characterise(tree));
+		}
+	}
+
+	public int[] characterise(GPIndividual ind, int tree, PoolFilter filter)
+	{
+		synchronized (cache)
+		{
+			int CACHE_SIZE = 10000;
+			if(cache.size() > CACHE_SIZE)
+				cache.clear();
+			return cache.computeIfAbsent(ind.trees[tree], t -> ch.characterise(ind, tree, filter));
 		}
 	}
 
