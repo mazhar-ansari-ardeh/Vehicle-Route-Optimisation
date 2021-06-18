@@ -31,37 +31,37 @@ import java.util.*;
  */
 public class CyclingUniqueFullTreeBuilder extends HalfBuilder implements TLLogger<GPNode>
 {
-    private int knowledgeSuccessLogID;
+    protected int knowledgeSuccessLogID;
 
     /**
      * The percentage of the initial population to be created from the individuals transferred from the source domain.
      */
     public static final String P_TRANSFER_PERCENT = "transfer-percent";
-    private double[] transferPercent;
+    protected double[] transferPercent;
 
 
-    private List<Individual> goodInds;
+    protected List<Individual> goodInds;
 
     /**
      * The path to the directory that contains GP populations.
      */
     public static final String P_KNOWLEDGE_PATH = "knowledge-path";
-    private String knowledgePath;
+    protected String knowledgePath;
 
 
     /**
      * Number of individuals that are transferred, including the mutated ones.
      */
-    private int transferCount = 0;
+    protected int transferCount = 0;
 
     /**
      * Number of individuals created for the current subpopulation. The value is reset for each subpopulation.
      */
-    private int numIndsCreated = 0;
+    protected int numIndsCreated = 0;
 
-    private int populationSize;
+    protected int populationSize;
 
-    private int activeSubpop = 0;
+    protected int activeSubpop = 0;
 
     RefRulePhenoTreeSimilarityMetric metric = new RefRulePhenoTreeSimilarityMetric();
 
@@ -100,7 +100,7 @@ public class CyclingUniqueFullTreeBuilder extends HalfBuilder implements TLLogge
         metric.setSituations(initialSituations.subList(0, Math.min(initialSituations.size(), 20)));
     }
 
-    private void updateHashTable(List<? extends Individual> pop, HashMap<Integer, Individual> hashInds)
+    protected void updateHashTable(List<? extends Individual> pop, HashMap<Integer, Individual> hashInds)
     {
         for(int j = 0; j < pop.size(); j++)
         {
@@ -123,7 +123,7 @@ public class CyclingUniqueFullTreeBuilder extends HalfBuilder implements TLLogge
         updateHashTable(Arrays.asList(pop), hashInds);
     }
 
-    private void updateHashTable(Population pop, HashMap<Integer, Individual> hashInds)
+    protected void updateHashTable(Population pop, HashMap<Integer, Individual> hashInds)
     {
         for(int i = 0; i < pop.subpops.length; i++)
             updateHashTable(pop.subpops[i].individuals, hashInds);

@@ -1,0 +1,372 @@
+# ==============================
+# The problem: UCARP
+# ==============================
+eval.problem=tl.knowledge.multipop.MultiPopReactiveGPHHProblem
+eval.problem.pool-filter = gphhucarp.decisionprocess.poolfilter.ExpFeasibleNoRefillPoolFilter
+eval.problem.tie-breaker = gphhucarp.decisionprocess.tiebreaker.SimpleTieBreaker
+eval.problem.data = gputils.DoubleData
+
+eval.problem.subpop.0.eval-model = gphhucarp.gp.evaluation.ReactiveEvaluationModel
+eval.problem.subpop.0.eval-model.objectives = 1
+eval.problem.subpop.0.eval-model.objectives.0 = total-cost
+eval.problem.subpop.0.eval-model.instances = 1
+eval.problem.subpop.0.eval-model.instances.0.samples = 5
+eval.problem.subpop.0.eval-model.instances.0.demand-uncertainty-level = 0.2
+eval.problem.subpop.0.eval-model.instances.0.cost-uncertainty-level = 0.2
+eval.problem.subpop.0.eval-model.instances.0.file=gdb/gdb1.dat
+eval.problem.subpop.0.eval-model.instances.0.vehicles=5
+
+# eval.problem.subpop.1.eval-model=gphhucarp.gp.evaluation.ReactiveEvaluationModel
+# eval.problem.subpop.1.eval-model.objectives = 1
+# eval.problem.subpop.1.eval-model.objectives.0 = total-cost
+# eval.problem.subpop.1.eval-model.instances = 1
+# eval.problem.subpop.1.eval-model.instances.0.samples = 5
+# eval.problem.subpop.1.eval-model.instances.0.demand-uncertainty-level = 0.2
+# eval.problem.subpop.1.eval-model.instances.0.cost-uncertainty-level = 0.2
+
+eval.problem.subpop.1.eval-model=tl.knowledge.surrogate.multipop.SurrogateEvaluationModel
+eval.problem.subpop.1.eval-model.knowledge-log-file=./stats/target-wk/mptl/surrogate_model
+eval.problem.subpop.1.eval-model.surrogate=knn
+# eval.problem.subpop.1.eval-model.surrogate=lsh
+
+# ==============================
+# Initialisation
+# ==============================
+# gp.tc.0.init=tl.knowledge.multipop.multipoptl.CyclingUniqueFullTreeBuilder
+# gp.tc.0.init.knowledge-path=/home/mazhar/grid/gdb1.vs5:gen_50/KnowledgeSource/1/TestedPopulation/
+# gp.tc.0.init.dms-size=20
+# gp.tc.0.init.knowledge-log-file=./stats/target-wk/mptl/ktstate0
+# gp.tc.0.init.transfer-percent.0=1
+# gp.tc.0.init.transfer-percent.1=1
+
+# gp.tc.0.init=tl.gp.UniqueFullTreeBuilder
+gp.tc.0.init=tl.gp.UniqueFullTreeBuilderEx
+gp.tc.0.init.knowledge-path=/home/mazhar/grid/gdb1.vs5:gen_50/KnowledgeSource/1/TestedPopulation/
+gp.tc.0.init.dms-size=20
+gp.tc.0.init.knowledge-log-file=./stats/target-wk/mptl/ktstate0
+gp.tc.0.init.transfer-percent=1
+
+
+gp.tc.1.init=ec.gp.koza.HalfBuilder
+# gp.tc.1.init.knowledge-path=/home/mazhar/grid/gdb1.vs5:gen_50/KnowledgeSource/1/TestedPopulation/
+# gp.tc.1.init.transfer-clear-radius=0
+# gp.tc.1.init.transfer-clear-capacity=1
+# gp.tc.1.init.dms-size=20
+# gp.tc.1.init.knowledge-log-file=./stats/target-wk/mptl/ktstate1
+# gp.tc.1.init.fit-thresh=1
+# gp.tc.1.init.incl-good-inds=true
+# gp.tc.1.init.transfer-percent=1
+# gp.tc.1.init.enable-surr=false
+# gp.tc.1.init.interim-magnitude=1
+# gp.tc.1.init.interim-from-mutation=0
+# gp.tc.1.init.num-mutations=3
+# gp.tc.1.init.surr-log-path=./stats/target-wk/SAMUFullTree/sur1
+# gp.tc.1.init.mutator.ns=ec.gp.koza.KozaNodeSelector
+# gp.tc.1.init.mutator.build=ec.gp.koza.GrowBuilder
+# gp.tc.1.init.mutator.maxdepth=8
+# gp.tc.1.init.mutator.tries=5
+
+# ==============================
+# Exchange
+# ==============================
+exch=tl.knowledge.multipop.BasicExchanger
+exch.knowledge-log-file=./stats/target-wk/mptl/exchanger
+exch.subpop.0.select = ec.select.TournamentSelection
+exch.subpop.1.select = ec.select.TournamentSelection
+exch.subpop.0.size=200
+exch.subpop.1.size=200
+
+exch.num-mutation=10
+
+exch.subpop.0.select-to-die=tl.knowledge.multipop.DuplicateSelection
+exch.subpop.1.select-to-die=tl.knowledge.multipop.DuplicateSelection
+exch.subpop.0.select-to-die.knowledge-log-file=./stats/target-wk/mptl/std.0
+exch.subpop.1.select-to-die.knowledge-log-file=./stats/target-wk/mptl/std.1
+exch.subpop.0.select-to-die.enable-history-search=false
+exch.subpop.1.select-to-die.enable-history-search=false
+exch.subpop.0.select.size=7
+exch.subpop.1.select.size=7
+exch.subpop.0.start=1
+exch.subpop.1.start=1
+exch.subpop.0.mod=1
+exch.subpop.1.mod=1
+exch.subpop.0.num-dest=1
+exch.subpop.0.dest.0=1
+exch.subpop.1.num-dest=1
+exch.subpop.1.dest.0=0
+exch.chatty=true
+exch.mutator.ns=ec.gp.koza.KozaNodeSelector
+exch.mutator.build=ec.gp.koza.GrowBuilder
+exch.mutator.maxdepth=8
+exch.mutator.tries=5
+
+# ==============================
+# Basic evolution parameters
+# ==============================
+state=tl.knowledge.multipop.HistoricMultiPopEvolutionState
+hmt-state.dms-size=20
+hmt-state.pop-log-path=./stats/target-wk/mptl/pop
+hmt-state.knowledge-log-file=./stats/target-wk/mptl/State
+
+finish = ec.simple.SimpleFinisher
+breed = ec.simple.SimpleBreeder
+eval = ec.simple.SimpleEvaluator
+
+quit-on-run-complete = true
+# seed.0 = time
+seed.0=19
+generations=50
+
+# ==============================
+# Statistics
+# ==============================
+stat = tl.knowledge.multipop.MultiPopStats
+stat.subpop.0.file=$./stats/target-wk/mptl/job.0.out.stat
+stat.subpop.1.file=$./stats/target-wk/mptl/job.1.out.stat
+
+# ==============================
+# The multi-population
+# ==============================
+pop = ec.Population
+pop.subpops = 2
+pop.subpop.0 = ec.Subpopulation
+pop.subpop.0.size = 1024
+
+pop.subpop.1 = ec.Subpopulation
+pop.subpop.1.size = 1024
+
+breed.elite.0 = 10
+breed.elite.1 = 10
+
+# ==============================
+# The GPHH evolution state parameters
+# ==============================
+terminals-from = extended
+include-erc = true
+rotate-eval-model = true
+
+#print-unaccessed-params = true
+#print-used-params = true
+
+# ==============================
+# Administrative parameters
+# ==============================
+evalthreads = 1
+breedthreads = 1
+checkpoint = false
+checkpoint-modulo = 1
+checkpoint-prefix = ec
+
+# ==============================
+# GP general parameters
+# ==============================
+
+# GP population parameters
+pop.subpop.0.species = ec.gp.GPSpecies
+pop.subpop.1.species = ec.gp.GPSpecies
+# pop.subpop.0.species.ind = ec.gp.GPIndividual
+pop.subpop.0.species.ind = tl.gp.TLGPIndividual
+pop.subpop.1.species.ind = tl.gp.TLGPIndividual
+
+pop.subpop.0.species.ind.numtrees = 1
+pop.subpop.0.species.ind.tree.0 = ec.gp.GPTree
+pop.subpop.0.species.ind.tree.0.tc = tc0
+
+pop.subpop.1.species.ind.numtrees = 1
+pop.subpop.1.species.ind.tree.0 = ec.gp.GPTree
+pop.subpop.1.species.ind.tree.0.tc = tc0
+
+# pop.subpop.0.species.fitness = ec.gp.koza.KozaFitness
+pop.subpop.0.species.fitness = ec.multiobjective.MultiObjectiveFitness
+pop.subpop.0.species.fitness.num-objectives = 1
+pop.subpop.0.species.fitness.maximize = false
+pop.subpop.0.duplicate-retries = 0
+
+pop.subpop.1.species.fitness = ec.multiobjective.MultiObjectiveFitness
+pop.subpop.1.species.fitness.num-objectives = 1
+pop.subpop.1.species.fitness.maximize = false
+pop.subpop.1.duplicate-retries = 0
+
+# GP initializer
+init = ec.gp.GPInitializer
+
+# GP breeding pipeline
+pop.subpop.0.species.pipe = ec.breed.MultiBreedingPipeline
+pop.subpop.0.species.pipe.generate-max = false
+pop.subpop.0.species.pipe.num-sources = 3
+pop.subpop.0.species.pipe.source.0 = ec.gp.koza.CrossoverPipeline
+pop.subpop.0.species.pipe.source.0.prob = 0.8
+pop.subpop.0.species.pipe.source.1 = ec.gp.koza.MutationPipeline
+pop.subpop.0.species.pipe.source.1.prob = 0.15
+pop.subpop.0.species.pipe.source.2 = ec.breed.ReproductionPipeline
+pop.subpop.0.species.pipe.source.2.prob = 0.05
+
+pop.subpop.1.species.pipe = ec.breed.MultiBreedingPipeline
+pop.subpop.1.species.pipe.generate-max = false
+pop.subpop.1.species.pipe.num-sources = 3
+pop.subpop.1.species.pipe.source.0 = ec.gp.koza.CrossoverPipeline
+pop.subpop.1.species.pipe.source.0.prob = 0.8
+pop.subpop.1.species.pipe.source.1 = ec.gp.koza.MutationPipeline
+pop.subpop.1.species.pipe.source.1.prob = 0.15
+pop.subpop.1.species.pipe.source.2 = ec.breed.ReproductionPipeline
+pop.subpop.1.species.pipe.source.2.prob = 0.05
+
+# Selection for reproduction
+breed.reproduce.source.0 = ec.select.TournamentSelection
+
+# Koza crossover parameters
+gp.koza.xover.source.0 = ec.select.TournamentSelection
+gp.koza.xover.source.1 = same
+gp.koza.xover.ns.0 = ec.gp.koza.KozaNodeSelector
+gp.koza.xover.ns.1 = same
+gp.koza.xover.maxdepth = 8
+gp.koza.xover.tries = 1
+
+# Koza mutation parameters
+gp.koza.mutate.source.0 = ec.select.TournamentSelection
+gp.koza.mutate.ns.0 = ec.gp.koza.KozaNodeSelector
+gp.koza.mutate.build.0 = ec.gp.koza.GrowBuilder
+gp.koza.mutate.maxdepth = 8
+gp.koza.mutate.tries = 1
+
+# Tournament selection, for reproduction, crossover and mutation
+select.tournament.size = 7
+
+# Koza grow parameters, for mutation
+gp.koza.grow.min-depth = 4
+gp.koza.grow.max-depth = 4
+
+# Koza node selector, for crossover and mutation
+gp.koza.ns.terminals = 0.1
+gp.koza.ns.nonterminals = 0.9
+gp.koza.ns.root = 0.0
+
+# GP atomic (a) and set (s) type parameters
+gp.type.a.size = 1
+gp.type.a.0.name = nil
+gp.type.s.size = 0
+
+# GP tree constraints
+gp.tc.size = 2
+gp.tc.0 = ec.gp.GPTreeConstraints
+gp.tc.0.name = tc0
+gp.tc.0.fset = f0
+gp.tc.0.returns = nil
+
+gp.tc.1 = ec.gp.GPTreeConstraints
+gp.tc.1.name = tc1
+gp.tc.1.fset = f0
+gp.tc.1.returns = nil
+
+# Koza half-ramp-and-ramp parameters, for gp.tc.0.init
+gp.koza.half.min-depth = 2
+gp.koza.half.max-depth = 6
+gp.koza.half.growp = 0.5
+
+# GP node constraints (nc[k] means the node takes k children), no other constraint
+gp.nc.size = 7
+
+gp.nc.0 = ec.gp.GPNodeConstraints
+gp.nc.0.name = nc0
+gp.nc.0.returns = nil
+gp.nc.0.size = 0
+
+gp.nc.1 = ec.gp.GPNodeConstraints
+gp.nc.1.name = nc1
+gp.nc.1.returns = nil
+gp.nc.1.size = 1
+gp.nc.1.child.0 = nil
+
+gp.nc.2 = ec.gp.GPNodeConstraints
+gp.nc.2.name = nc2
+gp.nc.2.returns = nil
+gp.nc.2.size = 2
+gp.nc.2.child.0 = nil
+gp.nc.2.child.1 = nil
+
+gp.nc.3 = ec.gp.GPNodeConstraints
+gp.nc.3.name = nc3
+gp.nc.3.returns = nil
+gp.nc.3.size = 3
+gp.nc.3.child.0 = nil
+gp.nc.3.child.1 = nil
+gp.nc.3.child.2 = nil
+
+gp.nc.4 = ec.gp.GPNodeConstraints
+gp.nc.4.name = nc4
+gp.nc.4.returns = nil
+gp.nc.4.size = 4
+gp.nc.4.child.0 = nil
+gp.nc.4.child.1 = nil
+gp.nc.4.child.2 = nil
+gp.nc.4.child.3 = nil
+
+gp.nc.5 = ec.gp.GPNodeConstraints
+gp.nc.5.name = nc5
+gp.nc.5.returns = nil
+gp.nc.5.size = 5
+gp.nc.5.child.0 = nil
+gp.nc.5.child.1 = nil
+gp.nc.5.child.2 = nil
+gp.nc.5.child.3 = nil
+gp.nc.5.child.4 = nil
+
+gp.nc.6 = ec.gp.GPNodeConstraints
+gp.nc.6.name = nc6
+gp.nc.6.returns = nil
+gp.nc.6.size = 6
+gp.nc.6.child.0 = nil
+gp.nc.6.child.1 = nil
+gp.nc.6.child.2 = nil
+gp.nc.6.child.3 = nil
+gp.nc.6.child.4 = nil
+gp.nc.6.child.5 = nil
+
+# GP ADF parameters
+gp.problem.stack = ec.gp.ADFStack
+gp.adf-stack.context = ec.gp.ADFContext
+
+# ==============================
+# GP problem specific parameters
+# ==============================
+
+# GP function set parameters
+gp.fs.size = 1
+gp.fs.0.name = f0
+gp.fs.0.size = 7
+gp.fs.0.func.0 = gputils.terminal.TerminalERCUniform
+gp.fs.0.func.0.nc = nc0
+gp.fs.0.func.1 = gputils.function.Add
+gp.fs.0.func.1.nc = nc2
+gp.fs.0.func.2 = gputils.function.Sub
+gp.fs.0.func.2.nc = nc2
+gp.fs.0.func.3 = gputils.function.Mul
+gp.fs.0.func.3.nc = nc2
+gp.fs.0.func.4 = gputils.function.Div
+gp.fs.0.func.4.nc = nc2
+gp.fs.0.func.5 = gputils.function.Max
+gp.fs.0.func.5.nc = nc2
+gp.fs.0.func.6 = gputils.function.Min
+gp.fs.0.func.6.nc = nc2
+gp.fs.0.func.7 = gputils.function.If
+gp.fs.0.func.7.nc = nc3
+
+# ==============================
+# Test-specific parameters
+# ==============================
+# This value is only used during the testing
+
+num-trains = 1
+policy-type = gp-evolved
+solution-type = simple-solution
+fitness-type = simple-fitness
+
+# ==============================
+# APTGPNoDupRem parameters
+# ==============================
+gp.tc.0.init=tl.knowledge.multipop.multipoptl.CyclingUniqueFullTreeBuilderEx
+gp.tc.0.init.dms-size=20
+gp.tc.0.init.transfer-percent.0=1
+gp.tc.0.init.transfer-percent.1=1
+gp.tc.0.init.transfer-magnitude=2
+gp.tc.0.init.remove-duplicates=false
