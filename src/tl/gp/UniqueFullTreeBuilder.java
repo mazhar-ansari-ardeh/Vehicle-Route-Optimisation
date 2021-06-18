@@ -25,6 +25,8 @@ import java.util.*;
  *
  * Also, if this builder is used in a multi-pop scenario, the class only initialises the first population and the other
  * populations will be initialised randomly.
+ *
+ * This class is used in the APTLGPRandAux experiment.
  */
 public class UniqueFullTreeBuilder extends HalfBuilder implements TLLogger<GPNode>
 {
