@@ -88,7 +88,7 @@ public class SSTMutation extends MutationPipeline implements TLLogger<GPNode>
 		for(int q=start; q < n+start; q++)
 		{
 			SSTIndividual i = (SSTIndividual)inds[q];
-			log(state, knowledgeSuccessLogID, false, "Mutating:\n" + i.trees[0].child.makeLispTree() + "\n");
+//			log(state, knowledgeSuccessLogID, false, "Mutating:\n" + i.trees[0].child.makeLispTree() + "\n");
 
 			int t;
 			// pick random tree

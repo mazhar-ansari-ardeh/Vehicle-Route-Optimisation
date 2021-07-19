@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
+// It is a better idea to have this class extend 'KTEvolutionState'.
 public class SSTEvolutionState extends DMSSavingGPHHState
 {
 
@@ -224,7 +225,7 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 
 			try
 			{
-				inds = PopulationUtils.loadPopulations(state, knowledgePath, 0, 49, filter, metrics,
+				inds = PopulationUtils.loadPopulations2(state, knowledgePath, 0, 49, filter, metrics,
 						clearRadius, clearCapacity, this, knowledgeSuccessLogID, true);
 				if(inds == null || inds.isEmpty())
 					throw new RuntimeException("Could not load the saved populations");

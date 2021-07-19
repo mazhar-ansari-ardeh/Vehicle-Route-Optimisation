@@ -25,7 +25,6 @@ public class FIFONoDupPhenotypicUpdatePolicy implements KNNPoolUpdatePolicy
 
     public FIFONoDupPhenotypicUpdatePolicy(int poolMaxSize)
     {
-//        this.dps = dps;
         this.poolMaxSize = poolMaxSize;
     }
 
@@ -71,8 +70,6 @@ public class FIFONoDupPhenotypicUpdatePolicy implements KNNPoolUpdatePolicy
                 totalDup += (dup.nDuplicates + 1);
                 fitness += dup.fitness * (dup.nDuplicates + 1);
             }
-//            if(totalDup != 0)
-//                fitness = fitness / totalDup;
 
             retval.removeAll(duplicates);
             KNNPoolItem I = new KNNPoolItem((GPIndividual) i, filter, source);
