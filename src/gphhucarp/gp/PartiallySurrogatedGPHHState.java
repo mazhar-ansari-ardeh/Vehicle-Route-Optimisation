@@ -209,6 +209,8 @@ public class PartiallySurrogatedGPHHState extends DMSSavingGPHHState implements 
             temporaryPop.get(0).subpops[0].individuals[toRemove.getRight()] = toInsert.getLeft();
         }
 
+        population = temporaryPop.get(0);
+
         // POST-BREEDING EXCHANGING
         statistics.postBreedingStatistics(this);
     }
