@@ -7,9 +7,9 @@ import ec.gp.GPIndividual;
 import ec.util.Parameter;
 
 /**
- * This is an extension of the {@code ImmigrantAwareBasicExchanger} algorithm in which the algorithm also checks the
- * list of transferred individauls to see if the a candicate immigrant has already been transferred in the current
- * generation or not.
+ * This is an extension of the {@code BasicExchanger} algorithm in which the algorithm also checks the list of
+ * transferred individauls to see if the a candicate immigrant has already been transferred in the current generation
+ * or not.
  */
 public class ImmigrantAwareBasicExchanger extends BasicExchanger
 {
