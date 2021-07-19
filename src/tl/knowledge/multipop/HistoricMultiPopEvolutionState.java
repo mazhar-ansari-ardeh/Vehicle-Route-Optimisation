@@ -160,7 +160,7 @@ public class HistoricMultiPopEvolutionState extends MultiPopEvolutionState
         return R_NOTDONE;
     }
 
-    private void logBreedingEntropy(String phase)
+    protected void logBreedingEntropy(String phase)
     {
         log(this, breedingEntropyLogID, phase + ",");
         int i;
@@ -171,7 +171,7 @@ public class HistoricMultiPopEvolutionState extends MultiPopEvolutionState
         log(this, breedingEntropyLogID, entropy.entropy(population.subpops[i].individuals, 0, filter) + "\n");
     }
 
-    private void resetOrigin(Population pop)
+    protected void resetOrigin(Population pop)
     {
         for (int i = 0; i < pop.subpops.length; i++) {
             for (int j = 0; j < pop.subpops[i].individuals.length; j++) {

@@ -115,16 +115,16 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
         SelectionMethod indsToDieSelectionMethod;
 
         // the number of destination subpopulations
-        int numDest;
+        public int numDest;
 
         // the subpopulations where individuals need to be sent
-        int[] destinations;
+        public int[] destinations;
 
         // the modulo
-        int modulo;
+        public int modulo;
 
         // the start (offset)
-        int offset;
+        public int offset;
 
         // the size
         public int size;
@@ -132,7 +132,7 @@ public class BasicExchanger extends Exchanger implements TLLogger<GPNode>
 
     protected int logID;
 
-    Mutator mutator = new Mutator();
+    protected Mutator mutator = new Mutator();
 
     /** The subpopulation delimiter */
     public static final String P_SUBPOP = "subpop";
