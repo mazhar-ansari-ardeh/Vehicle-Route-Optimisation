@@ -3,9 +3,12 @@ package tl.gp.similarity;
 import ec.Individual;
 import ec.gp.GPIndividual;
 import ec.gp.GPTree;
+import gphhucarp.decisionprocess.PoolFilter;
+import gphhucarp.decisionprocess.RoutingPolicy;
 import gphhucarp.decisionprocess.poolfilter.IdentityPoolFilter;
 import gphhucarp.decisionprocess.reactive.ReactiveDecisionSituation;
 import gphhucarp.decisionprocess.routingpolicy.GPRoutingPolicy;
+import gphhucarp.decisionprocess.routingpolicy.PathScanning5Policy;
 import tl.gp.characterisation.RefRuleCharacterisation;
 
 import java.util.HashMap;
@@ -14,7 +17,7 @@ import java.util.List;
 public class RefRulePhenoTreeSimilarityMetric implements SituationBasedTreeSimilarityMetric
 {
 
-	private final GPRoutingPolicy referenceRule;
+	private final RoutingPolicy referenceRule;
 	RefRuleCharacterisation ch;
 
 	public RefRulePhenoTreeSimilarityMetric(Individual referenceRule)
@@ -27,7 +30,12 @@ public class RefRulePhenoTreeSimilarityMetric implements SituationBasedTreeSimil
 		this(new GPRoutingPolicy(new IdentityPoolFilter(), referenceRule.trees[0]));
 	}
 
-	public RefRulePhenoTreeSimilarityMetric(GPRoutingPolicy referenceRule)
+	public RefRulePhenoTreeSimilarityMetric()
+	{
+		this(new PathScanning5Policy());
+	}
+
+	public RefRulePhenoTreeSimilarityMetric(RoutingPolicy referenceRule)
 	{
 		this.referenceRule = referenceRule;
 	}
@@ -68,6 +76,17 @@ public class RefRulePhenoTreeSimilarityMetric implements SituationBasedTreeSimil
 			if(cache.size() > CACHE_SIZE)
 				cache.clear();
 			return cache.computeIfAbsent(tree.getGPTree(), t -> ch.characterise(tree));
+		}
+	}
+
+	public int[] characterise(GPIndividual ind, int tree, PoolFilter filter)
+	{
+		synchronized (cache)
+		{
+			int CACHE_SIZE = 10000;
+			if(cache.size() > CACHE_SIZE)
+				cache.clear();
+			return cache.computeIfAbsent(ind.trees[tree], t -> ch.characterise(ind, tree, filter));
 		}
 	}
 
