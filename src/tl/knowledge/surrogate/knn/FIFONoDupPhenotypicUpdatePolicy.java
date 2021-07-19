@@ -12,7 +12,7 @@ import tl.gp.similarity.TreeSimilarityMetric;
 import java.util.*;
 
 /**
- * This class implements the first-in, last out policy with no duplicates. This means that the policy first clears the given
+ * This class implements the first-in, first out policy with no duplicates. This means that the policy first clears the given
  * pool of individuals. Then, for each individual, it searches the pool and if the pool contains the individual, removes
  * the duplicates from the pool and updates the fitness value to the average. Finally, it adds the individual to the pool and
  * if the pool size exceeds the max pool size, it removes the oldest one from the pool. The idea to remove the oldest one is
