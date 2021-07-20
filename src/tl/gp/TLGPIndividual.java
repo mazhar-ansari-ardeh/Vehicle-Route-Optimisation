@@ -11,14 +11,6 @@ public class TLGPIndividual extends GPIndividual
 
 	private double fitnessOnTrain;
 
-//	@Override
-//	public Object clone()
-//	{
-//		TLGPIndividual cl = (TLGPIndividual) super.clone();
-//		cl.origin = "";
-//		return cl;
-//	}
-
 	/**
 	 * Gets the origin of this individual.
 	 * @return The identity that created this individual.
@@ -62,7 +54,7 @@ public class TLGPIndividual extends GPIndividual
 	/**
 	 * Where was this individual originated from? What did create this individual?
 	 */
-	private String origin = "";
+	protected String origin = "";
 
 	public boolean isTested() {
 		return isTested;
