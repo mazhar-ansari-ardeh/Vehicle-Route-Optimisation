@@ -186,8 +186,6 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 		enableEvoHistUpdate = parameters.getBoolean(base.push(P_ENABLE_EVO_HIST_UPDATE), null, true);
 		log(state, knowledgeSuccessLogID, true, "Enable evolutionary history update: " + enableEvoHistUpdate + "\n");
 
-//		if(!parameters.containsKey(base.push(P_ENABLE_TRANSFER)))
-//			logFatal(this,knowledgeSuccessLogID,"The parameter " + P_ENABLE_TRANSFER + " not found");
 		boolean enableTransfer = parameters.getBoolean(base.push(P_ENABLE_TRANSFER), null, true);
 		log(this, knowledgeSuccessLogID, true, "Enable transfer: " + enableTransfer + "\n");
 		if(!enableTransfer)
@@ -258,11 +256,6 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 		{
 			Population pop = initializer.initialPopulation(this, 0);
 			inds.addAll(Arrays.asList(pop.subpops[0].individuals));
-//			if(i % 3 == 0)
-//			{
-//				SimpleNichingAlgorithm.clearPopulation(inds, filter, metrics, radius, capacity);
-//				inds = inds.stream().filter(j -> j.fitness.fitness() != Double.POSITIVE_INFINITY).collect(Collectors.toList());
-//			}
 		}
 
 		randInd = false;
@@ -308,15 +301,6 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 		}
 
 		return false;
-
-//		pool.sort(Comparator.comparingDouble(j -> j.fitness.fitness()));
-//		((MultiObjectiveFitness)(i).fitness).objectives[0] = pool.get(pool.size() - 1).fitness.fitness() + 1;
-//		pool.add(i);
-//		pool.sort(Comparator.comparingDouble(j -> j.fitness.fitness()));
-//		// Reimplement this. Clearing the pool is not a good idea.
-//		SimpleNichingAlgorithm.clearPopulation(pool, filter, metrics, similarityThreshold, nicheCapacity);
-//		pool.remove(i);
-//		return i.fitness.fitness() == Double.POSITIVE_INFINITY;
 	}
 
 	@Override
