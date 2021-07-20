@@ -14,6 +14,11 @@ enum IndividualOrigin
 	InitRandom,
 
 	/**
+	 * The individual is created with the crossover operator but it is not determined if it is seen or not.
+	 */
+	CrossOver,
+
+	/**
 	 * The individual is created with crossover. The crossover method could create a new individual that has not been
 	 * seen before.
 	 */
@@ -24,6 +29,11 @@ enum IndividualOrigin
 	 * returned a new one that a similar individual to it has been seen previously.
 	 */
 	CrossOverSeen,
+
+	/**
+	 * The individual is created with the mutation operator but it is not determined if it is seen or not.
+	 */
+	Mutation,
 
 	/**
 	 * The individual is created with mutation. The mutation operator could find an unseen individual.
