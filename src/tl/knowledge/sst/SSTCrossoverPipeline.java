@@ -9,6 +9,7 @@ import ec.gp.GPTree;
 import ec.gp.koza.CrossoverPipeline;
 import ec.util.Parameter;
 import tl.TLLogger;
+import tl.gp.TLGPIndividual;
 
 import java.util.ArrayList;
 
@@ -139,8 +140,8 @@ public class SSTCrossoverPipeline extends CrossoverPipeline implements TLLogger<
 		assert retvals != null && retvals.length >= 2;
 		SSTEvolutionState sstate = (SSTEvolutionState) state;
 
-		GPIndividual j1 = null;
-		GPIndividual j2 = null;
+		TLGPIndividual j1 = null;
+		TLGPIndividual j2 = null;
 
 		log(state, knowledgeSuccessLogID, "Crossing:\n" + parents[0].trees[0].child.makeLispTree() + "\nwith:\n" + parents[1].trees[0].child.makeLispTree() + "\n");
 
@@ -175,13 +176,13 @@ public class SSTCrossoverPipeline extends CrossoverPipeline implements TLLogger<
 					break;
 			}
 
-			j1 = parents[0].lightClone();
-			((SSTIndividual)j1).setOrigin(IndividualOrigin.CrossOverUnseen);
+			j1 = (TLGPIndividual) parents[0].lightClone();
+			((SSTIndividual)j1).setOrigin(IndividualOrigin.CrossOver);
 			j2 = null;
 			if (n - (q - start) >= 2 && !tossSecondParent)
 			{
-				j2 = parents[1].lightClone();
-				((SSTIndividual)j2).setOrigin(IndividualOrigin.CrossOverUnseen);
+				j2 = (TLGPIndividual) parents[1].lightClone();
+				((SSTIndividual)j2).setOrigin(IndividualOrigin.CrossOver);
 			}
 
 			// Fill in various tree information that didn't get filled in there

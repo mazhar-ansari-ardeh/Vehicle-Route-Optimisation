@@ -24,7 +24,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-// It is a better idea to have this class extend 'KTEvolutionState'.
 public class SSTEvolutionState extends DMSSavingGPHHState
 {
 
@@ -121,7 +120,7 @@ public class SSTEvolutionState extends DMSSavingGPHHState
 	protected ArrayList<GPRoutingPolicy> tempInds = new ArrayList<>();
 
 	PoolFilter filter;
-	private int knowledgeSuccessLogID;
+	protected int knowledgeSuccessLogID;
 	protected int dmsSize;
 
 	/**

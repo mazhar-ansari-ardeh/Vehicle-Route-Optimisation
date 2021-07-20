@@ -105,6 +105,7 @@ public class SSTMutation extends MutationPipeline implements TLLogger<GPNode>
 			for (int tries = 0; tries < numSSTTries; tries++)
 			{
 				mutated = mutate(i, subpopulation, state, thread, initializer, t);
+				mutated.setOrigin(IndividualOrigin.CrossOver);
 				if(sstate.isNew(mutated, similarityThreshold))
 				{
 					j = mutated;
@@ -155,8 +156,12 @@ public class SSTMutation extends MutationPipeline implements TLLogger<GPNode>
 					0,
 					size);
 
+			i.setOrigin(IndividualOrigin.Mutation);
 			if(sstate.isNew(i, similarityThreshold))
+			{
+				i.setOrigin(IndividualOrigin.MutationUnseen);
 				return i;
+			}
 		}
 
 		i.trees[t].child.parent = null;
@@ -234,7 +239,7 @@ public class SSTMutation extends MutationPipeline implements TLLogger<GPNode>
 		}
 		else // need to clone the individual
 		{
-			j = (i.lightClone());
+			j = (SSTIndividual) i.lightClone();
 
 			// Fill in various tree information that didn't get filled in there
 			j.trees = new GPTree[i.trees.length];

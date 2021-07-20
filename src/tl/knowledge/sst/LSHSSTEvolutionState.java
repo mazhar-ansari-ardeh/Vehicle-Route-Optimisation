@@ -10,6 +10,7 @@ import tl.knowledge.sst.lsh.LSH;
 import tl.knowledge.sst.lsh.Vector;
 import tl.knowledge.sst.lsh.families.EuclidianHashFamily;
 import tl.knowledge.sst.lsh.families.HashFamily;
+import tl.knowledge.surrogate.lsh.FittedVector;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,17 +28,6 @@ public class LSHSSTEvolutionState extends SSTEvolutionState
 	 * is updated after each generation.
 	 */
 	private LSH discoveredInds;
-
-//	/**
-//	 * This is a temporary archive that will hold the individuals that are seen during genetic operators. For example,
-//	 * if crossover creates a new individual, this new individual will be stored here temporarily so that later
-//	 * crossover and mutation operations within the same generation can see it. This approach is taken because the
-//	 * archive of seen individuals is updated at the beginning of each generation to record their fitness value and
-//	 * therefore, any individuals created within the generation will not be seen.
-//	 */
-//	private ArrayList<GPRoutingPolicy> tempInds = new ArrayList<>();
-
-//	private LSH tempLSH;
 
 	TaskIndexCharacterisation trc;
 
@@ -156,7 +146,7 @@ public class LSHSSTEvolutionState extends SSTEvolutionState
 		GPRoutingPolicy policy = new GPRoutingPolicy(filter, ((GPIndividual) ind).trees[0]);
 		int[] characterise = trc.characterise(policy);
 
-		lsh.add(new Vector(characterise));
+		lsh.add(new FittedVector(characterise, ind.fitness.fitness(), generation));
 	}
 
 	private void updateLSH(LSH lsh, List<GPIndividual> inds)
@@ -166,7 +156,7 @@ public class LSHSSTEvolutionState extends SSTEvolutionState
 			GPRoutingPolicy policy = new GPRoutingPolicy(filter, ind.trees[0]);
 			int[] characterise = trc.characterise(policy);
 
-			lsh.add(new Vector(characterise));
+			lsh.add(new FittedVector(characterise, ind.fitness.fitness(), generation));
 		}
 	}
 }
